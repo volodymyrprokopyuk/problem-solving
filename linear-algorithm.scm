@@ -1,7 +1,5 @@
 (define-module
   (linear-algorithm)
-  #:use-module ((ice-9 pretty-print)
-                #:select ((pretty-print . pp)))
   #:export (convert-size))
 
 (define* (convert-size bytes unit #:key (precision 2))

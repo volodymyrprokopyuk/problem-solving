@@ -2,5 +2,8 @@
 
 readonly ROOT_DIR=$(pwd)
 
-# guile3.0 -L "${ROOT_DIR}" linear-algorithm.scm "${@}"
-guile3.0 -L "${ROOT_DIR}" linear-algorithm-test.scm "${@}"
+# readonly SOURCE=linear-algorithm
+readonly SOURCE=conditional-algorithm
+
+# guile3.0 -L "${ROOT_DIR}" "${SOURCE}".scm "${@}"
+guile3.0 -L "${ROOT_DIR}" "${SOURCE}"-test.scm "${@}"
