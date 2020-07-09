@@ -2,8 +2,12 @@
   (linear-algorithm)
   #:export (convert-size))
 
+(use-modules
+ ((ice-9 pretty-print)
+  #:select ((pretty-print . pp))))
+
 (define* (convert-size bytes unit #:key (precision 2))
-  "Converts size in bytes into approximate size in unit (kb, mb, gb)"
+  "Converts the size in bytes into an approximate size in unit (kb, mb, gb)"
   (let* ([p
           (case unit
             [(kb) 10]

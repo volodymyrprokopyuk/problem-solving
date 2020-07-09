@@ -25,4 +25,38 @@
    ((,odd? (2 1 4 6)) 1)
    ((,odd? (2 1 4 3 6)) #f)))
 
+(for-each
+ (match-lambda
+   ([args expected]
+    (test-equal "make-domain: should work correctly"
+      expected (apply make-domain args))))
+ '((((0 1) 0) (()))
+   (((0 1) 1) ((0) (1)))
+   (((0 1) 2) ((0 0) (0 1) (1 0) (1 1)))
+   (((0 1) 3) ((0 0 0) (0 0 1) (0 1 0) (0 1 1) (1 0 0) (1 0 1) (1 1 0) (1 1 1)))))
+
+(for-each
+ (match-lambda
+   ([args expected]
+    (test-equal "make-truth-table: should work correctly"
+      expected (apply make-truth-table args))))
+ `(((,not 1) (((#f) . #t)
+              ((#t) . #f)))
+   ((,and* 2) (((#f #f) . #f)
+               ((#f #t) . #f)
+               ((#t #f) . #f)
+               ((#t #t) . #t)))
+   ((,or* 2) (((#f #f) . #f)
+              ((#f #t) . #t)
+              ((#t #f) . #t)
+              ((#t #t) . #t)))
+   ((,xor 2) (((#f #f) . #f)
+              ((#f #t) . #t)
+              ((#t #f) . #t)
+              ((#t #t) . #f)))
+   ((,equiv 2) (((#f #f) . #t)
+                ((#f #t) . #f)
+                ((#t #f) . #f)
+                ((#t #t) . #t)))))
+
 (test-end "conditional-algorithm-test")
