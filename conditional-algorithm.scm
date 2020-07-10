@@ -1,11 +1,15 @@
 (define-module
   (conditional-algorithm)
   #:export
-  (at-least at-most and* or* xor equiv make-domain make-truth-table format-truth-table))
+  (at-least at-most and* or* xor equiv make-domain make-truth-table format-truth-table
+            solve-quadratic-equation palindrome?))
 
 (use-modules
  ((ice-9 pretty-print)
-  #:select ((pretty-print . pp))))
+  #:select ((pretty-print . pp)))
+ (srfi srfi-69) ;; make-hash-table
+ (srfi srfi-9) ;; define-record-type
+ (srfi srfi-27)) ;; random-integer
 
 (define (at-least match? l)
   "Returns the first element from the list l that matches, otherwise #f"
@@ -97,3 +101,42 @@
 ;; (pp (format-truth-table (make-truth-table xor 2)) #:display? #t)
 ;; (pp "Equivalence")
 ;; (pp (format-truth-table (make-truth-table equiv 2)) #:display? #t)
+
+(define-record-type <month>
+  (make-month number name season)
+  month?
+  (number month-number)
+  (name month-name)
+  (season month-season))
+
+(define (number->month n)
+  (let* ([al-months
+          `((1 . ,(make-month 1 "January" 'winter))
+            (2 . ,(make-month 2 "February" 'winter))
+            (3 . ,(make-month 3 "March" 'spring))
+            (4 . ,(make-month 4 "April" 'spring))
+            (5 . ,(make-month 5 "May" 'spring))
+            (6 . ,(make-month 6 "June" 'summer))
+            (7 . ,(make-month 7 "July" 'summer))
+            (8 . ,(make-month 8 "August" 'summer))
+            (9 . ,(make-month 9 "September" 'autumn))
+            (10 . ,(make-month 10 "October" 'autumn))
+            (11 . ,(make-month 11 "November" 'autumn))
+            (12 . ,(make-month 12 "Dicember" 'winter)))]
+         [months (alist->hash-table al-months)])
+    (if (hash-table-exists? months n)
+        (hash-table-ref months n)
+        (error "number->month: month number out of range:" n))))
+
+;; (pp (number->month 9))
+;; (pp (number->month 19))
+
+(define* (solve-quadratic-equation a #:optional (b 0) (c 0))
+  (let* ([d (sqrt (- (expt b 2) (* 4 a c)))]
+         [x1 (/ (+ (- b) d) (* 2 a))]
+         [x2 (/ (- (- b) d) (* 2 a))])
+    (cons x1 x2)))
+
+(define (palindrome? s)
+  (let ([ss (string-delete #\space (string-downcase s))])
+    (string=? ss (string-reverse ss))))

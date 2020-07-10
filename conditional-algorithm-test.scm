@@ -59,4 +59,24 @@
                 ((#t #f) . #f)
                 ((#t #t) . #t)))))
 
+(for-each
+ (match-lambda
+   ([args expected]
+    (test-equal "solve-quadratic-equation: should work correctly"
+      expected (apply solve-quadratic-equation args))))
+ '(((1) (0 . 0))
+   ((1 0 -4) (2 . -2))
+   ((1 -1 -2) (2 . -1))
+   ((1 0 4) (0.0+2.0i . -0.0-2.0i))))
+
+(for-each
+ (match-lambda
+   ([args expected]
+    (test-eq "palindrome?: should work correctly"
+      expected (palindrome? args))))
+ '(("Madam" #t)
+   ("Racecar" #t)
+   ("Never odd or even" #t)
+   ("Scheme" #f)))
+
 (test-end "conditional-algorithm-test")
