@@ -110,6 +110,7 @@
   (season month-season))
 
 (define (number->month n)
+  "Converts the month number n into a month record with month name and season"
   (let* ([al-months
           `((1 . ,(make-month 1 "January" 'winter))
             (2 . ,(make-month 2 "February" 'winter))
@@ -132,11 +133,13 @@
 ;; (pp (number->month 19))
 
 (define* (solve-quadratic-equation a #:optional (b 0) (c 0))
+  "Solves quadratic equition and find real or complex roots"
   (let* ([d (sqrt (- (expt b 2) (* 4 a c)))]
          [x1 (/ (+ (- b) d) (* 2 a))]
          [x2 (/ (- (- b) d) (* 2 a))])
     (cons x1 x2)))
 
 (define (palindrome? s)
+  "Checks if the string s reads the same in opposite directions"
   (let ([ss (string-delete #\space (string-downcase s))])
     (string=? ss (string-reverse ss))))

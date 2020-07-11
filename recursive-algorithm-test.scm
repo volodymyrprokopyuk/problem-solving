@@ -1,6 +1,6 @@
 (use-modules
- (srfi srfi-64)
- (ice-9 match)
+ (ice-9 match) ;; match-lambda
+ (srfi srfi-64) ;; test-begin
  (recursive-algorithm))
 
 (test-begin "recursive-algorithm-test")
