@@ -1,7 +1,8 @@
 (define-module
   (iterative-algorithm)
   #:export (range-between integer-factorization number-divisors perfect-number?
-                          perfect-numbers, prime-numbers))
+                          perfect-numbers prime-numbers greatest-common-divisor
+                          lowest-common-multiple))
 
 (use-modules
  ((ice-9 pretty-print)
@@ -54,3 +55,26 @@
          ;; Add the current prime to the result
          (cons p r))
         (reverse r))))
+
+(define greatest-common-divisor
+  (case-lambda
+    "Finds GCD of all arguments"
+    [(a) a]
+    [(a b)
+     (let gcd* ([a (max a b)] [b (min a b)])
+       (if (zero? (remainder a b)) b (gcd* b (remainder a b))))]
+    [(a b . r)
+     (apply greatest-common-divisor (greatest-common-divisor a b) r)]))
+
+;; (define (lowest-common-multiple a b)
+;;   "Finds LCM of a and b"
+;;   (/ (* a b) (greatest-common-divisor a b)))
+
+
+(define lowest-common-multiple
+  (case-lambda
+    "Finds LCM of all arguments"
+    [(a) a]
+    [(a b) (/ (* a b) (greatest-common-divisor a b))]
+    [(a b . r)
+     (apply lowest-common-multiple (lowest-common-multiple a b) r)]))
