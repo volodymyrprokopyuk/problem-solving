@@ -43,4 +43,7 @@
 (test-error "integer-factorization: should raise error"
   (integer-factorization 1))
 
+;; (test-equal "perfect-numbers: should work correctly"
+;;   '(6 28 496 8128) (perfect-numbers 10000))
+
 (test-end "iterative-algorithm-test")

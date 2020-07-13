@@ -1,10 +1,12 @@
 (define-module
   (iterative-algorithm)
-  #:export (range-between integer-factorization))
+  #:export (range-between integer-factorization number-divisors perfect-number?
+                          perfect-numbers))
 
 (use-modules
  ((ice-9 pretty-print)
-  #:select ((pretty-print . pp))))
+  #:select ((pretty-print . pp)))
+ (srfi srfi-1)) ;; List library
 
 (define (range-between a b)
   "Builds range of consecutive numbers between a and b both inclusive"
@@ -21,3 +23,22 @@
       [(zero? (remainder n d))
        (ifact* (quotient n d) d (cons d r))]
       [else (ifact* n (1+ d) r)])))
+
+(define (number-divisors n)
+  "Returns all divisors of the number n excluding the number itself"
+  (let ndivs* ([d 2] [r '(1)])
+    (cond
+      [(>= d n) (reverse r)]
+      [(zero? (remainder n d)) (ndivs* (1+ d) (cons d r))]
+      [else (ndivs* (1+ d) r)])))
+
+(define (perfect-number? n)
+  "Returns #t if the number n equals to the sum of all its divisors including 1"
+  " and excluding itself"
+  (let* ([ds (number-divisors n)]
+         [s (fold + 0 ds)])
+    (= n s)))
+
+(define (perfect-numbers n)
+  "Buils the list of perfect numbers not greater than n"
+  (filter perfect-number? (iota n 2)))
