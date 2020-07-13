@@ -46,4 +46,8 @@
 ;; (test-equal "perfect-numbers: should work correctly"
 ;;   '(6 28 496 8128) (perfect-numbers 10000))
 
+(test-equal "prime-numbers: should work correctly"
+  '(2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+  (prime-numbers 100))
+
 (test-end "iterative-algorithm-test")
