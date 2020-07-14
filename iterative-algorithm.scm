@@ -1,8 +1,9 @@
 (define-module
   (iterative-algorithm)
-  #:export (range-between integer-factorization number-divisors perfect-number?
-                          perfect-numbers prime-numbers greatest-common-divisor
-                          lowest-common-multiple))
+  #:export
+  (range-between integer-factorization number-divisors perfect-number?
+                 perfect-numbers prime-numbers greatest-common-divisor
+                 lowest-common-multiple happy-ticket? happy-tickets))
 
 (use-modules
  ((ice-9 pretty-print)
@@ -66,11 +67,6 @@
     [(a b . r)
      (apply greatest-common-divisor (greatest-common-divisor a b) r)]))
 
-;; (define (lowest-common-multiple a b)
-;;   "Finds LCM of a and b"
-;;   (/ (* a b) (greatest-common-divisor a b)))
-
-
 (define lowest-common-multiple
   (case-lambda
     "Finds LCM of all arguments"
@@ -78,3 +74,22 @@
     [(a b) (/ (* a b) (greatest-common-divisor a b))]
     [(a b . r)
      (apply lowest-common-multiple (lowest-common-multiple a b) r)]))
+
+(define (happy-ticket? tnumber mdigits)
+  "Returns #t if the sum of the first mdigits of the tnumber is equal to"
+  " the sum of the last mdigits of the tnumber"
+  (when (< (string-length tnumber) mdigits)
+    (error "happy-ticket?: ticket number too small:" tnumber))
+  (let* ([ds (unfold string-null?
+                     (lambda (s) (string->number (string-take s 1)))
+                     (lambda (s) (string-drop s 1)) tnumber)]
+         [first-mdigits (take ds mdigits)]
+         [last-mdigits (take-right ds mdigits)]
+         [first-mdigits-sum (fold + 0 first-mdigits)]
+         [last-mdigits-sum (fold + 0 last-mdigits)])
+    (= first-mdigits-sum last-mdigits-sum)))
+
+(define (happy-tickets tlength mdigits)
+  (let* ([ns (iota (expt 10 tlength))]
+         [ts (map (lambda (n) (string-pad (number->string n) tlength #\0)) ns)])
+    (filter (lambda (t) (happy-ticket? t mdigits)) ts)))

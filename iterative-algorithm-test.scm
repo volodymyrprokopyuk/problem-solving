@@ -1,6 +1,6 @@
 (use-modules
  (ice-9 match) ;; match-lambda
- (srfi srfi-64) ;; test-begin
+ (srfi srfi-64) ;; Testing library
  (iterative-algorithm))
 
 (test-begin "iterative-algorithm-test")
@@ -76,5 +76,13 @@
    [(5 2) 10]
    [(18 12) 36]
    [(5 12 15) 60]))
+
+(for-each
+ (match-lambda
+   ([args expected]
+    (test-equal "happy-tickets: should work correcly"
+      expected (apply happy-tickets args))))
+ '([(1 1) ("0" "1" "2" "3" "4" "5" "6" "7" "8" "9")]
+   [(2 1) ("00" "11" "22" "33" "44" "55" "66" "77" "88" "99")]))
 
 (test-end "iterative-algorithm-test")

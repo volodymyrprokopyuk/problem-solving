@@ -1,6 +1,6 @@
 (use-modules
  (ice-9 match) ;; match-lambda
- (srfi srfi-64) ;; test-begin
+ (srfi srfi-64) ;; Testing library
  (linear-algorithm))
 
 (test-begin "linear-algorithm-test")

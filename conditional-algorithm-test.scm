@@ -1,6 +1,6 @@
 (use-modules
  (ice-9 match) ;; match-lambda
- (srfi srfi-64) ;; test-begin
+ (srfi srfi-64) ;; Testing library
  (conditional-algorithm))
 
 (test-begin "conditional-algorithm-test")
