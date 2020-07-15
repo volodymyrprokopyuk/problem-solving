@@ -3,12 +3,14 @@
   #:export
   (range-between integer-factorization number-divisors perfect-number?
                  perfect-numbers prime-numbers greatest-common-divisor
-                 lowest-common-multiple happy-ticket? happy-tickets))
+                 lowest-common-multiple happy-ticket? happy-tickets
+                 armstrong-number? armstrong-numbers num->str))
 
 (use-modules
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp)))
- (srfi srfi-1)) ;; List library
+ (srfi srfi-1) ;; List library
+ (srfi srfi-69)) ;; Hash table
 
 (define (range-between a b)
   "Builds range of consecutive numbers between a and b both inclusive"
@@ -90,6 +92,35 @@
     (= first-mdigits-sum last-mdigits-sum)))
 
 (define (happy-tickets tlength mdigits)
+  "Builds list of happy tickets of tlength with equal mdigits"
   (let* ([ns (iota (expt 10 tlength))]
          [ts (map (lambda (n) (string-pad (number->string n) tlength #\0)) ns)])
     (filter (lambda (t) (happy-ticket? t mdigits)) ts)))
+
+(define (armstrong-number? n)
+  "Returns #t if the sum of power n of digits of n equals to n itself"
+  (let* ([ds (unfold-right zero?
+                           (lambda (nn) (remainder nn 10))
+                           (lambda (nn) (quotient nn 10)) n)]
+         [ds-sum (fold (lambda (d s) (+ s (expt d (length ds)))) 0 ds)])
+    (= n ds-sum)))
+
+(define (armstrong-numbers n)
+  "Builds the list of Armstrong numbers less than n"
+  (filter armstrong-number? (iota n)))
+
+(define* (num->str n #:optional (radix 10))
+  "Converts the number n into a representation with the radix"
+  (when (> radix 16) (error "num->str: radix too big:" radix))
+  (let ([ds (unfold zero?
+                    (lambda (nn) (remainder nn radix))
+                    (lambda (nn) (quotient nn radix)) n)]
+        [dec->hex
+         (alist->hash-table
+          '((10 . "a") (11 . "b") (12 . "c") (13 . "d") (14 . "e") (15 . "f")))])
+    (fold
+     (lambda (d s)
+       (string-append
+        (if (< d 10)
+            (number->string d)
+            (hash-table-ref dec->hex d)) s)) "" ds)))

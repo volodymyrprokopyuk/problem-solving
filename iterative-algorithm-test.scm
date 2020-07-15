@@ -85,4 +85,18 @@
  '([(1 1) ("0" "1" "2" "3" "4" "5" "6" "7" "8" "9")]
    [(2 1) ("00" "11" "22" "33" "44" "55" "66" "77" "88" "99")]))
 
+(test-equal "armstrong-numbers: should work correctly"
+  '(0 1 2 3 4 5 6 7 8 9 153 370 371 407) (armstrong-numbers 1000))
+
+(for-each
+ (match-lambda
+   ([args expected]
+    (test-equal "num->str: should work correctly"
+      expected (apply num->str args))))
+ '([(33 2) "100001"]
+   [(33 5) "113"]
+   [(33 8) "41"]
+   [(33) "33"]
+   [(33 16) "21"]))
+
 (test-end "iterative-algorithm-test")
