@@ -2,7 +2,7 @@
   (conditional-algorithm)
   #:export
   (at-least at-most and* or* xor equiv make-domain make-truth-table format-truth-table
-            solve-quadratic-equation palindrome?))
+            solve-quadratic-equation palindrome? number-palindromes))
 
 (use-modules
  ((ice-9 pretty-print)
@@ -143,3 +143,8 @@
   "Checks if the string s reads the same in opposite directions"
   (let ([ss (string-delete #\space (string-downcase s))])
     (string= ss (string-reverse ss))))
+
+(define (number-palindromes n)
+  "Builds list of number palindromes less than n"
+  (let ([ns (iota n)])
+    (filter palindrome? (map number->string ns))))
