@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 
 readonly ROOT_DIR=$(pwd)
+readonly SRFI_DIR=$HOME/Projects/scheme-upgrade
 
 # readonly SOURCE=linear-algorithm
 # readonly SOURCE=conditional-algorithm
 # readonly SOURCE=recursive-algorithm
-readonly SOURCE=iterative-algorithm
+# readonly SOURCE=iterative-algorithm
+readonly SOURCE=array-algorithm
 
-# guile3.0 -L "${ROOT_DIR}" "${SOURCE}".scm "${@}"
+export GUILE_LOAD_PATH="${ROOT_DIR}:${SRFI_DIR}"
 
-for test_file in iter*-test.scm; do
-    guile3.0 -L "${ROOT_DIR}" "${test_file}"
-done
+guile3.0 "${SOURCE}".scm "${@}"
+
+# for test_file in *-test.scm; do
+#     guile3.0 "${test_file}"
+# done
