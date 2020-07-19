@@ -13,6 +13,6 @@ export GUILE_LOAD_PATH="${ROOT_DIR}:${SRFI_DIR}"
 
 guile3.0 "${SOURCE}".scm "${@}"
 
-# for test_file in *-test.scm; do
+# for test_file in arr*-test.scm; do
 #     guile3.0 "${test_file}"
 # done
