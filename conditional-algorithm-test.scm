@@ -7,9 +7,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-eqv "at-least: should work correctly"
-      expected (apply at-least args))))
+      expected (apply at-least args))])
  `([(,odd? ()) #f]
    [(,odd? (2 4 6)) #f]
    [(,odd? (2 1 4 6)) 1]
@@ -17,9 +17,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-eqv "at-most: should work correctly"
-      expected (apply at-most args))))
+      expected (apply at-most args))])
  `([(,odd? ()) #f]
    [(,odd? (2 4 6)) #f]
    [(,odd? (2 1 4 6)) 1]
@@ -27,9 +27,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-equal "make-domain: should work correctly"
-      expected (apply make-domain args))))
+      expected (apply make-domain args))])
  '([((0 1) 0) (())]
    [((0 1) 1) ((0) (1))]
    [((0 1) 2) ((0 0) (0 1) (1 0) (1 1))]
@@ -37,9 +37,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-equal "make-truth-table: should work correctly"
-      expected (apply make-truth-table args))))
+      expected (apply make-truth-table args))])
  `([(,not 1) (((#f) . #t)
               ((#t) . #f))]
    [(,and* 2) (((#f #f) . #f)
@@ -61,9 +61,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-equal "solve-quadratic-equation: should work correctly"
-      expected (apply solve-quadratic-equation args))))
+      expected (apply solve-quadratic-equation args))])
  '([(1) (0 . 0)]
    [(1 0 -4) (2 . -2)]
    [(1 -1 -2) (2 . -1)]
@@ -71,9 +71,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-eq "palindrome?: should work correctly"
-      expected (palindrome? args))))
+      expected (palindrome? args))])
  '(["Madam" #t]
    ["Racecar" #t]
    ["Never odd or even" #t]

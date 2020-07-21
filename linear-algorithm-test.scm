@@ -7,9 +7,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-equal "convert-size: should work correctly"
-      expected (apply convert-size args))))
+      expected (apply convert-size args))])
  '([(0 kb) (0.0 . kb)]
    [(1010 kb) (0.99 . kb)]
    [(1024 kb) (1.0 . kb)]

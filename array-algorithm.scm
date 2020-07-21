@@ -82,6 +82,6 @@
            (mono* (cdr l) (list (car l)) (cons (reverse ch) r))
            (mono* (cdr l) (list (car l)) r))])))
 
-(let ([l (list-random-integer 10 100)])
-  (pp l)
-  (pp (list-monotone l >)))
+;; (let ([l (list-random-integer 10 100)])
+;;   (pp l)
+;;   (pp (list-monotone l >)))

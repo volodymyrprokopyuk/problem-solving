@@ -16,9 +16,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-equal "hanoi: should work correctly"
-      expected (apply hanoi args))))
+      expected (apply hanoi args))])
  '([(1 'source 'target 'spare)
     (('source . 'target))]
    [(2 'source 'target 'spare)
@@ -36,9 +36,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-equal "power-set: should work correctly"
-      expected (power-set args))))
+      expected (power-set args))])
  '([() (())]
    [(1) (() (1))]
    [(1 2) (() (2) (1) (1 2))]
@@ -46,9 +46,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-equal "permute: should work correctly"
-      expected (permute args))))
+      expected (permute args))])
  '([() (())]
    [(1) ((1))]
    [(1 2) ((1 2) (2 1))]

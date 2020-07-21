@@ -7,9 +7,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-equal "range-between: should work correctly"
-      expected (apply range-between args))))
+      expected (apply range-between args))])
  '([(0 0) (0)]
    [(0 1) (0 1)]
    [(0 2) (0 1 2)]))
@@ -19,9 +19,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-equal "integer-factorization: should work correctly"
-      expected (integer-factorization args))))
+      expected (integer-factorization args))])
  '([2 (2)]
    [3 (3)]
    [4 (2 2)]
@@ -52,9 +52,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-eqv "greatest-common-divisor: should work correctly"
-      expected (apply greatest-common-divisor args))))
+      expected (apply greatest-common-divisor args))])
  '([(1) 1]
    [(1 1) 1]
    [(1 2) 1]
@@ -66,9 +66,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-eqv "lowest-common-multiple: should work correctly"
-      expected (apply lowest-common-multiple args))))
+      expected (apply lowest-common-multiple args))])
  '([(1) 1]
    [(1 1) 1]
    [(1 2) 2]
@@ -79,9 +79,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-equal "happy-tickets: should work correcly"
-      expected (apply happy-tickets args))))
+      expected (apply happy-tickets args))])
  '([(1 1) ("0" "1" "2" "3" "4" "5" "6" "7" "8" "9")]
    [(2 1) ("00" "11" "22" "33" "44" "55" "66" "77" "88" "99")]))
 
@@ -90,13 +90,24 @@
 
 (for-each
  (match-lambda
-   ([args expected]
-    (test-equal "num->str: should work correctly"
-      expected (apply num->str args))))
+   [(args expected)
+    (test-equal "dec->str: should work correctly"
+      expected (apply dec->str args))])
  '([(33 2) "100001"]
    [(33 5) "113"]
    [(33 8) "41"]
    [(33) "33"]
    [(33 16) "21"]))
+
+(for-each
+ (match-lambda
+   [(args expected)
+    (test-equal "str->dec: should work correctly"
+      expected (apply str->dec args))])
+ '([("100001" 2) 33]
+   [("113" 5) 33]
+   [("41" 8) 33]
+   [("33") 33]
+   [("21" 16) 33]))
 
 (test-end "iterative-algorithm-test")

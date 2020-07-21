@@ -7,9 +7,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-equal "split-in-chunks: should work correctly"
-      expected (apply split-in-chunks args))))
+      expected (apply split-in-chunks args))])
  '([(() 1) ()]
    [((1) 1) ((1))]
    [((1 2) 1) ((1) (2))]
@@ -21,9 +21,9 @@
 
 (for-each
  (match-lambda
-   ([args expected]
+   [(args expected)
     (test-equal "split-in-overlaps: should work correctly"
-      expected (apply split-in-overlaps args))))
+      expected (apply split-in-overlaps args))])
  '([(() 1) (())]
    [((1) 1) ((1))]
    [((1 2) 1) ((1) (2))]

@@ -4,7 +4,7 @@
   (range-between integer-factorization number-divisors perfect-number?
                  perfect-numbers prime-numbers greatest-common-divisor
                  lowest-common-multiple happy-ticket? happy-tickets
-                 armstrong-number? armstrong-numbers num->str))
+                 armstrong-number? armstrong-numbers dec->str str->dec))
 
 (use-modules
  ((ice-9 pretty-print)
@@ -109,9 +109,9 @@
   "Builds the list of Armstrong numbers less than n"
   (filter armstrong-number? (iota n)))
 
-(define* (num->str n #:optional (radix 10))
-  "Converts the number n into a representation with the radix"
-  (when (> radix 16) (error "num->str: radix too big:" radix))
+(define* (dec->str n #:optional (radix 10))
+  "Converts the decimal number n into a string representation with the radix"
+  (when (> radix 16) (error "dec->str: radix too big:" radix))
   (let ([ds (unfold zero?
                     (lambda (nn) (remainder nn radix))
                     (lambda (nn) (quotient nn radix)) n)]
@@ -124,3 +124,22 @@
         (if (< d 10)
             (number->string d)
             (hash-table-ref dec->hex d)) s)) "" ds)))
+
+(define* (str->dec s #:optional (radix 10))
+  "Converts the string representation s with the radix into a decimal number"
+  (when (> radix 16) (error "str->dec: radix too big:" radix))
+  (when (string-any
+         (char-set-complement
+          (char-set-union
+           char-set:digit
+           (char-set #\a #\b #\c #\d #\e #\f))) (string-downcase s))
+    (error "str->dec: invalid digit:" s))
+  (let* ([char->digit
+          (alist->hash-table
+           '((#\0 . 0) (#\1 . 1) (#\2 . 2) (#\3 . 3) (#\4 . 4) (#\5 . 5) (#\6 . 6)
+                       (#\7 . 7) (#\8 . 8) (#\9 . 9) (#\a . 10) (#\b . 11) (#\c . 12)
+                       (#\d . 13) (#\e . 14) (#\f . 15)))]
+         [cs (string-fold cons '() (string-downcase s))]
+         [ds (map (lambda (c) (hash-table-ref char->digit c)) cs)]
+         [dsp (zip ds (iota (length ds)))])
+    (fold (lambda (dp n) (+ n (* (car dp) (expt radix (cadr dp)))) ) 0 dsp)))
