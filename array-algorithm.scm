@@ -2,7 +2,7 @@
   (array-algorithm)
   #:export
   (vector-random-integer vector-min-max-swap! split-in-chunks split-in-overlaps
-                         list-miniax))
+                         list-miniax list-monotone))
 
 (use-modules
  (ice-9 match) ;; match-lambda
@@ -54,13 +54,34 @@
                (cons (reverse ov) r))])))
 
 (define (list-minimax l compare)
-  "Returns the local minimums or local maximums based on compare function"
+  "Returns the local minimums or local maximums based on the compare function"
   (let ([overlaps (split-in-overlaps l 3)]
         [minimax?
          (match-lambda ([a b c] (and (compare b a) (compare b c))))])
     (filter minimax? overlaps)))
 
+;; (let ([l (list-random-integer 10 100)])
+;;   (pp l)
+;;   (pp (list-minimax l <))
+;;   (pp (list-minimax l >)))
+
+(define (list-monotone l compare)
+  "Returns the monotone chunks based on the compare function"
+  (let mono* ([l l] [ch '()] [r '()])
+    (cond
+      [(null? l)
+       (if (> (length ch) 1)
+           (reverse (cons (reverse ch) r))
+           (reverse r))]
+      [(null? ch)
+       (mono* (cdr l) (cons (car l) ch) r)]
+      [(compare (car ch) (car l))
+       (mono* (cdr l) (cons (car l) ch) r)]
+      [else
+       (if (> (length ch) 1)
+           (mono* (cdr l) (list (car l)) (cons (reverse ch) r))
+           (mono* (cdr l) (list (car l)) r))])))
+
 (let ([l (list-random-integer 10 100)])
   (pp l)
-  (pp (list-minimax l <))
-  (pp (list-minimax l >)))
+  (pp (list-monotone l >)))
