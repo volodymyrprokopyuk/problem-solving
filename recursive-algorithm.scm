@@ -1,7 +1,7 @@
 (define-module
   (recursive-algorithm)
   #:export
-  (factorial fibonacci meven? modd? hanoi power-set permute umap mmap))
+  (factorial fibonacci meven? modd? hanoi power-set permute umap mmap power))
 
 (use-modules
  ((ice-9 pretty-print)
@@ -95,3 +95,11 @@
       (cons (apply f (cons (car l) (umap car ll)))
             ;; Recursively apply function f to the corresponding elements of all lists
             (apply mmap (cons f (cons (cdr l) (umap cdr ll)))))))
+
+(define (power x n)
+  "Returns power x to n"
+  (if (positive? n)
+      (let power* ([i 0] [r 1])
+        (if [= i n] r (power* (1+ i) (* x r))))
+      (let power* ([i 0] [r 1])
+        (if [= i n] r (power* (1- i) (* (/ 1 x) r))))))

@@ -60,4 +60,15 @@
 (test-equal "mmap: should work correctly"
   '((a A) (b B) (c C)) (mmap cons '(a b c) '((A) (B) (C))))
 
+(for-each
+ (match-lambda
+   [(args expected)
+    (test-eqv "power: should work correctly"
+      expected (apply power args))])
+ '([(2 0) 1]
+   [(2 1) 2]
+   [(2 3) 8]
+   [(2 -1) 1/2]
+   [(2 -3) 1/8]))
+
 (test-end "recursive-algorithm-test")
