@@ -2,7 +2,7 @@
   (recursive-algorithm)
   #:export
   (factorial fibonacci meven? modd? hanoi power-set permute umap mmap power
-             combinations-number))
+             combinations-number minimax string-symmetric?))
 
 (use-modules
  ((ice-9 pretty-print)
@@ -100,10 +100,10 @@
 (define (power x n)
   "Returns power x to n"
   (if (positive? n)
-      (let power* ([i 0] [r 1])
-        (if [= i n] r (power* (1+ i) (* x r))))
-      (let power* ([i 0] [r 1])
-        (if [= i n] r (power* (1- i) (* (/ 1 x) r))))))
+      (let power* ([i n] [r 1])
+        (if [zero? i] r (power* (1- i) (* x r))))
+      (let power* ([i n] [r 1])
+        (if [zero? i] r (power* (1+ i) (* (/ 1 x) r))))))
 
 (define (combinations-number n k)
   "Returns the number of combination of k from n without repetition"
@@ -113,3 +113,32 @@
 (define (combinations-number2 n k)
   "Returns the number of combination of k from n without repetition"
   (/ (factorial n) (* (factorial k) (factorial (- n k)))))
+
+(define (minimax l compare)
+  "Returns minimum or maximum element of the list"
+  (let minimax* ([l l] [r #f])
+    (cond
+      [(null? l) r]
+      [(not r) (minimax* (cdr l) (car l))]
+      [(compare (car l) r) (minimax* (cdr l) (car l))]
+      [else (minimax* (cdr l) r)])))
+
+(define (string-symmetric? s)
+  "Returns #t on symmetric string"
+  (let symm* ([ss s] [st '()] [ac 'push])
+    (cond
+      ;; At the end of the string stack should be empty
+      [(string-null? ss) (null? st)]
+      ;; Push first char into the stack
+      [(null? st)
+       (symm* (string-drop ss 1) (cons (string-ref ss 0) st)
+              (if (= (- (/ (string-length s) 2) (length st)) 1) 'pop 'push))]
+      ;; Push first half of the string into the stack
+      [(and (eq? ac 'push) (< (length st) (/ (string-length s) 2)))
+       (symm* (string-drop ss 1) (cons (string-ref ss 0) st)
+              (if (= (- (/ (string-length s) 2) (length st)) 1) 'pop 'push))]
+      ;; Check second half of the string with the stack content
+      [(and (eq? ac 'pop) (eqv? (string-ref ss 0) (car st)))
+       (symm* (string-drop ss 1) (cdr st) 'pop)]
+      ;; Short-circuit of first unmathc
+      [else #f])))

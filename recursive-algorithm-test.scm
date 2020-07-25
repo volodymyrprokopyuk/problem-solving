@@ -86,4 +86,30 @@
    [(4 3) 4]
    [(4 4) 1]))
 
+(for-each
+ (match-lambda
+   [(args expected)
+    (test-eqv "minimax: should work correctly"
+      expected (apply minimax args))])
+ `([(() ,<) #f]
+   [((1) ,<) 1]
+   [((1 2) ,<) 1]
+   [((5 2 4 3 1) ,<) 1]
+   [((1) ,>) 1]
+   [((1 2) ,>) 2]
+   [((5 2 4 3 1) ,>) 5]))
+
+(for-each
+ (match-lambda
+   [(args expected)
+    (test-eq "string-symmetric?: should work correctly"
+      expected (string-symmetric? args))])
+ '(["" #t]
+   ["a" #f]
+   ["aa" #t]
+   ["ab" #f]
+   ["aab" #f]
+   ["abba" #t]
+   ["abccba" #t]))
+
 (test-end "recursive-algorithm-test")
