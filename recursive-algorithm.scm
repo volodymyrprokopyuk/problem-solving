@@ -127,18 +127,18 @@
   "Returns #t on symmetric string"
   (let symm* ([ss s] [st '()] [ac 'push])
     (cond
-      ;; At the end of the string stack should be empty
+      ;; At the end of a symmetric string stack should be empty
       [(string-null? ss) (null? st)]
-      ;; Push first char into the stack
+      ;; Push the first character into the stack
       [(null? st)
        (symm* (string-drop ss 1) (cons (string-ref ss 0) st)
               (if (= (- (/ (string-length s) 2) (length st)) 1) 'pop 'push))]
-      ;; Push first half of the string into the stack
+      ;; Push the first half of the string into the stack
       [(and (eq? ac 'push) (< (length st) (/ (string-length s) 2)))
        (symm* (string-drop ss 1) (cons (string-ref ss 0) st)
               (if (= (- (/ (string-length s) 2) (length st)) 1) 'pop 'push))]
-      ;; Check second half of the string with the stack content
+      ;; Check the second half of the string with the stack content
       [(and (eq? ac 'pop) (eqv? (string-ref ss 0) (car st)))
        (symm* (string-drop ss 1) (cdr st) 'pop)]
-      ;; Short-circuit of first unmathc
+      ;; Short-circuit on the first unmatch
       [else #f])))
