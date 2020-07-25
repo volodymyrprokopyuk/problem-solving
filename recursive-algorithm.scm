@@ -1,7 +1,8 @@
 (define-module
   (recursive-algorithm)
   #:export
-  (factorial fibonacci meven? modd? hanoi power-set permute umap mmap power))
+  (factorial fibonacci meven? modd? hanoi power-set permute umap mmap power
+             combinations-number))
 
 (use-modules
  ((ice-9 pretty-print)
@@ -103,3 +104,12 @@
         (if [= i n] r (power* (1+ i) (* x r))))
       (let power* ([i 0] [r 1])
         (if [= i n] r (power* (1- i) (* (/ 1 x) r))))))
+
+(define (combinations-number n k)
+  "Returns the number of combination of k from n without repetition"
+  (if [or (zero? k) (= k n)] 1
+      (+ (combinations-number (1- n) k) (combinations-number (1- n) (1- k)))))
+
+(define (combinations-number2 n k)
+  "Returns the number of combination of k from n without repetition"
+  (/ (factorial n) (* (factorial k) (factorial (- n k)))))
