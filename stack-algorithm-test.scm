@@ -18,4 +18,14 @@
    ["10 20 30 * +" 610]
    ["10 20 + 30 40 - *" -300]))
 
+(for-each
+ (match-lambda
+   [(args expected)
+    (test-eq "validate-parentheses should work correctly"
+      expected (validate-parentheses args))])
+ '(["(Vlad {and [Lana]})[ok]{done}" #t]
+   ["{ (Vlad {and [Lana]})[ok]{done}" #f]
+   ["(Vlad {and [Lana]})[o)k]{done}" #f]
+   ["(Vlad {and [Lana]})[o)k]{done} ]" #f]))
+
 (test-end "stack-algorithm-test")

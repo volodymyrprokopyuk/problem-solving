@@ -1,9 +1,9 @@
 (define-module
   (data-structure)
   #:replace
-  (make-stack)
+  (make-stack peek)
   #:export
-  (stack-null? push pop peek make-queue queue-null? enqueue dequeue front))
+  (stack-null? push pop make-queue queue-null? enqueue dequeue front))
 
 (use-modules
  (ice-9 receive)
