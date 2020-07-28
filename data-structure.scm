@@ -1,8 +1,9 @@
 (define-module
   (data-structure)
+  #:replace
+  (make-stack)
   #:export
-  (make-stack stack-null? push pop peek
-              make-queue queue-null? enqueue dequeue front))
+  (stack-null? push pop peek make-queue queue-null? enqueue dequeue front))
 
 (use-modules
  (ice-9 receive)
@@ -19,7 +20,7 @@
   "Returns #t if the stack is empty"
   (null? s))
 
-(define (push s e)
+(define (push e s)
   "Inserts a new element into the stack and returns the new stack"
   (cons e s))
 
@@ -34,8 +35,8 @@
   (car s))
 
 ;; (let* ([s (make-stack)]
-;;        [s (push s 'a)]
-;;        [s (push s 'b)])
+;;        [s (push 'a s)]
+;;        [s (push 'b s)])
 ;;   (pp (stack-null? s))
 ;;   (pp (peek s))
 ;;   (receive (e s) (pop s)
@@ -56,7 +57,7 @@
   "Returns #t if the queue is empty"
   (equal? (car q) (cdr q)))
 
-(define (enqueue q e)
+(define (enqueue e q)
   "Inserts the element at the back of the queue and returns the new queue"
   (let ([end (cons 'end '())]
         [back (cdr q)])
@@ -77,8 +78,8 @@
     (car front)))
 
 ;; (let* ([q (make-queue)]
-;;        [q (enqueue q 'a)]
-;;        [q (enqueue q 'b)])
+;;        [q (enqueue 'a q)]
+;;        [q (enqueue 'b q)])
 ;;   (pp (queue-null? q))
 ;;   (pp (front q))
 ;;   (receive (e q) (dequeue q)
