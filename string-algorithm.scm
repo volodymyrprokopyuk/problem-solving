@@ -33,3 +33,11 @@
   (let ([l1 (sort (string->list (string-downcase s1)) char<?)]
         [l2 (sort (string->list (string-downcase s2)) char<?)])
     (list= eq? l1 l2)))
+
+;; (pp (let ([s "Vlad and Lana"]
+;;           [r (irregex "(\\w)(\\w)")])
+;;       (irregex-replace/all r s 2 1)))
+
+(pp (let* ([s "Vlad and Lana"]
+           [r (irregex "\\A(\\w+)( .+ )(\\w+)\\Z")])
+      (irregex-replace r s 3 2 1)))
