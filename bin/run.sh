@@ -12,12 +12,13 @@ readonly SRFI_DIR=$HOME/Projects/scheme-upgrade
 # readonly SOURCE=stack-algorithm
 # readonly SOURCE=queue-algorithm
 # readonly SOURCE=string-algorithm
-readonly SOURCE=file-algorithm
+# readonly SOURCE=file-algorithm
+readonly SOURCE=time-algorithm
 
 export GUILE_LOAD_PATH="${ROOT_DIR}:${SRFI_DIR}"
 
 guile3.0 "${SOURCE}".scm "${@}"
 
-# for test_file in str*-test.scm; do
+# for test_file in *-test.scm; do
 #     guile3.0 "${test_file}"
 # done

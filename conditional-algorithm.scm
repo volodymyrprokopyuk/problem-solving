@@ -142,7 +142,7 @@
 (define (palindrome? s)
   "Checks if the string s reads the same in opposite directions"
   (let ([ss (string-delete #\space (string-downcase s))])
-    (string= ss (string-reverse ss))))
+    (string=? ss (string-reverse ss))))
 
 (define (number-palindromes n)
   "Builds list of number palindromes less than n"

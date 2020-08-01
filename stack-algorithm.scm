@@ -23,10 +23,10 @@
          [evaluate
           (lambda (t st)
             (cond
-              [(string= t "+") (calculate + st)]
-              [(string= t "-") (calculate - st)]
-              [(string= t "*") (calculate * st)]
-              [(string= t "/") (calculate / st)]
+              [(string=? t "+") (calculate + st)]
+              [(string=? t "-") (calculate - st)]
+              [(string=? t "*") (calculate * st)]
+              [(string=? t "/") (calculate / st)]
               [else (push (string->number t) st)]))]
          [ts (string-tokenize s cs)]
          [st (fold evaluate (make-stack) ts)])

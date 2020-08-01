@@ -1,4 +1,3 @@
 (define-module
   (queue-algorithm)
-  #:export
-  ())
+  #:export ())

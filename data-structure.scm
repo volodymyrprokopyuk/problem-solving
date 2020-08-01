@@ -140,18 +140,18 @@
          [front (car q)])
     (peek front)))
 
-(let* ([q (make-queue2)]
-       [q (enqueue2 'a q)]
-       [q (enqueue2 'b q)])
-  (pp (queue2-null? q))
-  (pp (front2 q))
-  (receive (e q) (dequeue2 q)
-    (pp e)
-    (pp (queue2-null? q))
-    (receive (e q) (dequeue2 q)
-      (pp e)
-      (pp (queue2-null? q))
-      (let ([q (enqueue2 'c q)])
-        (receive (e q) (dequeue2 q)
-          (pp e)
-          (pp (queue2-null? q)))))))
+;; (let* ([q (make-queue2)]
+;;        [q (enqueue2 'a q)]
+;;        [q (enqueue2 'b q)])
+;;   (pp (queue2-null? q))
+;;   (pp (front2 q))
+;;   (receive (e q) (dequeue2 q)
+;;     (pp e)
+;;     (pp (queue2-null? q))
+;;     (receive (e q) (dequeue2 q)
+;;       (pp e)
+;;       (pp (queue2-null? q))
+;;       (let ([q (enqueue2 'c q)])
+;;         (receive (e q) (dequeue2 q)
+;;           (pp e)
+;;           (pp (queue2-null? q)))))))
