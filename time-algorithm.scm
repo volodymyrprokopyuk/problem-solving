@@ -1,10 +1,11 @@
 (define-module
   (time-algorithm)
-  #:export ())
+  #:export (duration-since leap-year? next-leap-year))
 
 (use-modules
  (ice-9 receive)
  (srfi srfi-19) ;; Time date
+ (srfi srfi-42) ;; Comprehensions
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
 
@@ -39,5 +40,17 @@
          [day (remainder (remainder days 365) 30)])
     (values year month day)))
 
-(receive (year month day) (duration-since "2018-04-01")
-  (pp (list year month day)))
+;; (receive (year month day) (duration-since "2018-04-01")
+;;   (pp (list year month day)))
+
+(define (leap-year? y)
+  "Returns #t if the year is a leap year"
+  (or (zero? (remainder y 400))
+      (and (zero? (remainder y 4))
+           (not (zero? (remainder y 100))))))
+
+(define (next-leap-year ds)
+  "Returns the next leap year for a date"
+  (let* ([d (string->date ds "~Y-~m-~d")]
+         [year (date-year d)])
+    (first-ec 0 (:range y (1+ year) (+ year 10)) (if (leap-year? y)) y)))

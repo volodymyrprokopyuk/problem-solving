@@ -17,8 +17,8 @@ readonly SOURCE=time-algorithm
 
 export GUILE_LOAD_PATH="${ROOT_DIR}:${SRFI_DIR}"
 
-guile3.0 "${SOURCE}".scm "${@}"
+# guile3.0 "${SOURCE}".scm "${@}"
 
-# for test_file in *-test.scm; do
-#     guile3.0 "${test_file}"
-# done
+for test_file in time*-test.scm; do
+    guile3.0 "${test_file}"
+done
