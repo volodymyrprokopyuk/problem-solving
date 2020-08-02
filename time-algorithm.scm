@@ -1,6 +1,6 @@
 (define-module
   (time-algorithm)
-  #:export (duration-since leap-year? next-leap-year))
+  #:export (duration-since leap-year? next-leap-year days-till-next-birthday))
 
 (use-modules
  (ice-9 receive)
@@ -54,3 +54,21 @@
   (let* ([d (string->date ds "~Y-~m-~d")]
          [year (date-year d)])
     (first-ec 0 (:range y (1+ year) (+ year 10)) (if (leap-year? y)) y)))
+
+;; (pp (let* ([t1 (current-time)]
+;;            [t2 (add-duration t1 (make-time time-duration 0 (* 60 60 2)))]
+;;            [td (time-difference t2 t1)])
+;;       (time-second td)))
+
+(define (days-till-next-birthday ds)
+  "Returns the number of day till the next birthday"
+  (let* ([d (string->date ds "~Y-~m-~d")]
+         [cy (date-year (current-date))]
+         [cd (make-date 0 0 0 0 (date-day d) (date-month d) cy 0)]
+         [nd (if [time>? (date->time-utc cd) (current-time)] cd
+                 (make-date 0 0 0 0 (date-day cd) (date-month cd) (1+ cy) 0))]
+         [td (time-difference (date->time-utc nd) (current-time))])
+    (round (/ (time-second td) 60 60 24))))
+
+;; (pp (days-till-next-birthday "1984-09-14"))
+;; (pp (days-till-next-birthday "1993-03-11"))
