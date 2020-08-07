@@ -13,7 +13,8 @@ readonly SRFI_DIR=$HOME/Projects/scheme-upgrade
 # readonly SOURCE=queue-algorithm
 # readonly SOURCE=string-algorithm
 # readonly SOURCE=file-algorithm
-readonly SOURCE=time-algorithm
+# readonly SOURCE=time-algorithm
+readonly SOURCE=control-algorithm
 
 export GUILE_LOAD_PATH="${ROOT_DIR}:${SRFI_DIR}"
 
