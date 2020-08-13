@@ -56,24 +56,26 @@
       ;; События + входные воздействия
       ;; 'hour 'minute 'alarm 'timer
       (lambda (event)
-        (cond ;; Dispatch on state
-          [(eq? state 'alarm-off)
+        (cond
+          [(eq? state 'alarm-off) ;; Dispatch on state
            (cond ;; Dispatch on event
              [(eq? event 'hour) (inc-time-hour)]
              [(eq? event 'minute) (inc-time-minute)]
              [(eq? event 'alarm) (set! state 'alarm-setup)]
              [(eq? event 'timer) (inc-time)])]
-          [(eq? state 'alarm-setup)
+          [(eq? state 'alarm-setup) ;; Dispatch on state
            (cond ;; Dispatch on event
              [(eq? event 'hour) (inc-alarm-hour)]
              [(eq? event 'minute) (inc-alarm-minute)]
              [(eq? event 'alarm) (set! state 'alarm-on)]
              [(eq? event 'timer) (inc-time)])]
-          [(eq? state 'alarm-on)
+          [(eq? state 'alarm-on) ;; Dispatch on state
            (cond ;; Dispatch on event
              [(eq? event 'hour) (inc-time-hour)]
              [(eq? event 'minute) (inc-time-minute)]
+             ;; Команда объекту управления
              [(eq? event 'alarm) (alarm-off) (set! state 'alarm-off)]
+             ;; Запрос к объекту управления
              [(and (eq? event 'timer) (start-alarm?)) (inc-time) (alarm-on)]
              [(and (eq? event 'timer) (stop-alarm?)) (inc-time) (alarm-off)]
              [(eq? event 'timer) (inc-time)])])))))
