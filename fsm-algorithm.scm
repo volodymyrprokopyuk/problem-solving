@@ -51,7 +51,7 @@
                        alarm-on alarm-off
                        start-alarm? stop-alarm?)
         (make-alarm-clock-object)
-      ;; Функция переходов delta
+      ;; Функция переходов delta + новое управляющее состояние
       ;; Функция выходов fi + выходные воздействия + команды
       ;; События + входные воздействия
       ;; 'hour 'minute 'alarm 'timer
