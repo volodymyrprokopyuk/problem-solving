@@ -3,9 +3,16 @@
   #:export ())
 
 (use-modules
+ (ice-9 format)
  (ice-9 receive)
+ (oop goops)
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; ПРОЦЕДУРНОЕ ПРОГРАММИРОВАНИЕ С ЯВНЫМ ВЫДЕЛЕНИЕМ СОСТОЯНИЙ
+;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Объект управления ОУ
@@ -22,7 +29,7 @@
            [inc-alarm-minute
             (lambda () (set! alarm-minute (remainder (1+ alarm-minute) 60)))]
            [inc-time ;; Is triggered every minute by a minute timer to count the time
-            (lambda () (inc-time-minute) (when (zero? minute) (inc-time-hour))
+            (lambda () (inc-time-minute) (when [zero? minute] (inc-time-hour))
                (format #t "Time: ~2,'0d:~2,'0d\n" hour minute))]
            [alarm-on
             (lambda () (pp 'alarm-on))]
@@ -82,24 +89,134 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Автоматизированный объект управления АО
-(let ([alarm-clock (make-alarm-clock)])
+;; (let ([alarm-clock (make-alarm-clock)])
+;;   ;; Автомат обрабатывает события от внешней среды интерфейс сервисов обработки событий
+;;   ;; Set clock time to OO:01
+;;   (alarm-clock 'minute)
+;;   ;; Set alarm time to 00:04
+;;   (alarm-clock 'alarm)
+;;   (alarm-clock 'minute)
+;;   (alarm-clock 'minute)
+;;   (alarm-clock 'minute)
+;;   (alarm-clock 'minute)
+;;   ;; Set alarm on
+;;   (alarm-clock 'alarm)
+;;   ;; Time pases
+;;   (alarm-clock 'timer)
+;;   ;; (alarm-clock 'alarm) ;; Cancel alarm before due time
+;;   (alarm-clock 'timer)
+;;   (alarm-clock 'timer)
+;;   ;; (alarm-clock 'alarm) ;; Stop alarm during due time
+;;   (alarm-clock 'timer)
+;;   (alarm-clock 'timer)
+;;   (alarm-clock 'timer))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; ОБЪЕКТНО-ОРИЕТНИРОВАННОЕ ПРОГРАММИРОВАНИЕ С ЯВНЫМ ВЫДЕЛЕНИЕМ СОСТОЯНИЙ
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Объект управления ОУ
+(define-class <alarm-clock-object> ()
+  (hour #:init-value 0 #:init-keyword #:hour #:accessor hour)
+  (minute #:init-value 0 #:init-keyword #:minute #:accessor minute)
+  (alarm-hour #:init-value 0 #:init-keyword #:alarm-hour #:accessor alarm-hour)
+  (alarm-minute #:init-value 0 #:init-keyword #:alarm-minute #:accessor alarm-minute))
+
+(define-method (inc-time-hour (ac <alarm-clock-object>))
+  (set! (hour ac) (remainder (1+ (hour ac)) 24)))
+
+(define-method (inc-time-minute (ac <alarm-clock-object>))
+  (set! (minute ac) (remainder (1+ (minute ac)) 60)))
+
+(define-method (inc-alarm-hour (ac <alarm-clock-object>))
+  (set! (alarm-hour ac) (remainder (1+ (alarm-hour ac)) 24)))
+
+(define-method (inc-alarm-minute (ac <alarm-clock-object>))
+  (set! (alarm-minute ac) (remainder (1+ (alarm-minute ac)) 60)))
+
+(define-method (inc-time (ac <alarm-clock-object>))
+  (inc-time-minute ac) (when [zero? (minute ac)] (inc-time-hour ac))
+  (format #t "Time: ~2,'0d:~2,'0d\n" (hour ac) (minute ac)))
+
+(define-method (alarm-on (ac <alarm-clock-object>))
+  (pp 'alarm-on))
+
+(define-method (alarm-off (ac <alarm-clock-object>))
+  (pp 'alarm-off))
+
+(define-method (start-alarm? (ac <alarm-clock-object>))
+  (and (= (hour ac) (alarm-hour ac)) (= (minute ac) (1- (alarm-minute ac)))))
+
+(define-method (stop-alarm? (ac <alarm-clock-object>))
+  (and (= (hour ac) (alarm-hour ac)) (= (minute ac) (alarm-minute ac))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Управляющий автомат УА
+(define-class <alarm-clock> (<alarm-clock-object>)
+  (state #:init-value 'alarm-off #:accessor state)
+  (alarm-clock #:init-value (make <alarm-clock-object>) #:accessor alarm-clock))
+
+;; Dispatch on event (alarm clock interface)
+(define-method (on-hour (ac <alarm-clock>))
+  (let ([st (state ac)]
+        [aco (alarm-clock ac)])
+    (cond ;; Dispatch on state
+      [(eq? st 'alarm-off) (inc-time-hour aco)]
+      [(eq? st 'alarm-setup) (inc-alarm-hour aco)]
+      [(eq? st 'alarm-on) (inc-time-hour aco)])))
+
+;; Dispatch on event (alarm clock interface)
+(define-method (on-minute (ac <alarm-clock>))
+  (let ([st (state ac)]
+        [aco (alarm-clock ac)])
+    (cond ;; Dispatch on state
+      [(eq? st 'alarm-off) (inc-time-minute aco)]
+      [(eq? st 'alarm-setup) (inc-alarm-minute aco)]
+      [(eq? st 'alarm-on) (inc-time-minute aco)])))
+
+;; Dispatch on event (alarm clock interface)
+(define-method (on-alarm (ac <alarm-clock>))
+  (let ([st (state ac)]
+        [aco (alarm-clock ac)])
+    (cond ;; Dispatch on state
+      [(eq? st 'alarm-off) (set! (state ac) 'alarm-setup)]
+      [(eq? st 'alarm-setup) (set! (state ac) 'alarm-on)]
+      [(eq? st 'alarm-on) (alarm-off aco) (set! (state ac) 'alarm-off)])))
+
+;; Dispatch on event (alarm clock interface)
+(define-method (on-timer (ac <alarm-clock>))
+  (let ([st (state ac)]
+        [aco (alarm-clock ac)])
+    (cond ;; Dispatch on state
+      [(eq? st 'alarm-off) (inc-time aco)]
+      [(eq? st 'alarm-setup) (inc-time aco)]
+      [(and (eq? st 'alarm-on) (start-alarm? aco)) (inc-time aco) (alarm-on aco)]
+      [(and (eq? st 'alarm-on) (stop-alarm? aco)) (inc-time aco) (alarm-off aco)]
+      [(eq? st 'alarm-on) (inc-time aco)])))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Автоматизированный объект управления АО
+(let ([alarm-clock (make <alarm-clock>)])
   ;; Автомат обрабатывает события от внешней среды интерфейс сервисов обработки событий
   ;; Set clock time to OO:01
-  (alarm-clock 'minute)
+  (on-minute alarm-clock)
   ;; Set alarm time to 00:04
-  (alarm-clock 'alarm)
-  (alarm-clock 'minute)
-  (alarm-clock 'minute)
-  (alarm-clock 'minute)
-  (alarm-clock 'minute)
+  (on-alarm alarm-clock)
+  (on-minute alarm-clock)
+  (on-minute alarm-clock)
+  (on-minute alarm-clock)
+  (on-minute alarm-clock)
   ;; Set alarm on
-  (alarm-clock 'alarm)
+  (on-alarm alarm-clock)
   ;; Time pases
-  (alarm-clock 'timer)
-  ;; (alarm-clock 'alarm) ;; Cancel alarm before due time
-  (alarm-clock 'timer)
-  (alarm-clock 'timer)
-  ;; (alarm-clock 'alarm) ;; Stop alarm during due time
-  (alarm-clock 'timer)
-  (alarm-clock 'timer)
-  (alarm-clock 'timer))
+  (on-timer alarm-clock)
+  ;; (on-alarm alarm-clock) ;; Cancel alarm before due time
+  (on-timer alarm-clock)
+  (on-timer alarm-clock)
+  ;; (on-alarm alarm-clock) ;; Stop alarm during due time
+  (on-timer alarm-clock)
+  (on-timer alarm-clock)
+  (on-timer alarm-clock))
