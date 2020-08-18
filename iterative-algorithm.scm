@@ -4,13 +4,16 @@
   (range-between integer-factorization number-divisors perfect-number?
                  perfect-numbers prime-numbers greatest-common-divisor
                  lowest-common-multiple happy-ticket? happy-tickets
-                 armstrong-number? armstrong-numbers dec->str str->dec))
+                 armstrong-number? armstrong-numbers dec->str str->dec group-by
+                 rotate-right rotate-left))
 
 (use-modules
+ (srfi srfi-1) ;; List library
+ (srfi srfi-69) ;; Hash table
+ (srfi srfi-42) ;; Comprehensions
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp)))
- (srfi srfi-1) ;; List library
- (srfi srfi-69)) ;; Hash table
+ )
 
 (define (range-between a b)
   "Builds range of consecutive numbers between a and b both inclusive"
@@ -143,3 +146,30 @@
          [ds (map (lambda (c) (hash-table-ref char->digit c)) cs)]
          [dsp (zip ds (iota (length ds)))])
     (fold (lambda (dp n) (+ n (* (car dp) (expt radix (cadr dp)))) ) 0 dsp)))
+
+(define (group-by n l)
+  "Groups list elements into groups of size n"
+  (let group-by* ([l l] [i 0] [g '()] [r '()])
+    (cond
+      [(null? l) (reverse (cons (reverse g) r))]
+      [(< i n) (group-by* (cdr l) (1+ i) (cons (car l) g) r)]
+      [else (group-by* (cdr l) 1 (list (car l)) (cons (reverse g) r))])))
+
+(define (rotate-left n l)
+  "Rotates left n times the list l"
+  (let ([rotate-left-1 (lambda (l) (append (cdr l) (list (car l))))])
+    (do ([i 0 (1+ i)] [l l (rotate-left-1 l)])
+        ([= i n] l))))
+
+;; (pp (rotate-left 1 (list-ec (:range i 1 5) i)))
+
+(define (rotate-right n l)
+  "Rotates right n times the list l"
+  (let ([rotate-right-1
+         (lambda (l)
+           (let* ([r (reverse l)])
+             (cons (car r) (reverse (cdr r)))))])
+    (do ([i 0 (1+ i)] [l l (rotate-right-1 l)])
+        ([= i n] l))))
+
+;; (pp (rotate-right 4 (list-ec (:range i 1 5) i)))

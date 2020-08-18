@@ -1,5 +1,6 @@
 (use-modules
  (ice-9 match) ;; match-lambda
+ (srfi srfi-42) ;; Comprehensions
  (srfi srfi-64) ;; Testing library
  (iterative-algorithm))
 
@@ -109,5 +110,19 @@
    [("41" 8) 33]
    [("33") 33]
    [("21" 16) 33]))
+
+(for-each
+ (match-lambda
+   [(args expected)
+    (test-equal "group-by: should work correctly"
+      expected (apply group-by args))])
+ `([(1 ,(list-ec (:range i 1 10) i))
+    ((1) (2) (3) (4) (5) (6) (7) (8) (9))]
+   [(2 ,(list-ec (:range i 1 10) i))
+    ((1 2) (3 4) (5 6) (7 8) (9))]
+   [(3 ,(list-ec (:range i 1 10) i))
+    ((1 2 3) (4 5 6) (7 8 9))]
+   [(4 ,(list-ec (:range i 1 10) i))
+    ((1 2 3 4) (5 6 7 8) (9))]))
 
 (test-end "iterative-algorithm-test")
