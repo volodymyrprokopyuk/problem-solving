@@ -1,8 +1,10 @@
 (define-module
-  (recursive-algorithm)
+ (recursive-algorithm)
   #:export
   (factorial fibonacci meven? modd? hanoi power-set permute umap mmap power
-             combinations-number minimax string-symmetric?))
+             combinations-number minimax string-symmetric? last-element
+             remove-last-element remove-first-occurrence remove-last-occurrence
+             substitute-first-occurrence interleave-first-duplication all-same?))
 
 (use-modules
  ((ice-9 pretty-print)
@@ -142,3 +144,87 @@
        (symm* (string-drop ss 1) (cdr st) 'pop)]
       ;; Short-circuit on the first unmatch
       [else #f])))
+
+(define (member-element? e l)
+  "Returns a sublist of the list l whose car is equal? to the element e, otherwise false"
+  (cond
+    [(null? l) #f]
+    [(equal? e (car l)) l]
+    [else (member-element? e (cdr l))]))
+
+;; (pp (member-element? 'b '(a b c d)))
+
+(define (last-element l)
+  "Returns last element from a list"
+  (if [and (pair? l) (null? (cdr l))] (car l) (last-element (cdr l))))
+
+;; (pp (last-element '(a b c d)))
+
+(define (remove-last-element l)
+  "Removes last element from the list l"
+  (let remove* ([l l] [r '()])
+    (cond
+      [(or (null? l) (null? (cdr l))) r]
+      [(null? (cddr l)) (reverse (cons (car l) r))]
+      [else (remove* (cdr l) (cons (car l) r))])))
+
+;; (pp (remove-last-element '()))
+;; (pp (remove-last-element '(a)))
+;; (pp (remove-last-element '(a b)))
+;; (pp (remove-last-element '(a b c d e)))
+
+(define (remove-first-occurrence e l)
+  "Removes the first occurrence of the element e in the list l"
+  (let remove* ([l l] [r '()])
+    (cond
+      [(null? l) r]
+      [(equal? e (car l)) (append (reverse r) (cdr l))]
+      [else (remove* (cdr l) (cons (car l) r))])))
+
+;; (pp (remove-first-occurrence 'b '(a b c b d)))
+
+(define (remove-last-occurrence e l)
+  "Removes the last occurrence of the element e in the list"
+  (reverse (remove-first-occurrence e (reverse l))))
+
+;; (pp (remove-last-occurrence 'b '(a b c b d)))
+
+(define (substitute-first-occurrence a b l)
+  "Subsitutes the first occurrence of the element a with the element b in the list"
+  (let subs* ([l l] [r '()])
+    (cond
+      [(null? l) r]
+      [(equal? a (car l)) (append (reverse (cons b r)) (cdr l))]
+      [else (subs* (cdr l) (cons (car l) r))])))
+
+;; (pp (substitute-first-occurrence 'b 'B '(a b c b d)))
+
+(define (interleave-first-duplication a b l)
+  "Interleaves the first duplication of a with a b a in the list"
+  (let interl* ([l l] [r '()])
+    (cond
+      [(null? l) l]
+      [(null? (cdr l)) (reverse (cons (car l) r))]
+      [(equal? (car l) (cadr l))
+       (append (reverse (cons (car l) (cons b (cons (cadr l) r)))) (cddr l))]
+      [else (interl* (cdr l) (cons (car l) r))])))
+
+;; (pp (interleave-first-duplication 'b 'B '()))
+;; (pp (interleave-first-duplication 'b 'B '(a)))
+;; (pp (interleave-first-duplication 'b 'B '(b b)))
+;; (pp (interleave-first-duplication 'b 'B '(a b b c b b d)))
+;; (pp (interleave-first-duplication 'b 'B '(a b c b d)))
+
+(define (all-same? l)
+  "Returns #t if all elements in the list l are the same"
+  (cond
+    [(or (null? l) (null? (cdr l))) #t]
+    [(not (equal? (car l) (cadr l))) #f]
+    [else (all-same? (cdr l))]))
+
+;; (pp (all-same? '()))
+;; (pp (all-same? '(a)))
+;; (pp (all-same? '(a a)))
+;; (pp (all-same? '(a a a)))
+;; (pp (all-same? '(a b a)))
+;; (pp (all-same? '((a b) (a b) (a b))))

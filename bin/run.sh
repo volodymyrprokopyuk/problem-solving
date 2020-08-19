@@ -5,8 +5,8 @@ readonly SRFI_DIR=$HOME/Projects/scheme-upgrade
 
 # readonly SOURCE=linear-algorithm
 # readonly SOURCE=conditional-algorithm
-# readonly SOURCE=recursive-algorithm
-readonly SOURCE=iterative-algorithm
+readonly SOURCE=recursive-algorithm
+# readonly SOURCE=iterative-algorithm
 # readonly SOURCE=array-algorithm
 # readonly SOURCE=data-structure
 # readonly SOURCE=stack-algorithm
