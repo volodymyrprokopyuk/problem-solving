@@ -8,6 +8,7 @@
              swap-occurences))
 
 (use-modules
+ (srfi srfi-42)
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
 
@@ -242,3 +243,19 @@
         (swap* (cdr l) (cons (swap-element (car l)) r)))))
 
 ;; (pp (swap-occurences 'b 'a '(a b c b d)))
+
+(define (harmonic-sum n)
+  "Returns the sum of harmonic sequence"
+  #;(fold-ec 0 (:range i 1 n) (/ 1 i) +)
+  (let hsum* ([n n] [r 0])
+    (if [zero? n] r (hsum* (1- n) (+ (/ 1 n) r)))))
+
+;; (pp (harmonic-sum 10))
+
+(define (dot-product k l)
+  "Returns sum of products of corresponding elements from k and l lists"
+  (let dotp* ([k k] [l l] [r 0])
+    (if [or (null? k) (null? l)] r
+        (dotp* (cdr k) (cdr l) (+ (* (car k) (car l)) r)))))
+
+;; (pp (dot-product '(1 2 3) '(4 5 6)))
