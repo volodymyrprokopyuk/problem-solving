@@ -4,7 +4,8 @@
   (factorial fibonacci meven? modd? hanoi power-set permute umap mmap power
              combinations-number minimax string-symmetric? last-element
              remove-last-element remove-first-occurrence remove-last-occurrence
-             substitute-first-occurrence interleave-first-duplication all-same?))
+             substitute-first-occurrence interleave-first-duplication all-same?
+             swap-occurences))
 
 (use-modules
  ((ice-9 pretty-print)
@@ -228,3 +229,16 @@
 ;; (pp (all-same? '(a a a)))
 ;; (pp (all-same? '(a b a)))
 ;; (pp (all-same? '((a b) (a b) (a b))))
+
+(define (swap-occurences a b l)
+  "Swaps occurrences of a with b and viceversa in the list"
+  (define (swap-element e)
+    (cond
+      [(equal? e a) b]
+      [(equal? e b) a]
+      [else e]))
+  (let swap* ([l l] [r '()])
+    (if [null? l] (reverse r)
+        (swap* (cdr l) (cons (swap-element (car l)) r)))))
+
+;; (pp (swap-occurences 'b 'a '(a b c b d)))
