@@ -5,7 +5,7 @@
              combinations-number minimax string-symmetric? last-element
              remove-last-element remove-first-occurrence remove-last-occurrence
              substitute-first-occurrence interleave-first-duplication all-same?
-             swap-occurences))
+             swap-occurences harmonic-sum dot-product append2 merge-sorted))
 
 (use-modules
  (srfi srfi-42)
@@ -259,3 +259,21 @@
         (dotp* (cdr k) (cdr l) (+ (* (car k) (car l)) r)))))
 
 ;; (pp (dot-product '(1 2 3) '(4 5 6)))
+
+(define (append2 k l)
+  "Appends two lists k and l into one single list"
+  (let append* ([k (reverse k)] [r l])
+    (if [null? k] r (append* (cdr k) (cons (car k) r)))))
+
+;; (pp (append2 '(a b) '(c d)))
+
+(define (merge-sorted k l)
+  "Merges two sorted lists k and l in one sorted list"
+  (let merge* ([k k] [l l] [r '()])
+    (cond
+      [(null? k) (append (reverse r) l)]
+      [(null? l) (append (reverse r) k)]
+      [(< (car k) (car l)) (merge* (cdr k) l (cons (car k) r))]
+      [else (merge* k (cdr l) (cons (car l) r))])))
+
+;; (pp (merge-sorted '(1 7 9 11) '(2 4 6 12 14 16)))
