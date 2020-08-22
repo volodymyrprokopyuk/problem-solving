@@ -330,3 +330,13 @@
       [else (sum* (cdr l) (+ (car l) r))])))
 
 ;; (pp (sum-nested '(1 2 (3 4) (5 (6 (7 9))))))
+
+(define (nested-depth l)
+  "Returns the depth of the nested list l"
+  (let depth* ([l l] [r 0])
+    (if [pair? l] (depth* (cdr l) (max (1+ (depth* (car l) 0)) r)) r)))
+
+;; (pp (nested-depth '()))
+;; (pp (nested-depth '(a b)))
+;; (pp (nested-depth '(a b (c))))
+;; (pp (nested-depth '(a b (c d (e f)))))
