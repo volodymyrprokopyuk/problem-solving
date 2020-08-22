@@ -5,7 +5,8 @@
              combinations-number minimax string-symmetric? last-element
              remove-last-element remove-first-occurrence remove-last-occurrence
              substitute-first-occurrence interleave-first-duplication all-same?
-             swap-occurences harmonic-sum dot-product append2 merge-sorted))
+             swap-occurences harmonic-sum dot-product append2 merge-sorted
+             count-nested remove-nested reverse-nested))
 
 (use-modules
  (srfi srfi-42)
@@ -277,3 +278,55 @@
       [else (merge* k (cdr l) (cons (car l) r))])))
 
 ;; (pp (merge-sorted '(1 7 9 11) '(2 4 6 12 14 16)))
+
+(define (count-nested l)
+  "Returns the number of nested atomic (non-pair) elements in the list"
+  (let count* ([l l] [r 0])
+    (cond
+      [(null? l) r]
+      [(pair? (car l)) (count* (cdr l) (+ (count* (car l) 0) r))]
+      [else (count* (cdr l) (1+ r))])))
+
+;; (pp (count-nested '(a (b c) () (d (e f (g))))))
+
+(define (remove-nested x l)
+  "Removes all nested occurrences of the element x in the list l"
+  (let remove* ([l l] [r '()])
+    (cond
+      [(null? l) (reverse r)]
+      [(pair? (car l)) (remove* (cdr l) (cons (remove* (car l) '()) r))]
+      [(equal? (car l) x) (remove* (cdr l) r)]
+      [else (remove* (cdr l) (cons (car l) r))])))
+
+;; (pp (remove-nested 'a '(a b (c a) (d (e a b (a))))))
+
+(define (reverse-nested l)
+  "Reverses the list l including nested sublists"
+  (let reverse* ([l l] [r '()])
+    (cond
+      [(null? l) r]
+      [(pair? (car l)) (reverse* (cdr l) (cons (reverse* (car l) '()) r))]
+      [else (reverse* (cdr l) (cons (car l) r))])))
+
+;; (pp (reverse-nested '(a b (c a) (d (e a b (a))))))
+
+(define (substitute-nested a b l)
+  "Subsitutes nested occurences of a with b in the list l"
+  (let subs* ([l l] [r '()])
+    (cond
+      [(null? l) (reverse r)]
+      [(pair? (car l)) (subs* (cdr l) (cons (subs* (car l) '()) r))]
+      [(equal? (car l) a) (subs* (cdr l) (cons b r))]
+      [else (subs* (cdr l) (cons (car l) r))])))
+
+;; (pp (substitute-nested 'a 'A '(a b (c a) (d (e a b (a))))))
+
+(define (sum-nested l)
+  "Adds all elements of the list l including nested elements"
+  (let sum* ([l l] [r 0])
+    (cond
+      [(null? l) r]
+      [(pair? (car l)) (sum* (cdr l) (+ (sum* (car l) 0) r))]
+      [else (sum* (cdr l) (+ (car l) r))])))
+
+;; (pp (sum-nested '(1 2 (3 4) (5 (6 (7 9))))))
