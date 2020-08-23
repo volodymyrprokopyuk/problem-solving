@@ -6,7 +6,8 @@
              remove-last-element remove-first-occurrence remove-last-occurrence
              substitute-first-occurrence interleave-first-duplication all-same?
              swap-occurences harmonic-sum dot-product append2 merge-sorted
-             count-nested remove-nested reverse-nested))
+             count-nested remove-nested reverse-nested substitute-nested sum-nested
+             nested-depth flatten-nested remove-nested-first))
 
 (use-modules
  (srfi srfi-42)
@@ -289,13 +290,13 @@
 
 ;; (pp (count-nested '(a (b c) () (d (e f (g))))))
 
-(define (remove-nested x l)
-  "Removes all nested occurrences of the element x in the list l"
+(define (remove-nested e l)
+  "Removes all nested occurrences of the element e in the list l"
   (let remove* ([l l] [r '()])
     (cond
       [(null? l) (reverse r)]
       [(pair? (car l)) (remove* (cdr l) (cons (remove* (car l) '()) r))]
-      [(equal? (car l) x) (remove* (cdr l) r)]
+      [(equal? (car l) e) (remove* (cdr l) r)]
       [else (remove* (cdr l) (cons (car l) r))])))
 
 ;; (pp (remove-nested 'a '(a b (c a) (d (e a b (a))))))
@@ -340,3 +341,33 @@
 ;; (pp (nested-depth '(a b)))
 ;; (pp (nested-depth '(a b (c))))
 ;; (pp (nested-depth '(a b (c d (e f)))))
+
+(define (flatten-nested l)
+  "Flattens the nested list l"
+  (reverse
+   (let flatten* ([l l] [r '()])
+     (cond
+       [(null? l) r]
+       [(pair? (car l)) (flatten* (cdr l) (append (flatten* (car l) '()) r))]
+       [else (flatten* (cdr l) (cons (car l) r))]))))
+
+;; (pp (flatten-nested '(a b c d)))
+;; (pp (flatten-nested '(a b (c d e) f g)))
+;; (pp (flatten-nested '(a b (c d (e f) g h) i j)))
+
+(define (remove-nested-first e l)
+   (let remove* ([l l] [r '()])
+     (cond
+       [(null? l) (reverse r)]
+       [(pair? (car l))
+        (let ([cl (remove* (car l) '())])
+          (if [equal? cl (car l)]
+              (remove* (cdr l) (cons cl r))
+              (append (reverse (cons cl r)) (cdr l))))]
+       [(equal? (car l) e) (append (reverse r) (cdr l))]
+       [else (remove* (cdr l) (cons (car l) r))])))
+
+;; (pp (remove-nested-first 'B '(a b c)))
+;; (pp (remove-nested-first 'c '(a b c d e c f)))
+;; (pp (remove-nested-first 'd '(a b (c d e d f))))
+;; (pp (remove-nested-first 'f '(a b (c d (e f g f h) i f j))))
