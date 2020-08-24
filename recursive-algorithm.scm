@@ -7,7 +7,8 @@
              substitute-first-occurrence interleave-first-duplication all-same?
              swap-occurences harmonic-sum dot-product append2 merge-sorted
              count-nested remove-nested reverse-nested substitute-nested sum-nested
-             nested-depth flatten-nested remove-nested-first))
+             nested-depth flatten-nested remove-nested-first count-open-parentheses
+             count-nested-occurences leftmost-atomic rightmost-atomic))
 
 (use-modules
  (srfi srfi-42)
@@ -356,6 +357,7 @@
 ;; (pp (flatten-nested '(a b (c d (e f) g h) i j)))
 
 (define (remove-nested-first e l)
+  "Removes first occurrence of eleemnt e in the list l including nested sublists"
    (let remove* ([l l] [r '()])
      (cond
        [(null? l) (reverse r)]
@@ -371,3 +373,55 @@
 ;; (pp (remove-nested-first 'c '(a b c d e c f)))
 ;; (pp (remove-nested-first 'd '(a b (c d e d f))))
 ;; (pp (remove-nested-first 'f '(a b (c d (e f g f h) i f j))))
+
+(define (count-open-parentheses l)
+  "Counts number of parentheses in the list l including nested sublists"
+  (let count* ([l l] [r 1])
+    (cond
+      [(null? l) r]
+      [(null? (car l)) (count* (cdr l) (1+ r))]
+      [(pair? (car l)) (count* (cdr l) (+ (count* (car l) 1) r))]
+      [else (count* (cdr l) r)])))
+
+;; (pp (count-open-parentheses '()))
+;; (pp (count-open-parentheses '(a b)))
+;; (pp (count-open-parentheses '(a b (c d))))
+;; (pp (count-open-parentheses '(a () b (c () d (e ())))))
+
+(define (count-nested-occurences e l)
+  "Returns the number of all occurences of the element e in the list l"
+  (let count* ([l l] [r 0])
+    (cond
+      [(null? l) r]
+      [(pair? (car l)) (count* (cdr l) (+ (count* (car l) 0) r))]
+      [(equal? (car l) e) (count* (cdr l) (1+ r))]
+      [else (count* (cdr l) r)])))
+
+;; (pp (count-nested-occurences 'a '(a b (c a (d a) (a) e) f)))
+
+(define (leftmost-atomic l)
+  "Returns the leftmost atomic element"
+  (cond
+    [(null? l) #f]
+    [(pair? (car l)) (leftmost-atomic (car l))]
+    [else (car l)]))
+
+;; (pp (leftmost-atomic '()))
+;; (pp (leftmost-atomic '(a b c)))
+;; (pp (leftmost-atomic '((() a) b c)))
+
+(define (rightmost-atomic l)
+  "Returns the rightmost atomic element"
+  (let rightmost* ([l l] [r #f])
+    (cond
+      [(null? l) r]
+      [(pair? (car l)) (rightmost* (cdr l) (rightmost* (car l) #f))]
+      [else (rightmost* (cdr l) (car l))])))
+
+;; (pp (rightmost-atomic '()))
+;; (pp (rightmost-atomic '(a b c)))
+;; (pp (rightmost-atomic '(a (b c))))
+;; (pp (rightmost-atomic '(a (b (c)))))
+;; (pp (rightmost-atomic '(a (b (c) d))))
+;; (pp (rightmost-atomic '(a (b (c) d) e f)))
+;; (pp (rightmost-atomic '(a (b (c) d) e f (g h))))
