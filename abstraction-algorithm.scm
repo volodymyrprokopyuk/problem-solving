@@ -1,10 +1,18 @@
 (define-module
   (abstraction-algorithm)
-  #:export ())
+  #:export
+  ;; FRACTION - EXACT ARITHMETIC
+  (make-rat numer denom rat-zero? rat-positive? rat-negative? rat+ rat-opposite
+            rat- rat* rat-inverse rat/ rat= rat< rat> rat-min mat-max rat-abs
+            ;; POLYNOMIAL - SYMBOLIC ALGEBRA
+            ))
 
 (use-modules
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; FRACTION - EXACT ARITHMETIC
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Data abstraction primitives: constructor and selectors
@@ -126,3 +134,54 @@
 ;; (pp (rat-abs (make-rat -1 2)))
 ;; (pp (rat-abs (make-rat 1 -2)))
 ;; (pp (rat-abs (make-rat -1 -2)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; POLYNOMIAL - SYMBOLIC ALGEBRA
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Data abstraction primitives: constructor, zero, and selectors
+(define (pcons l d p)
+  "Adds a new term of degree d with lead oefficient d to the polynomial p
+   (equal? p (pcons (lead p) (degree p) (tail p))) => #t"
+  (define (cons-term p)
+    (if [= d (1+ (degree p))] (cons l p) (cons-term (cons 0 p))))
+  (let ([pd (degree p)])
+    (cond
+      [(zero? l) p]
+      [(and (zero? d) (equal? p (pzero))) (list l)]
+      [(<= d pd)
+       (error
+        (format #f "pcons: term degree too low: ~s (polinomial degree ~s)" d pd))]
+      [else (cons-term p)])))
+
+;; (pp (pcons 0 1 (pzero)))
+;; (pp (pcons 1 0 (pzero)))
+;; (pp (pcons 1 1 (pzero)))
+;; (pp (pcons 1 2 (pzero)))
+;; (pp (pcons 1 4 (pcons 1 2 (pzero))))
+
+(define (pzero)
+  "Returns zero polynomial with degree zero and leading coefficient zero"
+  '(0))
+
+(define (degree p)
+  "Returns the degree (exponent) of the polynomial p"
+  (1- (length p)))
+
+(define (lead p)
+  "Returns the leading coefficient of the polynomial p"
+  (car p))
+
+(define (tail p)
+  "Returns the tail of the polynomial wihout the leading term"
+  (cond
+    [(zero? (degree p)) (pzero)]
+    [(zero? (lead (cdr p))) (tail (cdr p))]
+    [else (cdr p)]))
+
+;; (pp (tail (pzero)))
+;; (pp (tail (pcons 1 1 (pcons 1 0 (pzero)))))
+;; (pp (tail (pcons 1 4 (pcons 1 2 (pzero)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Data abstraction algorithms
