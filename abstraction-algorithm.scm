@@ -8,6 +8,7 @@
             ))
 
 (use-modules
+ (srfi srfi-1) ;; List library
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
 
@@ -151,7 +152,7 @@
       [(and (zero? d) (equal? p (pzero))) (list l)]
       [(<= d pd)
        (error
-        (format #f "pcons: term degree too low: ~s (polinomial degree ~s)" d pd))]
+        (format #f "pcons: term degree too low: ~s (polinomial degree: ~s)" d pd))]
       [else (cons-term p)])))
 
 ;; (pp (pcons 0 1 (pzero)))
@@ -167,6 +168,9 @@
 (define (degree p)
   "Returns the degree (exponent) of the polynomial p"
   (1- (length p)))
+
+;; (pp (degree (pzero)))
+;; (pp (degree (pcons 1 1 (pzero))))
 
 (define (lead p)
   "Returns the leading coefficient of the polynomial p"
@@ -185,3 +189,31 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Data abstraction algorithms
+(define (pzero? p)
+  "Returns true if the leading coefficient and the degree of the polynomial p are zero"
+  (and (zero? (lead p)) (zero? (degree p))))
+
+(define (p+ x y)
+  "Adds two polinomials x and y"
+  (let add* ([x x] [y y] [r '()])
+    (cond
+      [(and (pzero? x) (pzero? y))
+       (fold (lambda (t b) (pcons (car t) (cdr t) b)) (pzero) r)]
+      [(> (degree x) (degree y))
+       (add* (tail x) y (cons (cons (lead x) (degree x)) r))]
+      [(> (degree y) (degree x))
+       (add* x (tail y) (cons (cons (lead y) (degree y)) r))]
+      [else
+       (add* (tail x) (tail y) (cons (cons (+ (lead x) (lead y)) (degree x)) r))])))
+
+(let* ([p1 (pcons 1 0 (pzero))]
+       [p2 (pcons 2 1 p1)]
+       [p3 (pcons 3 2 p2)]
+       [p4 (pcons 4 3 p3)]
+       [p5 (pcons 5 4 (pzero))])
+  (pp (p+ p1 p1))
+  (pp (p+ p1 p2))
+  (pp (p+ p2 p3))
+  (pp (p+ p3 p4))
+  (pp (p+ p5 p1))
+  )
