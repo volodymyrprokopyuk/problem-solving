@@ -5,9 +5,11 @@
   (make-rat numer denom rat-zero? rat-positive? rat-negative? rat+ rat-opposite
             rat- rat* rat-inverse rat/ rat= rat< rat> rat-min mat-max rat-abs
             ;; POLYNOMIAL - SYMBOLIC ALGEBRA
-            ))
+            pcons pzero degree lead tail pzero? p+ p* poly-opposite p- poly-quot+rem
+            poly-value))
 
 (use-modules
+ (ice-9 receive)
  (srfi srfi-1) ;; List library
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
@@ -152,7 +154,7 @@
       [(and (zero? d) (equal? p (pzero))) (list l)]
       [(<= d pd)
        (error
-        (format #f "pcons: term degree too low: ~s (polinomial degree: ~s)" d pd))]
+        (format #f "pcons: term degree too low: ~s (polynomial degree: ~s)" d pd))]
       [else (cons-term p)])))
 
 ;; (pp (pcons 0 1 (pzero)))
@@ -189,16 +191,20 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Data abstraction algorithms
+
+(define (leads->poly l)
+  "Constructs a polynomial from reverse list of pairs ((lead . degree) ...)"
+  (fold (lambda (t b) (pcons (car t) (cdr t) b)) (pzero) l))
+
 (define (pzero? p)
   "Returns true if the leading coefficient and the degree of the polynomial p are zero"
   (and (zero? (lead p)) (zero? (degree p))))
 
 (define (p+ x y)
-  "Adds two polinomials x and y"
+  "Adds two polynomials x and y"
   (let add* ([x x] [y y] [r '()])
     (cond
-      [(and (pzero? x) (pzero? y))
-       (fold (lambda (t b) (pcons (car t) (cdr t) b)) (pzero) r)]
+      [(and (pzero? x) (pzero? y)) (leads->poly r)]
       [(> (degree x) (degree y))
        (add* (tail x) y (cons (cons (lead x) (degree x)) r))]
       [(> (degree y) (degree x))
@@ -206,7 +212,46 @@
       [else
        (add* (tail x) (tail y) (cons (cons (+ (lead x) (lead y)) (degree x)) r))])))
 
-(let* ([p1 (pcons 1 0 (pzero))]
+(define (p* x y)
+  "Multiplicates two polynomials x and y"
+  (define (mul-term t p)
+    (let mul-term* ([p p] [r '()])
+      (if [pzero? p] (leads->poly r)
+          (mul-term* (tail p)
+                     (cons (cons (* (lead t) (lead p)) (+ (degree t) (degree p))) r)))))
+  (let mul* ([x x] [r (pzero)])
+    (if [pzero? x] r
+        (mul* (tail x) (p+ (mul-term x y) r)))))
+
+(define (poly-opposite p)
+  "Returns a polynomial that is opposite to the polynomial p"
+  (p* (pcons -1 0 (pzero)) p))
+
+(define (p- x y)
+  "Subtracts the polynomial y from the polynomial x"
+  (p+ x (poly-opposite y)))
+
+(define (poly-quot+rem x y)
+  "Returns the quotient and remainder of devision of the polynomials x by y"
+  (when [pzero? y] (error "poly-quot+rem: division by zero polynomial"))
+  (let quot* ([x x] [q '()])
+    (if [or (< (degree x) (degree y)) (pzero? x)]
+        (values (leads->poly q) x)
+        (let* ([l (/ (lead x) (lead y))]
+               [d (- (degree x) (degree y))]
+               [pd (pcons l d (pzero))]
+               [sb (p* pd y)]
+               [df (p- x sb)])
+          (quot* df (cons (cons l d) q))))))
+
+(define (poly-value p v)
+  "Evaluates the polynomial p for the value v"
+  (let value* ([p p] [r 0])
+    ;; Method of nested multiplication for polynomial evaluation
+    (if [zero? (degree p)] (+ r (lead p))
+        (value* (tail p) (* (+ r (lead p)) v)))))
+
+#;(let* ([p1 (pcons 1 0 (pzero))]
        [p2 (pcons 2 1 p1)]
        [p3 (pcons 3 2 p2)]
        [p4 (pcons 4 3 p3)]
@@ -216,4 +261,38 @@
   (pp (p+ p2 p3))
   (pp (p+ p3 p4))
   (pp (p+ p5 p1))
+  (pp (p* p1 p1))
+  (pp (p* p1 p2))
+  (pp (p* p2 p2))
+  (pp (p* p2 p3))
+  (pp (p* p2 p5))
+  (pp (poly-opposite p4))
+  (pp (p- p1 p1))
+  (pp (p- p1 p2))
+  (pp (p- p1 p2))
+  (pp (p- p3 p2))
+  (pp (p- p5 p1))
+  (pp (poly-value p1 1))
+  (pp (poly-value p2 2))
+  (pp (poly-value p3 3))
+  (pp (poly-value p4 2))
+  (pp (poly-value p5 1))
+  #;(receive (q r) (poly-quot+rem p1 (pzero))
+    (format #t "~s ~s\n" q r))
+  (receive (q r) (poly-quot+rem (pzero) p1)
+    (format #t "~s ~s\n" q r))
+  (receive (q r) (poly-quot+rem p1 p1)
+    (format #t "~s ~s\n" q r))
+  (receive (q r) (poly-quot+rem p3 p3)
+    (format #t "~s ~s\n" q r))
+  (receive (q r) (poly-quot+rem p2 p1)
+    (format #t "~s ~s\n" q r))
+  (receive (q r) (poly-quot+rem p3 p1)
+    (format #t "~s ~s\n" q r))
+  (receive (q r) (poly-quot+rem p3 p2)
+    (format #t "~s ~s\n" q r))
+  (receive (q r) (poly-quot+rem p4 p2)
+    (format #t "~s ~s\n" q r))
+  (receive (q r) (poly-quot+rem p5 p1)
+    (format #t "~s ~s\n" q r))
   )
