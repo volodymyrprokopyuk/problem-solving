@@ -6,7 +6,7 @@
             rat- rat* rat-inverse rat/ rat= rat< rat> rat-min mat-max rat-abs
             ;; POLYNOMIAL - SYMBOLIC ALGEBRA
             pcons pzero degree lead tail pzero? p+ p* poly-opposite p- poly-quot+rem
-            poly-value))
+            poly-value digits->poly number->decimal decimal->number))
 
 (use-modules
  (ice-9 receive)
@@ -180,10 +180,7 @@
 
 (define (tail p)
   "Returns the tail of the polynomial wihout the leading term"
-  (cond
-    [(zero? (degree p)) (pzero)]
-    [(zero? (lead (cdr p))) (tail (cdr p))]
-    [else (cdr p)]))
+  (if [zero? (degree p)] (pzero) (cdr p)))
 
 ;; (pp (tail (pzero)))
 ;; (pp (tail (pcons 1 1 (pcons 1 0 (pzero)))))
@@ -255,44 +252,87 @@
        [p2 (pcons 2 1 p1)]
        [p3 (pcons 3 2 p2)]
        [p4 (pcons 4 3 p3)]
-       [p5 (pcons 5 4 (pzero))])
-  (pp (p+ p1 p1))
-  (pp (p+ p1 p2))
-  (pp (p+ p2 p3))
-  (pp (p+ p3 p4))
-  (pp (p+ p5 p1))
-  (pp (p* p1 p1))
-  (pp (p* p1 p2))
-  (pp (p* p2 p2))
-  (pp (p* p2 p3))
-  (pp (p* p2 p5))
-  (pp (poly-opposite p4))
-  (pp (p- p1 p1))
-  (pp (p- p1 p2))
-  (pp (p- p1 p2))
-  (pp (p- p3 p2))
-  (pp (p- p5 p1))
-  (pp (poly-value p1 1))
-  (pp (poly-value p2 2))
-  (pp (poly-value p3 3))
-  (pp (poly-value p4 2))
-  (pp (poly-value p5 1))
+       [p5 (pcons 5 4 (pzero))]
+       [p6 (pcons 1 2 (pcons 2 0 (pzero)))]
+       [p7 (pcons 2 3 (pcons 1 1 (pzero)))])
+  ;; (pp (p+ p1 p1))
+  ;; (pp (p+ p1 p2))
+  ;; (pp (p+ p2 p3))
+  ;; (pp (p+ p3 p4))
+  ;; (pp (p+ p5 p1))
+  ;; (pp (p+ p6 p7))
+  ;; (pp (p* p1 p1))
+  ;; (pp (p* p1 p2))
+  ;; (pp (p* p2 p2))
+  ;; (pp (p* p2 p3))
+  ;; (pp (p* p2 p5))
+  ;; (pp (p* p6 p7))
+  ;; (pp (poly-opposite p4))
+  ;; (pp (p- p1 p1))
+  ;; (pp (p- p1 p2))
+  ;; (pp (p- p1 p2))
+  ;; (pp (p- p3 p2))
+  ;; (pp (p- p5 p1))
+  ;; (pp (poly-value p1 1))
+  ;; (pp (poly-value p2 2))
+  ;; (pp (poly-value p3 3))
+  ;; (pp (poly-value p4 2))
+  ;; (pp (poly-value p5 1))
+  ;; (pp (poly-value p6 3))
+  ;; (pp (poly-value p7 3))
   #;(receive (q r) (poly-quot+rem p1 (pzero))
-    (format #t "~s ~s\n" q r))
-  (receive (q r) (poly-quot+rem (pzero) p1)
-    (format #t "~s ~s\n" q r))
-  (receive (q r) (poly-quot+rem p1 p1)
-    (format #t "~s ~s\n" q r))
-  (receive (q r) (poly-quot+rem p3 p3)
-    (format #t "~s ~s\n" q r))
-  (receive (q r) (poly-quot+rem p2 p1)
-    (format #t "~s ~s\n" q r))
-  (receive (q r) (poly-quot+rem p3 p1)
-    (format #t "~s ~s\n" q r))
-  (receive (q r) (poly-quot+rem p3 p2)
-    (format #t "~s ~s\n" q r))
-  (receive (q r) (poly-quot+rem p4 p2)
-    (format #t "~s ~s\n" q r))
-  (receive (q r) (poly-quot+rem p5 p1)
-    (format #t "~s ~s\n" q r))
+      (format #t "~s ~s\n" q r))
+  ;; (receive (q r) (poly-quot+rem (pzero) p1)
+  ;;   (format #t "~s ~s\n" q r))
+  ;; (receive (q r) (poly-quot+rem p1 p1)
+  ;;   (format #t "~s ~s\n" q r))
+  ;; (receive (q r) (poly-quot+rem p3 p3)
+  ;;   (format #t "~s ~s\n" q r))
+  ;; (receive (q r) (poly-quot+rem p2 p1)
+  ;;   (format #t "~s ~s\n" q r))
+  ;; (receive (q r) (poly-quot+rem p3 p1)
+  ;;   (format #t "~s ~s\n" q r))
+  ;; (receive (q r) (poly-quot+rem p3 p2)
+  ;;   (format #t "~s ~s\n" q r))
+  ;; (receive (q r) (poly-quot+rem p4 p2)
+  ;;   (format #t "~s ~s\n" q r))
+  ;; (receive (q r) (poly-quot+rem p5 p1)
+  ;;   (format #t "~s ~s\n" q r))
   )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; NUMBER CONVERSION
+
+(define (digits->poly ds)
+  "Converts the list of digits ds into a polynomial"
+  (let convert* ([ds ds] [d (1- (length ds))] [r '()])
+    (if [null? ds] (leads->poly r)
+        (convert* (cdr ds) (1- d) (cons (cons (car ds) d) r)))))
+
+;; (pp (digits->poly '(1 0 1 0)))
+
+(define* (number->decimal ds #:optional (radix 10))
+  "Converts the list of digits ds in the radix into decimal"
+  (let ([p (digits->poly ds)])
+    (poly-value p radix)))
+
+;; (pp (number->decimal '(1 0 1 0) 2))
+;; (pp (number->decimal '(1 1 1 1) 2))
+;; (pp (number->decimal '(0 1 1 1) 2))
+;; (pp (number->decimal '(0 1 0 1) 2))
+;; (pp (number->decimal '(0 1 0 1)))
+
+(define* (decimal->number x #:optional (radix 10))
+  "Converts the decimal number x into a list of digits in the radix"
+  (unfold-right
+   zero?
+   (lambda (s) (remainder s radix))
+   (lambda (s) (quotient s radix))
+   x))
+
+;; (pp (decimal->number 10 2))
+;; (pp (decimal->number 8 2))
+;; (pp (decimal->number 7 2))
+;; (pp (decimal->number 1234))
+;; (pp (number->decimal (decimal->number 1234 2) 2))
+;; (pp (number->decimal (decimal->number 1234 5) 5))

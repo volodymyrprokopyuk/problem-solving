@@ -145,7 +145,7 @@
          [cs (string-fold cons '() (string-downcase s))]
          [ds (map (lambda (c) (hash-table-ref char->digit c)) cs)]
          [dsp (zip ds (iota (length ds)))])
-    (fold (lambda (dp n) (+ n (* (car dp) (expt radix (cadr dp)))) ) 0 dsp)))
+    (fold (lambda (dp n) (+ n (* (car dp) (expt radix (cadr dp))))) 0 dsp)))
 
 (define (group-by n l)
   "Groups list elements into groups of size n"
