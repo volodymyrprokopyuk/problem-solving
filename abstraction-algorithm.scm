@@ -301,7 +301,7 @@
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; NUMBER CONVERSION
+;; NUMBER CONVERSION THROUGH POLYNOMIALS
 
 (define (digits->poly ds)
   "Converts the list of digits ds into a polynomial"

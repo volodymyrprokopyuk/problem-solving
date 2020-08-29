@@ -173,3 +173,16 @@
         ([= i n] l))))
 
 ;; (pp (rotate-right 4 (list-ec (:range i 1 5) i)))
+
+(define* (square-root x #:optional (p 0.001))
+  "Returns an approximation of the square root of the number x with the precision p"
+  (do ([u (/ x 2) v] [v (/ x 3) (/ (+ u (/ x u)) 2)])
+      ([< (abs (- u v)) p] (exact->inexact v))
+    (format #t "~s\n" (exact->inexact v))))
+
+;; (pp (square-root 1))
+;; (pp (sqrt 1))
+;; (pp (square-root 2))
+;; (pp (sqrt 2))
+;; (pp (square-root 3))
+;; (pp (sqrt 3))
