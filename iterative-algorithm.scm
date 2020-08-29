@@ -174,11 +174,16 @@
 
 ;; (pp (rotate-right 4 (list-ec (:range i 1 5) i)))
 
+(define* (round-number x #:optional (n 3))
+  "Rounds the number x to the n decimal positions"
+  (let ([k (expt 10 n)])
+    (/ (round (* (exact->inexact x) k)) k)))
+
 (define* (square-root x #:optional (p 0.001))
   "Returns an approximation of the square root of the number x with the precision p"
   (do ([u (/ x 2) v] [v (/ x 3) (/ (+ u (/ x u)) 2)])
-      ([< (abs (- u v)) p] (exact->inexact v))
-    (format #t "~s\n" (exact->inexact v))))
+      ([< (abs (- u v)) p] (round-number v 6))
+    (format #t "~s\n" (round-number v 6))))
 
 ;; (pp (square-root 1))
 ;; (pp (sqrt 1))
@@ -186,3 +191,17 @@
 ;; (pp (sqrt 2))
 ;; (pp (square-root 3))
 ;; (pp (sqrt 3))
+
+(define* (exchange-money x #:optional (bn '(100 50 20 10 5 1)))
+  "Exchanges the x amount of money given the bn set of banknotes"
+  (let exchange* ([x x] [bn bn] [r '()])
+    (if [zero? x] (reverse r)
+        (exchange*
+         (remainder x (car bn))
+         (cdr bn)
+         (let ([q (quotient x (car bn))])
+           (if [zero? q] r (cons (cons q (car bn)) r)))))))
+
+;; (pp (exchange-money 0))
+;; (pp (exchange-money 46))
+;; (pp (exchange-money 237))
