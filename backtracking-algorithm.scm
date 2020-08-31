@@ -27,21 +27,24 @@
     "Incrementally extends the already legal partial solution b with the next queen q"
     (cond
       ;; The complete solution is found
-      [(queen-solution? b) b]
+      [(queen-solution? b) (format #t "Solution: ~s\n" b) b]
       ;; All queen positions for the next row are invalid. The current board even
       ;; being a legal partial solution does not lead to any complete solution.
       ;; Backtrack the legal partial solution by moving to the next position in the
       ;; current row
-      [(= q -1) (queen-backtrack b)]
+      [(= q -1) (format #t "  # Fail: ~s ~s\n" q b) (queen-backtrack b)]
       ;; A valid queen position in the next row is found. Add the queen position in
       ;; the next row to the board, and further extend the new board with the next row
       ;; (deep-first tree search)
-      [(queen-legal? q b) (queen-extend (1- n) (cons q b))]
+      [(queen-legal? q b)
+       (format #t "  > Found: ~s ~s\n" q b)
+       (queen-extend (1- n) (cons q b))]
       ;; Check the next queen position in the next row
-      [else (queen-extend (1- q) b)]))
+      [else (format #t "  ? Check: ~s ~s\n" q b) (queen-extend (1- q) b)]))
 
   (define (queen-backtrack b)
     "Moves to the next position in the current row of the legal partial solution b"
+    (format #t "  < Backtrack: ~s\n" b)
     ;; There is no solution at all
     (if [null? b] b
         ;; Check the next position in the current row of a legal partial solution
