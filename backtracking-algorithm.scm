@@ -1,8 +1,9 @@
 (define-module
   (backtracking-algorithm)
-  #:export (queen))
+  #:export (queen queen-format))
 
 (use-modules
+ (srfi srfi-42) ;; Comprehensions
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
 
@@ -16,6 +17,19 @@
           ;; the queen position
           (and (not (= q p)) (not (= l p)) (not (= r p))
                (legal* (cdr b) (1- l) (1+ r)))))))
+
+(define (queen-format b)
+  "Formats the board b that represents a solution to the n-queen problem"
+  (string-ec (:list q b) (:range i (1+ (length b)))
+             (cond [(= i q) #\Q] [(= i (length b)) #\newline] [else #\.])))
+
+(define (queen-format2 b)
+  "Formats the board b that represents a solution to the n-queen problem"
+  (let ([l (length b)])
+    (let format* ([b b] [r '()])
+      (if [null? b] (string-join r "\n")
+          (do ([i 0 (1+ i)] [rr '() (cons (if [= i (car b)] #\Q #\.) rr)])
+              ([= i l] (format* (cdr b) (cons (list->string rr) r))))))))
 
 (define (queen n)
 
@@ -57,4 +71,4 @@
 
   (queen-extend-all))
 
-(pp (queen 4))
+(for-each (lambda (b) (pp b) (display (queen-format b)) (newline)) (queen 4))
