@@ -11,6 +11,7 @@
              count-nested-occurences leftmost-atomic rightmost-atomic))
 
 (use-modules
+ (ice-9 curried-definitions)
  (srfi srfi-1) ;; List library
  (srfi srfi-42) ;; Comprehensions
  ((ice-9 pretty-print)
@@ -440,3 +441,26 @@
       (if [null? fs] r (compose* (cdr fs) ((car fs) r))))))
 
 ;; (pp ((compose3 (lambda (x) (/ x 3)) (lambda (x) (* x 2)) 1+) 1))
+
+(define ((round-number n) x)
+  (let ([k (expt 10 n)])
+    (/ (round (* (exact->inexact x) k)) k)))
+
+#;(let ([round-3 (round-number 3)])
+  (pp (round-3 (sqrt 2)))
+  (pp (round-3 (sqrt 3)))
+  (pp (round-3 2/3)))
+
+(define (prime? x)
+  (cond
+    [(= x 2) #t]
+    [(or (<= x 1) (even? x)) #f]
+    [else
+     (let ([r (floor (sqrt x))])
+       (let prime* ([d (if [even? r] (1- r) r)])
+         (cond
+           [(< d 3) #t]
+           [(zero? (remainder x d)) #f]
+           [else (prime* (- d 2))])))]))
+
+;; (pp (map (lambda (x) (cons x (prime? x))) (iota 20)))
