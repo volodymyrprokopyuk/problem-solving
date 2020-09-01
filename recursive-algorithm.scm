@@ -11,7 +11,8 @@
              count-nested-occurences leftmost-atomic rightmost-atomic))
 
 (use-modules
- (srfi srfi-42)
+ (srfi srfi-1) ;; List library
+ (srfi srfi-42) ;; Comprehensions
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
 
@@ -425,3 +426,17 @@
 ;; (pp (rightmost-atomic '(a (b (c) d))))
 ;; (pp (rightmost-atomic '(a (b (c) d) e f)))
 ;; (pp (rightmost-atomic '(a (b (c) d) e f (g h))))
+
+(define (compose2 . fs)
+  "Returns composition of the fs functions"
+  (lambda (x) (fold-right (lambda (f b) (f b)) x fs)))
+
+;; (pp ((compose2 (lambda (x) (/ x 3)) (lambda (x) (* x 2)) 1+) 1))
+
+(define (compose3 . fs)
+  "Returns composition of the fs functions"
+  (lambda (x)
+    (let compose* ([fs (reverse fs)] [r x])
+      (if [null? fs] r (compose* (cdr fs) ((car fs) r))))))
+
+;; (pp ((compose3 (lambda (x) (/ x 3)) (lambda (x) (* x 2)) 1+) 1))

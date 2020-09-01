@@ -5,7 +5,7 @@ readonly SRFI_DIR=$HOME/Projects/scheme-upgrade
 
 # readonly SOURCE=linear-algorithm
 # readonly SOURCE=conditional-algorithm
-# readonly SOURCE=recursive-algorithm
+readonly SOURCE=recursive-algorithm
 # readonly SOURCE=iterative-algorithm
 # readonly SOURCE=array-algorithm
 # readonly SOURCE=data-structure
@@ -17,7 +17,7 @@ readonly SRFI_DIR=$HOME/Projects/scheme-upgrade
 # readonly SOURCE=control-algorithm
 # readonly SOURCE=fsm-algorithm
 # readonly SOURCE=abstraction-algorithm
-readonly SOURCE=backtracking-algorithm
+# readonly SOURCE=backtracking-algorithm
 
 export GUILE_LOAD_PATH="${ROOT_DIR}:${SRFI_DIR}"
 
