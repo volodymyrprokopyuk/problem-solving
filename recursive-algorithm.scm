@@ -464,3 +464,25 @@
            [else (prime* (- d 2))])))]))
 
 ;; (pp (map (lambda (x) (cons x (prime? x))) (iota 20)))
+
+(define (flat-filter p l)
+  "Filters top-level elements of the list l with the predicate p"
+  (let filter* ([l l] [r '()])
+    (cond
+      [(null? l) (reverse r)]
+      [(p (car l)) (filter* (cdr l) (cons (car l) r))]
+      [else (filter* (cdr l) r)])))
+
+;; (pp (flat-filter even? '(1 2 3 4 5 6)))
+
+(define (deep-filter p l)
+  "Filters all elements of the nested list l with the predicate p"
+  (let filter* ([l l] [r '()])
+    (cond
+      [(null? l) (reverse r)]
+      [(pair? (car l))
+       (filter* (cdr l) (cons (filter* (car l) '()) r))]
+      [(p (car l)) (filter* (cdr l) (cons (car l) r))]
+      [else (filter* (cdr l) r)])))
+
+;; (pp (deep-filter even? '(1 2 3 (4 5 6 7 (8 9 10 11) (12 13 14 15) 16 17 19) 19 20 21)))
