@@ -8,7 +8,8 @@
              swap-occurences harmonic-sum dot-product append2 merge-sorted
              count-nested remove-nested reverse-nested substitute-nested sum-nested
              nested-depth flatten-nested remove-nested-first count-open-parentheses
-             count-nested-occurences leftmost-atomic rightmost-atomic))
+             count-nested-occurences leftmost-atomic rightmost-atomic compose2 compose3
+             round-number prime? flat-filter deep-filter))
 
 (use-modules
  (ice-9 curried-definitions)
