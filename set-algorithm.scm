@@ -121,6 +121,14 @@
 
 ;; (pp (make-set 'a 'b 'c))
 
+(define (cardinal s)
+  "Returns the number of elements in the set s"
+  (let cardinal* ([s s] [r 0])
+    (if [set-empty? s] r
+        (let ([e (pick s)]) (cardinal* ((exclude e) s) (1+ r))))))
+
+;; (pp (cardinal (make-set 1 2 3 4)))
+
 (define ((set-every p) s)
   "Returns #t if every element in the set s satisfies the predicate p"
   (let every* ([s s])
@@ -131,6 +139,8 @@
 (define (set-every2 p)
   "Implements set-every in terms of set-any"
   (negate (set-any (negate p))))
+
+(define set-every21 (compose negate set-any negate))
 
 (define (set-every3 p)
   "Implements set-every in terms of set-none"
@@ -187,6 +197,92 @@
 ;; (pp ((set-none2 even?) (make-set 1 3 5 7 8)))
 ;; (pp ((set-none3 even?) (make-set 1 3 5 7 8)))
 
+(define ((set-member? e) s)
+  "Returns #t if the element e is in the set s"
+  ((set-any (lambda (se) (equal? se e))) s))
+
+;; (pp ((set-member? 1) (make-set 1 2 3 4)))
+
+(define ((set-subset? x) y)
+  "Returns #t if the set x is a subset of the set y"
+  ((set-every (lambda (xe) ((set-member? xe) y))) x))
+
+;; (pp ((set-subset? (make-set 1 2 3 4)) (make-set 1 2 3)))
+
 (define ((set-equal? x) y)
   "Returns #t if the sets x and y are equal"
-  'TODO)
+  (and ((set-subset? x) y) ((set-subset? y) x)))
+
+;; (pp ((set-equal? (make-set 1 2 3 4)) (make-set 1 2 3 4)))
+
+(define set-intersection
+  (case-lambda
+    [(x y)
+     "Returns the intersaction of the sets x and y"
+     (let intersect* ([x x] [r (set-empty)])
+       (if [set-empty? x] r
+           (let ([e (pick x)])
+             (if [(set-member? e) y]
+                 (intersect* ((exclude e) x) (adjoin e r))
+                 (intersect* ((exclude e) x) r)))))]
+    [(x y . r)
+     "Returns the intersaction of more than two sets"
+     (apply set-intersection (set-intersection x y) r)]))
+
+;; (pp (set-intersection
+;;      (make-set 'a 'b 'c 'd) (make-set 'a 'c 'e 'f) (make-set 'a 'g 'h)))
+
+(define set-union
+  (case-lambda
+    [(x y)
+     "Returns the union of the sets x and y"
+     (let union* ([x x] [r y])
+       (if [set-empty? x] r
+           (let ([e (pick x)])
+             (if [(set-member? e) y]
+                 (union* ((exclude e) x) r)
+                 (union* ((exclude e) x) (adjoin e r))))))]
+    [(x y . r)
+     "Returns the union of more than two sets"
+     (apply set-union (set-union x y) r)]))
+
+;; (pp (set-union
+;;      (make-set 'a 'b 'c 'd) (make-set 'a 'c 'e 'f) (make-set 'a 'g 'h)))
+
+(define set-difference
+  (case-lambda
+    [(x y)
+     "Returns the difference of the sets x and y"
+     (let diff* ([x x] [r x])
+       (if [set-empty? x] r
+           (let ([e (pick x)])
+             (if [(set-member? e) y]
+                 (diff* ((exclude e) x) ((exclude e) r))
+                 (diff* ((exclude e) x) r)))))
+     ]
+    [(x y . r)
+     "Returns the difference of more than two sets"
+     (apply set-difference (set-difference x y) r)]))
+
+;; (pp (set-difference
+;;      (make-set 'a 'b 'c 'd) (make-set 'a 'c 'e 'f) (make-set 'd 'g 'h)))
+
+(define (set-symmetric-difference x y)
+  "Returns the symmetric difference of the sets x and y"
+  (set-difference (set-union x y) (set-intersection x y)))
+
+(define (set-symmetric-difference2 x y)
+  "Returns the symmetric difference of the sets x and y"
+  (set-union (set-difference x y) (set-difference y x)))
+
+;; (pp (set-symmetric-difference (make-set 'a 'b 'c 'd) (make-set 'a 'c 'e 'f)))
+;; (pp (set-symmetric-difference2 (make-set 'a 'b 'c 'd) (make-set 'a 'c 'e 'f)))
+
+(define (set-map f s)
+  "Returns a new set by applying the procedure f to every element of the set s"
+  (let map* ([s s] [r (set-empty)])
+    (if [set-empty? s] r
+        (let ([e (pick s)])
+          (map* ((exclude e) s) (adjoin (f e) r))))))
+
+;; (pp (set-map 1+ (make-set 1 2 3 4)))
