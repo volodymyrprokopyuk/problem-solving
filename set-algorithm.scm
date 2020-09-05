@@ -4,6 +4,7 @@
 
 (use-modules
  (ice-9 curried-definitions)
+ (srfi srfi-1) ;; List library
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
 
@@ -148,6 +149,7 @@
 
 ;; (pp ((set-every even?) (make-set 2 4 6 8)))
 ;; (pp ((set-every2 even?) (make-set 2 4 6 8)))
+;; (pp ((set-every21 even?) (make-set 2 4 6 8)))
 ;; (pp ((set-every3 even?) (make-set 2 4 6 8)))
 ;; (pp ((set-every even?) (make-set 2 4 6 8 9)))
 ;; (pp ((set-every2 even?) (make-set 2 4 6 8 9)))
@@ -286,3 +288,53 @@
           (map* ((exclude e) s) (adjoin (f e) r))))))
 
 ;; (pp (set-map 1+ (make-set 1 2 3 4)))
+
+(define (power-set s)
+  "Returns the power set of the set s"
+  (if [set-empty? s] (make-set (set-empty))
+      (let* ([e (pick s)]
+             [ps (power-set ((exclude e) s))])
+        (set-union ps (set-map (lambda (pse) (adjoin e pse)) ps)))))
+
+;; (pp (power-set (make-set 'a 'b 'c)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ORDERED PAIR
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Data abstraction primitives
+
+(define (make-op x y)
+  "Creates orderd pair from the x and y elements"
+  (cons x y))
+
+(define (op-left op)
+  "Returns the left element of the ordered pair op"
+  (car op))
+
+(define (op-right op)
+  "Returns the right element of the ordered pair op"
+  (cdr op))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Data abstraction algorithms
+
+(define (cartesian-product x y)
+  "Returns the set of Cartesian product of the sets x and y"
+  (let outer* ([l x] [os (set-empty)])
+    (if [set-empty? l] os
+        (let ([le (pick l)])
+          (let inner* ([r y] [is (set-empty)])
+            (if [set-empty? r]
+                (outer* ((exclude le) l) (set-union is os))
+                (let* ([re (pick r)] [op (make-op le re)])
+                  (inner* ((exclude re) r) (adjoin op is)))))))))
+
+(define (cartesian-product2 x y)
+  "Returns the set of Cartesian product of the sets x and y"
+  (let* ([ll (set-map (lambda (le) (set-map (lambda (re) (make-op le re)) y)) x)]
+         [l (fold append '() ll)])
+    (apply make-set l)))
+
+(pp (cartesian-product (make-set 'A 'B) (make-set 'a 'b 'c)))
+(pp (cartesian-product2 (make-set 'A 'B) (make-set 'a 'b 'c)))
