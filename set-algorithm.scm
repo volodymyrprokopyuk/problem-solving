@@ -289,6 +289,16 @@
 
 ;; (pp (set-map 1+ (make-set 1 2 3 4)))
 
+(define (set-filter p s)
+  "Returns a new set of every element from the set s that satisfies the predicate p"
+  (let filter* ([s s] [r (set-empty)])
+    (if [set-empty? s] r
+        (let ([e (pick s)])
+          (if [p e] (filter* ((exclude e) s) (adjoin e r))
+              (filter* ((exclude e) s) r))))))
+
+;; (pp (set-filter even? (make-set 1 2 3 4 5 6)))
+
 (define (power-set s)
   "Returns the power set of the set s"
   (if [set-empty? s] (make-set (set-empty))
@@ -316,6 +326,10 @@
   "Returns the right element of the ordered pair op"
   (cdr op))
 
+(define (op? x)
+  "Returns #t if the object x is an ordered pair"
+  (pair? x))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Data abstraction algorithms
 
@@ -336,5 +350,76 @@
          [l (fold append '() ll)])
     (apply make-set l)))
 
-(pp (cartesian-product (make-set 'A 'B) (make-set 'a 'b 'c)))
-(pp (cartesian-product2 (make-set 'A 'B) (make-set 'a 'b 'c)))
+;; (pp (cartesian-product (make-set 'A 'B) (make-set 'a 'b 'c)))
+;; (pp (cartesian-product2 (make-set 'A 'B) (make-set 'a 'b 'c)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; RELATIONS AND FUNCITONS
+
+(define (make-relation . l)
+  "Creates a relation from the list l of two element lists"
+  (apply make-set (map (lambda (e) (apply make-op e)) l)))
+
+;; (pp (make-relation '(1 2) '(3 4) '(5 6)))
+
+(define (domain r)
+  "Returns the domain of the relation r represented as a set of ordered pairs"
+  (set-map op-left r))
+
+(define (range r)
+  "Returns the rante of the relation r represented as a set of ordered pairs"
+  (set-map op-right r))
+
+(define (relation? x)
+  "Returns #t if the object x is a relation (a set of ordered pairs)"
+  ((set-every op?) x))
+
+;; (pp (relation? (set-empty)))
+;; (pp (relation? (make-set (make-op 'a 'b))))
+;; (pp (relation? (make-relation '(a b))))
+;; (pp (relation? (make-set 'a 'b)))
+
+(define (relation-inverse r)
+  "Returns the inverse relation of the relation r"
+  (set-map (lambda (op) (make-op (op-right op) (op-left op))) r))
+
+;; (pp (relation-inverse (make-relation '(0 0) '(1 1) '(2 4) '(3 9))))
+
+(define (relation-reflexive? r)
+  "Returns #t if the relation r is reflexive (every element of r is related to inself)"
+  ((set-every (lambda (x) ((set-any (lambda (y) (equal? (op-left x) (op-right y)))) r))) r))
+
+;; (pp (relation-reflexive? (make-relation '(0 0) '(1 1) '(2 2) '(3 3))))
+;; (pp (relation-reflexive? (make-relation '(0 0) '(1 1) '(2 4) '(3 9))))
+
+(define (relation-symmetric? r)
+  "Returns #t if the relation r is symmetric (is equal to its inverse relaiton)"
+  ((set-equal? r) (relation-inverse r)))
+
+;; (pp (relation-symmetric? (make-relation '(0 0) '(1 1) '(2 2) '(3 3))))
+;; (pp (relation-symmetric? (make-relation '(0 0) '(1 1) '(2 4) '(3 9))))
+
+(define (function? r)
+  "Returns #t if the relation r represented as a set of ordered pairs is a funciton"
+  (or [set-empty? r]
+      (let* ([op (pick r)]
+             [x (op-left op)]
+             [sr (set-filter (lambda (rop) (equal? (op-left rop) x)) r)])
+        (and (= (cardinal sr) 1) (function? (set-difference r sr))))))
+
+;; (pp (function? (make-relation '(0 0) '(1 1) '(2 4) '(3 9))))
+
+(define ((function-value r) x)
+  "Returns the value of a function represented by the relation r at the argument x"
+  (let ([sr (set-filter (lambda (rop) (equal? (op-left rop) x)) r)])
+    (when [set-empty? sr] (error "value: function is not defined for:" x))
+    (op-right (pick sr))))
+
+;; (pp ((function-value (make-relation '(0 0) '(1 1) '(2 4) '(3 9))) 2))
+
+(define (function-one-to-one? r)
+  "Returns #t if the function r is one-to-one"
+  (and (function? r) (function? (relation-inverse r))))
+
+;; (pp (function-one-to-one? (make-relation '(0 0) '(1 1) '(2 4) '(3 9))))
+;; (pp (function-one-to-one? (make-relation '(-1 1) '(0 0) '(1 1) '(2 4) '(3 9))))
