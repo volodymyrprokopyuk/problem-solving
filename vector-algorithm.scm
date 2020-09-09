@@ -70,9 +70,10 @@
 
 (define ((mx-ref m) i j)
   "Returns a matrix element identified by the row and column indices i j"
-  (when [>= i (mx-nrow m)] (error "mx-ref: row index out of bound:" i))
-  (when [>= j (mx-ncol m)] (error "mx-ref: column index out of bound:" j))
-  (vector-ref m (+ (* i (mx-ncol m)) j)))
+  (let ([nr (mx-nrow m)] [nc (mx-ncol m)])
+    (when [>= i nr] (error "mx-ref: row index out of bound:" i))
+    (when [>= j nc] (error "mx-ref: column index out of bound:" j))
+    (vector-ref m (+ (* i (mx-ncol m)) j))))
 
 ;; (let* ([m ((mx-gen (lambda (ri ci) (cons ri ci))) 3 4)]
 ;;        [mr (mx-ref m)])
@@ -91,6 +92,17 @@
   (vector-ref m (1- (vector-length m))))
 
 ;; (pp (mx-ncol ((mx-gen (const 0)) 3 4)))
+
+(define ((mx-set! m) i j e)
+  "Sets the element of the matrix m identified by the indices i and j to e"
+  (let ([nr (mx-nrow m)] [nc (mx-ncol m)])
+    (when [>= i nr] (error "mx-set!: row index out of bound:" i))
+    (when [>= j nc] (error "mx-set!: column index out of bound:" j))
+    (vector-set! m (+ (* i nc) j) e)))
+
+;; (let ([m ((mx-gen (const 0)) 3 4)])
+;;   ((mx-set! m) 1 2 10)
+;;   (display (mx-format m)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Data abstraction algorithms
@@ -146,21 +158,46 @@
 
 (define (mx-dot-product x y)
   "Returns the dot product of the compatible matrices x and y"
-  (when [not (equal? (mx-ncol x) (mx-nrow y))]
-    (error "mx-dot-product: not compatible matrices"))
   (let ([xnr (mx-nrow x)]
         [xnc (mx-ncol x)]
         [ynr (mx-nrow y)]
         [ync (mx-ncol y)]
         [xr (mx-ref x)]
         [yr (mx-ref y)])
+    (when [not (= xnc ynr)] (error "mx-dot-product: not compatible matrices"))
     ((mx-gen
       (lambda (i j)
         (do ([k 0 (1+ k)] [e 0 (+ (* (xr i k) (yr k j)) e)])
             ([= k xnc] e))))
-      xnr ync)))
+     xnr ync)))
 
 ;; (let* ([x (vector->matrix #(1 2 3 4 5 6) 3)]
 ;;        [y (vector->matrix #(7 8 9 10 11 12) 2)]
 ;;        [m (mx-dot-product x y)])
 ;;   (display (mx-format m)))
+
+(define (mx+ x y)
+  "Adds two matrices x and y"
+  (let ([xnr (mx-nrow x)]
+        [xnc (mx-ncol x)]
+        [ynr (mx-nrow y)]
+        [ync (mx-ncol y)]
+        [xr (mx-ref x)]
+        [yr (mx-ref y)])
+    (when [not (= xnr ynr)] (error "mx+: not compatible matrices rows"))
+    (when [not (= xnc ync)] (error "mx+: not compatible matrices columns"))
+    ((mx-gen (lambda (i j) (+ (xr i j) (yr i j)))) xnr xnc)))
+
+;; (let* ([x (vector->matrix #(1 2 3 4 5 6) 3)]
+;;        [y (vector->matrix #(7 8 9 10 11 12) 3)]
+;;        [m (mx+ x y)])
+;;   (display (mx-format m)))
+
+(define (mx-scalar-product m c)
+  "Multiplies the matrix m by the scalr c"
+  (let ([nr (mx-nrow m)] [nc (mx-ncol m)] [mr (mx-ref m)])
+    ((mx-gen (lambda (i j) (* (mr i j) c))) nr nc)))
+
+;; (let* ([m (vector->matrix #(1 2 3 4 5 6) 3)]
+;;        [cm (mx-scalar-product m 10)])
+;;   (display (mx-format cm)))
