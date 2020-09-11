@@ -27,15 +27,15 @@
   (let ([n (vector-length v)])
     (do ([i 1 (1+ i)]) ([= i n] v)
       (let ([ei (vector-ref v i)])
-        ;; (format #t "* [~s] ~s ~s\n" i ei v)
+        ;; (format #t "* ~s -> ~s ~s\n" i ei v)
         (let insert* ([j (1- i)])
           (let ([ej (vector-ref v j)])
-            ;; (format #t "  > [~s] ~s ~s\n" j ej v)
+            ;; (format #t "  > ~s -> ~s ~s\n" j ej v)
             (cond
-              [(c ej ei) (vector-set! v (1+ j) ei)]
-              [(zero? j) (vector-set! v (1+ j) ej) (vector-set! v j ei)]
-              [else (vector-set! v (1+ j) ej) (insert* (1- j))])))))))
+              [(zero? j) (vector-set v j ei)]
+              [(c ej ei) (vector-set v (1+ j) ei)]
+              [else (vector-set v (1+ j) ej) (insert* (1- j))])))))))
 
-;; (pp (insert-sort-iterative (vector 1)))
+;; (pp (insert-sort-recursive '(1)))
 ;; (pp (insert-sort-iterative (vector 5 7 3 8 1 9 2 6 4)))
-;; (pp (insert-sort-iterative (vector 5 7 3 8 1 9 2 6 4) >=))
+;; (pp (insert-sort-iterative '(5 7 3 8 1 9 2 6 4) >=))
