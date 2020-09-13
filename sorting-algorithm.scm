@@ -83,3 +83,53 @@
 ;; (pp (merge-sort-recursive '(1)))
 ;; (pp (merge-sort-recursive '(5 7 3 8 1 9 2 6 4)))
 ;; (pp (merge-sort-recursive '(5 7 3 8 1 9 2 6 4) >=))
+
+(define* (vector-group-successive v #:optional (c <=))
+  "Returns a list of successive groups identified by indices as per compartor c"
+  (let ([n (vector-length v)])
+    (let group* ([i 0] [a #f] [l #f] [r '()])
+      (cond
+        [(= i n) (reverse (cons (list a i) r))]
+        [(not a) (group* (1+ i) i (vector-ref v i) r)]
+        [(c l (vector-ref v i)) (group* (1+ i) a (vector-ref v i) r)]
+        [else (group* (1+ i) i (vector-ref v i) (cons (list a i) r))]))))
+
+;; (pp (vector-group-successive (vector 5 7 3 8 1 9 2 6 4)))
+
+(define* (vector-merge-pair v x y #:optional (c <=))
+  "Merges in place the ordered subvectors of the vector v identified by x and y indices"
+  (let* ([xa (car x)] [xb (cadr x)] [ya (car y)] [yb (cadr y)]
+                      [n (- yb xa)][sv (make-vector n)])
+    (let merge* ([i xa] [j ya] [k 0])
+      ;; (format #t "  > [~s ~s ~s] [~s ~s ~s] ~s\n" xa i xb ya j yb k)
+      (cond
+        [(and [= i xb] [= j yb])
+         (do ([k 0 (1+ k)] [i xa (1+ i)]) ([= k n] (list xa yb))
+           (vector-set! v i (vector-ref sv k)))]
+        [(= i xb) (vector-set! sv k (vector-ref v j)) (merge* i (1+ j) (1+ k))]
+        [(= j yb) (vector-set! sv k (vector-ref v i)) (merge* (1+ i) j (1+ k))]
+        [(c (vector-ref v i) (vector-ref v j))
+         (vector-set! sv k (vector-ref v i)) (merge* (1+ i) j (1+ k))]
+        [else (vector-set! sv k (vector-ref v j)) (merge* i (1+ j) (1+ k))]))))
+
+;; (let ([v (vector 5 7 3 8 1 9 2 6 4)])
+;;   (pp (vector-merge-pair v '(0 2) '(2 4))) (pp v))
+;; (let ([v (vector 1 2 3 5 6 7 8 9 4)])
+;;   (pp (vector-merge-pair v '(0 8) '(8 9))) (pp v))
+
+(define* (merge-sort-itarative v #:optional (c <=))
+  "Sorts O(nlogn) the vector v in place by applying the merge sort algorithm iteratively"
+  (let merge* ([g (vector-group-successive v c)] [r '()])
+    ;; (format #t "* ~s ~s ~s\n" g r v)
+    (cond
+      [(and [singleton? g] [null? r]) v]
+      [(and [null? g] [singleton? r]) v]
+      [(null? g) (merge* (reverse r) '())]
+      [(singleton? g) (merge* (reverse (cons (car g) r)) '())]
+      [else
+       (let ([mg (vector-merge-pair v (car g) (cadr g) c)])
+         (merge* (cddr g) (cons mg r)))])))
+
+;; (pp (merge-sort-itarative (vector 1)))
+;; (pp (merge-sort-itarative (vector 5 7 3 8 1 9 2 6 4)))
+;; (pp (merge-sort-itarative (vector 5 7 3 8 1 9 2 6 4) >=))
