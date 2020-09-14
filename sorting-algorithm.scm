@@ -133,3 +133,17 @@
 ;; (pp (merge-sort-itarative (vector 1)))
 ;; (pp (merge-sort-itarative (vector 5 7 3 8 1 9 2 6 4)))
 ;; (pp (merge-sort-itarative (vector 5 7 3 8 1 9 2 6 4) >=))
+
+(define* (quick-sort-recursive l #:optional (c <=))
+  "Sorts O(nlogn) a copy of the list l by applying the quick sort algorithm recursively"
+  (if (or [null? l] [singleton? l]) l
+      (let sort* ([p (car l)] [l (cdr l)] [ll '()] [rr '()])
+        (cond
+          [(null? l)
+           (append (quick-sort-recursive ll c) (cons p (quick-sort-recursive rr c)))]
+          [(c (car l) p) (sort* p (cdr l) (cons (car l) ll) rr)]
+          [else (sort* p (cdr l) ll (cons (car l) rr))]))))
+
+;; (pp (quick-sort-recursive '(1)))
+;; (pp (quick-sort-recursive '(5 7 3 8 1 9 2 6 4)))
+;; (pp (quick-sort-recursive '(5 7 3 8 1 9 2 6 4) >=))
