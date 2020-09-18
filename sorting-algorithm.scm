@@ -2,6 +2,7 @@
   (sorting-algorithm))
 
 (use-modules
+ (ice-9 receive)
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
 
@@ -9,7 +10,7 @@
   "Returns #t if the list l has only one element"
   (and [pair? l] [null? (cdr l)]))
 
-(define* (insert-sort-recursive l #:optional (c <=))
+(define* (insertsort l #:optional (c <=))
   "Sorts O(n2) a copy of the list l by applying the insert sort algorithm recursively"
   ;; (format #t "sort: ~s\n" l)
   (define (insert* e l)
@@ -18,13 +19,14 @@
       [(null? l) (cons e l)]
       [(c e (car l)) (cons e l)]
       [else (cons (car l) (insert* e (cdr l)))]))
-  (if [singleton? l] l (insert* (car l) (insert-sort-recursive (cdr l) c))))
+  (if [singleton? l] l (insert* (car l) (insertsort (cdr l) c))))
 
-;; (pp (insert-sort-recursive '(1)))
-;; (pp (insert-sort-recursive '(5 7 3 8 1 9 2 6 4)))
-;; (pp (insert-sort-recursive '(5 7 3 8 1 9 2 6 4) >=))
+;; (pp (insertsort '(1)))
+;; (pp (insertsort '(1 1)))
+;; (pp (insertsort '(5 7 3 8 1 9 2 6 4)))
+;; (pp (insertsort '(5 7 3 8 1 9 2 6 4) >=))
 
-(define* (insert-sort-iterative v #:optional (c <=))
+(define* (vector-insertsort! v #:optional (c <=))
   "Sorts O(n2) the vector v in place by applying the insert sort algorithm iteratively"
   (let ([n (vector-length v)])
     (do ([i 1 (1+ i)]) ([= i n] v)
@@ -38,9 +40,10 @@
               [(zero? j) (vector-set! v (1+ j) ej) (vector-set! v j ei)]
               [else (vector-set! v (1+ j) ej) (insert* (1- j))])))))))
 
-;; (pp (insert-sort-iterative (vector 1)))
-;; (pp (insert-sort-iterative (vector 5 7 3 8 1 9 2 6 4)))
-;; (pp (insert-sort-iterative (vector 5 7 3 8 1 9 2 6 4) >=))
+;; (pp (vector-insertsort! (vector 1)))
+;; (pp (vector-insertsort! (vector 1 1)))
+;; (pp (vector-insertsort! (vector 5 7 3 8 1 9 2 6 4)))
+;; (pp (vector-insertsort! (vector 5 7 3 8 1 9 2 6 4) >=))
 
 (define* (group-successive l #:optional (c <=))
   "Groups successive elements in the list l as per the comparator c"
@@ -67,7 +70,7 @@
 
 ;; (pp (merge-pair '(1 3 5 6 7 8 9) '(2 4 8 9 10 11)))
 
-(define* (merge-sort-recursive l #:optional (c <=))
+(define* (mergesort l #:optional (c <=))
   "Sorts O(nlogn) a copy of the list l by applying the merge sort algorithm recursively"
   (let merge* ([g (group-successive l c)] [r '()])
     ;; (format #t "~s -> ~s\n" g r)
@@ -80,12 +83,13 @@
        (let ([m (merge-pair (car g) (cadr g) c)])
          (merge* (cddr g) (cons m r)))])))
 
-;; (pp (merge-sort-recursive '(1)))
-;; (pp (merge-sort-recursive '(5 7 3 8 1 9 2 6 4)))
-;; (pp (merge-sort-recursive '(5 7 3 8 1 9 2 6 4) >=))
+;; (pp (mergesort '(1)))
+;; (pp (mergesort '(1 1)))
+;; (pp (mergesort '(5 7 3 8 1 9 2 6 4)))
+;; (pp (mergesort '(5 7 3 8 1 9 2 6 4) >=))
 
 (define* (vector-group-successive v #:optional (c <=))
-  "Returns a list of successive groups identified by indices as per compartor c"
+  "Returns a list of successive groups identified by the indices as per comparator c"
   (let ([n (vector-length v)])
     (let group* ([i 0] [a #f] [l #f] [r '()])
       (cond
@@ -96,8 +100,8 @@
 
 ;; (pp (vector-group-successive (vector 5 7 3 8 1 9 2 6 4)))
 
-(define* (vector-merge-pair v x y #:optional (c <=))
-  "Merges in place the ordered subvectors of the vector v identified by x and y indices"
+(define* (vector-merge-pair! v x y #:optional (c <=))
+  "Merges in place the ordered subvectors of the vector v identified by the x and y indices"
   (let* ([xa (car x)] [xb (cadr x)] [ya (car y)] [yb (cadr y)]
                       [n (- yb xa)][sv (make-vector n)])
     (let merge* ([i xa] [j ya] [k 0])
@@ -113,11 +117,11 @@
         [else (vector-set! sv k (vector-ref v j)) (merge* i (1+ j) (1+ k))]))))
 
 ;; (let ([v (vector 5 7 3 8 1 9 2 6 4)])
-;;   (pp (vector-merge-pair v '(0 2) '(2 4))) (pp v))
+;;   (pp (vector-merge-pair! v '(0 2) '(2 4))) (pp v))
 ;; (let ([v (vector 1 2 3 5 6 7 8 9 4)])
-;;   (pp (vector-merge-pair v '(0 8) '(8 9))) (pp v))
+;;   (pp (vector-merge-pair! v '(0 8) '(8 9))) (pp v))
 
-(define* (merge-sort-itarative v #:optional (c <=))
+(define* (vector-mergesort! v #:optional (c <=))
   "Sorts O(nlogn) the vector v in place by applying the merge sort algorithm iteratively"
   (let merge* ([g (vector-group-successive v c)] [r '()])
     ;; (format #t "* ~s ~s ~s\n" g r v)
@@ -127,23 +131,58 @@
       [(null? g) (merge* (reverse r) '())]
       [(singleton? g) (merge* (reverse (cons (car g) r)) '())]
       [else
-       (let ([mg (vector-merge-pair v (car g) (cadr g) c)])
+       (let ([mg (vector-merge-pair! v (car g) (cadr g) c)])
          (merge* (cddr g) (cons mg r)))])))
 
-;; (pp (merge-sort-itarative (vector 1)))
-;; (pp (merge-sort-itarative (vector 5 7 3 8 1 9 2 6 4)))
-;; (pp (merge-sort-itarative (vector 5 7 3 8 1 9 2 6 4) >=))
+;; (pp (vector-mergesort! (vector 1)))
+;; (pp (vector-mergesort! (vector 1 1)))
+;; (pp (vector-mergesort! (vector 5 7 3 8 1 9 2 6 4)))
+;; (pp (vector-mergesort! (vector 5 7 3 8 1 9 2 6 4) >=))
 
-(define* (quick-sort-recursive l #:optional (c <=))
+(define* (quicksort l #:optional (c <=))
   "Sorts O(nlogn) a copy of the list l by applying the quick sort algorithm recursively"
   (if (or [null? l] [singleton? l]) l
       (let sort* ([p (car l)] [l (cdr l)] [ll '()] [rr '()])
         (cond
-          [(null? l)
-           (append (quick-sort-recursive ll c) (cons p (quick-sort-recursive rr c)))]
+          [(null? l) (append (quicksort ll c) (cons p (quicksort rr c)))]
           [(c (car l) p) (sort* p (cdr l) (cons (car l) ll) rr)]
           [else (sort* p (cdr l) ll (cons (car l) rr))]))))
 
-;; (pp (quick-sort-recursive '(1)))
-;; (pp (quick-sort-recursive '(5 7 3 8 1 9 2 6 4)))
-;; (pp (quick-sort-recursive '(5 7 3 8 1 9 2 6 4) >=))
+;; (pp (quicksort '(1)))
+;; (pp (quicksort '(1 1)))
+;; (pp (quicksort '(5 7 3 8 1 9 2 6 4)))
+;; (pp (quicksort '(5 7 3 8 1 9 2 6 4) >=))
+
+(define (vector-swap! v i j)
+  "Swaps in place the elements with the indices i and j of the vector v"
+  (let ([ei (vector-ref v i)] [ej (vector-ref v j)])
+    (format #t "  <> ~s\n    [~s]~s <=> [~s]~s\n" v i ei j ej)
+    (vector-set! v i ej) (vector-set! v j ei)))
+
+(define* (vector-quicksort! v #:optional (c <=))
+  "Sorts O(nlogn) the vector v in place by applying the quick sort algorithm iteratively"
+  (define (partition! a b)
+    (let* ([k (floor (/ (+ a b) 2))]
+           [p (vector-ref v k)])
+      (format #t "* [~s, ~s] [~s]~s ~s\n" a b k p v)
+      (let partition!* ([ii a] [jj b])
+        (let ([i (do ([i ii (1+ i)]) ([c p (vector-ref v i)] i))]
+              [j (do ([j jj (1- j)]) ([c (vector-ref v j) p] j))])
+          (cond
+            [(>= i j) (format #t "  _| ~s\n" j) j]
+            [else (vector-swap! v i j) (partition!* (1+ i) (1- j))])))))
+  (let ([n (vector-length v)])
+    (cond
+      [(or [zero? n] [= n 1]) v]
+      [else
+       (let sort!* ([a 0] [b (1- n)])
+         (cond
+           [(< a b)
+            (let ([k (partition! a b)])
+              (sort!* a k) (sort!* (1+ k) b))]
+           [else v]))])))
+
+;; (pp (vector-quicksort! (vector 1)))
+;; (pp (vector-quicksort! (vector 1 1)))
+;; (pp (vector-quicksort! (vector 5 7 3 8 1 9 2 6 4)))
+;; (pp (vector-quicksort! (vector 5 7 3 8 1 9 2 6 4) >=))
