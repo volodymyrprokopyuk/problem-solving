@@ -2,9 +2,23 @@
   (sorting-algorithm))
 
 (use-modules
- (ice-9 receive)
+ (srfi srfi-27)
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
+
+(random-source-randomize! default-random-source)
+
+(define (list-random-integer n b)
+  "Returns a list of random integers of size n and range [0, b)"
+  (let random* ([n n] [r '()])
+    (cond
+      [(zero? n) r]
+      [else (random* (1- n) (cons (random-integer b) r))])))
+
+(define (vector-random-integer n b)
+  "Returns a vector of random integers of size n and range [0, b)"
+  (let ([v (make-vector n)])
+    (do ([i 0 (1+ i)]) ([= i n] v) (vector-set! v i (random-integer b)))))
 
 (define (singleton? l)
   "Returns #t if the list l has only one element"
@@ -13,37 +27,46 @@
 (define* (insertsort l #:optional (c <=))
   "Sorts O(n2) a copy of the list l by applying the insert sort algorithm recursively"
   ;; (format #t "sort: ~s\n" l)
-  (define (insert* e l)
-    ;; (format #t "insert: ~s ~s\n" e l)
-    (cond
-      [(null? l) (cons e l)]
-      [(c e (car l)) (cons e l)]
-      [else (cons (car l) (insert* e (cdr l)))]))
-  (if [singleton? l] l (insert* (car l) (insertsort (cdr l) c))))
+  (cond
+    [(null? l) l]
+    [else
+     (let insert* ([e (car l)] [l (insertsort (cdr l) c)])
+       ;; (format #t "  insert: ~s ~s\n" e l)
+       (cond
+         [(null? l) (cons e l)]
+         [(c e (car l)) (cons e l)]
+         [else (cons (car l) (insert* e (cdr l)))]))]))
 
+;; (pp (insertsort '()))
 ;; (pp (insertsort '(1)))
-;; (pp (insertsort '(1 1)))
-;; (pp (insertsort '(5 7 3 8 1 9 2 6 4)))
-;; (pp (insertsort '(5 7 3 8 1 9 2 6 4) >=))
+;; (pp (insertsort '(5 7 9 3 8 1 9 2 1 6 4)))
+;; (pp (insertsort '(5 7 9 3 8 1 9 2 1 6 4) >=))
+;; (let ([l (list-random-integer 12 10)])
+;;   (pp l) (pp (insertsort l)))
 
 (define* (vector-insertsort! v #:optional (c <=))
   "Sorts O(n2) the vector v in place by applying the insert sort algorithm iteratively"
   (let ([n (vector-length v)])
-    (do ([i 1 (1+ i)]) ([= i n] v)
-      (let ([ei (vector-ref v i)])
-        ;; (format #t "* [~s] ~s ~s\n" i ei v)
-        (let insert* ([j (1- i)])
-          (let ([ej (vector-ref v j)])
-            ;; (format #t "  > [~s] ~s ~s\n" j ej v)
-            (cond
-              [(c ej ei) (vector-set! v (1+ j) ei)]
-              [(zero? j) (vector-set! v (1+ j) ej) (vector-set! v j ei)]
-              [else (vector-set! v (1+ j) ej) (insert* (1- j))])))))))
+    (cond
+      [(zero? n) v]
+      [else
+       (do ([i 1 (1+ i)]) ([= i n] v)
+         (let ([ei (vector-ref v i)])
+           ;; (format #t "sort: ~s [~s] ~s\n" ei i v)
+           (let insert* ([j (1- i)])
+             (let ([ej (vector-ref v j)])
+               ;; (format #t "  insert: ~s [~s] ~s\n" ej j v)
+               (cond
+                 [(c ej ei) (vector-set! v (1+ j) ei)]
+                 [(zero? j) (vector-set! v (1+ j) ej) (vector-set! v j ei)]
+                 [else (vector-set! v (1+ j) ej) (insert* (1- j))])))))])))
 
+;; (pp (vector-insertsort! (vector)))
 ;; (pp (vector-insertsort! (vector 1)))
-;; (pp (vector-insertsort! (vector 1 1)))
-;; (pp (vector-insertsort! (vector 5 7 3 8 1 9 2 6 4)))
-;; (pp (vector-insertsort! (vector 5 7 3 8 1 9 2 6 4) >=))
+;; (pp (vector-insertsort! (vector 5 7 9 3 8 1 9 2 1 6 4)))
+;; (pp (vector-insertsort! (vector 5 7 9 3 8 1 9 2 1 6 4) >=))
+;; (let ([v (vector-random-integer 12 10)])
+;;   (pp v) (pp (vector-insertsort! v)))
 
 (define* (group-successive l #:optional (c <=))
   "Groups successive elements in the list l as per the comparator c"
