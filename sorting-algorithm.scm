@@ -78,8 +78,7 @@
        [(c (car g) (car l)) (group* (cdr l) (cons (car l) g) r)]
        [else (group* (cdr l) (list (car l)) (cons (reverse g) r))]))))
 
-;; (pp (group-successive '(1 2 4 3 5 7 6 9 8)))
-;; (pp (group-successive '(5 7 3 8 1 9 2 6 4)))
+;; (pp (group-successive '(5 7 9 3 8 1 9 2 1 6 4)))
 
 (define* (merge-pair x y #:optional (c <=))
   "Merges the ordered lists x and y as per comparator c"
@@ -96,8 +95,8 @@
 (define* (mergesort l #:optional (c <=))
   "Sorts O(nlogn) a copy of the list l by applying the merge sort algorithm recursively"
   (let merge* ([g (group-successive l c)] [r '()])
-    ;; (format #t "~s -> ~s\n" g r)
     (cond
+      [(and (null? g) (null? r)) r]
       [(and (singleton? g) (null? r)) (car g)]
       [(and (null? g) (singleton? r)) (car r)]
       [(null? g) (merge* r '())]
@@ -106,10 +105,12 @@
        (let ([m (merge-pair (car g) (cadr g) c)])
          (merge* (cddr g) (cons m r)))])))
 
+;; (pp (mergesort '()))
 ;; (pp (mergesort '(1)))
-;; (pp (mergesort '(1 1)))
-;; (pp (mergesort '(5 7 3 8 1 9 2 6 4)))
-;; (pp (mergesort '(5 7 3 8 1 9 2 6 4) >=))
+;; (pp (mergesort '(5 7 9 3 8 1 9 2 1 6 4)))
+;; (pp (mergesort '(5 7 9 3 8 1 9 2 1 6 4) >=))
+;; (let ([l (list-random-integer 12 10)])
+;;   (pp l) (pp (mergesort l)))
 
 (define* (vector-group-successive v #:optional (c <=))
   "Returns a list of successive groups identified by the indices as per comparator c"
