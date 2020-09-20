@@ -164,35 +164,39 @@
 
 (define* (quicksort l #:optional (c <=))
   "Sorts O(nlogn) a copy of the list l by applying the quick sort algorithm recursively"
-  (if (or [null? l] [singleton? l]) l
-      (let sort* ([p (car l)] [l (cdr l)] [ll '()] [rr '()])
-        (cond
-          [(null? l) (append (quicksort ll c) (cons p (quicksort rr c)))]
-          [(c (car l) p) (sort* p (cdr l) (cons (car l) ll) rr)]
-          [else (sort* p (cdr l) ll (cons (car l) rr))]))))
+  ;; (format #t "sort: ~s\n" l)
+  (cond
+    [(or [null? l] [singleton? l]) l]
+    [else
+     (let sort* ([p (car l)] [l (cdr l)] [ll '()] [rr '()])
+       ;; (format #t "  partition: ~s ~s\n" p l)
+       (cond
+         [(null? l) (append (quicksort ll c) (cons p (quicksort rr c)))]
+         [(c (car l) p) (sort* p (cdr l) (cons (car l) ll) rr)]
+         [else (sort* p (cdr l) ll (cons (car l) rr))]))]))
 
+;; (pp (quicksort '()))
 ;; (pp (quicksort '(1)))
-;; (pp (quicksort '(1 1)))
-;; (pp (quicksort '(5 7 3 8 1 9 2 6 4)))
-;; (pp (quicksort '(5 7 3 8 1 9 2 6 4) >=))
+;; (pp (quicksort '(5 7 9 3 8 1 9 2 1 6 4)))
+;; (pp (quicksort '(5 7 9 3 8 1 9 2 1 6 4) >=))
+;; (let ([l (list-random-integer 12 10)])
+;;   (pp l) (pp (quicksort l)))
 
 (define (vector-swap! v i j)
   "Swaps in place the elements with the indices i and j of the vector v"
   (let ([ei (vector-ref v i)] [ej (vector-ref v j)])
-    (format #t "  <> ~s\n    [~s]~s <=> [~s]~s\n" v i ei j ej)
+    ;; (format #t "  swap: ~s\n    [~s]~s <=> [~s]~s\n" v i ei j ej)
     (vector-set! v i ej) (vector-set! v j ei)))
 
 (define* (vector-quicksort! v #:optional (c <=))
   "Sorts O(nlogn) the vector v in place by applying the quick sort algorithm iteratively"
   (define (partition! a b)
-    (let* ([k (floor (/ (+ a b) 2))]
-           [p (vector-ref v k)])
-      (format #t "* [~s, ~s] [~s]~s ~s\n" a b k p v)
-      (let partition!* ([ii a] [jj b])
-        (let ([i (do ([i ii (1+ i)]) ([c p (vector-ref v i)] i))]
-              [j (do ([j jj (1- j)]) ([c (vector-ref v j) p] j))])
+    (let* ([k (floor (/ (+ a b) 2))] [p (vector-ref v k)])
+      (let partition!* ([a a] [b b])
+        (let ([i (do ([i a (1+ i)]) ([c p (vector-ref v i)] i))]
+              [j (do ([j b (1- j)]) ([c (vector-ref v j) p] j))])
           (cond
-            [(>= i j) (format #t "  _| ~s\n" j) j]
+            [(>= i j) j]
             [else (vector-swap! v i j) (partition!* (1+ i) (1- j))])))))
   (let ([n (vector-length v)])
     (cond
@@ -205,7 +209,9 @@
               (sort!* a k) (sort!* (1+ k) b))]
            [else v]))])))
 
+;; (pp (vector-quicksort! (vector)))
 ;; (pp (vector-quicksort! (vector 1)))
-;; (pp (vector-quicksort! (vector 1 1)))
-;; (pp (vector-quicksort! (vector 5 7 3 8 1 9 2 6 4)))
-;; (pp (vector-quicksort! (vector 5 7 3 8 1 9 2 6 4) >=))
+;; (pp (vector-quicksort! (vector 5 7 9 3 8 1 9 2 1 6 4)))
+;; (pp (vector-quicksort! (vector 5 7 9 3 8 1 9 2 1 6 4) >=))
+;; (let ([v (vector-random-integer 12 10)])
+;;   (pp v) (pp (vector-quicksort! v)))
