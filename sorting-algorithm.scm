@@ -1,5 +1,8 @@
 (define-module
-  (sorting-algorithm))
+  (sorting-algorithm)
+  #:export (list-random-integer vector-random-integer, singleton? insertsort
+                                vector-insertsort! mergesort vector-mergesort!
+                                quicksort vector-quicksort! vector-swap!))
 
 (use-modules
  (srfi srfi-27)
@@ -43,6 +46,7 @@
 ;; (pp (insertsort '(5 7 9 3 8 1 9 2 1 6 4) >=))
 ;; (let ([l (list-random-integer 12 10)])
 ;;   (pp l) (pp (insertsort l)))
+;; (pp (insertsort '("Vlad" "Lana" "Home" "Nature") string<=?))
 
 (define* (vector-insertsort! v #:optional (c <=))
   "Sorts O(n2) the vector v in place by applying the insert sort algorithm iteratively"
@@ -67,6 +71,7 @@
 ;; (pp (vector-insertsort! (vector 5 7 9 3 8 1 9 2 1 6 4) >=))
 ;; (let ([v (vector-random-integer 12 10)])
 ;;   (pp v) (pp (vector-insertsort! v)))
+;; (pp (vector-insertsort! (vector "Vlad" "Lana" "Home" "Nature") string<=?))
 
 (define* (group-successive l #:optional (c <=))
   "Groups successive elements in the list l as per the comparator c"
@@ -111,6 +116,7 @@
 ;; (pp (mergesort '(5 7 9 3 8 1 9 2 1 6 4) >=))
 ;; (let ([l (list-random-integer 12 10)])
 ;;   (pp l) (pp (mergesort l)))
+;; (pp (mergesort '("Vlad" "Lana" "Home" "Nature") string<=?))
 
 (define* (vector-group-successive v #:optional (c <=))
   "Returns a list of successive groups identified by the indices as per the comparator c"
@@ -161,6 +167,7 @@
 ;; (pp (vector-mergesort! (vector 5 7 9 3 8 1 9 2 1 6 4) >=))
 ;; (let ([v (vector-random-integer 12 10)])
 ;;   (pp v) (pp (vector-mergesort! v)))
+;; (pp (vector-mergesort! (vector "Vlad" "Lana" "Home" "Nature") string<=?))
 
 (define* (quicksort l #:optional (c <=))
   "Sorts O(nlogn) a copy of the list l by applying the quick sort algorithm recursively"
@@ -181,6 +188,7 @@
 ;; (pp (quicksort '(5 7 9 3 8 1 9 2 1 6 4) >=))
 ;; (let ([l (list-random-integer 12 10)])
 ;;   (pp l) (pp (quicksort l)))
+;; (pp (quicksort '("Vlad" "Lana" "Home" "Nature") string<=?))
 
 (define (vector-swap! v i j)
   "Swaps in place the elements with the indices i and j of the vector v"
@@ -215,3 +223,4 @@
 ;; (pp (vector-quicksort! (vector 5 7 9 3 8 1 9 2 1 6 4) >=))
 ;; (let ([v (vector-random-integer 12 10)])
 ;;   (pp v) (pp (vector-quicksort! v)))
+;; (pp (vector-quicksort! (vector "Vlad" "Lana" "Home" "Nature") string<=?))
