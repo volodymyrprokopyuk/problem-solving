@@ -20,7 +20,8 @@ readonly SRFI_DIR=$HOME/Projects/scheme-upgrade
 # readonly SOURCE=backtracking-algorithm
 # readonly SOURCE=set-algorithm
 # readonly SOURCE=vector-algorithm
-readonly SOURCE=sorting-algorithm
+# readonly SOURCE=sorting-algorithm
+readonly SOURCE=searching-algorithm
 
 export GUILE_LOAD_PATH="${ROOT_DIR}:${SRFI_DIR}"
 
