@@ -1,9 +1,14 @@
 (define-module
   (set-algorithm)
-  #:export (both at-least-one neither set-empty set-empty? pick adjoin exclude))
+  #:export (both at-least-one neither set-empty set-empty? pick adjoin exclude
+                 make-set cardinal set-every set-any set-none set-member? set-subset?
+                 set-equal? set-intersection set-union set-difference
+                 set-symmetric-difference set-map set-filter set-fold set-unfold
+                 power-set))
 
 (use-modules
  (ice-9 curried-definitions)
+ (ice-9 match)
  (srfi srfi-1) ;; List library
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
@@ -299,6 +304,29 @@
 
 ;; (pp (set-filter even? (make-set 1 2 3 4 5 6)))
 
+(define (set-fold f b s)
+  "Folds the function f over the set s starting from the base b (fundamental iterator)"
+  (let fold* ([s s] [r b])
+    (cond
+      [(set-empty? s) r]
+      [else
+       (let* ([e (pick s)])
+         (fold* ((exclude e) s) (f e r)))])))
+
+;; (pp (set-fold + 0 (make-set 1 2 3 4 5 6)))
+;; (pp (set-fold string-append "" (make-set "V" "l" "a" "d")))
+
+(define (set-unfold p f g s)
+  "Unfolds the seed s with g by applying f until p (fundamental constructor)"
+  (let unfold* ([s s] [r (set-empty)])
+    (cond
+      [(p s) r]
+      [else (unfold* (g s) (adjoin (f s) r))])))
+
+;; (pp (set-unfold (lambda (s) (> s 9)) 1+ 1+ 0))
+;; (pp (set-unfold string-null? (lambda (s) (string-take s 1))
+;;                 (lambda (s) (string-drop s 1)) "Vlad"))
+
 (define (power-set s)
   "Returns the power set of the set s"
   (if [set-empty? s] (make-set (set-empty))
@@ -307,6 +335,62 @@
         (set-union ps (set-map (lambda (pse) (adjoin e pse)) ps)))))
 
 ;; (pp (power-set (make-set 'a 'b 'c)))
+
+;; employee: name (UQ) id (UQ) age year manager salary
+(define emp
+  (apply make-set '(("Smith" 2324 43 1974 "Fox" 49325)
+                    ("Jones" 1888 54 1965 "" 65230)
+                    ("White" 3403 34 1982 "Smith" 27300)
+                    ("Williams" 2451 46 1970 "Jason" 41050)
+                    ("Brown" 3620 28 1984 "Williams" 18500)
+                    ("August" 2221 45 1971 "Jason" 44100)
+                    ("Jason" 1990 55 1965 "Jones" 63700)
+                    ("Wilson" 2455 46 1970 "August" 41050)
+                    ("Black" 3195 38 1978 "Smith" 31420)
+                    ("Fox" 2400 41 1981 "Jason" 52200)
+                    ("Blue" 3630 26 1984 "Williams" 18500))))
+
+;; Are all employees over 25 years?
+;; (pp ((set-every (match-lambda [(name id age year manager salary) (> age 25)])) emp))
+
+;; Are there anyone under 50 years of age and over 50 000 or salary?
+;; (pp ((set-any
+;;       (match-lambda
+;;         [(name id age year manager salary) (and (< age 50) (> salary 50000))])) emp))
+
+;; Relation projection
+;; (pp (set-map
+;;      (match-lambda [(name id age year manager salary) (list name age salary)]) emp))
+
+;; Employees over 45 years of age
+;; (pp (set-filter (match-lambda [(name id age year manager salary) (> age 45)]) emp))
+
+;; Closest common manager of existing employees
+(define (employee-closest-common-manager x y emp)
+  "Returns the closest common manager of the employees x and y"
+  (define (employee-by-name x)
+    (set-filter
+     (match-lambda [(name id age year manager salary) (string=? name x)]) emp))
+  (define (employee-managers e)
+    (match-let manager* ([(name id age year manager salary) e] [r '()])
+               (cond
+                 [(string-null? manager) r]
+                 [else
+                  (match-let ([(em) (employee-by-name manager)])
+                    (manager* em (cons manager r)))])))
+  (match-let* ([(ex) (employee-by-name x)]
+               [(ey) (employee-by-name y)]
+               [xm (employee-managers ex)]
+               [ym (employee-managers ey)])
+    ;; (pp (list xm ym))
+    (let common* ([xm xm] [ym ym] [m #f])
+      (cond
+        [(or (null? xm) (null? ym)) m]
+        [(string=? (car xm) (car ym)) (common* (cdr xm) (cdr ym) (car xm))]
+        [else m]))))
+
+;; (pp (employee-closest-common-manager "White" "Black" emp))
+;; (pp (employee-closest-common-manager "Black" "Wilson" emp))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ORDERED PAIR
