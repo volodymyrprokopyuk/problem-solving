@@ -487,3 +487,17 @@
       [else (filter* (cdr l) r)])))
 
 ;; (pp (deep-filter even? '(1 2 3 (4 5 6 7 (8 9 10 11) (12 13 14 15) 16 17 19) 19 20 21)))
+
+(define (pascal-triangle n k)
+  "Returns the value of the Pascal triangle at n row and k column"
+  (cond
+    [(or (zero? k) (= n k)) 1]
+    [else (+ (pascal-triangle (1- n) (1- k)) (pascal-triangle (1- n) k))]))
+
+;; (pp (list-ec (:range i 0 1) (pascal-triangle 0 i)))
+;; (pp (list-ec (:range i 0 2) (pascal-triangle 1 i)))
+;; (pp (list-ec (:range i 0 3) (pascal-triangle 2 i)))
+;; (pp (list-ec (:range i 0 4) (pascal-triangle 3 i)))
+;; (pp (list-ec (:range i 0 5) (pascal-triangle 4 i)))
+;; (pp (list-ec (:range i 0 6) (pascal-triangle 5 i)))
+;; (pp (list-ec (:range i 0 7) (pascal-triangle 6 i)))

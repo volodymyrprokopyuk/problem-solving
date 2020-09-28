@@ -5,7 +5,7 @@ readonly SRFI_DIR=$HOME/Projects/scheme-upgrade
 
 # readonly SOURCE=linear-algorithm
 # readonly SOURCE=conditional-algorithm
-# readonly SOURCE=recursive-algorithm
+readonly SOURCE=recursive-algorithm
 # readonly SOURCE=iterative-algorithm
 # readonly SOURCE=array-algorithm
 # readonly SOURCE=data-structure
@@ -18,7 +18,7 @@ readonly SRFI_DIR=$HOME/Projects/scheme-upgrade
 # readonly SOURCE=fsm-algorithm
 # readonly SOURCE=abstraction-algorithm
 # readonly SOURCE=backtracking-algorithm
-readonly SOURCE=set-algorithm
+# readonly SOURCE=set-algorithm
 # readonly SOURCE=vector-algorithm
 # readonly SOURCE=sorting-algorithm
 # readonly SOURCE=searching-algorithm
