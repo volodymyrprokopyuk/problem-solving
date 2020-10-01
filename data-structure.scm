@@ -15,56 +15,56 @@
 
 (define (make-clist)
   "Returns circular list"
-  ;; #f is the position in insert! new element
-  (let ([marker (cons #f '())])
-    (set-cdr! marker marker)
-    (define (empty?) (eq? marker (cdr marker)))
+  (let ([marker '()])
     (lambda (m . args)
       (case m
         [(type) "clist"]
-        [(empty?) (empty?)]
+        [(empty?) (null? marker)]
         [(insert!)
-         (let ([head (cdr marker)])
-           (set-car! head (car args))
-           (set-cdr! marker (cons #f head)))]
+         (cond
+           [(null? marker)
+            (set! marker (cons (car args) marker)) (set-cdr! marker marker)]
+           [else (set-cdr! marker (cons (car args) (cdr marker)))])]
         [(remove!)
-         (when [empty?] (error "clist: empty circular list"))
-         (let* ([head (cdr marker)] [e (cdr head)])
-           (when [eq? e marker] (set! marker head))
-           (set-cdr! head (cdr e)) (car e))]
+         (when [null? marker] (error "clist: empty circular list"))
+         (let ([head (cdr marker)])
+           (cond
+             [(eq? head marker) (set! marker '())]
+             [else (set-cdr! marker (cdr head))])
+           (car head))]
         [(head)
-         (when [empty?] (error "clist: empty circular list"))
-         (caddr marker)]
+         (when [null? marker] (error "clist: empty circular list"))
+         (cadr marker)]
         [(shift!)
-         (when [empty?] (error "clist: empty circular list"))
-         (let* ([head (cdr marker)] [e (cdr head)])
-           (set-cdr! marker e) (set-cdr! head (cdr e)) (set-cdr! e head)
-           (set! marker e))]
-        [(content) (cdr marker)]
+         (when [null? marker] (error "clist: empty circular list"))
+         (set! marker (cdr marker))]
+        [(content) (if [null? marker] marker (cdr marker))]
         [else (error "clist: not supported method:" m)]))))
 
-(let ([clist (make-clist)])
-  (pp (clist 'empty?))
-  (clist 'insert! 'a)
-  (clist 'insert! 'b)
-  (pp (clist 'empty?))
-  (pp (clist 'content))
-  (pp (clist 'head))
-  (pp (clist 'remove!))
-  (pp (clist 'head))
-  (pp (clist 'remove!))
-  (pp (clist 'empty?))
-  ;; shift!
-  (clist 'insert! 'a)
-  (clist 'insert! 'b)
-  (clist 'insert! 'c)
-  (pp (clist 'content))
-  (clist 'shift!)
-  (pp (clist 'content))
-  (clist 'shift!)
-  (pp (clist 'content))
-  (clist 'shift!)
-  (pp (clist 'content)))
+;; (let ([clist (make-clist)])
+;;   (pp (clist 'empty?))
+;;   (pp (clist 'content))
+;;   (clist 'insert! 'a)
+;;   (clist 'insert! 'b)
+;;   (pp (clist 'empty?))
+;;   (pp (clist 'content))
+;;   (pp (clist 'head))
+;;   (pp (clist 'remove!))
+;;   (pp (clist 'head))
+;;   (pp (clist 'remove!))
+;;   (pp (clist 'empty?))
+;;   (pp (clist 'content))
+;;   ;; shift!
+;;   (clist 'insert! 'a)
+;;   (clist 'insert! 'b)
+;;   (clist 'insert! 'c)
+;;   (pp (clist 'content))
+;;   (clist 'shift!)
+;;   (pp (clist 'content))
+;;   (clist 'shift!)
+;;   (pp (clist 'content))
+;;   (clist 'shift!)
+;;   (pp (clist 'content)))
 
 ;; Stack (push (cons top), pop (car top) linked list)
 
