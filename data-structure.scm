@@ -11,13 +11,71 @@
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
 
-;; Circular list object
+;; Circular list
 
 (define (make-clist)
+  "Creates an empty cicrular list"
+  '())
+
+(define (cl-empty? marker)
+  "Returns #t if the circular list marker is empty"
+  (null? marker))
+
+(define (cl-insert! e marker)
+  "Inserts the element e into the circular list marker"
+  (cond
+    [(cl-empty? marker)
+     (let ([marker (cons e marker)])
+       (set-cdr! marker marker) marker)]
+    [else (set-cdr! marker (cons e (cdr marker))) marker]))
+
+(define (cl-remove! marker)
+  "Removes the head of the circular list marker"
+  (when [cl-empty? marker] (error "clist: empty circular list"))
+  (let ([head (cdr marker)])
+    (cond
+      [(eq? head marker) (values (car head) '())]
+      [else (set-cdr! marker (cdr head)) (values (car head) marker)])))
+
+(define (cl-head marker)
+  "Returns the head of the circular list marker"
+  (when [cl-empty? marker] (error "clist: empty circular list"))
+  (cadr marker))
+
+(define (cl-shift marker)
+  "Shift the marker of the circular list marker to the head of the circular list"
+  (when [cl-empty? marker] (error "clist: empty circular list"))
+  (cdr marker))
+
+(define (cl-content marker)
+  "Returns the content of the circular list marker"
+  (if [cl-empty? marker] marker (cdr marker)))
+
+;; (let* ([cl (make-clist)]
+;;        [cl (cl-insert! 'a cl)]
+;;        [cl (cl-insert! 'b cl)])
+;;   (pp (cl-empty? cl))
+;;   (pp (cl-head cl))
+;;   (receive (e cl) (cl-remove! cl)
+;;     (pp e)
+;;     (pp (cl-head cl))
+;;     (receive (e cl) (cl-remove! cl)
+;;       (pp e)
+;;       (pp (cl-empty? cl)))))
+
+;; (let* ([cl (make-clist)]
+;;        [cl (cl-insert! 'a cl)]
+;;        [cl (cl-insert! 'b cl)]
+;;        [cl (cl-insert! 'c cl)])
+;;   (do ([cl cl (cl-shift cl)] [i 0 (1+ i)]) ([> i 3]) (pp (cl-content cl))))
+
+;; Circular list object
+
+(define (make-clist-obj)
   "Returns circular list"
   (let ([marker '()])
-    (lambda (m . args)
-      (case m
+    (lambda (method . args)
+      (case method
         [(type) "clist"]
         [(empty?) (null? marker)]
         [(insert!)
@@ -41,7 +99,7 @@
         [(content) (if [null? marker] marker (cdr marker))]
         [else (error "clist: not supported method:" m)]))))
 
-;; (let ([clist (make-clist)])
+;; (let ([clist (make-clist-obj)])
 ;;   (pp (clist 'empty?))
 ;;   (pp (clist 'content))
 ;;   (clist 'insert! 'a)
