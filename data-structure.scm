@@ -1,10 +1,10 @@
 (define-module
   (data-structure)
   #:replace
-  (make-stack peek)
-  #:export (stack-null? push pop make-stack2 make-queue queue-null? enqueue dequeue
-                        front make-queue2 make-queue3 queue3-null? enqueue3 dequeue3
-                        front3))
+  (make-stack)
+  #:export (make-clist cl-empty? cl-insert! cl-remove! cl-head cl-shift cl-content
+                       make-clist-obj make-stack st-empty? st-push st-pop st-peek
+                       st-content))
 
 (use-modules
  (ice-9 receive)
@@ -43,7 +43,7 @@
   (cadr marker))
 
 (define (cl-shift marker)
-  "Shift the marker of the circular list marker to the head of the circular list"
+  "Shifts the marker of the circular list marker to the head of the circular list"
   (when [cl-empty? marker] (error "clist: empty circular list"))
   (cdr marker))
 
@@ -55,6 +55,7 @@
 ;;        [cl (cl-insert! 'a cl)]
 ;;        [cl (cl-insert! 'b cl)])
 ;;   (pp (cl-empty? cl))
+;;   (pp (cl-content cl))
 ;;   (pp (cl-head cl))
 ;;   (receive (e cl) (cl-remove! cl)
 ;;     (pp e)
@@ -72,7 +73,7 @@
 ;; Circular list object
 
 (define (make-clist-obj)
-  "Returns circular list"
+  "Returns a circular list object"
   (let ([marker '()])
     (lambda (method . args)
       (case method
@@ -97,106 +98,113 @@
          (when [null? marker] (error "clist: empty circular list"))
          (set! marker (cdr marker))]
         [(content) (if [null? marker] marker (cdr marker))]
-        [else (error "clist: not supported method:" m)]))))
+        [else (error "clist: not supported method:" method)]))))
 
-;; (let ([clist (make-clist-obj)])
-;;   (pp (clist 'empty?))
-;;   (pp (clist 'content))
-;;   (clist 'insert! 'a)
-;;   (clist 'insert! 'b)
-;;   (pp (clist 'empty?))
-;;   (pp (clist 'content))
-;;   (pp (clist 'head))
-;;   (pp (clist 'remove!))
-;;   (pp (clist 'head))
-;;   (pp (clist 'remove!))
-;;   (pp (clist 'empty?))
-;;   (pp (clist 'content))
+;; (let ([cl (make-clist-obj)])
+;;   (pp (cl 'empty?))
+;;   (pp (cl 'content))
+;;   (cl 'insert! 'a)
+;;   (cl 'insert! 'b)
+;;   (pp (cl 'empty?))
+;;   (pp (cl 'content))
+;;   (pp (cl 'head))
+;;   (pp (cl 'remove!))
+;;   (pp (cl 'head))
+;;   (pp (cl 'remove!))
+;;   (pp (cl 'empty?))
+;;   (pp (cl 'content))
 ;;   ;; shift!
-;;   (clist 'insert! 'a)
-;;   (clist 'insert! 'b)
-;;   (clist 'insert! 'c)
-;;   (pp (clist 'content))
-;;   (clist 'shift!)
-;;   (pp (clist 'content))
-;;   (clist 'shift!)
-;;   (pp (clist 'content))
-;;   (clist 'shift!)
-;;   (pp (clist 'content)))
+;;   (cl 'insert! 'a)
+;;   (cl 'insert! 'b)
+;;   (cl 'insert! 'c)
+;;   (pp (cl 'content))
+;;   (cl 'shift!)
+;;   (pp (cl 'content))
+;;   (cl 'shift!)
+;;   (pp (cl 'content))
+;;   (cl 'shift!)
+;;   (pp (cl 'content)))
 
-;; Stack (push (cons top), pop (car top) linked list)
+;; Stack
 
 (define (make-stack)
   "Creates an empty stack (LIFO)"
   '())
 
-(define (stack-null? s)
-  "Returns #t if the stack is empty"
-  (null? s))
+(define (st-empty? st)
+  "Returns #t if the stack st is empty"
+  (null? st))
 
-(define (push e s)
-  "Inserts a new element into the stack and returns the new stack"
-  (cons e s))
+(define (st-push e st)
+  "Inserts a new element e into the stack st and returns the new stack"
+  (cons e st))
 
-(define (pop s)
-  "Removes the top element from the stack and returns the new stack"
-  (when (stack-null? s) (error "stack: empty stack"))
-  (values (car s) (cdr s)))
+(define (st-pop st)
+  "Removes the top element from the stack st and returns the new stack"
+  (when (st-empty? st) (error "stack: empty stack"))
+  (values (car st) (cdr st)))
 
-(define (peek s)
-  "Returns the top element from the stack without removing the element"
-  (when (stack-null? s) (error "stack: empty stack"))
-  (car s))
+(define (st-peek st)
+  "Returns the top element from the stack st without removing the element"
+  (when (st-empty? st) (error "stack: empty stack"))
+  (car st))
 
-;; (let* ([s (make-stack)]
-;;        [s (push 'a s)]
-;;        [s (push 'b s)])
-;;   (pp (stack-null? s))
-;;   (pp (peek s))
-;;   (receive (e s) (pop s)
+(define (st-content st)
+  "Returns the content of the stack st"
+  st)
+
+;; (let* ([st (make-stack)]
+;;        [st (st-push 'a st)]
+;;        [st (st-push 'b st)])
+;;   (pp (st-empty? st))
+;;   (pp (st-content st))
+;;   (pp (st-peek st))
+;;   (receive (e st) (st-pop st)
 ;;     (pp e)
-;;     (pp (stack-null? s))
-;;     (receive (e s) (pop s)
+;;     (pp (st-empty? st))
+;;     (pp (st-peek st))
+;;     (receive (e st) (st-pop st)
 ;;       (pp e)
-;;       (pp (stack-null? s))
-;;       (let ([s (push 'c s)])
-;;         (receive (e s) (pop s)
+;;       (pp (st-empty? st))
+;;       (let ([st (st-push 'c st)])
+;;         (receive (e st) (st-pop st)
 ;;           (pp e)
-;;           (pp (stack-null? s)))))))
+;;           (pp (st-empty? st)))))))
 
 ;; Stack object
 
-(define (make-stack2)
-  "Returns a stack"
-  (let ([s '()])
-    (lambda (m . args)
-      (case m
+(define (make-stack-obj)
+  "Returns a stack object"
+  (let ([st '()])
+    (lambda (method . args)
+      (case method
         [(type) "stack"]
-        [(stack-null?) (null? s)]
-        [(push!) (set! s (cons (car args) s))]
+        [(empty?) (null? st)]
+        [(push!) (set! st (cons (car args) st))]
         [(pop!)
-         (when (null? s) (error "stack: empty stack"))
-         (let ([e (car s)])
-           (set! s (cdr s)) e)]
+         (when [null? st] (error "stack: empty stack"))
+         (let ([e (car st)])
+           (set! st (cdr st)) e)]
         [(peek)
-         (when (null? s) (error "stack: empty stack"))
-         (car s)]
-        [else (error "stack: not supported method:" m)]))))
+         (when [null? st] (error "stack: empty stack"))
+         (car st)]
+        [else (error "stack: not supported method:" method)]))))
 
-;; (let ([stack (make-stack2)])
+;; (let ([stack (make-stack-obj)])
 ;;   (stack 'push! 'a)
 ;;   (stack 'push! 'b)
-;;   (pp (stack 'stack-null?))
+;;   (pp (stack 'empty?))
 ;;   (pp (stack 'peek))
 ;;   (pp (stack 'pop!))
-;;   (pp (stack 'stack-null?))
+;;   (pp (stack 'empty?))
+;;   (pp (stack 'peek))
 ;;   (pp (stack 'pop!))
-;;   (pp (stack 'stack-null?))
+;;   (pp (stack 'empty?))
 ;;   (stack 'push! 'c)
 ;;   (pp (stack 'pop!))
-;;   (pp (stack 'stack-null?)))
+;;   (pp (stack 'empty?)))
 
-;; Queue (dequeue (car queue) linked list enqueue (set-cdr! back))
+;; Queue
 
 (define (make-queue)
   "Creates an empty queue (FIFO)"
