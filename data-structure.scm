@@ -11,6 +11,61 @@
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
 
+;; Circular list object
+
+(define (make-clist)
+  "Returns circular list"
+  ;; #f is the position in insert! new element
+  (let ([marker (cons #f '())])
+    (set-cdr! marker marker)
+    (define (empty?) (eq? marker (cdr marker)))
+    (lambda (m . args)
+      (case m
+        [(type) "clist"]
+        [(empty?) (empty?)]
+        [(insert!)
+         (let ([head (cdr marker)])
+           (set-car! head (car args))
+           (set-cdr! marker (cons #f head)))]
+        [(remove!)
+         (when [empty?] (error "clist: empty circular list"))
+         (let* ([head (cdr marker)] [e (cdr head)])
+           (when [eq? e marker] (set! marker head))
+           (set-cdr! head (cdr e)) (car e))]
+        [(head)
+         (when [empty?] (error "clist: empty circular list"))
+         (caddr marker)]
+        [(shift!)
+         (when [empty?] (error "clist: empty circular list"))
+         (let* ([head (cdr marker)] [e (cdr head)])
+           (set-cdr! marker e) (set-cdr! head (cdr e)) (set-cdr! e head)
+           (set! marker e))]
+        [(content) (cdr marker)]
+        [else (error "clist: not supported method:" m)]))))
+
+(let ([clist (make-clist)])
+  (pp (clist 'empty?))
+  (clist 'insert! 'a)
+  (clist 'insert! 'b)
+  (pp (clist 'empty?))
+  (pp (clist 'content))
+  (pp (clist 'head))
+  (pp (clist 'remove!))
+  (pp (clist 'head))
+  (pp (clist 'remove!))
+  (pp (clist 'empty?))
+  ;; shift!
+  (clist 'insert! 'a)
+  (clist 'insert! 'b)
+  (clist 'insert! 'c)
+  (pp (clist 'content))
+  (clist 'shift!)
+  (pp (clist 'content))
+  (clist 'shift!)
+  (pp (clist 'content))
+  (clist 'shift!)
+  (pp (clist 'content)))
+
 ;; Stack (push (cons top), pop (car top) linked list)
 
 (define (make-stack)
