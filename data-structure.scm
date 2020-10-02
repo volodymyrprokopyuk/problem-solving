@@ -4,7 +4,8 @@
   (make-stack)
   #:export (make-clist cl-empty? cl-insert! cl-remove! cl-head cl-shift cl-content
                        make-clist-obj make-stack st-empty? st-push st-pop st-peek
-                       st-content))
+                       st-content make-stack-obj make-queue qu-empty? qu-enqueue
+                       qu-dequeue qu-front qu-content make-queue-obj))
 
 (use-modules
  (ice-9 receive)
@@ -212,53 +213,58 @@
   (let* ([queue (cons #f '())] [back queue])
     (cons queue back)))
 
-(define (queue-null? q)
-  "Returns #t if the queue is empty"
-  (eq? (car q) (cdr q)))
+(define (qu-empty? qu)
+  "Returns #t if the queue qu is empty"
+  (eq? (car qu) (cdr qu)))
 
-(define (enqueue e q)
-  "Inserts the element at the back of the queue and returns the new queue"
-  (let ([back (cdr q)] [next (cons #f '())])
-    (set-car! back e) (set-cdr! back next) (cons (car q) next)))
+(define (qu-enqueue e qu)
+  "Inserts the element e at the back of the queue qu and returns the new queue"
+  (let ([back (cdr qu)] [next (cons #f '())])
+    (set-car! back e) (set-cdr! back next) (cons (car qu) next)))
 
-(define (dequeue q)
-  "Removes the element from the front of the queue and returns the new queue"
-  (when (queue-null? q) (error "queue: empty queue"))
-  (let ([queue (car q)])
-    (values (car queue) (cons (cdr queue) (cdr q)))))
+(define (qu-dequeue qu)
+  "Removes the element from the front of the queue qu and returns the new queue"
+  (when (qu-empty? qu) (error "queue: empty queue"))
+  (let ([queue (car qu)])
+    (values (car queue) (cons (cdr queue) (cdr qu)))))
 
-(define (front q)
-  "Returns the element from the front of the queue without removing the element"
-  (when (queue-null? q) (error "queue: empty queue"))
-  (let ([queue (car q)])
-    (car queue)))
+(define (qu-front qu)
+  "Returns the element from the front of the queue qu without removing the element"
+  (when (qu-empty? qu) (error "queue: empty queue"))
+  (caar qu))
 
-;; (let* ([q (make-queue)]
-;;        [q (enqueue 'a q)]
-;;        [q (enqueue 'b q)])
-;;   (pp (queue-null? q))
-;;   (pp (front q))
-;;   (receive (e q) (dequeue q)
+(define (qu-content qu)
+  "Returns the content of the queue qu"
+  (car qu))
+
+;; (let* ([qu (make-queue)]
+;;        [qu (qu-enqueue 'a qu)]
+;;        [qu (qu-enqueue 'b qu)])
+;;   (pp (qu-empty? qu))
+;;   (pp (qu-content qu))
+;;   (pp (qu-front qu))
+;;   (receive (e qu) (qu-dequeue qu)
 ;;     (pp e)
-;;     (pp (queue-null? q))
-;;     (receive (e q) (dequeue q)
+;;     (pp (qu-empty? qu))
+;;     (pp (qu-front qu))
+;;     (receive (e qu) (qu-dequeue qu)
 ;;       (pp e)
-;;       (pp (queue-null? q))
-;;       (let ([q (enqueue 'c q)])
-;;         (receive (e q) (dequeue q)
+;;       (pp (qu-empty? qu))
+;;       (let ([qu (qu-enqueue 'c qu)])
+;;         (receive (e qu) (qu-dequeue qu)
 ;;           (pp e)
-;;           (pp (queue-null? q)))))))
+;;           (pp (qu-empty? qu)))))))
 
 ;; Queue object
 
-(define (make-queue2)
-  "Returns a queue"
+(define (make-queue-obj)
+  "Returns a queue object"
   ;; #f is the postion to set-car! new element
   (let* ([queue (cons #f '())] [back queue])
-    (lambda (m . args)
-      (case m
+    (lambda (method . args)
+      (case method
         [(type) "queue"]
-        [(queue-null?) (eq? queue back)]
+        [(empty?) (eq? queue back)]
         [(enqueue!)
          (let ([next (cons #f '())])
            (set-car! back (car args)) (set-cdr! back next) (set! back next))]
@@ -270,74 +276,83 @@
          (when [eq? queue back] (error "queue: empty queue"))
          (car queue)]
         [(content) queue]
-        [else (error "queue: not supported method:" m)]))))
+        [else (error "queue: not supported method:" method)]))))
 
-;; (let ([queue (make-queue2)])
+;; (let ([queue (make-queue-obj)])
 ;;   (queue 'enqueue! 'a)
 ;;   (queue 'enqueue! 'b)
+;;   (pp (queue 'empty?))
 ;;   (pp (queue 'content))
-;;   (pp (queue 'queue-null?))
 ;;   (pp (queue 'front))
 ;;   (pp (queue 'dequeue!))
-;;   (pp (queue 'queue-null?))
+;;   (pp (queue 'empty?))
+;;   (pp (queue 'front))
 ;;   (pp (queue 'dequeue!))
-;;   (pp (queue 'queue-null?))
+;;   (pp (queue 'empty?))
 ;;   (queue 'enqueue! 'c)
 ;;   (pp (queue 'dequeue!))
-;;   (pp (queue 'queue-null?)))
+;;   (pp (queue 'empty?)))
 
-;; Queue (enqueue (push back) back->front dequeue (pop front))
+;; Queue (on two stacks)
 
-(define (make-queue3)
+(define (make-queue2)
   "Creates an empty queue (FIFO)"
   ;; front back
   (cons (make-stack) (make-stack)))
 
-(define (queue3-null? q)
-  "Returns #t if the queue is empty"
-  (and (stack-null? (car q)) (stack-null? (cdr q))))
+(define (qu2-empty? qu)
+  "Returns #t if the queue qu is empty"
+  (and (st-empty? (car qu)) (st-empty? (cdr qu))))
 
-(define (enqueue3 e q)
-  "Inserts the element at the back of the queue and returns the new queue"
-  (let ([back (cdr q)])
-    (cons (car q) (push e back))))
+(define (qu2-enqueue e qu)
+  "Inserts the element e at the back of the queue qu and returns the new queue"
+  (let ([back (cdr qu)])
+    (cons (car qu) (st-push e back))))
 
-(define (back->front q)
+(define (qu2-back->front qu)
   "Moves elements from the back stack to the front stack of the queue"
   " and returs the new queue"
-  (let move* ([front (car q)]
-              [back (cdr q)])
-    (if [stack-null? back] (cons front back)
-        (receive (e back) (pop back)
-          (move* (push e front) back)))))
+  (let move* ([front (car qu)] [back (cdr qu)])
+    (cond
+      [(st-empty? back) (cons front back)]
+      [else
+       (receive (e back) (st-pop back)
+         (move* (st-push e front) back))])))
 
-(define (dequeue3 q)
-  "Removes the element from the top of the queue and returns the new queue"
-  (when (queue3-null? q) (error "queue3: empty queue"))
-  (let* ([q (if [stack-null? (car q)] (back->front q) q)]
-         [front (car q)])
-    (receive (e front) (pop front)
-      (values e (cons front (cdr q))))))
+(define (qu2-dequeue qu)
+  "Removes the element from the top of the queue qu and returns the new queue"
+  (when (qu2-empty? qu) (error "queue: empty queue"))
+  (let* ([qu (if [st-empty? (car qu)] (qu2-back->front qu) qu)]
+         [front (car qu)])
+    (receive (e front) (st-pop front)
+      (values e (cons front (cdr qu))))))
 
-(define (front3 q)
-  "Returns the element from the front of the queue without removing the element"
-  (when (queue3-null? q) (error "queue3: empty queue"))
-  (let* ([q (if [stack-null? (car q)] (back->front q) q)]
-         [front (car q)])
-    (peek front)))
+(define (qu2-front qu)
+  "Returns the element from the front of the queue qu without removing the element"
+  (when (qu2-empty? qu) (error "queue: empty queue"))
+  (let* ([qu (if [st-empty? (car qu)] (qu2-back->front qu) qu)]
+         [front (car qu)])
+    (st-peek front)))
 
-;; (let* ([q (make-queue3)]
-;;        [q (enqueue3 'a q)]
-;;        [q (enqueue3 'b q)])
-;;   (pp (queue3-null? q))
-;;   (pp (front3 q))
-;;   (receive (e q) (dequeue3 q)
+(define (qu2-content qu)
+  "Returns the content of the queue qu"
+  (let ([qu (qu2-back->front qu)])
+    (st-content (car qu))))
+
+;; (let* ([qu (make-queue2)]
+;;        [qu (qu2-enqueue 'a qu)]
+;;        [qu (qu2-enqueue 'b qu)])
+;;   (pp (qu2-empty? qu))
+;;   (pp (qu2-content qu))
+;;   (pp (qu2-front qu))
+;;   (receive (e qu) (qu2-dequeue qu)
 ;;     (pp e)
-;;     (pp (queue3-null? q))
-;;     (receive (e q) (dequeue3 q)
+;;     (pp (qu2-empty? qu))
+;;     (pp (qu2-front qu))
+;;     (receive (e qu) (qu2-dequeue qu)
 ;;       (pp e)
-;;       (pp (queue3-null? q))
-;;       (let ([q (enqueue3 'c q)])
-;;         (receive (e q) (dequeue3 q)
+;;       (pp (qu2-empty? qu))
+;;       (let ([qu (qu2-enqueue 'c qu)])
+;;         (receive (e qu) (qu2-dequeue qu)
 ;;           (pp e)
-;;           (pp (queue3-null? q)))))))
+;;           (pp (qu2-empty? qu)))))))
