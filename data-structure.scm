@@ -60,6 +60,7 @@
 ;;   (pp (cl-head cl))
 ;;   (receive (e cl) (cl-remove! cl)
 ;;     (pp e)
+;;     (pp (cl-empty? cl))
 ;;     (pp (cl-head cl))
 ;;     (receive (e cl) (cl-remove! cl)
 ;;       (pp e)
