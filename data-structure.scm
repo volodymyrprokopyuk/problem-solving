@@ -112,9 +112,7 @@
         [(head)
          (when [null? marker] (error "clist: empty circular list"))
          (cadr marker)]
-        [(shift!)
-         (when [null? marker] (error "clist: empty circular list"))
-         (set! marker (cdr marker))]
+        [(shift!) (unless [null? marker] (set! marker (cdr marker)))]
         [(content) (if [null? marker] marker (cdr marker))]
         [(reverse!)
          (cond
