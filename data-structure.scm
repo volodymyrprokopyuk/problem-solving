@@ -190,21 +190,53 @@
         [(peek)
          (when [null? st] (error "stack: empty stack"))
          (car st)]
+        [(content) st]
         [else (error "stack: not supported method:" method)]))))
 
-;; (let ([stack (make-stack-obj)])
-;;   (stack 'push! 'a)
-;;   (stack 'push! 'b)
-;;   (pp (stack 'empty?))
-;;   (pp (stack 'peek))
-;;   (pp (stack 'pop!))
-;;   (pp (stack 'empty?))
-;;   (pp (stack 'peek))
-;;   (pp (stack 'pop!))
-;;   (pp (stack 'empty?))
-;;   (stack 'push! 'c)
-;;   (pp (stack 'pop!))
-;;   (pp (stack 'empty?)))
+;; (let ([st (make-stack-obj)])
+;;   (st 'push! 'a)
+;;   (st 'push! 'b)
+;;   (pp (st 'empty?))
+;;   (pp (st 'content))
+;;   (pp (st 'peek))
+;;   (pp (st 'pop!))
+;;   (pp (st 'empty?))
+;;   (pp (st 'peek))
+;;   (pp (st 'pop!))
+;;   (pp (st 'empty?))
+;;   (st 'push! 'c)
+;;   (pp (st 'pop!))
+;;   (pp (st 'empty?)))
+
+;; Stack (on circular list)
+
+(define (make-stack2-obj)
+  "Returns a stack object"
+  (let ([cl (make-clist-obj)])
+    (lambda (method . args)
+      (case method
+        [(type) "stack"]
+        [(empty?) (cl 'empty?)]
+        [(push!) (cl 'insert! (car args))]
+        [(pop!) (cl 'remove!)]
+        [(peek) (cl 'head)]
+        [(content) (cl 'content)]
+        [else (error "stack: not supported method:" method)]))))
+
+;; (let ([st (make-stack2-obj)])
+;;   (st 'push! 'a)
+;;   (st 'push! 'b)
+;;   (pp (st 'empty?))
+;;   (pp (st 'content))
+;;   (pp (st 'peek))
+;;   (pp (st 'pop!))
+;;   (pp (st 'empty?))
+;;   (pp (st 'peek))
+;;   (pp (st 'pop!))
+;;   (pp (st 'empty?))
+;;   (st 'push! 'c)
+;;   (pp (st 'pop!))
+;;   (pp (st 'empty?)))
 
 ;; Queue
 
@@ -279,38 +311,68 @@
         [(content) queue]
         [else (error "queue: not supported method:" method)]))))
 
-;; (let ([queue (make-queue-obj)])
-;;   (queue 'enqueue! 'a)
-;;   (queue 'enqueue! 'b)
-;;   (pp (queue 'empty?))
-;;   (pp (queue 'content))
-;;   (pp (queue 'front))
-;;   (pp (queue 'dequeue!))
-;;   (pp (queue 'empty?))
-;;   (pp (queue 'front))
-;;   (pp (queue 'dequeue!))
-;;   (pp (queue 'empty?))
-;;   (queue 'enqueue! 'c)
-;;   (pp (queue 'dequeue!))
-;;   (pp (queue 'empty?)))
+;; (let ([qu (make-queue-obj)])
+;;   (qu 'enqueue! 'a)
+;;   (qu 'enqueue! 'b)
+;;   (pp (qu 'empty?))
+;;   (pp (qu 'content))
+;;   (pp (qu 'front))
+;;   (pp (qu 'dequeue!))
+;;   (pp (qu 'empty?))
+;;   (pp (qu 'front))
+;;   (pp (qu 'dequeue!))
+;;   (pp (qu 'empty?))
+;;   (qu 'enqueue! 'c)
+;;   (pp (qu 'dequeue!))
+;;   (pp (qu 'empty?)))
+
+;; Queue (on circular list)
+
+(define (make-queue2-obj)
+  "Returns a queue object"
+  (let ([cl (make-clist-obj)])
+    (lambda (method . args)
+      (case method
+        [(type) "queue"]
+        [(empty?) (cl 'empty?)]
+        [(enqueue!) (cl 'insert! (car args)) (cl 'shift!)]
+        [(dequeue!) (cl 'remove!)]
+        [(front) (cl 'head)]
+        [(content) (cl 'content)]
+        [else (error "queue: not supported method:" method)]))))
+
+;; (let ([qu (make-queue2-obj)])
+;;   (qu 'enqueue! 'a)
+;;   (qu 'enqueue! 'b)
+;;   (pp (qu 'empty?))
+;;   (pp (qu 'content))
+;;   (pp (qu 'front))
+;;   (pp (qu 'dequeue!))
+;;   (pp (qu 'empty?))
+;;   (pp (qu 'front))
+;;   (pp (qu 'dequeue!))
+;;   (pp (qu 'empty?))
+;;   (qu 'enqueue! 'c)
+;;   (pp (qu 'dequeue!))
+;;   (pp (qu 'empty?)))
 
 ;; Queue (on two stacks)
 
-(define (make-queue2)
+(define (make-queue3)
   "Creates an empty queue (FIFO)"
   ;; front back
   (cons (make-stack) (make-stack)))
 
-(define (qu2-empty? qu)
+(define (qu3-empty? qu)
   "Returns #t if the queue qu is empty"
   (and (st-empty? (car qu)) (st-empty? (cdr qu))))
 
-(define (qu2-enqueue e qu)
+(define (qu3-enqueue e qu)
   "Inserts the element e at the back of the queue qu and returns the new queue"
   (let ([back (cdr qu)])
     (cons (car qu) (st-push e back))))
 
-(define (qu2-back->front qu)
+(define (qu3-back->front qu)
   "Moves elements from the back stack to the front stack of the queue"
   " and returs the new queue"
   (let move* ([front (car qu)] [back (cdr qu)])
@@ -320,40 +382,40 @@
        (receive (e back) (st-pop back)
          (move* (st-push e front) back))])))
 
-(define (qu2-dequeue qu)
+(define (qu3-dequeue qu)
   "Removes the element from the top of the queue qu and returns the new queue"
-  (when (qu2-empty? qu) (error "queue: empty queue"))
-  (let* ([qu (if [st-empty? (car qu)] (qu2-back->front qu) qu)]
+  (when (qu3-empty? qu) (error "queue: empty queue"))
+  (let* ([qu (if [st-empty? (car qu)] (qu3-back->front qu) qu)]
          [front (car qu)])
     (receive (e front) (st-pop front)
       (values e (cons front (cdr qu))))))
 
-(define (qu2-front qu)
+(define (qu3-front qu)
   "Returns the element from the front of the queue qu without removing the element"
-  (when (qu2-empty? qu) (error "queue: empty queue"))
-  (let* ([qu (if [st-empty? (car qu)] (qu2-back->front qu) qu)]
+  (when (qu3-empty? qu) (error "queue: empty queue"))
+  (let* ([qu (if [st-empty? (car qu)] (qu3-back->front qu) qu)]
          [front (car qu)])
     (st-peek front)))
 
-(define (qu2-content qu)
+(define (qu3-content qu)
   "Returns the content of the queue qu"
-  (let ([qu (qu2-back->front qu)])
+  (let ([qu (qu3-back->front qu)])
     (st-content (car qu))))
 
-;; (let* ([qu (make-queue2)]
-;;        [qu (qu2-enqueue 'a qu)]
-;;        [qu (qu2-enqueue 'b qu)])
-;;   (pp (qu2-empty? qu))
-;;   (pp (qu2-content qu))
-;;   (pp (qu2-front qu))
-;;   (receive (e qu) (qu2-dequeue qu)
+;; (let* ([qu (make-queue3)]
+;;        [qu (qu3-enqueue 'a qu)]
+;;        [qu (qu3-enqueue 'b qu)])
+;;   (pp (qu3-empty? qu))
+;;   (pp (qu3-content qu))
+;;   (pp (qu3-front qu))
+;;   (receive (e qu) (qu3-dequeue qu)
 ;;     (pp e)
-;;     (pp (qu2-empty? qu))
-;;     (pp (qu2-front qu))
-;;     (receive (e qu) (qu2-dequeue qu)
+;;     (pp (qu3-empty? qu))
+;;     (pp (qu3-front qu))
+;;     (receive (e qu) (qu3-dequeue qu)
 ;;       (pp e)
-;;       (pp (qu2-empty? qu))
-;;       (let ([qu (qu2-enqueue 'c qu)])
-;;         (receive (e qu) (qu2-dequeue qu)
+;;       (pp (qu3-empty? qu))
+;;       (let ([qu (qu3-enqueue 'c qu)])
+;;         (receive (e qu) (qu3-dequeue qu)
 ;;           (pp e)
-;;           (pp (qu2-empty? qu)))))))
+;;           (pp (qu3-empty? qu)))))))
