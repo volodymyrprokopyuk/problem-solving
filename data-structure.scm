@@ -45,12 +45,20 @@
 
 (define (cl-shift marker)
   "Shifts the marker of the circular list marker to the head of the circular list"
-  (when [cl-empty? marker] (error "clist: empty circular list"))
-  (cdr marker))
+  (if [cl-empty? marker] marker (cdr marker)))
 
 (define (cl-content marker)
   "Returns the content of the circular list marker"
   (if [cl-empty? marker] marker (cdr marker)))
+
+(define (cl-reverse marker)
+  "Reverses the circular list marker"
+  (let reverse* ([cl marker] [r (make-clist)])
+    (cond
+      [(cl-empty? cl) (cl-shift r)]
+      [else
+       (receive (e cl) (cl-remove! cl)
+         (reverse* cl (cl-insert! e r)))])))
 
 ;; (let* ([cl (make-clist)]
 ;;        [cl (cl-insert! 'a cl)]
@@ -71,6 +79,14 @@
 ;;        [cl (cl-insert! 'b cl)]
 ;;        [cl (cl-insert! 'c cl)])
 ;;   (do ([cl cl (cl-shift cl)] [i 0 (1+ i)]) ([> i 3]) (pp (cl-content cl))))
+
+;; (let* ([cl (make-clist)]
+;;        [cl (cl-insert! 'a cl)]
+;;        [cl (cl-insert! 'b cl)]
+;;        [cl (cl-insert! 'c cl)]
+;;        [cl (cl-insert! 'd cl)])
+;;   (pp (cl-content cl))
+;;   (pp (cl-reverse cl)))
 
 ;; Circular list object
 
@@ -100,6 +116,16 @@
          (when [null? marker] (error "clist: empty circular list"))
          (set! marker (cdr marker))]
         [(content) (if [null? marker] marker (cdr marker))]
+        [(reverse!)
+         (cond
+           [(null? marker) marker]
+           [else
+            (let reverse* ([a marker] [b (cdr marker)])
+              (cond
+                [(eq? b marker) (set! marker (cdr marker)) (set-cdr! b a)]
+                [else
+                 (let ([c (cdr b)])
+                   (set-cdr! b a) (reverse* b c))]))])]
         [else (error "clist: not supported method:" method)]))))
 
 ;; (let ([cl (make-clist-obj)])
@@ -115,8 +141,13 @@
 ;;   (pp (cl 'remove!))
 ;;   (pp (cl 'empty?))
 ;;   (pp (cl 'content))
-;;   ;; shift!
+;;   ;; reverse!
+;;   (cl 'reverse!)
+;;   (pp (cl 'content))
 ;;   (cl 'insert! 'a)
+;;   (cl 'reverse!)
+;;   (pp (cl 'content))
+;;   ;; shift!
 ;;   (cl 'insert! 'b)
 ;;   (cl 'insert! 'c)
 ;;   (pp (cl 'content))
@@ -125,6 +156,11 @@
 ;;   (cl 'shift!)
 ;;   (pp (cl 'content))
 ;;   (cl 'shift!)
+;;   (pp (cl 'content))
+;;   ;; reverse!
+;;   (cl 'insert! 'd)
+;;   (pp (cl 'content))
+;;   (cl 'reverse!)
 ;;   (pp (cl 'content)))
 
 ;; Stack
