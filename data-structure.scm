@@ -5,7 +5,7 @@
   #:export (make-clist cl-empty? cl-insert! cl-remove! cl-head cl-shift cl-content
                        make-clist-obj make-stack st-empty? st-push st-pop st-peek
                        st-content make-stack-obj make-queue qu-empty? qu-enqueue
-                       qu-dequeue qu-front qu-content make-queue-obj))
+                       qu-dequeue qu-front qu-content make-queue-obj make-hash-obj))
 
 (use-modules
  (ice-9 receive)
@@ -457,7 +457,50 @@
 
 ;; Hash
 
-;; TODO
+(define (make-hash hash size)
+  "Creates a tash table with the hash function hash and of the size"
+  (cons (make-vector size '()) hash))
+
+(define (ha-insert! ha key value)
+  "Inesert the key with the value into the hash table ha"
+  (let* ([v (car ha)] [hash (cdr ha)] [i (hash key)] [al (vector-ref v i)])
+    (vector-set! v i (assoc-set! al key value))))
+
+(define (ha-remove! ha key)
+  "Removes the key from the hash table ha"
+  (let* ([v (car ha)] [hash (cdr ha)] [i (hash key)] [al (vector-ref v i)])
+    (vector-set! v i (assoc-remove! al key))))
+
+(define (ha-lookup ha key success failure)
+  "Looks up the key in the hash table ha and calls success or failure"
+  (let* ([v (car ha)] [hash (cdr ha)] [i (hash key)] [al (vector-ref v i)])
+    (if [null? al] (failure)
+        (let ([p (assoc key al)])
+          (if p (success (cdr p)) (failure))))))
+
+(define (ha-content ha)
+  "Returns the content of the hash table ha"
+  (let* ([v (car ha)] [hash (cdr ha)] [n (vector-length v)] [c '()])
+    (do ([i 0 (1+ i)]) ([= i n] c)
+      (let ([al (vector-ref v i)])
+        (unless [null? al] (set! c (append al c)))))))
+
+;; (let ([ha (make-hash (lambda (k) (remainder k 100)) 100)])
+;;   (ha-insert! ha 1 'a)
+;;   (ha-insert! ha 2 'b)
+;;   (ha-insert! ha 3 'c)
+;;   (ha-insert! ha 10 'A)
+;;   (ha-insert! ha 20 'B)
+;;   (ha-insert! ha 30 'C)
+;;   (ha-insert! ha 100 'Z)
+;;   (pp (ha-content ha))
+;;   (pp (ha-lookup ha 2 identity (const #f)))
+;;   (pp (ha-lookup ha 100 identity (const #f)))
+;;   (pp (ha-lookup ha 200 identity (const #f)))
+;;   (ha-insert! ha 1 'aa)
+;;   (ha-remove! ha 2)
+;;   (ha-remove! ha 200)
+;;   (pp (ha-content ha)))
 
 ;; Hash object
 
