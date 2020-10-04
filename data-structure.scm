@@ -9,6 +9,7 @@
 
 (use-modules
  (ice-9 receive)
+ (ice-9 match)
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
 
@@ -453,3 +454,51 @@
 ;;         (receive (e qu) (qu3-dequeue qu)
 ;;           (pp e)
 ;;           (pp (qu3-empty? qu)))))))
+
+;; Hash
+
+;; TODO
+
+;; Hash object
+
+(define (make-hash-obj hash size)
+  "Returns a hash table object with the hash function hash and of size size"
+  ;; Every vector element is a backet/slot = alist
+  (let ([v (make-vector size '())])
+    (lambda (method . args)
+      (case method
+        [(type) "hash"]
+        [(insert!)
+         (match-let* ([(key value) args] [i (hash key)] [al (vector-ref v i)])
+           (vector-set! v i (assoc-set! al key value)))]
+        [(remove!)
+         (match-let* ([(key) args] [i (hash key)] [al (vector-ref v i)])
+           (vector-set! v i (assoc-remove! al key)))]
+        [(lookup)
+         (match-let* ([(key success failure) args] [i (hash key)] [al (vector-ref v i)])
+           (if [null? al] (failure)
+               (let ([p (assoc key al)])
+                 (if p (success (cdr p)) (failure)))))]
+        [(content)
+         (let ([c '()])
+           (do ([i 0 (1+ i)]) ([= i size] c)
+             (let ([al (vector-ref v i)])
+               (unless [null? al] (set! c (append al c))))))]
+        [else (error "hash: not supported method:" method)]))))
+
+;; (let ([ha (make-hash-obj (lambda (k) (remainder k 100)) 100)])
+;;   (ha 'insert! 1 'a)
+;;   (ha 'insert! 2 'b)
+;;   (ha 'insert! 3 'c)
+;;   (ha 'insert! 10 'A)
+;;   (ha 'insert! 20 'B)
+;;   (ha 'insert! 30 'C)
+;;   (ha 'insert! 100 'Z)
+;;   (pp (ha 'content))
+;;   (pp (ha 'lookup 2 identity (const #f)))
+;;   (pp (ha 'lookup 100 identity (const #f)))
+;;   (pp (ha 'lookup 200 identity (const #f)))
+;;   (ha 'insert! 1 'aa)
+;;   (ha 'remove! 2)
+;;   (ha 'remove! 200)
+;;   (pp (ha 'content)))
