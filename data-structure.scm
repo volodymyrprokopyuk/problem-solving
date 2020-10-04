@@ -5,7 +5,8 @@
   #:export (make-clist cl-empty? cl-insert! cl-remove! cl-head cl-shift cl-content
                        make-clist-obj make-stack st-empty? st-push st-pop st-peek
                        st-content make-stack-obj make-queue qu-empty? qu-enqueue
-                       qu-dequeue qu-front qu-content make-queue-obj make-hash-obj))
+                       qu-dequeue qu-front qu-content make-queue-obj make-hash
+                       ha-insert! ha-remove! ha-lookup ha-content make-hash-obj))
 
 (use-modules
  (ice-9 receive)
@@ -23,7 +24,7 @@
   "Returns #t if the circular list marker is empty"
   (null? marker))
 
-(define (cl-insert! e marker)
+(define (cl-insert! marker e)
   "Inserts the element e into the circular list marker"
   (cond
     [(cl-empty? marker)
@@ -59,11 +60,11 @@
       [(cl-empty? cl) (cl-shift r)]
       [else
        (receive (e cl) (cl-remove! cl)
-         (reverse* cl (cl-insert! e r)))])))
+         (reverse* cl (cl-insert! r e)))])))
 
 ;; (let* ([cl (make-clist)]
-;;        [cl (cl-insert! 'a cl)]
-;;        [cl (cl-insert! 'b cl)])
+;;        [cl (cl-insert! cl 'a)]
+;;        [cl (cl-insert! cl 'b)])
 ;;   (pp (cl-empty? cl))
 ;;   (pp (cl-content cl))
 ;;   (pp (cl-head cl))
@@ -76,16 +77,16 @@
 ;;       (pp (cl-empty? cl)))))
 
 ;; (let* ([cl (make-clist)]
-;;        [cl (cl-insert! 'a cl)]
-;;        [cl (cl-insert! 'b cl)]
-;;        [cl (cl-insert! 'c cl)])
+;;        [cl (cl-insert! cl 'a)]
+;;        [cl (cl-insert! cl 'b)]
+;;        [cl (cl-insert! cl 'c)])
 ;;   (do ([cl cl (cl-shift cl)] [i 0 (1+ i)]) ([> i 3]) (pp (cl-content cl))))
 
 ;; (let* ([cl (make-clist)]
-;;        [cl (cl-insert! 'a cl)]
-;;        [cl (cl-insert! 'b cl)]
-;;        [cl (cl-insert! 'c cl)]
-;;        [cl (cl-insert! 'd cl)])
+;;        [cl (cl-insert! cl 'a)]
+;;        [cl (cl-insert! cl 'b)]
+;;        [cl (cl-insert! cl 'c)]
+;;        [cl (cl-insert! cl 'd)])
 ;;   (pp (cl-content cl))
 ;;   (pp (cl-reverse cl)))
 
@@ -172,7 +173,7 @@
   "Returns #t if the stack st is empty"
   (null? st))
 
-(define (st-push e st)
+(define (st-push st e)
   "Inserts a new element e into the stack st and returns the new stack"
   (cons e st))
 
@@ -191,8 +192,8 @@
   st)
 
 ;; (let* ([st (make-stack)]
-;;        [st (st-push 'a st)]
-;;        [st (st-push 'b st)])
+;;        [st (st-push st 'a)]
+;;        [st (st-push st 'b)])
 ;;   (pp (st-empty? st))
 ;;   (pp (st-content st))
 ;;   (pp (st-peek st))
@@ -203,7 +204,7 @@
 ;;     (receive (e st) (st-pop st)
 ;;       (pp e)
 ;;       (pp (st-empty? st))
-;;       (let ([st (st-push 'c st)])
+;;       (let ([st (st-push st 'c)])
 ;;         (receive (e st) (st-pop st)
 ;;           (pp e)
 ;;           (pp (st-empty? st)))))))
@@ -285,7 +286,7 @@
   "Returns #t if the queue qu is empty"
   (eq? (car qu) (cdr qu)))
 
-(define (qu-enqueue e qu)
+(define (qu-enqueue qu e)
   "Inserts the element e at the back of the queue qu and returns the new queue"
   (let ([back (cdr qu)] [next (cons #f '())])
     (set-car! back e) (set-cdr! back next) (cons (car qu) next)))
@@ -306,8 +307,8 @@
   (car qu))
 
 ;; (let* ([qu (make-queue)]
-;;        [qu (qu-enqueue 'a qu)]
-;;        [qu (qu-enqueue 'b qu)])
+;;        [qu (qu-enqueue qu 'a)]
+;;        [qu (qu-enqueue qu 'b)])
 ;;   (pp (qu-empty? qu))
 ;;   (pp (qu-content qu))
 ;;   (pp (qu-front qu))
@@ -318,7 +319,7 @@
 ;;     (receive (e qu) (qu-dequeue qu)
 ;;       (pp e)
 ;;       (pp (qu-empty? qu))
-;;       (let ([qu (qu-enqueue 'c qu)])
+;;       (let ([qu (qu-enqueue qu 'c)])
 ;;         (receive (e qu) (qu-dequeue qu)
 ;;           (pp e)
 ;;           (pp (qu-empty? qu)))))))
@@ -402,10 +403,10 @@
   "Returns #t if the queue qu is empty"
   (and (st-empty? (car qu)) (st-empty? (cdr qu))))
 
-(define (qu3-enqueue e qu)
+(define (qu3-enqueue qu e)
   "Inserts the element e at the back of the queue qu and returns the new queue"
   (let ([back (cdr qu)])
-    (cons (car qu) (st-push e back))))
+    (cons (car qu) (st-push back e))))
 
 (define (qu3-back->front qu)
   "Moves elements from the back stack to the front stack of the queue"
@@ -415,7 +416,7 @@
       [(st-empty? back) (cons front back)]
       [else
        (receive (e back) (st-pop back)
-         (move* (st-push e front) back))])))
+         (move* (st-push front e) back))])))
 
 (define (qu3-dequeue qu)
   "Removes the element from the top of the queue qu and returns the new queue"
@@ -438,8 +439,8 @@
     (st-content (car qu))))
 
 ;; (let* ([qu (make-queue3)]
-;;        [qu (qu3-enqueue 'a qu)]
-;;        [qu (qu3-enqueue 'b qu)])
+;;        [qu (qu3-enqueue qu 'a)]
+;;        [qu (qu3-enqueue qu 'b)])
 ;;   (pp (qu3-empty? qu))
 ;;   (pp (qu3-content qu))
 ;;   (pp (qu3-front qu))
@@ -450,7 +451,7 @@
 ;;     (receive (e qu) (qu3-dequeue qu)
 ;;       (pp e)
 ;;       (pp (qu3-empty? qu))
-;;       (let ([qu (qu3-enqueue 'c qu)])
+;;       (let ([qu (qu3-enqueue qu 'c)])
 ;;         (receive (e qu) (qu3-dequeue qu)
 ;;           (pp e)
 ;;           (pp (qu3-empty? qu)))))))
