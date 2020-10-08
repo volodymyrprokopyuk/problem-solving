@@ -22,71 +22,110 @@
 (define-syntax-rule (dl-cons e dl) (cons e (delay dl)))
 
 (define (make-dlist . args)
-  "Creates delated list from the arguments args"
-  (let dlist* ([l args] [r dl-null])
+  "Creates finite delated list from the arguments args"
+  (let dlist* ([l (reverse args)] [r dl-null])
     (cond
       [(null? l) r]
       [else (dlist* (cdr l) (dl-cons (car l) r))])))
 
 (define (dlist->list dl)
-  "Forces the delayed list dl into a list"
+  "Forces the finite delayed list dl into a list"
   (let list* ([dl dl] [r '()])
     (cond
-      [(dl-null? dl) r]
+      [(dl-null? dl) (reverse r)]
       [else (list* (dl-cdr dl) (cons (dl-car dl) r))])))
 
-#;(let ([dl (make-dlist 1 2 3 4 5)])
-  (pp dl)
-  (pp (dlist->list dl)))
+;; (let ([dl (make-dlist 1 2 3 4 5)])
+;;   (pp (dlist->list dl)))
 
 (define (dl-unfold p f g s)
-  "Fundamental constructor of a delayed list"
-  (let unfold* ([s (g s)] [r dl-null])
+  "Fundamental constructor of a finite/infinite delayed list. Not tail-recursive"
+  (let ([s (g s)])
     (cond
-      [(p s) r]
-      [else (unfold* (g s) (dl-cons (f s) r))])))
+      [(p s) dl-null]
+      [else (dl-cons (f s) (dl-unfold p f g s))])))
 
-#;(let ([dl (dl-unfold (lambda (e) (> e 5)) identity 1+ 0)]
-      [rdl (dl-unfold (lambda (i) (> i 10)) (lambda (_) (random-integer 10)) 1+ 0)])
-  (pp (dlist->list dl))
-  (pp (dlist->list rdl)))
+;; (let ([dl (dl-unfold (lambda (e) (> e 5)) identity 1+ 0)]
+;;       [rdl (dl-unfold (lambda (i) (> i 10)) (lambda (_) (random-integer 10)) 1+ 0)])
+;;   (pp (dlist->list dl))
+;;   (pp (dlist->list rdl)))
 
 (define (dl-fold f b dl)
-  "Fundamental iterator for a delayed list"
-  (let fold* ([dl dl] [r b])
-    (cond
-      [(dl-null? dl) r]
-      [else (fold* (dl-cdr dl) (f (dl-car dl) r))])))
+  "Fundamental iterator for a finite delayed list dl
+   fold: (f b e) tail-recursive. b carries intermediate/final result"
+  (cond
+    [(dl-null? dl) b]
+    [else (dl-fold f (f b (dl-car dl)) (dl-cdr dl))]))
 
-#;(let ([s (dl-fold + 0 (make-dlist 1 2 3 4 5))]
-      [dl (dl-fold (lambda (e b) (dl-cons e b)) dl-null (make-dlist 1 2 3 4 5))])
-  (pp s)
-  (pp (dlist->list dl)))
+;; (let ([s (dl-fold + 0 (make-dlist 1 2 3))]
+;;       [d (dl-fold - 0 (make-dlist 1 2 3))]
+;;       [dl (dl-fold (lambda (b e) (dl-cons e b)) dl-null (make-dlist 1 2 3 4 5))])
+;;   (pp s) (pp d) (pp (dlist->list dl)))
+
+(define (dl-fold-right f b dl)
+  "Fundamental iterator for the finite delayed list dl
+   fold-right: (f e b) not tail-recursive. b is forwarded to the end"
+  (cond
+    [(dl-null? dl) b]
+    [else (f (dl-car dl) (dl-fold-right f b (dl-cdr dl)))]))
+
+;; (let ([s (dl-fold-right + 0 (make-dlist 1 2 3))]
+;;       [d (dl-fold-right - 0 (make-dlist 1 2 3))]
+;;       [dl (dl-fold-right (lambda (e b) (dl-cons e b)) dl-null (make-dlist 1 2 3 4 5))])
+;;   (pp s) (pp d) (pp (dlist->list dl)))
 
 (define (dl-reverse dl)
-  "Reverses the delayed list dl"
-  (dl-fold (lambda (e b) (dl-cons e b)) dl-null dl))
+  "Reverses the finite delayed list dl"
+  (dl-fold (lambda (b e) (dl-cons e b)) dl-null dl))
 
-#;(let ([dl (make-dlist 1 2 3 4 5)])
-  (pp (dlist->list (dl-reverse dl))))
+;; (let ([dl (make-dlist 1 2 3 4 5)])
+;;   (pp (dlist->list (dl-reverse dl))))
 
 (define (dl-map f dl)
-  "Maps the function f over the delayed list dl"
-  (dl-reverse (dl-fold (lambda (e b) (dl-cons (f e) b)) dl-null dl)))
+  "Maps the function f over the finite/infinite delayed list dl"
+  (cond
+    [(dl-null? dl) dl-null]
+    [else (dl-cons (f (dl-car dl)) (dl-map f (dl-cdr dl)))])
+  #;(dl-reverse (dl-fold (lambda (b e) (dl-cons (f e) b)) dl-null dl)))
 
-#;(let ([dl (dl-map 1+ (make-dlist 1 2 3 4 5))])
-  (pp (dlist->list dl)))
+;; (let ([dl (dl-map 1+ (make-dlist 1 2 3 4 5))])
+;;   (pp (dlist->list dl)))
 
 (define (dl-filter p dl)
-  "Filters the delayed list dl with the predicate p"
-  (dl-reverse (dl-fold (lambda (e b) (if [p e] (dl-cons e b) b)) dl-null dl)))
+  "Filters the finite/infinite delayed list dl with the predicate p"
+  (cond
+    [(dl-null? dl) dl-null]
+    [(p (dl-car dl)) (dl-cons (dl-car dl) (dl-filter p (dl-cdr dl)))]
+    [else (dl-filter p (dl-cdr dl))])
+  #;(dl-reverse (dl-fold (lambda (b e) (if [p e] (dl-cons e b) b)) dl-null dl)))
 
-#;(let ([dl (make-dlist 1 2 3 4 5)])
-  (pp (dlist->list (dl-filter odd? dl))))
+;; (let ([dl (make-dlist 1 2 3 4 5)])
+;;   (pp (dlist->list (dl-filter odd? dl))))
 
-(define (dl-append a b)
-  "Appends the delayed list b to the delayed list a"
-  (dl-fold (lambda (e b) (dl-cons e b)) a (dl-reverse b)))
+(define (dl-append x y)
+  "Appends the finite delayed list y to the finite delayed list x"
+  (dl-fold (lambda (b e) (dl-cons e b)) y (dl-reverse x)))
 
-#;(let ([dl (dl-append (make-dlist 1 2 3) (make-dlist 4 5 6))])
-  (pp (dlist->list dl)))
+;; (let ([dl (dl-append (make-dlist 1 2 3) (make-dlist 4 5 6))])
+;;   (pp (dlist->list dl)))
+
+(define (dl-take n dl)
+  "Returns n first elements from the finite/infitine delayed list dl"
+  (let take* ([dl dl] [n n] [r '()])
+    (cond
+      [(or (zero? n) (dl-null? dl)) (reverse r)]
+      [else (take* (dl-cdr dl) (1- n) (cons (dl-car dl) r))])))
+
+(define* (dl-integer #:optional (start 0) (step 1))
+  "Returns an infinite stream (delayed list) of integers"
+  (dl-unfold (const #f) identity (lambda (s) (+ s step)) start))
+
+(define (dl-random)
+  "Returns an infinite stream (delayed list) of random integers"
+  (dl-unfold (const #f) (lambda (_) (random-integer 10)) identity 0))
+
+;; (pp (dl-take 7 (make-dlist 1 2 3)))
+;; (pp (dl-take 7 (dl-integer)))
+;; (pp (dl-take 7 (dl-map 1+ (dl-integer))))
+;; (pp (dl-take 7 (dl-filter odd? (dl-integer))))
+;; (pp (dl-take 7 (dl-random)))
