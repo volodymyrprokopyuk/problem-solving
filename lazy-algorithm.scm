@@ -63,18 +63,30 @@
   (pp s)
   (pp (dlist->list dl)))
 
+(define (dl-reverse dl)
+  "Reverses the delayed list dl"
+  (dl-fold (lambda (e b) (dl-cons e b)) dl-null dl))
+
+#;(let ([dl (make-dlist 1 2 3 4 5)])
+  (pp (dlist->list (dl-reverse dl))))
+
 (define (dl-map f dl)
   "Maps the function f over the delayed list dl"
-  (let ([rdl (dl-fold (lambda (e b) (dl-cons (f e) b)) dl-null dl)])
-    (dl-fold (lambda (e b) (dl-cons e b)) dl-null rdl)))
+  (dl-reverse (dl-fold (lambda (e b) (dl-cons (f e) b)) dl-null dl)))
 
 #;(let ([dl (dl-map 1+ (make-dlist 1 2 3 4 5))])
   (pp (dlist->list dl)))
 
 (define (dl-filter p dl)
   "Filters the delayed list dl with the predicate p"
-  (let ([rdl (dl-fold (lambda (e b) (if [p e] (dl-cons e b) b)) dl-null dl)])
-    (dl-fold (lambda (e b) (dl-cons e b)) dl-null rdl)))
+  (dl-reverse (dl-fold (lambda (e b) (if [p e] (dl-cons e b) b)) dl-null dl)))
 
 #;(let ([dl (make-dlist 1 2 3 4 5)])
   (pp (dlist->list (dl-filter odd? dl))))
+
+(define (dl-append a b)
+  "Appends the delayed list b to the delayed list a"
+  (dl-fold (lambda (e b) (dl-cons e b)) a (dl-reverse b)))
+
+#;(let ([dl (dl-append (make-dlist 1 2 3) (make-dlist 4 5 6))])
+  (pp (dlist->list dl)))
