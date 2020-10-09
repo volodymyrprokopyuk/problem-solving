@@ -102,7 +102,7 @@
 ;;   (pp (dlist->list dl)) (pp (dlist->list dl2)))
 
 (define (dl-filter p dl)
-  "Filters the finite/infinite delayed list dl with the predicate p"
+  "Filters the finite/infinite delayed list dl using the predicate p"
   (cond
     [(dl-null? dl) dl-null]
     [(p (dl-car dl)) (dl-cons (dl-car dl) (dl-filter p (dl-cdr dl)))]
@@ -111,6 +111,13 @@
 
 ;; (let ([dl (make-dlist 1 2 3 4 5)])
 ;;   (pp (dlist->list (dl-filter odd? dl))))
+
+(define (dl-remove p dl)
+  "Removes the finite/infinte delayed list dl using the predicate p"
+  (dl-filter (negate p) dl))
+
+;; (let ([dl (make-dlist 1 2 3 4 5)])
+;;   (pp (dlist->list (dl-remove even? dl))))
 
 (define (dl-append x y)
   "Appends the finite delayed list y to the finite delayed list x"
@@ -160,3 +167,12 @@
   (dl-filter prime? (dl-integer)))
 
 ;; (pp (dl-take 20 (dl-prime)))
+
+(define (dl-eratosthenes-sieve)
+  "Returns an infinite stream (dealyed list) of prime numbers"
+  (let sieve* ([dl (dl-integer 1)])
+    (let ([p (dl-car dl)])
+      (dl-cons p (dl-remove
+                  (lambda (e) (zero? (remainder e p))) (sieve* (dl-cdr dl)))))))
+
+;; (pp (dl-take 20 (dl-eratosthenes-sieve)))
