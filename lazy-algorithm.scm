@@ -1,9 +1,10 @@
 (define-module
-  (laze-algorithm))
+  (lazy-algorithm))
 
 (use-modules
  (srfi srfi-1)
  (srfi srfi-27)
+ (ice-9 textual-ports)
  ((recursive-algorithm)
   #:select (factorial fibonacci prime?))
  ((ice-9 pretty-print)
@@ -176,3 +177,38 @@
                   (lambda (e) (zero? (remainder e p))) (sieve* (dl-cdr dl)))))))
 
 ;; (pp (dl-take 20 (dl-eratosthenes-sieve)))
+
+(define (file->dlist f)
+  "Returns a stream (delayed list) of characters from the file f"
+  (let ([p (open-input-file f)])
+    (let read* ([c (get-char p)])
+      (cond
+        [(eof-object? c) (close-input-file p) dl-null]
+        [else (dl-cons c (read* (get-char p)))]))))
+
+(let* ([newline->space
+        (lambda (s)
+          (dl-map (lambda (c) (if [char=? c #\newline] #\space c)) s))]
+       [deduplicate-space
+        (lambda (s)
+          (let ([space? #f])
+            (let dedup* ([s s])
+              (cond
+                [(dl-null? s) dl-null]
+                [(and (char=? (dl-car s) #\space) (not space?))
+                 (set! space? #t) (dl-cons (dl-car s) (dedup* (dl-cdr s)))]
+                [(and (char=? (dl-car s) #\space) space?)
+                 (dedup* (dl-cdr s))]
+                [else (set! space? #f) (dl-cons (dl-car s) (dedup* (dl-cdr s)))]))))]
+       [split-line
+        (lambda (max-length)
+          (lambda (s)
+            (let split* ([i 0] [s s])
+              (cond
+                [(dl-null? s) dl-null]
+                [(and (zero? (remainder i max-length)) (not (zero? i)))
+                 (dl-cons #\newline (dl-cons (dl-car s) (split* (1+ i) (dl-cdr s))))]
+                [else (dl-cons (dl-car s) (split* (1+ i) (dl-cdr s)))]))))]
+       [read-format
+        (compose (split-line 10) deduplicate-space newline->space file->dlist)])
+  (display (list->string (dl-take 100 (read-format "lazy-algorithm.scm")))))
