@@ -186,7 +186,7 @@
         [(eof-object? c) (close-input-file p) dl-null]
         [else (dl-cons c (read* (get-char p)))]))))
 
-(let* ([newline->space
+#;(let* ([newline->space
         (lambda (s)
           (dl-map (lambda (c) (if [char=? c #\newline] #\space c)) s))]
        [deduplicate-space
