@@ -2,7 +2,10 @@
   (laze-algorithm))
 
 (use-modules
+ (srfi srfi-1)
  (srfi srfi-27)
+ ((recursive-algorithm)
+  #:select (factorial fibonacci prime?))
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
 
@@ -81,15 +84,22 @@
 ;; (let ([dl (make-dlist 1 2 3 4 5)])
 ;;   (pp (dlist->list (dl-reverse dl))))
 
-(define (dl-map f dl)
-  "Maps the function f over the finite/infinite delayed list dl"
+#;(define (dl-map f dl)
+  "Maps the unary function f over the finite/infinite delayed list dl"
   (cond
     [(dl-null? dl) dl-null]
     [else (dl-cons (f (dl-car dl)) (dl-map f (dl-cdr dl)))])
   #;(dl-reverse (dl-fold (lambda (b e) (dl-cons (f e) b)) dl-null dl)))
 
-;; (let ([dl (dl-map 1+ (make-dlist 1 2 3 4 5))])
-;;   (pp (dlist->list dl)))
+(define (dl-map f . dl)
+  "Maps the n-ary function f over the finite/infinite delayed list dl"
+  (cond
+    [(any dl-null? dl) dl-null]
+    [else (dl-cons (apply f (map dl-car dl)) (apply dl-map f (map dl-cdr dl)))]))
+
+;; (let ([dl (dl-map 1+ (make-dlist 1 2 3 4 5))]
+;;       [dl2 (dl-map + (make-dlist 1 2 3 4 5 6) (make-dlist 10 20 30 40 50))])
+;;   (pp (dlist->list dl)) (pp (dlist->list dl2)))
 
 (define (dl-filter p dl)
   "Filters the finite/infinite delayed list dl with the predicate p"
@@ -110,7 +120,7 @@
 ;;   (pp (dlist->list dl)))
 
 (define (dl-take n dl)
-  "Returns n first elements from the finite/infitine delayed list dl"
+  "Returns n first elements from the finite/infinite delayed list dl"
   (let take* ([dl dl] [n n] [r '()])
     (cond
       [(or (zero? n) (dl-null? dl)) (reverse r)]
@@ -120,12 +130,33 @@
   "Returns an infinite stream (delayed list) of integers"
   (dl-unfold (const #f) identity (lambda (s) (+ s step)) start))
 
+;; (pp (dl-take 7 (make-dlist 1 2 3)))
+;; (pp (dl-take 7 (dl-integer)))
+;; (pp (dl-take 7 (dl-integer 0 10)))
+;; (pp (dl-take 7 (dl-map 1+ (dl-integer))))
+;; (pp (dl-take 7 (dl-map (lambda (e) (expt 2 e)) (dl-integer))))
+;; (pp (dl-take 7 (dl-filter odd? (dl-integer))))
+
 (define (dl-random)
   "Returns an infinite stream (delayed list) of random integers"
   (dl-unfold (const #f) (lambda (_) (random-integer 10)) identity 0))
 
-;; (pp (dl-take 7 (make-dlist 1 2 3)))
-;; (pp (dl-take 7 (dl-integer)))
-;; (pp (dl-take 7 (dl-map 1+ (dl-integer))))
-;; (pp (dl-take 7 (dl-filter odd? (dl-integer))))
 ;; (pp (dl-take 7 (dl-random)))
+
+(define (dl-factorial)
+  "Returns an infitine stream (delaye list) of factorials"
+  (dl-unfold (const #f) factorial 1+ 0))
+
+;; (pp (dl-take 7 (dl-factorial)))
+
+(define (dl-fibonacci)
+  "Returns an infinite stream (delayed list) of fibonacci sequence"
+  (dl-unfold (const #f) fibonacci 1+ -1))
+
+;; (pp (dl-take 15 (dl-fibonacci)))
+
+(define (dl-prime)
+  "Returns an infinite stream (delayed list) of prime numbers"
+  (dl-filter prime? (dl-integer)))
+
+;; (pp (dl-take 20 (dl-prime)))
