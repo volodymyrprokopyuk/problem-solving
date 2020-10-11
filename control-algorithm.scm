@@ -52,9 +52,8 @@
    (raise c)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Continuation examples
-
 ;; Escape from infinite loop
+
 (define (forever t)
   "Applies the thunk t forever"
   (t) (forever t))
@@ -65,14 +64,59 @@
 
 ;; (infinite-loop)
 
-(define (escape-infinite-loop)
+(define (escape-infinite-loop threshold)
   (call/cc
    (lambda (k)
      (let ([c 0])
        (forever
         (lambda ()
           (cond
-            [(> c 10) (k 'done)]
+            [(> c threshold) (k 'done)]
             [else (pp c) (set! c (1+ c))])))))))
 
-;; (pp (escape-infinite-loop))
+;; (pp (escape-infinite-loop 10))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Escape from flat recursion
+
+(define (product-flat l)
+  (cond
+    [(null? l) 1]
+    [else (pp (car l)) (* (car l) (product-flat (cdr l)))]))
+
+;; (pp (product-flat '(1 2 0 3 4 5)))
+
+(define (product-flat-escape-on-zero l)
+  (call/cc
+   (lambda (k)
+     (let product* ([l l])
+       (cond
+         [(null? l) 1]
+         [(zero? (car l)) (k 0)]
+         [else (pp (car l)) (* (car l) (product* (cdr l)))])))))
+
+;; (pp (product-flat-escape-on-zero '(1 2 0 3 4 5)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Escape from deep recursion
+
+(define (product-deep l)
+  (cond
+    [(null? l) 1]
+    [(pair? (car l)) (* (product-deep (car l)) (product-deep (cdr l)))]
+    [else (pp (car l)) (* (car l) (product-deep (cdr l)))]))
+
+;; (pp (product-deep '(1 (2) 0 (3 (4)) 5)))
+
+(define (product-deep-escape-on-zero l)
+  (call/cc
+   (lambda (k)
+     (let product* ([l l])
+       (cond
+         [(null? l) 1]
+         [(pair? (car l)) (* (product* (car l)) (product* (cdr l)))]
+         [(zero? (car l)) (k 0)]
+         [else (pp (car l)) (* (car l) (product* (cdr l)))])))))
+
+;; (pp (product-deep-escape-on-zero '(1 (2) 0 (3 (4)) 5)))
+;; (pp (product-deep-escape-on-zero '(1 (2) (3 (4 0 1)) 5)))
