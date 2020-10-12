@@ -3,6 +3,7 @@
   #:export ())
 
 (use-modules
+ (ice-9 receive)
  (srfi srfi-34) ;; Exceptions
  (srfi srfi-35) ;; Conditions
  ((ice-9 pretty-print)
@@ -50,6 +51,16 @@
    (cc
     [else (format #t "ERROR 2: ~s" cc)])
    (raise c)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ((call/cc r) e) => (f (lambda (c) c e))
+;; (e (call/cc r)) => (f (lambda (c) e c))
+;; (call/cc (receiver (continuation (result))))
+;;   - continuation is an escape procedure from the call/cc context
+;;   = escape procedure does not return to the point of its involation,
+;;     but abandons its context and yeilds the result to the call/cc context
+;;   - continuation's argument result is passed to the call/cc context
+;; (call/cc allows for arbitrary (non-local) flow control manipulation
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Escape from infinite loop
@@ -120,3 +131,88 @@
 
 ;; (pp (product-deep-escape-on-zero '(1 (2) 0 (3 (4)) 5)))
 ;; (pp (product-deep-escape-on-zero '(1 (2) (3 (4 0 1)) 5)))
+
+(define (search t l)
+  (call/cc
+   (lambda (k)
+     (for-each (lambda (e) (when [equal? e t] (k e))) l)
+     #f)))
+
+;; (pp (search 'c '(a b c d)))
+;; (pp (search 'C '(a b c d)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; call/cc examples
+
+;; Create (call/cc), parametrize (k 3), use (+ 1 []), and discard continuation
+;; (pp (+ 1 (call/cc (lambda (k) (+ 2 (k 3))))))
+
+;; Create (call/cc), store [f], parametrize (lambda (_)), and use (f) continuation
+;; (pp (let ([f (call/cc (lambda (k) k))])
+;;       (f (lambda (_) 'ok))))
+
+;; Create (call/cc), parametrize (lambda), parametrize 2 ('ok), use ((call/cc))
+;; (pp (((call/cc (lambda (k) k)) (lambda (x) x)) 'ok))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Loop with one continuation
+
+(define (loop-until t)
+  (let ([ki (call/cc (lambda (k) (cons k 0)))])
+    (let ([k (car ki)] [i (cdr ki)])
+      (when [< i t] (pp i) (k (cons k (1+ i)))))))
+
+;; (loop-until 10)
+
+(define (loop-until2 t)
+  (receive (k i) (call/cc (lambda (k) (values k 0)))
+    (when [< i t] (pp i) (k k (1+ i)))))
+
+(loop-until2 10)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Interleaved multitasking
+
+(define (compute-a k)
+  (let compute* ([i 3])
+    (format #t "compute-a: ~s~s\n" 'A i)
+    (set! k (call/cc k))
+    (format #t "compute-a: ~s~s\n" 'B i)
+    (set! k (call/cc k))
+    (unless [zero? i] (compute* (1- i)))))
+
+(define (compute-b k)
+  (let compute* ()
+    (for-each
+     (lambda (a)
+       (format #t "compute-b ~s\n" a)
+       (set! k (call/cc k)))
+     '(1 2 3))
+    (compute*)))
+
+;; (compute-a compute-b)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Non-preemptive multitasking
+
+(define task '())
+
+(define (task-add t)
+  (set! task (append task (list t))))
+
+(define (start)
+  (let ([t (car task)])
+    (set! task (cdr task))
+    (t)))
+
+(define (pause)
+  (call/cc
+   (lambda (k)
+     (task-add (lambda () (k #f)))
+     (start))))
+
+(task-add (lambda () (let f* () (pause) (display 'o) (f*))))
+(task-add (lambda () (let f* () (pause) (display 'k) (f*))))
+(task-add (lambda () (let f* () (pause) (newline) (f*))))
+
+;; (start)
