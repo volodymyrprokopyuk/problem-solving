@@ -178,6 +178,13 @@
 
 ;; (loop-until2 10)
 
+(define (countdown n)
+  (let ([ki (call/cc (lambda (k) (cons k n)))])
+    (let ([k (car ki)] [i (cdr ki)])
+      (unless [zero? i] (pp i) (k (cons k (1- i)))))))
+
+;; (countdown 10)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Interleaved multitasking
 
