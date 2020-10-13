@@ -63,8 +63,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (call/cc (lambda (k) (k value)))
 ;;   - call/cc captures the continuation k of the expression of call/cc application
-;;   - continuation k returns the value to the contination of call/cc application
-;;   - continuation's k argument value is passed to the call/cc context
+;;   - each time k is applied to the value(s), the value(s) is passed to the
+;;     contination of call/cc application
 ;;   - continuation k is an escape procedure from the (lambda (k)) context
 ;;   = escape procedure does not return to the point of its involation,
 ;;     but abandons its context and yeilds the result to the call/cc context
@@ -143,8 +143,8 @@
 (define (search t l)
   (call/cc
    (lambda (k)
-     (for-each (lambda (e) (when [equal? e t] (k e))) l)
-     #f)))
+     ;; (for-each (lambda (e) (when [equal? e t] (k e))) l) #f
+     (do ([l l (cdr l)]) ([null? l] #f) (when [equal? (car l) t] (k (car l)))))))
 
 ;; (pp (search 'c '(a b c d)))
 ;; (pp (search 'C '(a b c d)))
