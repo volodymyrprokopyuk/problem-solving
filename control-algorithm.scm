@@ -6,8 +6,13 @@
  (ice-9 receive)
  (srfi srfi-34) ;; Exceptions
  (srfi srfi-35) ;; Conditions
+ ((data-structure)
+  #:select (make-queue qu-empty? qu-enqueue qu-dequeue qu-front qu-content))
  ((ice-9 pretty-print)
   #:select ((pretty-print . pp))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Conditions and errors
 
 (define-condition-type &base-error &condition
   base-error?
@@ -18,6 +23,9 @@
 (define-condition-type &generic-error &base-error generic-error?)
 
 (define-condition-type &specific-error &base-error specific-error?)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Exception heandlers and guards
 
 #;(call/cc
  (lambda (k)
@@ -53,13 +61,13 @@
    (raise c)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ((call/cc r) e) => (f (lambda (c) c e))
-;; (e (call/cc r)) => (f (lambda (c) e c))
-;; (call/cc (receiver (continuation (result))))
-;;   - continuation is an escape procedure from the call/cc context
+;; (call/cc (lambda (k) (k value)))
+;;   - call/cc captures the continuation k of the expression of call/cc application
+;;   - continuation k returns the value to the contination of call/cc application
+;;   - continuation's k argument value is passed to the call/cc context
+;;   - continuation k is an escape procedure from the (lambda (k)) context
 ;;   = escape procedure does not return to the point of its involation,
 ;;     but abandons its context and yeilds the result to the call/cc context
-;;   - continuation's argument result is passed to the call/cc context
 ;; (call/cc allows for arbitrary (non-local) flow control manipulation
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -168,7 +176,7 @@
   (receive (k i) (call/cc (lambda (k) (values k 0)))
     (when [< i t] (pp i) (k k (1+ i)))))
 
-(loop-until2 10)
+;; (loop-until2 10)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Interleaved multitasking
@@ -195,24 +203,42 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Non-preemptive multitasking
 
-(define task '())
+#;(let ([task-queue (make-queue)] [quitk #f] [i 0])
+  (define (add-task t)
+    (set! task-queue (qu-enqueue task-queue t)))
+  (define (start)
+    (call/cc (lambda (k) (set! quitk k) (execute))))
+  (define (execute)
+    (receive (t qu) (qu-dequeue task-queue)
+      (set! task-queue qu) (t)))
+  (define (pause)
+    (call/cc (lambda (k) (add-task (lambda () (k #f))) (execute))))
+  (define (quit)
+    (if [qu-empty? task-queue] (quitk #f) (execute)))
+  (add-task
+   (lambda ()
+     (let f* ()
+       (set! i (1+ i))
+       (cond
+         [(> i 10) (quit)]
+         [else (pause) (display 'o) (f*)]))))
+  (add-task
+   (lambda ()
+     (let f* ()
+       (set! i (1+ i))
+       (cond
+         [(> i 11) (quit)]
+         [else (pause) (display 'k) (f*)]))))
+  (add-task
+   (lambda ()
+     (let f* ()
+       (set! i (1+ i))
+       (cond
+         [(> i 12) (quit)]
+         [else (pause) (newline) (f*)]))))
+  (start))
 
-(define (task-add t)
-  (set! task (append task (list t))))
-
-(define (start)
-  (let ([t (car task)])
-    (set! task (cdr task))
-    (t)))
-
-(define (pause)
-  (call/cc
-   (lambda (k)
-     (task-add (lambda () (k #f)))
-     (start))))
-
-(task-add (lambda () (let f* () (pause) (display 'o) (f*))))
-(task-add (lambda () (let f* () (pause) (display 'k) (f*))))
-(task-add (lambda () (let f* () (pause) (newline) (f*))))
-
-;; (start)
+#;(let ([i 0])
+  (let ([a ((lambda (kk) (set! i (1+ i)) (display "@") kk) (call/cc (lambda (k) k)))]
+        [b ((lambda (kk) (set! i (1+ i)) (display "*") kk) (call/cc (lambda (k) k)))])
+    (when [< i 100] (a b))))
