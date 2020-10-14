@@ -163,6 +163,12 @@
 
 ;; (pp (dl-take 15 (dl-fibonacci)))
 
+(define (dl-fibonacci2)
+  (letrec ([fibonacci (dl-cons 0 (dl-cons 1 (dl-map + fibonacci (dl-cdr fibonacci))))])
+    fibonacci))
+
+;; (pp (dl-take 15 (dl-fibonacci2)))
+
 (define (dl-prime)
   "Returns an infinite stream (delayed list) of prime numbers"
   (dl-filter prime? (dl-integer)))
