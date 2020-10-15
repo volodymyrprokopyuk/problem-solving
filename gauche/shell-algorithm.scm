@@ -1,3 +1,8 @@
+(define-module shell-algorithm
+  (export cat-main grep-main))
+
+(select-module shell-algorithm)
+
 (define (cat-main args)
   "Prints the input files from the comman line args to the output port"
   (cond
