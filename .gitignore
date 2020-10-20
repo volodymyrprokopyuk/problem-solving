@@ -1,2 +1,2 @@
-*-test.log
-cities.txt
+**/*-test.log
+guile/cities.txt
