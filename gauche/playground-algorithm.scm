@@ -124,7 +124,57 @@
 
 ;; #?=(=m1 'a 'b 'c)
 
-;; #?=(is-a? 1 <top>)
-;; #?=(subtype? <object> <top>)
-;; #?=(class-of 1)
-;; #?=(class-of "Vlad")
+;; (define v)
+;; #?=v
+;; #?=((lambda (:optional x) x) )
+;; #?=(if #f #f)
+;; #?=(undefined)
+
+;; (let* ([l (cons 'b (cons 'a ()))]
+;;        [dl (cons 'c (cons 'b 'a))]
+;;        [p (cons 'a ())]
+;;        [cl (cons 'b p)])
+;;   #?=l
+;;   #?=(list? l)
+;;   #?=dl
+;;   #?=(dotted-list? dl)
+;;   (set! (cdr p) cl)
+;;   #?=cl
+;;   #?=(circular-list? cl))
+
+;; (let ([al (acons 'b 2 (acons 'a 1 '()))])
+;;   #?=(assoc 'b al)
+;;   (set! al (assoc-set! al 'b 20))
+;;   #?=(assoc 'b al)
+;;   (set! al (assoc-set! al 'c 3))
+;;   #?=(assoc 'c al))
+
+;; #?=(get-keyword :B '(:a 1 :b 2) #f)
+
+;; (let ([cs #[a-z]]) #?=(cs #\a) #?=(cs #\A))
+
+;; (let* ([ms "Multi-line \
+;;         very long \
+;;         string"]
+;;        [gv #"~ms with Gauche version ~(gauche-version)"]
+;;        [ds #"Date: ~(sys-strftime \"%Y-%m-%d\" (sys-localtime (sys-time)))"]
+;;        [ds2 #"Date: ~($ sys-strftime \"%Y-%m-%d\" $ sys-localtime $ sys-time)"]
+;;        [n 7] [ss #"Scheme standard: R~|n|RS"])
+;;   #?=ms #?=gv #?=ds #?=ds2 #?=ss)
+
+;; (and-let* ([rx (string->regexp "^(Value:) +(.+)$" )]
+;;            [rm (rxmatch rx "Value: ok")])
+;;   #?=(rxmatch-substring rm) #?=(rxmatch-substrings rm))
+
+;; (and-let* ([rm1 (#/(\w+)/ "Regular expression in Gauche")]
+;;            [rm2 (#/(?<first>\w+)/ "Regular expression in Gauche")]
+;;            [rm3 (#/(\d+)_\1/ "12_12")]
+;;            [rm4 (#/(?<word>[-\w]+)/ "regular-expression")]
+;;            [rm5 (#/(\w+) (?=positive lookahead)/ "ok positive lookahead")]
+;;            [rm6 (#/(?<=positive lookbehind) (\w+)/ "positive lookbehind ok")])
+;;   #?=(rm1 1) #?=(rm2 'first) #?=(rm3 0) #?=(rm4 'word) #?=(rm5 1) #?=(rm6 1))
+
+;; #?=(regexp-replace-all #/(?<vowel>[aeiou])/ "Vlad and Lana" "|\\k<vowel>|")
+;; #?=(regexp-replace-all #/(?<vowel>[aeiou])/ "Vlad and Lana" (lambda (rm) #"|~(rm 'vowel)|"))
+
+;; #?=(vector-tabulate 10 square)
