@@ -178,3 +178,85 @@
 ;; #?=(regexp-replace-all #/(?<vowel>[aeiou])/ "Vlad and Lana" (lambda (rm) #"|~(rm 'vowel)|"))
 
 ;; #?=(vector-tabulate 10 square)
+
+;; Should be part of Gauche's core library
+(define (const v)
+  "Returns a procedure that accepts any number of arguments and always returns the value v"
+  (lambda _ v))
+
+;; (let ([ht (hash-table eq-comparator '(a . 1) '(b . 2))])
+;;   ;; Workaround that implements const with cut and identity
+;;   #?=(hash-table-ref ht 'b (cut identity #f) identity)
+;;   ;; More readable, consice, and idiomatic equivalent
+;;   #?=(hash-table-ref ht 'b (const #f) identity))
+
+;; (let ([ht (make-hash-table eq-comparator)]
+;;       [ht2 (hash-table eq-comparator '(a . 10) '(b . 20))]
+;;       [ht3 (hash-table-unfold null? (lambda (s) (values (caar s) (cdar s))) cdr
+;;                               '((a . 100) (b . 200)) eq-comparator )]
+;;       [ht4 (make-hash-table eq-comparator)]
+;;       [ht5 (alist->hash-table '((a . 1) (b . 2)))])
+;;   (hash-table-put! ht 'a 1)
+;;   (hash-table-put! ht 'b 2)
+;;   (hash-table-put! ht 'b 2)
+;;   #?=(hash-table-get ht 'b)
+;;   #?=(hash-table-get ht2 'b)
+;;   #?=(hash-table-get ht3 'b)
+;;   #?=(hash-table-ref ht 'b (cut identity #f) identity)
+;;   (hash-table-set! ht2 'a 11 'b 22 'c 33)
+;;   #?=(hash-table-get ht2 'a)
+;;   #?=(hash-table-get ht2 'c)
+;;   #?=(hash-table-push! ht4 'a 1)
+;;   #?=(hash-table-push! ht4 'a 2)
+;;   #?=(hash-table-push! ht4 'b 10)
+;;   #?=(hash-table-push! ht4 'b 20)
+;;   #?=(hash-table-get ht4 'a)
+;;   #?=(hash-table-get ht4 'b)
+;;   #?=(hash-table-pop! ht4 'a)
+;;   #?=(hash-table-update! ht4 'a (cut cons 3 <>))
+;;   #?=(hash-table-get ht4 'a)
+;;   #?=(hash-table-get ht5 'b)
+;;   (set! (ref ht5 'a) 10)
+;;   #?=(ref ht5 'a)
+;;   (hash-table-for-each ht5 print)
+;;   #?=(hash-table-map ht5 cons)
+;;   #?=(hash-table-fold ht5 (lambda (_ v s) (+ v s)) 0)
+;;   #?=(hash-table-find ht5 (lambda (_ v) (and (= v 10) v))))
+
+;; #?=(~ '(a b c) 1)
+;; #?=(~ '#(a b c) 2)
+;; #?=(~ "abc" 0)
+;; #?=(~ (hash-table eq-comparator '(a . 1) '(b . 2)) 'b)
+;; #?=(~ ($ sys-localtime $ sys-time) 'hour)
+;; #?=(~ '((a b) (c d)) 1 1)
+;; (let ([l '((a b) (c d))])
+;;   (set! (~ l 1 1) 'D)
+;;   #?=l)
+
+;; #?=(apply + (map * '(1 2 3) '(4 5 6)))
+;; #?=((.$ (cut apply + <>) (cut map * <...>)) '(1 2 3) '(4 5 6))
+;; #?=($ (cut apply + <>) $ (cut map * <...>) '(1 2 3) '(4 5 6))
+
+(define-method object-apply ([s <string>] [i <integer>])
+  (string-ref s i))
+
+;; #?=("abc" 2)
+
+;; (dynamic-wind
+;;   (cut print 'set-up)
+;;   ;; (cut error "oh")
+;;   (cut print 'body)
+;;   (cut print 'restore))
+
+;; #?=(values->list (values 1 2))
+;; #?=(receive (a b) (values 1 2) (cons a b))
+;; #?=(let-values ([(a b) (values 1 2)]) (cons a b))
+
+;; #?=(with-input-from-string "Vlad and Lana\nScheme and Gauche"
+;;      (cut generator-fold cons '() read))
+
+;; #?=(with-input-from-string "Vlad and Lana\nScheme and Gauche"
+;;      (cut generator-map symbol->string read))
+
+;; #?=(with-input-from-string "Vlad and Lana\nScheme and Gauche"
+;;      (cut generator-find #/and/ read-line))
