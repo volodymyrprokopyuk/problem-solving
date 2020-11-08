@@ -260,3 +260,75 @@
 
 ;; #?=(with-input-from-string "Vlad and Lana\nScheme and Gauche"
 ;;      (cut generator-find #/and/ read-line))
+
+;; #?=(guard (e [(<read-error> e) (format #t "ERROR: read-error") 'read-error]
+;;              [else 'other-error])
+;;      (print 'ok) (error 'oh) (read-from-string "(abc"))
+
+;; #?=(guard (e [(integer? e) 'integer-error])
+;;      (raise 1))
+
+;; #?=(guard (e [(<error> e) 'error])
+;;      (raise (error "oh"))
+;;      (raise (condition (<error> (message "oh2")))))
+
+(define-condition-type <app-error> <error>
+  app-error?
+  (reason app-error-reason))
+
+;; #?=(guard (e [(<app-error> e) (app-error-reason e)])
+;;           (error <app-error> :reason 'app-error-reason)
+;;           (raise (condition (<app-error> (reason 'app-error-reason2)))))
+
+;; (dynamic-wind (cut print 'pre) (cut print 'body) (cut print 'post))
+
+;; (unwind-protect
+;;  (begin (print 'pre) (print 'ok) (error 'oh))
+;;  (print 'post) (print 'cleanup))
+
+;; (guard (e [else (report-error e)])
+;;           (error "oh error"))
+
+(use gauche.parameter)
+
+;; #?=(let ([os (open-output-string)])
+;;      (parameterize ([current-output-port os])
+;;        (display 'ok))
+;;      (get-output-string os))
+
+;; (write '(1 10 100 1000) (make-write-controls :base 16 :radix #t))
+;; (write (iota 100) (make-write-controls :pretty #t :width 20))
+;; (let* ([x (list 1 2 3)] [y (list x x)])
+;;   (set! (cdddr x) x)
+;;   (write x) (write y)
+;;   (newline)
+;;   (display x) (display y)
+;;   (newline)
+;;   (print x y))
+;; #?=(format "~a ~s" "ok" "ok")
+
+;; #?=(sort '(("abc" "xwz") ("def" "klm")) string<? (cut ~ <> 1))
+
+(define-class <point> ()
+  ([x :init-value 0.0 :init-keyword :x :accessor point-x]
+   [y :init-value 0.0 :init-keyword :y :accessor point-y]))
+
+(define-method move-point! ([p <point>] dx dy)
+  "MOve object by dx and dy"
+  (inc! (point-x p) dx) (inc! (point-y p) dy))
+
+(define-method write-object ([p <point>] port)
+  "Write <point> object"
+  (format port "#<<point> [~a, ~a]>" (~ p 'x) (~ p 'y)))
+
+;; (let ([p (make <point> :x 1.0 :y 2.0)])
+;;   (print (point-x p) " " (point-y p))
+;;   (slot-set! p 'x 10.0)
+;;   (print (slot-ref p 'x))
+;;   (set! (~ p 'y) 20.0)
+;;   (print (~ p 'y))
+;;   (set! (point-x p) 100.0)
+;;   (print (point-x p))
+;;   (move-point! p 0.0 180.0)
+;;   (print (~ p 'x) " " (~ p 'y))
+;;   (display p))

@@ -36,7 +36,8 @@
   - Iterator + side effects
     - `do`
   - Delayed (lazy) evaluation + promises
-    - `delay`
+    - `delay` e -> promise e, `force` promise e -> e, `lazy` promise e -> promise e,
+      `eager`
 
 ## Equality, comparison/ordering, and hashing
 
