@@ -311,7 +311,9 @@
 
 (define-class <point> ()
   ([x :init-value 0.0 :init-keyword :x :accessor point-x]
-   [y :init-value 0.0 :init-keyword :y :accessor point-y]))
+   [y :init-value 0.0 :init-keyword :y :accessor point-y]
+   [xy :allocation :virtual :getter point-xy
+       :slot-ref (lambda (p) (cons (~ p 'x) (~ p 'y)))]))
 
 (define-method move-point! ([p <point>] dx dy)
   "MOve object by dx and dy"
@@ -331,4 +333,5 @@
 ;;   (print (point-x p))
 ;;   (move-point! p 0.0 180.0)
 ;;   (print (~ p 'x) " " (~ p 'y))
-;;   (display p))
+;;   (display p)
+;;   (print (point-xy p)))
