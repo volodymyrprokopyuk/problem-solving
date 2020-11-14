@@ -335,30 +335,3 @@
 ;;   (print (~ p 'x) " " (~ p 'y))
 ;;   (display p)
 ;;   (print (point-xy p)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(define (make-counter :optional (start 0) (step 1))
-  (let ([counter start])
-    (lambda ()
-      (let ([c counter])
-        (set! counter (+ c step))
-        c))))
-
-;; (let ([counter (make-counter 10 10)])
-;;   #?=(counter)
-;;   #?=(counter)
-;;   #?=(counter))
-
-(define-class <counter> ()
-  ([counter :init-value 0 :init-keyword :start]))
-
-(define-method forward ([counter <counter>] :optional (step 1))
-  (let ([c (~ counter 'counter)])
-    (set! (~ counter 'counter) (+ c step))
-    c))
-
-;; (let ([counter (make <counter> :start 10)])
-;;   #?=(forward counter 10)
-;;   #?=(forward counter 5)
-;;   #?=(forward counter 2))
