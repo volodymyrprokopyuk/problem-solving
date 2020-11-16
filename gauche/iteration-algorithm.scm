@@ -121,3 +121,20 @@
             (read* (read-char))))))))
 
 ;; #?=(acronym3 "Tail-call optimization")
+
+(define (pig-language w)
+  "Translates the word w into the pig language"
+  (let pig* ([l (string->list w)])
+    (cond
+      [(#[aeiou] (car l)) ($ string $* append l '(#\a #\y))]
+      [else (pig* (append (cdr l) ($ list $ car l)))])))
+
+;; #?=(pig-language "elephant")
+;; #?=(pig-language "spagetti")
+
+(define (pig-language2 w)
+  "Translates the word w into the pig language"
+  (regexp-replace #/([^aeiou]*)(.*)/ w "\\2\\1ay"))
+
+;; #?=(pig-language2 "elephant")
+;; #?=(pig-language2 "spagetti")
