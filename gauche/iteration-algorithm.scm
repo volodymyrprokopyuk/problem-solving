@@ -1,3 +1,5 @@
+(use srfi-13) ;; string-upcase
+
 (define (make-counter :optional (start 0) (step 1))
   "Returns a counter with start and step"
   (let ([counter start])
@@ -81,3 +83,41 @@
 ;; (let ([cl '(1 2 3)])
 ;;   (set! (cdr cl) cl)
 ;;   #?=(=list? cl))
+
+(define (acronym s :optional (sp #[- ]))
+  "Returns an acronym of the words in the string s split by split char set sp"
+  #;(apply string
+         (map char-upcase
+              (map (cut string-ref <> 0)
+                   (string-split s sp))))
+  #;($ string
+     $* map char-upcase
+     $ map (cut string-ref <> 0)
+     $ string-split s sp)
+  ($ string
+     $* map (.$ char-upcase (cut string-ref <> 0))
+     $ string-split s sp))
+
+;; #?=(acronym "Tail-call optimization")
+
+(define (acronym2 s)
+  "Returns an acronym of the words in the string s split by split char set sp"
+  ($ string-upcase $ regexp-replace-all #/\b(.)[^- ]*[- ]*/ s "\\1"))
+
+;; #?=(acronym2 "Tail-call optimization")
+
+(define (acronym3 s :optional (sp #[- ]))
+  "Returns an acronym of the words in the string s split by split char set sp"
+  (with-string-io s
+    (lambda ()
+      (let ([state 'boundary] [spc (char-set-complement sp)])
+        (let read* ([c (read-char)])
+          (unless [eof-object? c]
+            (cond
+              [(and (eq? state 'boundary) (spc c))
+               (set! state 'word) ($ write-char $ char-upcase c)]
+              [(and (eq? state 'word) (sp c))
+               (set! state 'boundary)])
+            (read* (read-char))))))))
+
+;; #?=(acronym3 "Tail-call optimization")

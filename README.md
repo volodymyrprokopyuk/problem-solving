@@ -22,6 +22,7 @@
     - `and-let*` sequential `*` guarded `and` binded `let` expressions
     - `cut` compact parameter spacialization without currying
     - `$`, `$*` procedure application chaining
+    - `.$` composition
   - `define` (variable definition + initialization), `set!` (variable update +
     assignment)
     - generalized `set!`
