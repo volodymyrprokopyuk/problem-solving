@@ -138,3 +138,23 @@
 
 ;; #?=(pig-language2 "elephant")
 ;; #?=(pig-language2 "spagetti")
+
+(define (choices ll)
+  (cond
+    [(null? ll) '(())]
+    [else
+     (let ([l (car ll)] [cc (choices (cdr ll))])
+       (fold (lambda (c s) (append s (map (lambda (e) (cons e c)) l))) '() cc))]))
+
+;; #?=(choices '((a b) (1 2) #;(A B)))
+
+(define (choices2 ll)
+  (let choices* ([ll (reverse ll)] [cc '(())])
+    (cond
+      [(null? ll) cc]
+      [else
+       (choices* (cdr ll)
+                 (fold (lambda (c s) (append s (map (lambda (e) (cons e c)) (car ll))))
+                       '() cc))])))
+
+;; #?=(choices2 '((a b) (1 2) #;(A B)))
