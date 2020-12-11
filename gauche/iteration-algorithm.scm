@@ -140,6 +140,7 @@
 ;; #?=(pig-language2 "spagetti")
 
 (define (choices ll)
+  "Generates all possible choices from a list of lists of elements"
   (cond
     [(null? ll) '(())]
     [else
@@ -149,6 +150,7 @@
 ;; #?=(choices '((a b) (1 2) #;(A B)))
 
 (define (choices2 ll)
+  "Generates all possible choices from a list of lists of elements"
   (let choices* ([ll (reverse ll)] [cc '(())])
     (cond
       [(null? ll) cc]
@@ -158,3 +160,27 @@
                        '() cc))])))
 
 ;; #?=(choices2 '((a b) (1 2) #;(A B)))
+
+(define (=combinations n l)
+  "Generates all possible combinations of a size n from the set l"
+  (cond
+    [(zero? n) '(())]
+    [(null? l) '()]
+    [else (append (map (cut cons (car l) <>) (=combinations (- n 1) (cdr l)))
+                  (=combinations n (cdr l)))]))
+
+;; #?=(=combinations 2 '(a b c))
+
+(define (average . l)
+  "Returns the average of the argument list l"
+  (/ (apply + l) (length l)))
+
+;; #?=(average 1 2)
+
+(define (coefficient-exponent x)
+  "Returnn the coefficient and the exponent of the number x in scientific notation"
+  (let* ([e (floor (log x 10))] [c (/ x (expt 10 e))])
+    (values c e)))
+
+;; #?=(coefficient-exponent 7100)
+;; #?=(coefficient-exponent 0.071)
