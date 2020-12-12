@@ -26,6 +26,7 @@
   - `define` (variable definition + initialization), `set!` (variable update +
     assignment)
     - generalized `set!`
+    - universal accessor `~`
   - `if` (conditionals)
     - `and`, `or`, `cond`, `case`
   - `quote`=`'` (do not evaluate)
