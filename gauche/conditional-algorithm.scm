@@ -1,4 +1,5 @@
 (use util.match)
+(use gauche.record)
 
 (define analyze-let
   (match-lambda
@@ -9,13 +10,13 @@
     [_ (format "malformed let")]))
 
 ;; #?=(analyze-let '(let ([a 1] [b 2]) c d))
-;; #?=(analyze-let '(let name ([a '(1 2)] [b '(3 4)]) c d))
+;; #?=(analyze-let '(let named ([a '(1 2)] [b '(3 4)]) c d))
 ;; #?=(analyze-let '(let (a) b))
 
 (define extract-file-name
   (match-lambda
-    [(? string? (= #/^(.+)\.([^.]+)$/ m))
-     (format "base=~a, extension=~a" (m 1) (m 2))]))
+    [(? string? (= #/^(?<base>.+)\.(?<ext>[^.]+)$/ m))
+     (format "base=~a, extension=~a" (m 'base) (m 'ext))]))
 
 ;; #?=(extract-file-name "conditional-algorithm.scm")
 
@@ -31,6 +32,19 @@
 
 ;; #?=(extract-pair (cons 1 2))
 
+(define-record-type <person>
+  make-person person?
+  (first-name first-name)
+  (last-name last-name))
+
+;; #?=(match-let ([($ <person> fname lname)
+;;                 (make-person "Volodymyr" "Prokopyuk")])
+;;      (values fname lname))
+
+;; #?=(match-let ([(@ <person> (last-name lname) (first-name fname))
+;;                 (make-person "Volodymyr" "Prokopyuk")])
+;;      (values fname lname))
+
 (define (european-hour? h)
   "Returns #t if the hour h is within [0, 24]"
   (<= 0 h 24))
@@ -42,7 +56,7 @@
      (cond
        [(zero? (remainder h 24)) '(12 am midnight)]
        [(zero? (remainder h 12)) '(12 pm noon)]
-       [(and (< h 12)) `(,(remainder h 12) am)]
+       [(and (< h 12)) `(,h am)]
        [else `(,(remainder h 12) pm)])]))
 
 ;; (for-each (lambda (t) #?=(european->american t)) '(0 1 11 12 13 23 24))
