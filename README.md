@@ -55,6 +55,15 @@
 - Literals `#t`, `#f`, `#\char`, `(list)`, `#(vector)`, `#[char-set]`, `#/reg-exp/`
 - Pattern matching `match`, `match-lambda` (one argument or list of arguments),
   `match-let`
+- Eager comprehensions `(comprehension qualifiers body)`
+    - Comprehension (collect, aggregate/fold) `do-ec`, `list-ec`, `vector-ec`,
+      `string-ec`, `any?-ec`, `every?-ec`, `first-ec`, `last-ec`, `fold-ec`
+    - Qualifiers (generate, filter)
+        - Generational (typed) qualifiers `:list`, `:vector`, `:string`, `:integers`
+          (infinite), `:rage`, `:real-range`, `:char-range`, `:port`, `:parallel` (zip,
+          default is nested), `:while` (stop early)
+        - Control qualifiers `if`, `not`, `and`, `or`
+    - Body (evaluate, transform)
 - Record type (portable and efficient class `<record>`) `define-record-type`
   (constructor, predicate, accessors, [mutators])
 

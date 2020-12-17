@@ -7,9 +7,9 @@ readonly SRFI_DIR=$HOME/Projects/scheme-upgrade
 # readonly SOURCE=shell-algorithm
 # readonly SOURCE=comparator-algorithm
 # readonly SOURCE=continuation-algorithm
-# readonly SOURCE=iterative-algorithm
+readonly SOURCE=iterative-algorithm
 # readonly SOURCE=conditional-algorithm
-readonly SOURCE=recursive-algorithm
+# readonly SOURCE=recursive-algorithm
 
 export GAUCHE_LOAD_PATH="${ROOT_DIR}:${SRFI_DIR}"
 
