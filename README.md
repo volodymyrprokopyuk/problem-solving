@@ -25,6 +25,11 @@
       :init-keyword :init-value :init-form :accessor :getter :setter`
     - Instance `make`
     - Method `define-method`, `next-method`
+- Exceptions and conditions
+    - Conditions `define-condition-type`
+    - Signaling `error`, `raise`
+    - Handling `guard`
+    - Cleaning up `unwind-protect`
 - Fundamental and derived forms
   - `lambda` + `:optional`, `:key`, `:rest` (procedure, closure, binding block,
     recursion)
@@ -53,6 +58,9 @@
     - `delay` e -> promise e, `force` promise e -> e, `lazy` promise e -> promise e,
       `eager`
 - Literals `#t`, `#f`, `#\char`, `(list)`, `#(vector)`, `#[char-set]`, `#/reg-exp/`
+- String interpolation `#"Value ~expr ~(expr) ~|var|"`
+- Parameters `make-parameter`, `parametrize`, `dynamic-wind` (dynamic environment
+  management, context switch)
 - Pattern matching `match`, `match-lambda` (one argument or list of arguments),
   `match-let`
 - Eager comprehensions `(comprehension qualifiers body)`
