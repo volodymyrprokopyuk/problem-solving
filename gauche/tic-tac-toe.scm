@@ -2,9 +2,12 @@
 
 (select-module tic-tac-toe)
 
-(use srfi-42)
-(use gauche.parseopt)
+(use srfi-42) ;; Eager comprehensions
+(use srfi-27) ;; Random
 (use gauche.parameter)
+(use gauche.parseopt)
+
+(random-source-randomize! default-random-source)
 
 (define-constant name "Tic-tac-toe")
 (define-constant description "Noughts and corsses game. To win put three marks in a row \
@@ -15,7 +18,6 @@
 
 (define-condition-type <app-error> <error> app-error? (message message))
 (define-condition-type <input-error> <app-error> input-error?)
-(define-condition-type <index-error> <app-error> index-error?)
 
 (define (report-error e)
   "Display the error e message on the stderr"
@@ -79,8 +81,6 @@ Options:
 
 (define (mark! b i m)
   "Sets the mark m (X or O) on the board b at the index i"
-  (when [memv i (list-ec (:vector c (index j) b) (if [#[XO] c]) j)]
-    (error <index-error> :message #"posiiton ~(+ i 1) already used"))
   (set! (~ b i) m))
 
 (define (board->string b)
@@ -98,7 +98,53 @@ Options:
   (let ([b (make-board)])
     (cond
       [(player-first) b]
-      [else (mark! b 4 (program-mark)) b])))
+      [else (mark! b (program-strategy b) (program-mark)) b])))
+
+(define (marked? b i)
+  "Returns #t if the index i is already marked on the board b"
+  (any?-ec (:vector c (index j) b) (and [#[XO] c] [= i j])))
+
+(define (win? b m)
+  (define (row-marked? r)
+    (every?-ec (:vector c (index i) b) (if (memv i r)) [char=? c m]))
+  "Returns #t if the mark m a win"
+  (or (row-marked? '(0 1 2)) (row-marked? '(3 4 5)) (row-marked? '(6 7 8))
+      (row-marked? '(0 3 6)) (row-marked? '(1 4 7)) (row-marked? '(2 5 8))
+      (row-marked? '(0 4 8)) (row-marked? '(2 4 6)))
+  #;(let ([rr '((0 1 2) (3 4 5) (6 7 8) (0 3 6) (1 4 7) (2 5 8) (0 4 8) (2 4 6))])
+    `(or ,@(map (lambda (r) `(row-marked? (list ,@r))) rr))))
+
+(define (complete? b)
+  "Returns #t if the board b is complete"
+  (every?-ec (:vector c b) [#[^_] c]))
+
+(define (program-strategy b)
+  "Performs random program strategy"
+  (let* ([a (vector-ec (:vector c (index i) b) (if [#[_] c]) i)]
+         [i (random-integer (vector-length a))])
+    (vector-ref a i)))
+
+(define (check-board b m play*)
+  "Checks the board b for winner or draw the the mark m, otherway continues to play*"
+  (let* ([player? (char=? m (player-mark))]
+         [s (if player? "Player" "Program")])
+    (cond
+      [(win? b m) (display (board->string b)) (display #"~s won\n")]
+      [(complete? b) (display (board->string b)) (display "Draw\n")]
+      [player? (program-turn b play*)]
+      [else (play* b)])))
+
+(define (player-turn b c play*)
+  "Realizes player's turn"
+  (let ([i (- (digit->integer c) 1)])
+    (cond
+      [(marked? b i) (display #"~(+ i 1) already marked\n") (play* b)]
+      [else (mark! b i (player-mark)) (check-board b (player-mark) play*)])))
+
+(define (program-turn b play*)
+  "Realizes program's turn"
+  (let ([i (program-strategy b)])
+    (mark! b i (program-mark)) (check-board b (program-mark) play*)))
 
 (define (play)
   (define (prompt) (display "> ") (flush))
@@ -117,10 +163,7 @@ Options:
         [(#[h] c) (display (game-help)) (play* b)]
         [(#[v] c) (display #"version ~version\n") (play* b)]
         [(#[r] c) (play* (setup-board))]
-        [(#[1-9] c)
-         (let ([i (- (digit->integer c) 1)])
-           (mark! b i (player-mark)))
-         (play* b)]
+        [(#[1-9] c) (player-turn b c play*)]
         [else (display #"error ~c\n") (play* b)]))))
 
 (define (main args)
