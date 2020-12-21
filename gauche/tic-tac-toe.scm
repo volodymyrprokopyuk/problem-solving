@@ -2,7 +2,7 @@
 
 (select-module tic-tac-toe)
 
-(use srfi-42) ;; Eager comprehensions
+(use srfi-42) ;; Comprehensions
 (use srfi-27) ;; Random
 (use gauche.parameter)
 (use gauche.parseopt)
@@ -23,6 +23,35 @@
   "Display the error e message on the stderr"
   (display #"Error: ~(message e)\n" (current-error-port)))
 
+(define (random-strategy b)
+  "Realizes random program strategy"
+  (let* ([a (vector-ec (:vector c (index i) b) (if [#[_] c]) i)]
+         [i (random-integer (vector-length a))])
+    (vector-ref a i)))
+
+(define (scan-board b f)
+  "Scans the board b rows with the function f and returns the first non-#f result"
+  (or (f '(0 1 2)) (f '(3 4 5)) (f '(6 7 8))
+      (f '(0 3 6)) (f '(1 4 7)) (f '(2 5 8))
+      (f '(0 4 8)) (f '(2 4 6))))
+
+(define (about-to-win b r m)
+  "Returns the missing index in the row r for the mark m to win on the board b, \
+   otherwise #f"
+  (and (= (fold-ec 0 (:vector c (index i) b) (and (memv i r) (char=? c m)) 1 +) 2)
+       (first-ec #f (:vector c (index i) b) (and [memv i r] [#[_] c]) i)))
+
+(define (win-strategy b)
+  "Relizes win program strategy if possible, otherwise returns #f"
+  (scan-board b (cut about-to-win b <> (program-mark))))
+
+(define (configure-strategy s)
+  "Configures program strategy based on the strategy s command line option"
+  (case s
+    [(easy) random-strategy]
+    [(hard) (lambda (b) (or (win-strategy b) (random-strategy b)))]
+    [else random-strategy]))
+
 (define (string->mark s)
   "Converts the string s to player mark character either #\X or #\O"
   (when [zero? (string-length s)] (error <input-error> :message "empty mark"))
@@ -40,6 +69,7 @@
 (define player-first (make-parameter #t))
 (define player-mark (make-parameter "X" string->mark))
 (define strategy (make-parameter 'easy validate-strategy))
+(define program-strategy (make-parameter (configure-strategy (strategy))))
 
 (define (configure args)
   "Configures tic-tac-toe by reading command line options"
@@ -54,7 +84,10 @@
     (version? v)
     (player-first (not f))
     (and m (player-mark m))
-    (and s (strategy s))))
+    (display #"player mark ~(player-mark)\n")
+    (and s (strategy s))
+    (display #"program strategy ~(strategy)\n")
+    (program-strategy (configure-strategy (strategy)))))
 
 (define (program-help)
   "Returns program name, description, author, year and command line options"
@@ -98,31 +131,23 @@ Options:
   (let ([b (make-board)])
     (cond
       [(player-first) b]
-      [else (mark! b (program-strategy b) (program-mark)) b])))
+      [else (mark! b ((program-strategy) b) (program-mark)) b])))
 
-(define (marked? b i)
-  "Returns #t if the index i is already marked on the board b"
+(define (cell-marked? b i)
+  "Returns #t if the cell at the index i is already marked on the board b"
   (any?-ec (:vector c (index j) b) (and [#[XO] c] [= i j])))
 
-(define (win? b m)
-  (define (row-marked? r)
+(define (row-marked? b r m)
+  "Returns #t if the row r is marked with the mark m on the board b"
     (every?-ec (:vector c (index i) b) (if (memv i r)) [char=? c m]))
-  "Returns #t if the mark m a win"
-  (or (row-marked? '(0 1 2)) (row-marked? '(3 4 5)) (row-marked? '(6 7 8))
-      (row-marked? '(0 3 6)) (row-marked? '(1 4 7)) (row-marked? '(2 5 8))
-      (row-marked? '(0 4 8)) (row-marked? '(2 4 6)))
-  #;(let ([rr '((0 1 2) (3 4 5) (6 7 8) (0 3 6) (1 4 7) (2 5 8) (0 4 8) (2 4 6))])
-    `(or ,@(map (lambda (r) `(row-marked? (list ,@r))) rr))))
+
+(define (win? b m)
+  "Returns #t if the there is a row on the board b marked with the mark m"
+  (scan-board b (cut row-marked? b <> m)))
 
 (define (complete? b)
   "Returns #t if the board b is complete"
   (every?-ec (:vector c b) [#[^_] c]))
-
-(define (program-strategy b)
-  "Performs random program strategy"
-  (let* ([a (vector-ec (:vector c (index i) b) (if [#[_] c]) i)]
-         [i (random-integer (vector-length a))])
-    (vector-ref a i)))
 
 (define (check-board b m play*)
   "Checks the board b for winner or draw the the mark m, otherway continues to play*"
@@ -138,12 +163,12 @@ Options:
   "Realizes player's turn"
   (let ([i (- (digit->integer c) 1)])
     (cond
-      [(marked? b i) (display #"~(+ i 1) already marked\n") (play* b)]
+      [(cell-marked? b i) (display #"~(+ i 1) already marked\n") (play* b)]
       [else (mark! b i (player-mark)) (check-board b (player-mark) play*)])))
 
 (define (program-turn b play*)
   "Realizes program's turn"
-  (let ([i (program-strategy b)])
+  (let ([i ((program-strategy) b)])
     (mark! b i (program-mark)) (check-board b (program-mark) play*)))
 
 (define (play)
@@ -167,6 +192,11 @@ Options:
         [else (display #"error ~c\n") (play* b)]))))
 
 (define (main args)
+  #;(let ([b (make-board)])
+    (mark! b 2 #\X)
+    (mark! b 8 #\X)
+    (display (board->string b))
+    #?=(win-strategy b))
   (guard
    (e
     [(<input-error> e) (report-error e) 1])
