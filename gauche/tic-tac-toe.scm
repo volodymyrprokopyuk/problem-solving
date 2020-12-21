@@ -31,9 +31,7 @@
 
 (define (scan-board b f)
   "Scans the board b rows with the function f and returns the first non-#f result"
-  (or (f '(0 1 2)) (f '(3 4 5)) (f '(6 7 8))
-      (f '(0 3 6)) (f '(1 4 7)) (f '(2 5 8))
-      (f '(0 4 8)) (f '(2 4 6))))
+  (any f '((0 1 2) (3 4 5) (6 7 8) (0 3 6) (1 4 7) (2 5 8) (0 4 8) (2 4 6))))
 
 (define (about-to-win b r m)
   "Returns the missing index in the row r for the mark m to win on the board b, \
@@ -49,7 +47,7 @@
   "Configures program strategy based on the strategy s command line option"
   (case s
     [(easy) random-strategy]
-    [(hard) (lambda (b) (or (win-strategy b) (random-strategy b)))]
+    ((hard) (any-pred win-strategy random-strategy))
     [else random-strategy]))
 
 (define (string->mark s)
@@ -152,10 +150,10 @@ Options:
 (define (check-board b m play*)
   "Checks the board b for winner or draw the the mark m, otherway continues to play*"
   (let* ([player? (char=? m (player-mark))]
-         [s (if player? "Player" "Program")])
+         [s (if player? "player" "program")])
     (cond
       [(win? b m) (display (board->string b)) (display #"~s won\n")]
-      [(complete? b) (display (board->string b)) (display "Draw\n")]
+      [(complete? b) (display (board->string b)) (display "draw\n")]
       [player? (program-turn b play*)]
       [else (play* b)])))
 

@@ -37,9 +37,6 @@
     - `let` (block), `let*` (nested), `letrec` (set!), `let name` (recursion)
     - `and-let*` sequential `*` guarded `and` binded `let` expressions
     - `values` + `receive` multiple values construction and access
-    - `cut` compact parameter spacialization without currying
-    - `$`, `$*` procedure application chaining
-    - `.$` procedure composition
   - `define` (variable definition + initialization), `set!` (variable update +
     assignment)
     - generalized `set!`
@@ -74,6 +71,11 @@
     - Body (evaluate, transform)
 - Record type (portable and efficient class `<record>`) `define-record-type`
   (constructor, predicate, accessors, [mutators])
+- Combinators (return procedure)
+    - `cut` compact parameter spacialization without currying
+    - `.$`, `compose` procedure composition
+    - `idenitty`, `constantly`, `complement`, `any-pred`, `every-pred`
+    - `$`, `$*` procedure application chaining
 
 ## Equality, comparison/ordering, and hashing
 
