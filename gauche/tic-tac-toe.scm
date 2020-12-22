@@ -152,8 +152,7 @@
   "Returns the index of the corner r with two non-blocked rows for the mark m \
    on the board b, otherwise #f"
   (and (every?-ec (:vector c (index i) b) (if [memv i r]) (not [(opposite-mark m) c]))
-       (every?-ec (:vector c (index i) b) (if [= i (caddr r)]) [(empty-mark) c])
-       (caddr r)))
+       (first-ec #f (:vector c (index i) b) (and [= i (caddr r)] [(empty-mark) c]) i)))
 
 (define (fork-strategy b)
   "Returns the index of the corner with two program non-blocked rows"
