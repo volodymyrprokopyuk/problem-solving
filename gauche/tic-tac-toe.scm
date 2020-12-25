@@ -2,10 +2,10 @@
 
 (select-module tic-tac-toe)
 
-(use srfi-42) ;; Comprehensions
-(use srfi-27) ;; Random
 (use gauche.parameter)
 (use gauche.parseopt)
+(use srfi-42) ;; Comprehensions
+(use srfi-27) ;; Random
 
 ;; Random
 
@@ -27,7 +27,7 @@
 
 (define (report-error e)
   "Shows the error e message on the stderr"
-  (display #"Error: ~(message e)\n" (current-error-port)))
+  (display #"ERROR: ~(message e)\n" (current-error-port)))
 
 ;; Mark
 
