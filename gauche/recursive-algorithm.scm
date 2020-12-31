@@ -50,6 +50,24 @@
 ;; #?=(downup2 '())
 ;; #?=(downup2 '(a b c d))
 
+(define (down l)
+  "Returns a list of shrinking sublists of the list l"
+  (cond
+    [(null? l) '()]
+    [else (cons l (down (drop-right l 1)))]))
+
+;; #?=(down '())
+;; #?=(down '(a b c d))
+
+(define (up l)
+  "Returns a list of growing sublists of the list l"
+  (cond
+    [(null? l) '()]
+    [else (append (up (drop-right l 1)) (list l))]))
+
+;; #?=(up '())
+;; #?=(up '(a b c d))
+
 (define (pig s)
   "Translates a word into the pig language"
   (let ([l (string->list s)]
@@ -129,15 +147,6 @@
 ;; #?=(evens2 '())
 ;; #?=(evens2 '(1 2 3 4 5 6 7))
 
-(define (down l)
-  "Returns the list of sublists of the list l"
-  (cond
-    [(null? l) '()]
-    [else (cons l (down (drop-right l 1)))]))
-
-;; #?=(down '())
-;; #?=(down '(a b c d))
-
 (define (filter-doubles s)
   "Returns a list of double letter strings from the string s"
   (let filter* ([l (string->list s)] [r '()])
@@ -149,3 +158,43 @@
 
 ;; #?=(filter-doubles "bookkeeper")
 ;; #?=(filter-doubles "mississippi")
+
+(define (every-nth l n)
+  "Returns a list of every nth element of the list l"
+  (let every-nth* ([l l] [r '()])
+    (cond
+      [(null? l) (reverse r)]
+      [(< (length l) n) ($ reverse $ cons (car l) r)]
+      [else (every-nth* (drop l n) (cons (car l) r))])))
+
+;; #?=(every-nth '(1 2 3 4 5 6 7 8 9) 3)
+
+(define (all-pairs l)
+  "Returns a list of all possible pairs of elements from the list l"
+  (let first* ([m l] [r '()])
+    (cond
+      [(null? m) (reverse r)]
+      [else
+       (let second* ([n l] [s r])
+         (cond
+           [(null? n) (first* (cdr m) s)]
+           [else (second* (cdr n) (cons (list (car m) (car n)) s))]))])))
+
+;; #?=(all-pairs '(a b c))
+
+(define (all-pairs2 l)
+  "Returns a list of all possible pairs of elements from the list l"
+  (append-map (lambda (e) (map (lambda (f) (list e f)) l)) l))
+
+;; #?=(all-pairs2 '(a b c))
+
+(define (all-tuples l n)
+  "Returns a list of all n-tules of elements from the list l"
+  (cond
+    [(zero? n) '(())]
+    [else
+     (append-map
+      (lambda (e) (map (lambda (f) (cons e f)) (all-tuples l (- n 1)))) l)])
+  )
+
+;; (pprint (all-tuples '(a b c) 3))
