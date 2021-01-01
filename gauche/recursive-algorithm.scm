@@ -198,3 +198,27 @@
   )
 
 ;; (pprint (all-tuples '(a b c) 3))
+
+(define (remove1 x l :optional (c equal?))
+  "Removes the first occurence of the element x in the list l"
+  (let remove* ([l l] [r '()])
+    (cond
+      [(null? l) (reverse r)]
+      [(c (car l) x) (append (reverse r) (cdr l))]
+      [else (remove* (cdr l) (cons (car l) r))])))
+
+;; #?=(remove1 3 '(1 2 3 4 5 3) eqv?)
+;; #?=(remove1 9 '(1 2 3 4 5 3) eqv?)
+
+(define (selection-sort l :optional (c <))
+  "Returns a sorted copy of the list l"
+  (let sort* ([l l] [r '()])
+    (cond
+      [(null? l) (reverse r)]
+      [else
+       (let* ([m (reduce (lambda (e s) (if [c e s] e s)) #f l)]
+              [k (remove1 m l eqv?)])
+         (sort* k (cons m r)))])))
+
+#?=(selection-sort '(9 5 3 7 6 0 1 2 8 4 9))
+#?=(selection-sort '(9 5 3 7 6 0 1 2 8 4 9) >)

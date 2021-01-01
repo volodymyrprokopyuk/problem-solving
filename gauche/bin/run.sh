@@ -8,14 +8,14 @@ readonly ROOT_DIR=$(pwd)
 # readonly SOURCE=continuation-algorithm
 # readonly SOURCE=iterative-algorithm
 # readonly SOURCE=conditional-algorithm
-# readonly SOURCE=recursive-algorithm
+readonly SOURCE=recursive-algorithm
 
-# gosh "${SOURCE}.scm" "${@}"
+gosh "${SOURCE}.scm" "${@}"
 
 # readonly SOURCE=tic-tac-toe
 # readonly SOURCE=recambios
-readonly SOURCE=spell-number
+# readonly SOURCE=spell-number
 
 # gosh -m tic-tac-toe "${SOURCE}.scm" "${@}"
 # gosh -m recambios "${SOURCE}.scm" "${@}"
-gosh -m spell-number "${SOURCE}.scm" "${@}"
+# gosh -m spell-number "${SOURCE}.scm" "${@}"
