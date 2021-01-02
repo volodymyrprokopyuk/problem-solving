@@ -1,3 +1,5 @@
+(use gauche.unicode) ;; string-downcase
+
 (define (repeat f n)
   "Composes the function f n times"
   (cond
@@ -211,7 +213,7 @@
 ;; #?=(remove1 9 '(1 2 3 4 5 3) eqv?)
 
 (define (selection-sort l :optional (c <))
-  "Returns a sorted copy of the list l"
+  "Returns a sorted copy of the list l using selection sort"
   (let sort* ([l l] [r '()])
     (cond
       [(null? l) (reverse r)]
@@ -220,5 +222,52 @@
               [k (remove1 m l eqv?)])
          (sort* k (cons m r)))])))
 
-#?=(selection-sort '(9 5 3 7 6 0 1 2 8 4 9))
-#?=(selection-sort '(9 5 3 7 6 0 1 2 8 4 9) >)
+;; #?=(selection-sort '(9 5 3 7 6 0 1 2 8 4 9))
+;; #?=(selection-sort '(9 5 3 7 6 0 1 2 8 4 9) >)
+
+(define (=merge x y :optional (c <))
+  "Merges the lists x and y as per the comparator c"
+  (let merge* ([x x] [y y] [r '()])
+    (cond
+      [(null? x) (append (reverse r) y)]
+      [(null? y) (append (reverse r) x)]
+      [(c (car x) (car y)) (merge* (cdr x) y (cons (car x) r))]
+      [else (merge* x (cdr y) (cons (car y) r))])))
+
+;; #?=(=merge '(1 3 5 6 7 8) '(0 2 4 6 7 8 9))
+
+(define (merge-sort l :optional (c <))
+  "Returns a sorted copy of the list l using merge sort"
+  (cond
+    [(< (length l) 2) l]
+    [else
+     (let ([m (floor (/ (length l) 2))])
+       (=merge (merge-sort (take l m) c) (merge-sort (drop l m) c) c))]))
+
+;; #?=(merge-sort '(9 5 3 7 6 0 1 2 8 4 9))
+;; #?=(merge-sort '(9 5 3 7 6 0 1 2 8 4 9) >)
+
+(define (subsets l)
+  "Returns all subsets of the list l"
+  (cond
+    [(null? l) '(())]
+    [else
+     (let ([s (subsets (cdr l))])
+       (append (map (lambda (e) (cons (car l) e)) s) s))]))
+
+;; #?=(subsets '())
+;; #?=(subsets '(c))
+;; #?=(subsets '(b c))
+;; #?=(subsets '(a b c))
+
+(define (palindrome? s)
+  "Returns #t if the string s is a palindrome"
+  (let pal* ([l (remove #[ .,?!] (string->list (string-downcase s)))])
+    (cond
+      [(< (length l) 2) #t]
+      [(char=? (car l) (last l)) (pal* (cdr (drop-right l 1)))]
+      [else #f])))
+
+;; #?=(palindrome? "Flee to me remote Elf")
+;; #?=(palindrome? "Mr. Owl ate my metal worm!")
+;; #?=(palindrome? "Was it a car or a cat I saw?")
