@@ -271,3 +271,15 @@
 ;; #?=(palindrome? "Flee to me remote Elf")
 ;; #?=(palindrome? "Mr. Owl ate my metal worm!")
 ;; #?=(palindrome? "Was it a car or a cat I saw?")
+
+(define (deep-fold s f l)
+  "Left folds deeplby the function f over the list l staring with the seed s"
+  (let fold* ([s s] [l l])
+    (cond
+      [(null? l) s]
+      [(pair? (car l)) (fold* (fold* s (car l)) (cdr l))]
+      [else (fold* (f s (car l)) (cdr l))])))
+
+;; #?=(deep-fold 0 (lambda (s _) (+ s 1)) '(1 2 (3 (4 5) 6) 7 8))
+;; #?=(deep-fold 0 + '(1 2 (3 (4 5) 6) 7 8))
+;; #?=(deep-fold 0 - '(1 2 (3 (4 5) 6) 7 8))
