@@ -283,3 +283,48 @@
 ;; #?=(deep-fold 0 (lambda (s _) (+ s 1)) '(1 2 (3 (4 5) 6) 7 8))
 ;; #?=(deep-fold 0 + '(1 2 (3 (4 5) 6) 7 8))
 ;; #?=(deep-fold 0 - '(1 2 (3 (4 5) 6) 7 8))
+
+(define (=max . l)
+  "Returns the maximum of the arguments l"
+  (when [null? l] (error "=max: empty list"))
+  (let max* ([l (cdr l)] [r (car l)])
+    (cond
+      [(null? l) r]
+      [else (max* (cdr l) (if [> (car l) r] (car l) r))])))
+
+;; #?=(=max 1)
+;; #?=(=max 1 2)
+;; #?=(=max 1 2 5 3 4)
+
+(define (=append . l)
+  "Appends the lists l into a single list"
+  (let append* ([l l] [r '()])
+    (cond
+      [(null? l) r]
+      [else
+       (let append1* ([m (car l)])
+         (cond
+           [(null? m) (append* (cdr l) r)]
+           [else (cons (car m) (append1* (cdr m)))]))])))
+
+;; #?=(=append '(a b) '(c d e) '(f (g h)))
+
+(define (flatten l)
+  "Flattens the list l"
+  (let flatten* ([l l] [r '()])
+    (cond
+      [(null? l) (reverse r)]
+      [(pair? (car l)) (flatten* (cdr l) (reverse (flatten* (car l) r)))]
+      [else (flatten* (cdr l) (cons (car l) r))])))
+
+;; #?=(flatten '(a b (c (d e (f g) h i) j k) l m))
+
+(define (flatten2 l)
+  "Flattens the list l"
+  (let flatten* ([l l] [r '()])
+    (cond
+      [(null? l) r]
+      [(pair? (car l)) (flatten* (car l) (flatten* (cdr l) r))]
+      [else (cons (car l) (flatten* (cdr l) r))])))
+
+;; #?=(flatten2 '(a b (c (d e (f g) h i) j k) l m))
