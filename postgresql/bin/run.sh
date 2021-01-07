@@ -3,8 +3,8 @@
 set -eu
 
 readonly ROOT_DIR=$(pwd)
+export PGDATABASE=playground
 export PGUSER=vlad
-export PGDATABASE=playgournd
 
 function playground_schema {
     psql -c "DROP DATABASE IF EXISTS $PGDATABASE WITH (FORCE);" \

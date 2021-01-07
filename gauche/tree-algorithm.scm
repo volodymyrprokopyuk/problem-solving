@@ -78,3 +78,56 @@
   #?=(in-tree? 'e n)
   #?=(in-tree2? 'e n)
   #?=(locate 'l n))
+
+(define (parse-arith e :optional (p '((+ . 1) (- . 1) (* . 2) (/ . 2))))
+  "Parses arithmetic expression as per the presendece p and returns a parse tree"
+  (let parse* ([e e] [o '()] [n '()])
+    (cond
+      [(null? e)
+       (let operate* ([o o] [n n])
+         (cond
+           [(null? o) (if [null? n] n (car n))]
+           [else (operate* (cdr o)
+                           (cons (make-node (car o) (list (cadr n) (car n)))
+                                 (cddr n)))]))]
+      [(number? (car e)) (parse* (cdr e) o (cons (make-leaf (car e)) n))]
+      [(memq (car e) '(+ - * /))
+       (let operate* ([o o] [n n])
+         (cond
+           [(and (not (null? o)) (<= (assq-ref p (car e)) (assq-ref p (car o))))
+            (operate* (cdr o)
+                      (cons (make-node (car o) (list (cadr n) (car n)))
+                            (cddr n)))]
+           [else (parse* (cdr e) (cons (car e) o) n)]))]
+      [(pair? (car e)) (parse* (cdr e) o (cons (parse-arith (car e) p) n))]
+      [else (error #"invalid term ~(car e)")])))
+
+;; #?=(parse-arith '())
+;; #?=(parse-arith '(1))
+;; #?=(parse-arith '(1 + 2))
+;; #?=(parse-arith '(1 + 2 * 3))
+;; #?=(parse-arith '(1 * 2 + 3))
+;; #?=(parse-arith '(1 + 2 * (3 - 4 / 5)))
+;; #?=(parse-arith '(4 + 3 * 7 - 5 / (3 + 4) + 6))
+
+(define (evaluate-arith n)
+  "Evalues the parse tree n of the arithmetic expression"
+  (cond
+    [(number? (datum n)) (datum n)]
+    [else
+     (case (datum n)
+       [(+) (+ (evaluate-arith (car (children n)))
+               (evaluate-arith (cadr (children n))))]
+       [(-) (- (evaluate-arith (car (children n)))
+               (evaluate-arith (cadr (children n))))]
+       [(*) (* (evaluate-arith (car (children n)))
+               (evaluate-arith (cadr (children n))))]
+       [(/) (/ (evaluate-arith (car (children n)))
+               (evaluate-arith (cadr (children n))))])]))
+
+;; #?=($ evaluate-arith $ parse-arith '(1))
+;; #?=($ evaluate-arith $ parse-arith '(1 + 2))
+;; #?=($ evaluate-arith $ parse-arith '(1 + 2 * 3))
+;; #?=($ evaluate-arith $ parse-arith '(1 * 2 + 3))
+;; #?=($ evaluate-arith $ parse-arith '(1 + 2 * (3 - 4 / 5)))
+;; #?=($ evaluate-arith $ parse-arith '(4 + 3 * 7 - 5 / (3 + 4) + 6))
