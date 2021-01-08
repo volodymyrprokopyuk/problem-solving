@@ -64,6 +64,24 @@
        [(e (datum n) d) (cons (datum n) r)]
        [else (any (cut locate* <> (cons (datum n) r)) (children n))]))))
 
+(define (depth n)
+  "Retunrs the depth of the tree n"
+  (cond
+    [(leaf? n) 1]
+    [else (+ (apply max (map depth (children n))) 1)]))
+
+(define (count-nodes n)
+  "Returns the number of notes in the tree n"
+  (cond
+    [(leaf? n) 1]
+    [else (+ (apply + (map count-nodes (children n))) 1)]))
+
+(define (prune-leaves n)
+  "Removes all leaves from the tree n"
+  (cond
+    [(leaf? n) #f]
+    [else (make-node (datum n) (filter identity (map prune-leaves (children n))))]))
+
 #;(let ([n (make-node 'a
                     (list
                      (make-node 'b
@@ -77,7 +95,11 @@
   #?=(count-leaves2 n)
   #?=(in-tree? 'e n)
   #?=(in-tree2? 'e n)
-  #?=(locate 'l n))
+  #?=(locate 'l n)
+  #?=(depth n)
+  #?=(count-nodes n)
+  #?=(prune-leaves n)
+  #?=(prune-leaves (make-leaf 'a)))
 
 (define (parse-arith e :optional (p '((+ . 1) (- . 1) (* . 2) (/ . 2))))
   "Parses arithmetic expression as per the presendece p and returns a parse tree"

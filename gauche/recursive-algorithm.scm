@@ -5,7 +5,8 @@
   (cond
     [(zero? n) identity]
     [(= n 1) f]
-    [else (lambda (x) (f ((repeat f (- n 1)) x)))]))
+    ;; [else (lambda (x) (f ((repeat f (- n 1)) x)))]))
+    [else (lambda (x) ((repeat f (- n 1)) (f x)))]))
 
 ;; #?=((repeat cdr 3) '(a b c d e f))
 ;; #?=((repeat (cut + <> 1) 4) 0)
@@ -328,3 +329,55 @@
       [else (cons (car l) (flatten* (cdr l) r))])))
 
 ;; #?=(flatten2 '(a b (c (d e (f g) h i) j k) l m))
+
+(define (deep-map f l)
+  "Maps the funciton f over the nested list l"
+  (cond
+    [(null? l) '()]
+    [(pair? (car l)) (cons (deep-map f (car l)) (deep-map f (cdr l)))]
+    [else (cons (f (car l)) (deep-map f (cdr l)))]))
+
+;; #?=(deep-map (cut * <> 10) '(1 2 (3 (4 5) 6 7) 8 9))
+
+(define (=fold f s l)
+  "Folds left the function f starting with the seed s over the list l"
+  ;; (print s " " l)
+  (cond
+    [(null? l) s]
+    [else (=fold f (f (car l) s) (cdr l))]))
+
+;; #?=(fold cons '() '(a b c d e))
+;; #?=(=fold cons '() '(a b c d e))
+;; #?=(fold - 0 '(1 2 3 4 5))
+;; #?=(=fold - 0 '(1 2 3 4 5))
+
+(define (=fold-right f s l)
+  "Folds right the function f starting with the seed s over the list l"
+  (cond
+    [(null? l) s]
+    [else (f (car l) (=fold-right f s (cdr l)))]))
+
+;; #?=(fold-right cons '() '(a b c d e))
+;; #?=(=fold-right cons '() '(a b c d e))
+;; #?=(fold-right - 0 '(1 2 3 4 5))
+;; #?=(=fold-right - 0 '(1 2 3 4 5))
+
+(define (deep-fold f s l)
+  "Folds left the function f over the nexted list"
+  (cond
+    [(null? l) s]
+    [(pair? (car l)) (deep-fold f (deep-fold f s (car l)) (cdr l))]
+    [else (deep-fold f (f (car l) s) (cdr l))]))
+
+;; #?=(deep-fold cons '() '(a b (c d (e (f g) h i) j k) l))
+;; #?=(deep-fold + 0 '(1 2 (3 4 (5) 6) 7))
+
+(define (deep-fold-right f s l)
+  "Folds right the function f over the nexted list"
+  (cond
+    [(null? l) s]
+    [(pair? (car l)) (f (deep-fold-right f s (car l)) (deep-fold-right f s (cdr l)))]
+    [else (f (car l) (deep-fold-right f s (cdr l)))]))
+
+;; #?=(deep-fold-right cons '() '(a b (c d (e (f g) h i) j k) l))
+;; #?=(deep-fold-right + 0 '(1 2 (3 4 (5) 6) 7))
