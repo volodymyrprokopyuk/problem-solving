@@ -34,3 +34,7 @@ CREATE TABLE exam (
     CONSTRAINT fk_exam_of_course FOREIGN KEY (course_id)
         REFERENCES course(course_id)
 );
+
+CREATE OR REPLACE FUNCTION duplicate (x integer) RETURNS integer LANGUAGE sql AS $$
+    SELECT x * 2;
+$$;
