@@ -152,7 +152,7 @@
                 [e (regexp-replace "jpeg" (string-downcase (path-extension fl)) "jpg")]
                 [f #"~|yr|~|mn|~|dy|_~|tm|_~|dg|.~|e|"])
      (make-directory* d)
-     (if (copy-file fl (build-path d f))
+     (if (copy-file fl (build-path d f) :if-exists :supersede)
          (set! (media-status m) 'written)
          (set! (media-status m) 'write-failed))))
   m)
