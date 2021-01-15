@@ -188,10 +188,25 @@
 (define (string-justify s :optional (w 88))
   "Justifies the string s to the width w"
   (let ([n (- w (string-length s))] [wl (string-split s " ")])
-    (let justify* ([l (drop-right wl 1)] [n n] [r '()])
-      (cond
-        [(< n 1) (string-join (append (reverse r) l (take-right wl 1)))]
-        [(null? l) (justify* (reverse r) n '())]
-        [else (justify* (cdr l) (- n 1) (cons (string-append (car l) " ") r))]))))
+    (cond
+      [(< (length wl) 2) s]
+      [else
+       (let justify* ([l (drop-right wl 1)] [n n] [r '()])
+         (cond
+           [(< n 1) (string-join (append (reverse r) l (take-right wl 1)))]
+           [(null? l) (justify* (reverse r) n '())]
+           [else (justify* (cdr l) (- n 1) (cons (string-append (car l) " ") r))]))])))
 
+;; #?=(string-justify "" 40)
+;; #?=(string-justify "Vlad" 0)
+;; #?=(string-justify "Vlad" 3)
+;; #?=(string-justify "Vlad" 40)
 ;; #?=(string-justify "Vlad and Lana are leaving together" 40)
+
+(define (justify-io :optional (w 88))
+  (let justify* ([s (read-line)])
+    (unless (eof-object? s)
+      (print (string-justify s w))
+      (justify* (read-line)))))
+
+;; (with-input-from-file "iterative-algorithm.scm" justify-io)
