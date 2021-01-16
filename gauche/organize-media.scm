@@ -157,6 +157,12 @@
          (set! (media-status m) 'write-failed))))
   m)
 
+(define (report-media)
+  "Reports the amount of source and sink media"
+  (let ([s (length (read-media (*media-source*)))]
+        [t (length (read-media (*media-sink*)))])
+    (print #"Source: ~s") (print #"Sink: ~t")))
+
 ;; Main
 
 (define (main args)
@@ -172,4 +178,5 @@
           extract-media-timestamp
           classify-media)
       (read-media (*media-source*)))
+   (report-media)
    0))
