@@ -148,7 +148,7 @@
   (guard
    (e [else (display-error e) (set! (media-status m) 'write-failed)])
    (match-let* ([(@ <media> (year yr) (month mn) (day dy) (time tm) (digest dg) (file fl)) m]
-                [d (build-path (*media-sink*) yr)]
+                [d (build-path (*media-sink*) yr #"~|yr|-~|mn|-~|dy|")]
                 [e (regexp-replace "jpeg" (string-downcase (path-extension fl)) "jpg")]
                 [f #"~|yr|~|mn|~|dy|_~|tm|_~|dg|.~|e|"])
      (make-directory* d)
