@@ -223,6 +223,7 @@
               [k (remove1 m l eqv?)])
          (sort* k (cons m r)))])))
 
+;; #?=(selection-sort '())
 ;; #?=(selection-sort '(9 5 3 7 6 0 1 2 8 4 9))
 ;; #?=(selection-sort '(9 5 3 7 6 0 1 2 8 4 9) >)
 

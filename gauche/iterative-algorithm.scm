@@ -210,3 +210,72 @@
       (justify* (read-line)))))
 
 ;; (with-input-from-file "iterative-algorithm.scm" justify-io)
+
+(define (=vector-swap! v i j)
+  "Swaps in place elements i and j of the vector v"
+  (let ([iv (vector-ref v i)])
+    (set! (vector-ref v i) (vector-ref v j))
+    (set! (vector-ref v j) iv)))
+
+;; #?=(let ([v #(1 2 3 4)]) (=vector-swap! v 1 2) v)
+
+(define (=vector-fold f s v :optional (a #f) (b #f))
+  "Folds left the function f over the vector v withing the [a b) starting with the seed s"
+  (do ([i (or a 0) (+ i 1)] [s s (f s (vector-ref v i) i)])
+      ([>= i (or b (vector-length v))] s)))
+
+;; #?=(=vector-fold (lambda (s e _) (+ s e)) 0 #())
+;; #?=(=vector-fold (lambda (s e _) (+ s e)) 0 #(1 2 3 4 5))
+;; #?=(=vector-fold (lambda (s e _) (+ s e)) 0 #(1 2 3 4 5) 2 4)
+;; #?=(=vector-fold (lambda (s e _) (- s e)) 0 #(1 2 3 4 5))
+;; #?=(=vector-fold (lambda (s e i) (if [< (car s) e] s (cons e i)))
+;;                  (cons +inf.0 -1) #(1 2 3 4 5))
+;; #?=(=vector-fold (lambda (s e i) (if [> (car s) e] s (cons e i)))
+;;                  (cons -inf.0 -1) #(1 2 3 4 5) 1 4)
+
+(define (=vector-fold-right f s v :optional (a #f) (b #f))
+  "Folds right the function f over the vector v withing the [a b) starting with the seed s"
+  (do ([i (- (or b (vector-length v)) 1) (- i 1)] [s s (f (vector-ref v i) s i)])
+      ([< i (or a 0)] s)))
+
+;; #?=(=vector-fold-right (lambda (e s _) (+ e s)) 0 #())
+;; #?=(=vector-fold-right (lambda (e s _) (+ e s)) 0 #(1 2 3 4 5))
+;; #?=(=vector-fold-right (lambda (e s _) (+ e s)) 0 #(1 2 3 4 5) 2 4)
+;; #?=(=vector-fold-right (lambda (e s _) (- e s)) 0 #(1 2 3 4 5))
+;; #?=(=vector-fold-right (lambda (e s i) (if [< e (car s)] (cons e i) s))
+;;                        (cons +inf.0 -1) #(1 2 3 4 5))
+;; #?=(=vector-fold-right (lambda (e s i) (if [> e (car s)] (cons e i) s))
+;;                        (cons -inf.0 -1) #(1 2 3 4 5) 1 4)
+
+(define (selection-sort! v :optional (c <) (d +inf.0))
+  "Returns the sorted in place vector v using selection sort"
+  (do ([i 0 (+ i 1)]) ([>= i (- (vector-length v) 1)] v)
+    (let ([m (=vector-fold (lambda (s e j) (if [c (car s) e] s (cons e j)))
+                           (cons d -1) v i)])
+      (=vector-swap! v i (cdr m)))))
+
+#?=(selection-sort! #())
+#?=(selection-sort! #(9 5 3 7 6 0 1 2 8 4 9))
+#?=(selection-sort! #(9 5 3 7 6 0 1 2 8 4 9) > -inf.0)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (return-values) (values 'a 'b 'c))
+
+;; Standard: +1 fully standard
+;; Readability: +1 very consice and focused just on destructuring values
+;; Security: +1 throws error on wrong number of values
+;; Flexibility: 0 less flexible as only flat structures can be matched
+;; Performance: 1+ probably higher as no extra checks on structure are performed
+;; #?=(receive (x y z) (return-values) (list x y z))
+
+(define (return-list) (list 'a 'b 'c))
+
+(use util.match)
+
+;; Standard: 0 less standard solution as there are multiple matching engines
+;; Readability: 0 several more parentheses + additional bindings could be made
+;; Security: +1 throws error on wrong number of values
+;; Flexibility: +1 nested structures can be matched
+;; Performance: 0 probably lower as extra checks on structure are performed
+;; #?=(match-let ([(x y z) (return-list)]) (list x y z))
