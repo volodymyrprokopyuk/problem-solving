@@ -254,28 +254,6 @@
                            (cons d -1) v i)])
       (=vector-swap! v i (cdr m)))))
 
-#?=(selection-sort! #())
-#?=(selection-sort! #(9 5 3 7 6 0 1 2 8 4 9))
-#?=(selection-sort! #(9 5 3 7 6 0 1 2 8 4 9) > -inf.0)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(define (return-values) (values 'a 'b 'c))
-
-;; Standard: +1 fully standard
-;; Readability: +1 very consice and focused just on destructuring values
-;; Security: +1 throws error on wrong number of values
-;; Flexibility: 0 less flexible as only flat structures can be matched
-;; Performance: 1+ probably higher as no extra checks on structure are performed
-;; #?=(receive (x y z) (return-values) (list x y z))
-
-(define (return-list) (list 'a 'b 'c))
-
-(use util.match)
-
-;; Standard: 0 less standard solution as there are multiple matching engines
-;; Readability: 0 several more parentheses + additional bindings could be made
-;; Security: +1 throws error on wrong number of values
-;; Flexibility: +1 nested structures can be matched
-;; Performance: 0 probably lower as extra checks on structure are performed
-;; #?=(match-let ([(x y z) (return-list)]) (list x y z))
+;; #?=(selection-sort! #())
+;; #?=(selection-sort! #(9 5 3 7 6 0 1 2 8 4 9))
+;; #?=(selection-sort! #(9 5 3 7 6 0 1 2 8 4 9) > -inf.0)
