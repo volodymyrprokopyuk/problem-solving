@@ -300,16 +300,35 @@
 
 (define (=append . l)
   "Appends the lists l into a single list"
-  (let append* ([l l] [r '()])
+  (let append* ([l (reverse l)] [r '()])
     (cond
       [(null? l) r]
       [else
-       (let append1* ([m (car l)])
+       (let append1* ([m (reverse (car l))] [r r])
          (cond
            [(null? m) (append* (cdr l) r)]
-           [else (cons (car m) (append1* (cdr m)))]))])))
+           [else (append1* (cdr m) (cons (car m) r))]))])))
 
-;; #?=(=append '(a b) '(c d e) '(f (g h)))
+;; #?=(=append)
+;; #?=(=append '(a b))
+;; #?=(=append '(a b) '(c))
+;; #?=(=append '(a b) '(c d e) '() '(f (g h)))
+
+(define =append2
+  (case-lambda
+    [() '()]
+    [(a) a]
+    [(a b)
+     (let append* ([a (reverse a)] [b b])
+       (cond
+         [(null? a) b]
+         [else (append* (cdr a) (cons (car a) b))]))]
+    [(a b . c) (apply =append2 (=append2 a b) c)]))
+
+;; #?=(=append2)
+;; #?=(=append2 '(a b))
+;; #?=(=append2 '(a b) '(c))
+;; #?=(=append2 '(a b) '(c d e) '() '(f (g h)))
 
 (define (flatten l)
   "Flattens the list l"
