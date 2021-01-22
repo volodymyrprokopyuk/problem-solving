@@ -414,3 +414,16 @@
 ;; #?=((=compose car cdr) '(a b c))
 ;; #?=((=compose car cdr cdr) '(a b c))
 ;; #?=((=compose car cdr cdr cons) 'a '(b c))
+
+(define (depth l)
+  "Returns the depth of the nested list l"
+  (cond
+    [(null? l) 0]
+    [(pair? (car l)) (max (+ (depth (car l)) 1) (depth (cdr l)))]
+    [else (max (depth (cdr l)) 1)]))
+
+#?=(depth '())
+#?=(depth '(a))
+#?=(depth '(a b))
+#?=(depth '(a (b) (c (d))))
+#?=(depth '(a (b) (c (d (e)))))
