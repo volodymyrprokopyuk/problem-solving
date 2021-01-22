@@ -401,3 +401,16 @@
 
 ;; #?=(deep-fold-right cons '() '(a b (c d (e (f g) h i) j k) l))
 ;; #?=(deep-fold-right + 0 '(1 2 (3 4 (5) 6) 7))
+
+(define (=compose . l)
+  "Composes the list l of functions"
+  (cond
+    [(null? l) identity]
+    [(= (length l) 1) (car l)]
+    [else (lambda x ((car l) (apply (apply =compose (cdr l)) x)))]))
+
+;; #?=((=compose) '(a b c))
+;; #?=((=compose car) '(a b c))
+;; #?=((=compose car cdr) '(a b c))
+;; #?=((=compose car cdr cdr) '(a b c))
+;; #?=((=compose car cdr cdr cons) 'a '(b c))
