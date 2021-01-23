@@ -257,3 +257,9 @@
 ;; #?=(selection-sort! #())
 ;; #?=(selection-sort! #(9 5 3 7 6 0 1 2 8 4 9))
 ;; #?=(selection-sort! #(9 5 3 7 6 0 1 2 8 4 9) > -inf.0)
+
+(define (kons a b) (lambda (s) (s a b)))
+(define (kar p) (p (lambda (a _) a)))
+(define (kdr p) (p (lambda (_ b) b)))
+
+;; (let ([p (kons 'a 'b)]) #?=p #?=(kar p) #?=(kdr p))
