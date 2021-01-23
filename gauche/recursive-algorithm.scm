@@ -422,8 +422,33 @@
     [(pair? (car l)) (max (+ (depth (car l)) 1) (depth (cdr l)))]
     [else (max (depth (cdr l)) 1)]))
 
-#?=(depth '())
-#?=(depth '(a))
-#?=(depth '(a b))
-#?=(depth '(a (b) (c (d))))
-#?=(depth '(a (b) (c (d (e)))))
+;; #?=(depth '())
+;; #?=(depth '(a))
+;; #?=(depth '(a b))
+;; #?=(depth '(a (b) (c (d))))
+;; #?=(depth '(a (b) (c (d (e)))))
+
+(define (depth2 a)
+  "Returns the depth of the nested list l"
+  (cond
+    [(pair? a) (+ (apply max (map depth2 a)) 1)]
+    [else 0]))
+
+;; #?=(depth2 '())
+;; #?=(depth2 '(a))
+;; #?=(depth2 '(a b))
+;; #?=(depth2 '(a (b) (c (d))))
+;; #?=(depth2 '(a (b) (c (d (e)))))
+
+(define (=map f l . m)
+  "Maps the function f over the variadic arguments l"
+  (let map* ([a (cons l m)] [r '()])
+    (cond
+      [(any null? a) (reverse r)]
+      [else (map* (map cdr a) (cons (apply f (map car a)) r))])))
+
+;; #?=(=map (cut + <> 1) '())
+;; #?=(=map (cut + <> 1) '(1 2 3 4))
+;; #?=(=map + '(1 2 3 4) '(10 20 30 40))
+;; #?=(=map - '(1 2 3 4) '(10 20 30 40))
+;; #?=(=map cons '(a b c d) '(A B C D))
