@@ -27,21 +27,32 @@
 -- ORDER BY df.delay DESC
 -- LIMIT 10
 
-WITH ap AS (
-SELECT dap.city departure_city, dap.airport_code departure_airport,
-    aap.city arrival_city, aap.airport_code arrival_airport
-FROM airports dap, airports aap
-WHERE dap.city = 'Москва' AND aap.city = 'Санкт-Петербург'
+-- WITH ap AS (
+-- SELECT dap.city departure_city, dap.airport_code departure_airport,
+--     aap.city arrival_city, aap.airport_code arrival_airport
+-- FROM airports dap, airports aap
+-- WHERE dap.city = 'Москва' AND aap.city = 'Санкт-Петербург'
+-- )
+-- SELECT DISTINCT f.flight_no, ap.departure_city, ap.departure_airport,
+--     ap.arrival_city, ap.arrival_airport,
+--     min(f.actual_arrival - f.actual_departure) OVER (PARTITION BY f.flight_no) min_duration,
+--     max(f.actual_arrival - f.actual_departure) OVER (PARTITION BY f.flight_no) max_duration,
+--     sum(CASE
+--         WHEN ((f.actual_departure - f.scheduled_departure) > interval '1 hour')
+--         THEN 1 ELSE 0 END) OVER (PARTITION BY f.flight_no) delayed_count,
+--     count(*) OVER (PARTITION BY f.flight_no) total_count
+-- FROM ap
+--     JOIN flights f ON f.departure_airport = ap.departure_airport
+--         AND f.arrival_airport = ap.arrival_airport
+-- WHERE f.actual_arrival IS NOT NULL
+
+WITH first_registration AS (
+SELECT t.passenger_name, t.ticket_no,
+    count(*) OVER (PARTITION BY t.passenger_name, t.ticket_no) registration_count
+FROM tickets t
+    JOIN boarding_passes bp ON bp.ticket_no = t.ticket_no
+WHERE bp.boarding_no = 1
 )
-SELECT DISTINCT f.flight_no, ap.departure_city, ap.departure_airport,
-    ap.arrival_city, ap.arrival_airport,
-    min(f.actual_arrival - f.actual_departure) OVER (PARTITION BY f.flight_no) min_duration,
-    max(f.actual_arrival - f.actual_departure) OVER (PARTITION BY f.flight_no) max_duration,
-    sum(CASE
-        WHEN ((f.actual_departure - f.scheduled_departure) > interval '1 hour')
-        THEN 1 ELSE 0 END) OVER (PARTITION BY f.flight_no) delayed_count,
-    count(*) OVER (PARTITION BY f.flight_no) total_count
-FROM ap
-    JOIN flights f ON f.departure_airport = ap.departure_airport
-        AND f.arrival_airport = ap.arrival_airport
-WHERE f.actual_arrival IS NOT NULL
+SELECT fr.*
+FROM first_registration fr
+WHERE fr.registration_count > 1
