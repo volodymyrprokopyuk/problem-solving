@@ -263,3 +263,55 @@
 (define (kdr p) (p (lambda (_ b) b)))
 
 ;; (let ([p (kons 'a 'b)]) #?=p #?=(kar p) #?=(kdr p))
+
+(define (all-substrings s)
+  "Returns a list of all substrings of the string s"
+  (let base* ([j (string-length s)] [r '()])
+    (cond
+      [(zero? j) r]
+      [else
+       (let sub* ([i 0] [r r])
+         (cond
+           [(= i j) (base* (- j 1) r)]
+           [else (sub* (+ i 1) (cons (substring s i j) r))]))])))
+
+;; #?=(all-substrings "")
+;; #?=(all-substrings "V")
+;; #?=(all-substrings "Vlad")
+
+(define (all-substrings2 s)
+  "Returns a list of all substrings of the string s"
+  (let base* ([l (string->list s)] [r (map list (string->list s))])
+    (cond
+      [(null? l) (map (.$ list->string reverse) r)]
+      [else (base* (cdr l) (append (map cons (cdr l) r) r))])))
+
+;; #?=(all-substrings2 "")
+;; #?=(all-substrings2 "V")
+;; #?=(all-substrings2 "Vlad")
+
+(define (permute l)
+  "Returns a list of all permutations of the list l"
+  (cond
+    [(null? l) '(())]
+    [else (append-map (lambda (e) (map (lambda (p) (cons e p))
+                                  (permute (remove (cut eq? <> e) l))))
+                      l)]))
+
+;; #?=(permute '())
+;; #?=(permute '(a))
+;; #?=(permute '(a b))
+;; #?=(permute '(a b c))
+
+(define (sublists l)
+  "Returns a list of all sublists of the list l"
+  (let sub* ([l l] [r (map list l)])
+    (cond
+      [(null? l) (map reverse r)]
+      [else (sub* (cdr l) (append (map cons (cdr l) r) r))])))
+
+;; #?=(sublists '())
+;; #?=(sublists '(a))
+;; #?=(sublists '(a b))
+;; #?=(sublists '(a b c))
+;; #?=(sublists '(a b c d))
