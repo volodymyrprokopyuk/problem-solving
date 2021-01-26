@@ -5,12 +5,12 @@ readonly ROOT_DIR=$(pwd)
 # readonly SOURCE=playground-algorithm
 # readonly SOURCE=shell-algorithm
 # readonly SOURCE=comparator-algorithm
-# readonly SOURCE=continuation-algorithm
+readonly SOURCE=continuation-algorithm
 # readonly SOURCE=iterative-algorithm
 # readonly SOURCE=conditional-algorithm
 # readonly SOURCE=recursive-algorithm
 # readonly SOURCE=tree-algorithm
-readonly SOURCE=syntax-algorithm
+# readonly SOURCE=syntax-algorithm
 
 gosh "${SOURCE}.scm" "${@}"
 
