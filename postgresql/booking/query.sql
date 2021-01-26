@@ -46,13 +46,63 @@
 --         AND f.arrival_airport = ap.arrival_airport
 -- WHERE f.actual_arrival IS NOT NULL
 
-WITH first_registration AS (
-SELECT t.passenger_name, t.ticket_no,
-    count(*) OVER (PARTITION BY t.passenger_name, t.ticket_no) registration_count
-FROM tickets t
-    JOIN boarding_passes bp ON bp.ticket_no = t.ticket_no
-WHERE bp.boarding_no = 1
-)
-SELECT fr.*
-FROM first_registration fr
-WHERE fr.registration_count > 1
+-- WITH first_registration AS (
+-- SELECT t.passenger_name, t.ticket_no,
+--     count(*) OVER (PARTITION BY t.passenger_name, t.ticket_no) registration_count
+-- FROM tickets t
+--     JOIN boarding_passes bp ON bp.ticket_no = t.ticket_no
+-- WHERE bp.boarding_no = 1
+-- )
+-- SELECT fr.*
+-- FROM first_registration fr
+-- WHERE fr.registration_count > 1
+
+-- WITH booking_ticket AS (
+-- SELECT count(*) ticket_count
+-- FROM tickets t
+-- GROUP BY t.book_ref
+-- )
+-- SELECT min(ticket_count) min_ticket, max(ticket_count) max_ticket
+-- FROM booking_ticket bt
+
+-- WITH booking_ticket AS (
+-- SELECT t.book_ref, count(*) OVER (PARTITION BY t.book_ref) ticket_count
+-- FROM tickets t
+-- )
+-- SELECT DISTINCT bt.ticket_count,
+--     count(*) OVER (PARTITION BY bt.ticket_count) booking_count
+-- FROM booking_ticket bt
+-- ORDER BY bt.ticket_count
+
+-- SELECT t.ticket_no, f.departure_airport origin, f.arrival_airport destination,
+--     f.scheduled_departure depature, f.scheduled_arrival arrival,
+--     f.scheduled_departure - lag(f.scheduled_arrival)
+--         OVER (PARTITION BY t.ticket_no ORDER BY f.scheduled_departure) time_between
+-- FROM tickets t
+--     JOIN ticket_flights tf ON tf.ticket_no = t.ticket_no
+--     JOIN flights f ON f.flight_id = tf.flight_id
+--     JOIN bookings b ON b.book_ref = t.book_ref
+-- WHERE b.book_date::date = bookings.now()::date - interval '1 week'
+--     AND t.ticket_no = '0005434082600'
+-- ORDER BY t.ticket_no, f.scheduled_departure
+
+-- WITH duplicate AS (
+-- SELECT t.passenger_name,
+--     count(*) OVER (PARTITION BY t.passenger_name) name_count
+-- FROM tickets t
+-- )
+-- SELECT DISTINCT d.*, round(d.name_count::numeric / count(*) OVER (), 5) name_ratio
+-- FROM duplicate d
+-- WHERE name_count > 1
+-- ORDER BY d.name_count DESC
+-- LIMIT 20
+
+-- WITH duplicate AS (
+-- SELECT substring(t.passenger_name, '^\w+') passenger_name,
+--     count(*) OVER (PARTITION BY substring(t.passenger_name, '^\w+')) name_count
+-- FROM tickets t
+-- )
+-- SELECT DISTINCT d.*, round(d.name_count::numeric / count(*) OVER (), 5) name_ratio
+-- FROM duplicate d
+-- ORDER BY d.name_count DESC
+-- LIMIT 20
