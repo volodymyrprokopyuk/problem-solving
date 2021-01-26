@@ -22,10 +22,9 @@
   (call/cc
    (lambda (k)
      (let mul* ([l l] [r 1])
-       (print l " " r)
        (cond
          [(null? l) r]
          [(zero? (car l)) (k (car l))]
          [else (mul* (cdr l) (* (car l) r))])))))
 
-#?=(mul '(1 2 0 3 4 5))
+;; #?=(mul '(1 2 0 3 4 5))
