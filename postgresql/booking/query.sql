@@ -106,3 +106,19 @@
 -- FROM duplicate d
 -- ORDER BY d.name_count DESC
 -- LIMIT 20
+
+WITH ticket_route AS (
+SELECT t.ticket_no,
+    array_agg(f.departure_airport ORDER BY f.scheduled_departure)
+        || (array_agg(f.arrival_airport ORDER BY f.scheduled_departure DESC))[1] route
+FROM tickets t
+    JOIN ticket_flights tf ON tf.ticket_no = t.ticket_no
+    JOIN flights f ON f.flight_id = tf.flight_id
+WHERE t.ticket_no IN ('0005432000987','0005432383484')
+GROUP BY t.ticket_no
+)
+SELECT tr.*, route[1] origin,
+    route[cardinality(route) / 2 + 1] middle,
+    route[cardinality(route)] destination,
+    route[1] = route[cardinality(route)] round_trip
+FROM ticket_route tr
