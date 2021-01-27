@@ -107,18 +107,46 @@
 -- ORDER BY d.name_count DESC
 -- LIMIT 20
 
-WITH ticket_route AS (
-SELECT t.ticket_no,
-    array_agg(f.departure_airport ORDER BY f.scheduled_departure)
-        || (array_agg(f.arrival_airport ORDER BY f.scheduled_departure DESC))[1] route
-FROM tickets t
-    JOIN ticket_flights tf ON tf.ticket_no = t.ticket_no
-    JOIN flights f ON f.flight_id = tf.flight_id
-WHERE t.ticket_no IN ('0005432000987','0005432383484')
-GROUP BY t.ticket_no
+-- WITH ticket_route AS (
+-- SELECT t.ticket_no,
+--     array_agg(f.departure_airport ORDER BY f.scheduled_departure)
+--         || (array_agg(f.arrival_airport ORDER BY f.scheduled_departure DESC))[1] route
+-- FROM tickets t
+--     JOIN ticket_flights tf ON tf.ticket_no = t.ticket_no
+--     JOIN flights f ON f.flight_id = tf.flight_id
+-- WHERE t.ticket_no IN ('0005432000987','0005432383484')
+-- GROUP BY t.ticket_no
+-- )
+-- SELECT tr.*, route[1] origin,
+--     route[cardinality(route) / 2 + 1] middle,
+--     route[cardinality(route)] destination,
+--     route[1] = route[cardinality(route)] round_trip
+-- FROM ticket_route tr
+
+-- WITH ticket_route AS (
+-- SELECT t.ticket_no,
+--     array_agg(f.departure_airport ORDER BY f.scheduled_departure) direct_route,
+--     array_agg(f.arrival_airport ORDER BY f.scheduled_departure DESC) return_route
+-- FROM tickets t
+--     JOIN ticket_flights tf ON tf.ticket_no = t.ticket_no
+--     JOIN flights f ON f.flight_id = tf.flight_id
+-- WHERE t.ticket_no IN ('0005432000987','0005432383484')
+-- GROUP BY t.ticket_no
+-- )
+-- SELECT tr.*, tr.direct_route = tr.return_route same_return
+-- FROM ticket_route tr
+
+WITH flight_schedule AS (
+SELECT f.departure_airport departure, f.arrival_airport arrival,
+    array_agg(extract(dow FROM f.scheduled_departure)
+        ORDER BY f.scheduled_departure) schedule
+FROM flights f
+GROUP BY f.departure_airport, f.arrival_airport, extract(week FROM f.scheduled_departure)
 )
-SELECT tr.*, route[1] origin,
-    route[cardinality(route) / 2 + 1] middle,
-    route[cardinality(route)] destination,
-    route[1] = route[cardinality(route)] round_trip
-FROM ticket_route tr
+SELECT DISTINCT
+    d.departure dir_departure, d.arrival dir_arrival, d.schedule dir_schedule,
+    r.departure ret_departure, r.arrival ret_arrival, r.schedule ret_schedule
+FROM flight_schedule d, flight_schedule r
+WHERE d.departure = r.arrival AND d.arrival = r.departure
+    AND NOT (d.schedule && r.schedule)
+ORDER BY d.departure
