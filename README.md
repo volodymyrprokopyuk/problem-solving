@@ -31,8 +31,8 @@
     - Handling `guard`
     - Cleaning up `unwind-protect`
 - Fundamental and derived forms
-  - `lambda` + `:optional`, `:key`, `:rest` (procedure, closure, binding block,
-    recursion)
+  - `lambda` + `:optional`, `:key`, `:rest` (procedure (primitieve, closure), binding
+    block, recursion)
     - `case-lambda` procedure with variable number of arguments
     - `let` (block), `let*` (nested), `letrec` (set!), `let name` (recursion)
     - `and-let*` sequential `*` guarded `and` binded `let` expressions
@@ -54,7 +54,12 @@
   - Delayed (lazy) evaluation + promises
     - `delay` e -> promise e, `force` promise e -> e, `lazy` promise e -> promise e,
       `eager`
-- Literals `#t`, `#f`, `#\char`, `(list)`, `#(vector)`, `#[char-set]`, `#/reg-exp/`
+  - First-class objects
+    - `call/cc` (continuation),
+    - `with-input-from-file`, `with-output-to-file` (port)
+    - (stream)
+- Literals `#t`, `#f`, `#\char`, `"string"`, `(car . cdr)` (pair), `(list)`,
+  `#(vector)`, `#[char-set]`, `#/reg-exp/`
 - String interpolation `#"Value ~expr ~(expr) ~|var|"`
 - Parameters `make-parameter`, `parametrize`, `dynamic-wind` (dynamic environment
   management, context switch)
