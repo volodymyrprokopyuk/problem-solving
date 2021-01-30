@@ -10,7 +10,7 @@ export PGUSER=vlad
 function create_schema {
     psql -c "DROP DATABASE IF EXISTS $PGDATABASE WITH (FORCE);" \
          -c "CREATE DATABASE $PGDATABASE WITH OWNER $PGUSER;" postgres
-    psql -f $ROOT_DIR/$PGDATABASE/schema.sql
+    psql -f $ROOT_DIR/$PGDATABASE/fts-schema.sql
 }
 
 function load_data {
@@ -18,7 +18,7 @@ function load_data {
 }
 
 function execute_query {
-    psql -f $ROOT_DIR/$PGDATABASE/query.sql
+    psql -f $ROOT_DIR/$PGDATABASE/fts-query.sql
 }
 
 case $1 in
