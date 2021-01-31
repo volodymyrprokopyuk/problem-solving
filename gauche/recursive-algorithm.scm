@@ -462,3 +462,30 @@
 ;; #?=(=last '())
 ;; #?=(=last '(a))
 ;; #?=(=last '(a b))
+
+(define (triangle-number n)
+  "Returns the number of squares needed to construct a stairs of high n"
+  (cond
+    [(zero? n) 0]
+    [else (+ n (triangle-number (- n 1)))]))
+
+;; #?=(triangle-number 0)
+;; #?=(triangle-number 1)
+;; #?=(triangle-number 2)
+;; #?=(triangle-number 3)
+;; #?=(triangle-number 4)
+;; #?=(triangle-number 5)
+
+(define (triangle-number2 n)
+  "Returns the number of squares needed to construct a stairs of high n"
+  (let tnum* ([i 0] [r 0])
+    (cond
+      [(> i n) r]
+      [else (tnum* (+ i 1) (+ i r))])))
+
+;; #?=(triangle-number2 0)
+;; #?=(triangle-number2 1)
+;; #?=(triangle-number2 2)
+;; #?=(triangle-number2 3)
+;; #?=(triangle-number2 4)
+;; #?=(triangle-number2 5)
