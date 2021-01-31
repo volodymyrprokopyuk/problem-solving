@@ -452,3 +452,13 @@
 ;; #?=(=map + '(1 2 3 4) '(10 20 30 40))
 ;; #?=(=map - '(1 2 3 4) '(10 20 30 40))
 ;; #?=(=map cons '(a b c d) '(A B C D))
+
+(define (=last l)
+  "Returns the last element from the list l"
+  (cond
+    [(null? (cdr l)) (car l)]
+    [else (=last (cdr l))]))
+
+;; #?=(=last '())
+;; #?=(=last '(a))
+;; #?=(=last '(a b))
