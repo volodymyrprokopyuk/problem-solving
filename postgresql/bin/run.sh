@@ -4,13 +4,14 @@ set -eu
 
 readonly ROOT_DIR=$(pwd)
 # export PGDATABASE=playground
-export PGDATABASE=booking
+# export PGDATABASE=booking
+export PGDATABASE=factbook
 export PGUSER=vlad
 
 function create_schema {
     psql -c "DROP DATABASE IF EXISTS $PGDATABASE WITH (FORCE);" \
          -c "CREATE DATABASE $PGDATABASE WITH OWNER $PGUSER;" postgres
-    psql -f $ROOT_DIR/$PGDATABASE/fts-schema.sql
+    psql -f $ROOT_DIR/$PGDATABASE/schema.sql
 }
 
 function load_data {
@@ -18,7 +19,7 @@ function load_data {
 }
 
 function execute_query {
-    psql -f $ROOT_DIR/$PGDATABASE/fts-query.sql
+    psql -f $ROOT_DIR/$PGDATABASE/query.sql
 }
 
 case $1 in
