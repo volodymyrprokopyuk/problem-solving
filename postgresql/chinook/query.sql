@@ -1,0 +1,57 @@
+-- SELECT g."Name", count(*) "TrackCount"
+-- FROM "Genre" g
+--     LEFT JOIN "Track" t USING ("GenreId")
+-- GROUP BY g."Name"
+-- ORDER BY "TrackCount" DESC
+
+-- \set album_limit 10
+-- SELECT ar."Name", count(*) "AlbumCount"
+-- FROM "Artist" ar
+--     LEFT JOIN "Album" al USING ("ArtistId")
+-- GROUP BY ar."Name"
+-- ORDER BY "AlbumCount" DESC
+-- LIMIT :album_limit
+
+-- \set artist_name 'Iron Maiden'
+-- SELECT al."Title", sum(t."Milliseconds") * '1 ms'::interval "AlbumDuration"
+-- FROM "Album" al
+--     JOIN "Artist" ar USING ("ArtistId")
+--     LEFT JOIN "Track" t USING ("AlbumId")
+-- WHERE ar."Name" = :'artist_name'
+-- GROUP BY al."Title"
+-- ORDER BY al."Title"
+
+-- \set track_limit 3
+-- SELECT g."Name" "Genre", substring(tt."Track" FROM 1 FOR 15), ar."Name" "Artist",
+--     tt."TrackCount"
+-- FROM "Genre" g
+--     LEFT JOIN LATERAL (
+--         SELECT t."Name" "Track", t."AlbumId", count(*) "TrackCount"
+--         FROM "Track" t
+--             JOIN "PlaylistTrack" pt USING ("TrackId")
+--         WHERE t."GenreId" = g."GenreId"
+--         GROUP BY t."TrackId"
+--         ORDER BY "TrackCount" DESC
+--         LIMIT :track_limit) tt ON true -- TopTrack
+--     JOIN "Album" al USING ("AlbumId")
+--     JOIN "Artist" ar USING ("ArtistId")
+-- ORDER BY g."Name", tt."TrackCount" DESC
+
+-- \set track_limit 2
+-- WITH "TopTrack" AS (
+--     SELECT DISTINCT t."TrackId", t."GenreId", t."AlbumId",
+--         substring(t."Name" FROM 1 FOR 15) "Track",
+--         count(*) OVER (PARTITION BY t."GenreId", t."TrackId") "TrackCount"
+--     FROM "Track" t
+--         JOIN "PlaylistTrack" pt USING ("TrackId")),
+-- "TopTrackPosition" AS (
+--     SELECT tt.*, row_number()
+--         OVER (PARTITION BY tt."GenreId" ORDER BY tt."TrackCount" DESC) "TrackPosition"
+--     FROM "TopTrack" tt)
+-- SELECT g."Name" "Genre", ttp."Track", ar."Name" "Artist", ttp."TrackCount"
+-- FROM "TopTrackPosition" ttp
+--     JOIN "Genre" g USING ("GenreId")
+--     JOIN "Album" al USING ("AlbumId")
+--     JOIN "Artist" ar USING ("ArtistId")
+-- WHERE ttp."TrackPosition" <= :track_limit
+-- ORDER BY g."Name", ttp."TrackCount" DESC
