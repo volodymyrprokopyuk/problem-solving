@@ -350,6 +350,14 @@
 
 ;; #?=(flatten2 '(a b (c (d e (f g) h i) j k) l m))
 
+(define (flatten3 l)
+  (cond
+    [(null? l) '()]
+    [(pair? (car l)) (append (flatten3 (car l)) (flatten3 (cdr l)))]
+    [else (cons (car l) (flatten3 (cdr l)))]))
+
+;; #?=(flatten3 '(a b (c (d e (f g) h i) j k) l m))
+
 (define (deep-map f l)
   "Maps the funciton f over the nested list l"
   (cond
@@ -489,3 +497,41 @@
 ;; #?=(triangle-number2 3)
 ;; #?=(triangle-number2 4)
 ;; #?=(triangle-number2 5)
+
+(define (alist-remove k al :optional (c eq?))
+  "Removes all occurences of the key k from the alist al"
+  (let rem* ([al (reverse al)] [r '()])
+    (cond
+      [(null? al) r]
+      [(c k (caar al)) (rem* (cdr al) r)]
+      [else (rem* (cdr al) (cons (car al) r))])))
+
+;; #?=(alist-remove 'b '((a . 1) (b . 2) (c . 3) (b . 4) (d . 5)))
+
+(define (alist-remove2 k al :optional (c eq?))
+  "Removes all occurences of the key k from the alist al"
+  (do ([al (reverse al) (cdr al)]
+       [r '() (if [c k (caar al)] r (cons (car al) r))])
+      ([null? al] r)))
+
+;; #?=(alist-remove2 'b '((a . 1) (b . 2) (c . 3) (b . 4) (d . 5)))
+
+(define (tree-sub a b l :optional (c eq?))
+  "Substitutes the element a for the element b in the tree l"
+  (cond
+    [(null? l) '()]
+    [(pair? (car l)) (cons (tree-sub a b (car l)) (tree-sub a b (cdr l)))]
+    [(c (car l) a) (cons b (tree-sub a b (cdr l)))]
+    [else (cons (car l) (tree-sub a b (cdr l)))]))
+
+;; #?=(tree-sub 'a 'A '(a b (c a (d a a (a) e) f a) a h))
+
+(define (tree-remove a l :optional (c eq?))
+  "Removes the element a from the tree l"
+  (cond
+    [(null? l) '()]
+    [(pair? (car l)) (cons (tree-remove a (car l)) (tree-remove a (cdr l)))]
+    [(c (car l) a) (tree-remove a (cdr l))]
+    [else (cons (car l) (tree-remove a (cdr l)))]))
+
+;; #?=(tree-remove 'a '(a b (c a (d a a (a) e) f a) a h))
