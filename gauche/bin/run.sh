@@ -8,9 +8,10 @@ readonly ROOT_DIR=$(pwd)
 # readonly SOURCE=continuation-algorithm
 # readonly SOURCE=iterative-algorithm
 # readonly SOURCE=conditional-algorithm
-readonly SOURCE=recursive-algorithm
+# readonly SOURCE=recursive-algorithm
 # readonly SOURCE=tree-algorithm
 # readonly SOURCE=syntax-algorithm
+readonly SOURCE=lazy-algorithm
 
 gosh "${SOURCE}.scm" "${@}"
 
