@@ -6,7 +6,8 @@ readonly ROOT_DIR=$(pwd)
 # export PGDATABASE=playground
 # export PGDATABASE=booking
 # export PGDATABASE=factbook
-export PGDATABASE=chinook
+# export PGDATABASE=chinook
+export PGDATABASE=racing
 export PGUSER=vlad
 
 function create_schema {
