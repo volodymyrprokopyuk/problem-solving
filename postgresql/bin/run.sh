@@ -26,7 +26,7 @@ function execute_query {
 
 case $1 in
     -s|--scheme)
-        create_schema
+        # create_schema
         exit
         ;;
     -d|--data)
