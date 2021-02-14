@@ -6,7 +6,7 @@
 - Delayed evaluation + promises
 - Continuations + control
 
-# Scheme langauge
+# Gauche Scheme
 
 - Small core + powerful tools for language extension
 - Nested block (`let`) structure + shared namespace for variables and procedures
@@ -105,3 +105,26 @@
   - `comparator-hash` hasing `default-hash`
   - `default-comparator #t equal? compare default-hash` automatically extended for UDDT
     via `object-equal?`, `object-compare`, and `object-hash`
+
+# PostgreSQL
+
+- Query
+    - `WITH [RECURSIVE] _ AS`
+    - `SELECT` computed value, column alias `c`
+    - `FROM` table alias `t`, `t(c)`
+      - `JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `FULL JOIN`, `CROSS JOIN`=`t1, t2`
+      - `ON expression`, `USING (list)`
+      - `JOIN LATERAL (SELECT ... WHERE ...)` restrict subquery to the current row in
+        `FROM` `ON true` run subquery in a loop for each row in `FROM`
+    - `WHERE` no alias, `AND`, `OR`, `NOT`, `IN (...)`, `EXISTS (SELECT 1 ...)`
+    - `GROUP BY` alias
+      - `GROUPING SETS ((...), ())`=`GROUP` data separately `BY` each `GROUPING SET` and
+        then `UNION`
+      - `ROLLUP` all prefixes for hierarchical data analysis
+      - `CUBE` all subsets (power set)
+    - `HAVING` no alias
+    - `WINDOW _ AS (PARTITION BY ... ORDER BY ...)`
+    - `ORDER BY` alias `ASC | DESC`
+    - `LIMIT n` never use `OFFSET m` use `FETCH` cursor instead
+- Conditional `CASE _ WHEN _ THEN _ ELSE _ END`
+- Aggregate function `count(*) FILTER (WHERE ...)`

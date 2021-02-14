@@ -131,5 +131,62 @@
 --     WINDOW d AS (PARTITION BY d.driverid))
 -- SELECT rs.surname, rs.race_total, rs.failed_count
 -- FROM race_stat rs
--- WHERE rs.failed_count = rs.race_total AND rs.race_total = 1
--- -- WHERE rs.never_finished
+-- -- WHERE rs.failed_count = rs.race_total AND rs.race_total = 1
+-- WHERE rs.never_finished
+-- ORDER BY rs.failed_count DESC
+
+-- WITH year_race AS (
+--     SELECT extract('year' FROM rc.date) "year",
+--         count(*) FILTER (WHERE rs.position IS NULL) failed_count
+--     FROM results rs
+--         JOIN races rc USING (raceid)
+--     GROUP BY extract('year' FROM rc.date))
+-- SELECT yr.year, yr.failed_count
+-- FROM year_race yr
+-- ORDER BY yr.failed_count DESC
+
+-- SELECT DISTINCT extract('year' FROM rc.date) "year",
+--     count(*) FILTER (WHERE rs.position IS NULL) OVER y failed_count
+-- FROM results rs
+--     JOIN races rc USING (raceid)
+-- WINDOW y AS (PARTITION BY extract('year' FROM rc.date))
+-- ORDER BY failed_count DESC
+
+-- SELECT s.status, count(*) status_count
+-- FROM results rs
+--     JOIN races rc USING (raceid)
+--     JOIN status s USING (statusid)
+-- WHERE rs.position IS NULL
+--     AND rc.date <@ '[1978-01-01, 1979-01-01)'::daterange
+-- GROUP BY s.status
+-- HAVING count(*) >= 10
+-- ORDER BY status_count DESC
+
+-- SELECT d.surname driver, c.name constructor, sum(rs.points) points
+-- FROM results rs
+--     JOIN races rc USING (raceid)
+--     JOIN drivers d USING (driverid)
+--     JOIN constructors c USING (constructorid)
+-- WHERE rc.date <@ '[1978-01-01, 1979-01-01)'::daterange
+-- GROUP BY GROUPING SETS ((driver), (constructor))
+-- ORDER BY d.surname IS NOT NULL, points DESC
+
+-- SELECT d.surname driver, c.name constructor, sum(rs.points) points
+-- FROM results rs
+--     JOIN races rc USING (raceid)
+--     JOIN drivers d USING (driverid)
+--     JOIN constructors c USING (constructorid)
+-- WHERE d.surname IN ('Prost', 'Senna')
+-- -- GROUP BY ROLLUP (driver, constructor)
+-- GROUP BY CUBE (driver, constructor)
+-- ORDER BY driver, points DESC
+
+-- SELECT p.brand, p.size, sum(p.price) price
+-- FROM (VALUES
+--     ('Marmot', 'M', 10), ('Marmot', 'L', 20),
+--     ('North Face', 'M', 15), ('North Face', 'L', 25))
+--     p(brand, size, price)
+-- -- GROUP BY GROUPING SETS ((p.brand), (p.size), ())
+-- -- GROUP BY ROLLUP (p.brand, p.size)
+-- GROUP BY CUBE (p.brand, p.size)
+-- ORDER BY p.brand, price DESC
