@@ -109,8 +109,8 @@
 # PostgreSQL
 
 - Query
-    - `WITH [RECURSIVE] _ AS`
-    - `SELECT` computed value, column alias `c`
+    - `WITH [RECURSIVE] _ AS` named subquery can be used in other named subqueries
+    - `SELECT DISTINCT ON (...)` computed value, column alias `c`
     - `FROM` table alias `t`, `t(c)`
       - `JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `FULL JOIN`, `CROSS JOIN`=`t1, t2`
       - `ON expression`, `USING (list)`
@@ -119,7 +119,8 @@
     - `WHERE` no alias, `AND`, `OR`, `NOT`, `IN (...)`, `EXISTS (SELECT 1 ...)`
     - `GROUP BY` alias
       - `GROUPING SETS ((...), ())`=`GROUP` data separately `BY` each `GROUPING SET` and
-        then `UNION`
+        then `UNION` with appropriate `NULL`. Aggregate over more than one group at the
+        same time in a single query scan
       - `ROLLUP` all prefixes for hierarchical data analysis
       - `CUBE` all subsets (power set)
     - `HAVING` no alias

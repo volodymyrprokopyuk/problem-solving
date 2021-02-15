@@ -190,3 +190,50 @@
 -- -- GROUP BY ROLLUP (p.brand, p.size)
 -- GROUP BY CUBE (p.brand, p.size)
 -- ORDER BY p.brand, price DESC
+
+-- WITH race_stat AS (
+--     SELECT extract('year' FROM rc.date) race_year,
+--         count(*) participant_count,
+--         count(*) FILTER (WHERE s.status = 'Accident') accident_count
+--     FROM results rs
+--         JOIN status s USING (statusid)
+--         JOIN races rc USING (raceid)
+--     GROUP BY race_year)
+-- SELECT rs.race_year, rs.participant_count, rs.accident_count,
+--     round(rs.accident_count / rs.participant_count::numeric, 4) accident_ratio,
+--     repeat('■', (100.0 * rs.accident_count / rs.participant_count)::integer)
+--     accident_histogram
+-- FROM race_stat rs
+-- ORDER BY accident_ratio DESC
+
+-- WITH year_points AS (
+--     SELECT extract('year' FROM rc.date) race_year, sum(rs.points) points,
+--         rs.driverid, rs.constructorid
+--     FROM results rs
+--         JOIN races rc USING (raceid)
+--     GROUP BY GROUPING SETS ((race_year, driverid), (race_year, constructorid))),
+-- top_points AS (
+--     SELECT yp.race_year,
+--         max(points) FILTER (WHERE yp.constructorid IS NULL) driver_points,
+--         max(points) FILTER (WHERE yp.driverid IS NULL) constructor_points
+--     FROM year_points yp
+--     GROUP BY yp.race_year),
+-- champion AS (
+--     SELECT tp.race_year, dp.driverid, tp.driver_points,
+--         cp.constructorid, tp.constructor_points
+--     FROM top_points tp
+--         JOIN year_points dp ON dp.race_year = tp.race_year
+--             AND dp.constructorid IS NULL AND dp.points = tp.driver_points
+--         JOIN year_points cp ON cp.race_year = tp.race_year
+--             AND cp.driverid IS NULL AND cp.points = tp.constructor_points)
+-- SELECT cm.race_year, d.surname driver, cm.driver_points,
+--     c.name constructor, cm.constructor_points
+-- FROM champion cm
+--     JOIN drivers d USING (driverid)
+--     JOIN constructors c USING (constructorid)
+-- ORDER BY cm.race_year
+
+SELECT DISTINCT ON (driverid) d.surname
+FROM results rs
+    JOIN drivers d USING (driverid)
+WHERE rs.position = 1
