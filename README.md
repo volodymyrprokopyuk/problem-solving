@@ -112,10 +112,15 @@
     - `WITH [RECURSIVE] _ AS` named subquery can be used in other named subqueries
     - `SELECT DISTINCT ON (...)` computed value, column alias `c`
     - `FROM` table alias `t`, `t(c)`
-      - `JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `FULL JOIN`, `CROSS JOIN`=`t1, t2`
-      - `ON expression`, `USING (list)`
+      - `JOIN` restrict both relations
+      - `LEFT JOIN`, `RIGHT JOIN` keep one relation and enrich with the other if
+        matches, otherwise `NULL`
+      - `FULL JOIN` keep both relations
+      - `CROSS JOIN`=`t1, t2` Cartesian product
+      - Join conditions `ON expression`, `USING (list)`
       - `JOIN LATERAL (SELECT ... WHERE ...)` restrict subquery to the current row in
-        `FROM` `ON true` run subquery in a loop for each row in `FROM`
+        `FROM` `ON true`. Run the subquery in a loop for each row in `FROM`. Push down
+        the join condition into the subquery
     - `WHERE` no alias, `AND`, `OR`, `NOT`, `IN (...)`, `EXISTS (SELECT 1 ...)`
     - `GROUP BY` alias
       - `GROUPING SETS ((...), ())`=`GROUP` data separately `BY` each `GROUPING SET` and
@@ -124,7 +129,8 @@
       - `ROLLUP` all prefixes for hierarchical data analysis
       - `CUBE` all subsets (power set)
     - `HAVING` no alias
-    - `WINDOW _ AS (PARTITION BY ... ORDER BY ... ROWS PRECEDING | CURRENT | FOLLOWING)`
+    - `WINDOW _ AS (PARTITION BY ... ORDER BY ... ROWS PRECEDING | CURRENT | FOLLOWING
+      EXCLUDE)`
       for each input row a frame of peer rows sharing a common property is available
     - `ORDER BY` alias `ASC | DESC`
     - `LIMIT n` never use `OFFSET m` use `FETCH` cursor instead

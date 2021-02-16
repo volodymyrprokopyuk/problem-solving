@@ -273,10 +273,17 @@
 -- WHERE rs.raceid = 890
 -- ORDER BY rs.position
 
-SELECT d.surname, rs.position, row_number() OVER (ORDER BY fastestlapspeed::numeric) fast,
-    lag(d.surname, 1) OVER p prev_driver, lead(d.surname, 1) OVER p next_driver,
-    ntile(3) OVER p driver_group
-FROM results rs
-    JOIN drivers d USING (driverid)
-WHERE rs.raceid = 890
-WINDOW p AS (ORDER BY rs.position)
+-- SELECT d.surname, rs.position, row_number() OVER (ORDER BY fastestlapspeed::numeric) fast,
+--     lag(d.surname, 1) OVER p prev_driver, lead(d.surname, 1) OVER p next_driver,
+--     ntile(3) OVER p driver_group
+-- FROM results rs
+--     JOIN drivers d USING (driverid)
+-- WHERE rs.raceid = 890
+-- WINDOW p AS (ORDER BY rs.position)
+
+-- SELECT d.surname, rs.position, count(*) OVER p behind_count
+-- FROM results rs
+--     JOIN drivers d USING (driverid)
+-- WHERE rs.raceid = 972
+-- WINDOW p AS (ORDER BY rs.position ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING
+--     EXCLUDE CURRENT ROW)
