@@ -233,7 +233,50 @@
 --     JOIN constructors c USING (constructorid)
 -- ORDER BY cm.race_year
 
-SELECT DISTINCT ON (driverid) d.surname
+-- SELECT DISTINCT ON (driverid) d.surname
+-- FROM results rs
+--     JOIN drivers d USING (driverid)
+-- WHERE rs.position = 1
+
+-- (SELECT ds.raceid, 'driver' "type", d.surname "name", ds.points
+-- FROM driverstandings ds
+--     JOIN drivers d USING (driverid)
+-- WHERE ds.raceid = 972 AND ds.points > 0)
+-- UNION ALL
+-- (SELECT cs.raceid, 'constructor' "type", c.name "name", cs.points
+-- FROM constructorstandings cs
+--     JOIN constructors c USING (constructorid)
+-- WHERE cs.raceid = 972 AND cs.points > 0)
+-- ORDER BY points DESC
+
+-- SELECT a::text, b::text, (a = b)::text eq,
+--     (a IS DISTINCT FROM b)::text "distinct"
+-- FROM (VALUES (TRUE), (FALSE), (NULL)) v1(a)
+--     CROSS JOIN (VALUES (TRUE), (FALSE), (NULL)) v2(b)
+
+-- SELECT t.x, array_agg(t.x) OVER () over_empty,
+--     array_agg(t.x) OVER (PARTITION BY t.x <= 3) over_partition,
+--     array_agg(t.x) OVER (ORDER BY t.x) over_order,
+--     array_agg(t.x) OVER (ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) over_preceding,
+--     array_agg(t.x) OVER (ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) over_following,
+--     round(sum(t.x::numeric) OVER (ORDER BY t.x) / sum(t.x) OVER (), 4) ratio
+-- FROM generate_series(1, 5) t(x)
+-- ORDER BY t.x
+
+-- SELECT rs.raceid, d.surname, rs.position, c.name,
+--     row_number() OVER (PARTITION BY c.constructorid
+--         ORDER BY rs.position NULLS LAST) ctor_position,
+--     count(*) OVER (PARTITION BY c.constructorid) ctor_total
+-- FROM results rs
+--     JOIN drivers d USING (driverid)
+--     JOIN constructors c USING (constructorid)
+-- WHERE rs.raceid = 890
+-- ORDER BY rs.position
+
+SELECT d.surname, rs.position, row_number() OVER (ORDER BY fastestlapspeed::numeric) fast,
+    lag(d.surname, 1) OVER p prev_driver, lead(d.surname, 1) OVER p next_driver,
+    ntile(3) OVER p driver_group
 FROM results rs
     JOIN drivers d USING (driverid)
-WHERE rs.position = 1
+WHERE rs.raceid = 890
+WINDOW p AS (ORDER BY rs.position)

@@ -124,8 +124,12 @@
       - `ROLLUP` all prefixes for hierarchical data analysis
       - `CUBE` all subsets (power set)
     - `HAVING` no alias
-    - `WINDOW _ AS (PARTITION BY ... ORDER BY ...)`
+    - `WINDOW _ AS (PARTITION BY ... ORDER BY ... ROWS PRECEDING | CURRENT | FOLLOWING)`
+      for each input row a frame of peer rows sharing a common property is available
     - `ORDER BY` alias `ASC | DESC`
     - `LIMIT n` never use `OFFSET m` use `FETCH` cursor instead
+- Set operations `UNION [ALL]`, `INTERSECT`, `EXCEPT` combine query result sets
+- Three-valuded logic `TRUE`, `FALSE`, `NULL` + `=`, `<>`
+  - `IS DISTINCT FROM` two-valued logic with `NULL`
 - Conditional `CASE _ WHEN _ THEN _ ELSE _ END`
 - Aggregate function `count(*) FILTER (WHERE ...)`
