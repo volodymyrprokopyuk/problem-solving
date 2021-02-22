@@ -287,3 +287,36 @@
 -- WHERE rs.raceid = 972
 -- WINDOW p AS (ORDER BY rs.position ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING
 --     EXCLUDE CURRENT ROW)
+
+-- SELECT extract('year' FROM rc.date) race_year, d.surname,
+--     count(*) started, count(*) FILTER (WHERE rs.position IS NOT NULL) finished,
+--     count(*) FILTER (WHERE rs.position = 1) won
+-- FROM results rs
+--     JOIN drivers d USING (driverid)
+--     JOIN races rc USING (raceid)
+-- GROUP BY race_year, d.driverid
+-- -- HAVING bool_and(rs.position = 1)
+-- HAVING bool_and(rs.position IS NOT DISTINCT FROM 1)
+-- ORDER BY won DESC
+
+-- WITH ht AS (
+--     SELECT (regexp_matches(t.message, '(#[^ ,]+)', 'g'))[1] hashtag
+--     FROM (VALUES
+--         ('PostgreSQL is a #sql database #db'),
+--         ('Regular expressions #reg-exp, and aggregate funcitons #aggregate')) t(message)),
+-- hta AS (
+--     SELECT array_agg(ht.hashtag) hashtag_array
+--     FROM ht)
+-- SELECT t.hashtag
+-- FROM hta
+--     CROSS JOIN unnest(hta.hashtag_array) t(hashtag)
+
+CREATE OR REPLACE FUNCTION random(a integer, b integer)
+RETURNS int
+VOLATIlE
+LANGUAGE sql AS $$
+    SELECT a + ((b - a) * random())::integer;
+$$;
+
+-- SELECT random(1, 10)
+-- FROM generate_series(1, 10)

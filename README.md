@@ -130,8 +130,9 @@
       - `CUBE` all subsets (power set)
     - `HAVING` no alias
     - `WINDOW _ AS (PARTITION BY ... ORDER BY ... ROWS PRECEDING | CURRENT | FOLLOWING
-      EXCLUDE)`
-      for each input row a frame of peer rows sharing a common property is available
+      EXCLUDE)` for each input row a frame of peer rows sharing a common property is
+      available. Different `OVER` definitions can be used in the same query even with
+      `GROUP BY`
     - `ORDER BY` alias `ASC | DESC`
     - `LIMIT n` never use `OFFSET m` use `FETCH` cursor instead
 - Set operations `UNION [ALL]`, `INTERSECT`, `EXCEPT` combine query result sets
