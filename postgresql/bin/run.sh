@@ -7,12 +7,13 @@ readonly ROOT_DIR=$(pwd)
 # export PGDATABASE=booking
 # export PGDATABASE=factbook
 # export PGDATABASE=chinook
-export PGDATABASE=racing
+# export PGDATABASE=racing
+export PGDATABASE=account
 export PGUSER=vlad
 
 function create_schema {
-    psql -c "DROP DATABASE IF EXISTS $PGDATABASE WITH (FORCE);" \
-         -c "CREATE DATABASE $PGDATABASE WITH OWNER $PGUSER;" postgres
+    # psql -c "DROP DATABASE IF EXISTS $PGDATABASE WITH (FORCE);" \
+    #      -c "CREATE DATABASE $PGDATABASE WITH OWNER $PGUSER;" postgres
     psql -f $ROOT_DIR/$PGDATABASE/schema.sql
 }
 
@@ -26,7 +27,7 @@ function execute_query {
 
 case $1 in
     -s|--scheme)
-        # create_schema
+        create_schema
         exit
         ;;
     -d|--data)

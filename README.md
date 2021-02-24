@@ -17,19 +17,19 @@
 - Delayed evaluation (`delay`, `force`) + promises (memoization)
 - Hygienic macros (`define-syntax`, `syntax-rules`) + recursive macro expansion
 - Module system
-    - Definition `define-module`, `select-module`, `export (rename)`,
-      `import :only :except :rename :prefix`, `extend`
-    - Usage `use`, `with-module`
+  - Definition `define-module`, `select-module`, `export (rename)`,
+    `import :only :except :rename :prefix`, `extend`
+  - Usage `use`, `with-module`
 - Object system
-    - Class `define-class :allocation (:instance :class :virtual [:slot-ref :slot-set!])
-      :init-keyword :init-value :init-form :accessor :getter :setter`
-    - Instance `make`
-    - Method `define-method`, `next-method`
+  - Class `define-class :allocation (:instance :class :virtual [:slot-ref :slot-set!])
+    :init-keyword :init-value :init-form :accessor :getter :setter`
+  - Instance `make`
+  - Method `define-method`, `next-method`
 - Exceptions and conditions
-    - Conditions `define-condition-type`
-    - Signaling `error`, `raise`
-    - Handling `guard`
-    - Cleaning up `unwind-protect`
+  - Conditions `define-condition-type`
+  - Signaling `error`, `raise`
+  - Handling `guard`
+  - Cleaning up `unwind-protect`
 - Fundamental and derived forms
   - `lambda` + `:optional`, `:key`, `:rest` (procedure (primitieve, closure), binding
     block, recursion)
@@ -66,21 +66,21 @@
 - Pattern matching `match`, `match-lambda` (one argument or list of arguments),
   `match-let`
 - Eager comprehensions `(comprehension qualifiers body)`
-    - Comprehension (collect, aggregate/fold) `do-ec`, `list-ec`, `vector-ec`,
-      `string-ec`, `any?-ec`, `every?-ec`, `first-ec`, `last-ec`, `fold-ec`
-    - Qualifiers (generate, filter)
-        - Generational (typed) qualifiers `:list`, `:vector`, `:string`, `:integers`
-          (infinite), `:rage`, `:real-range`, `:char-range`, `:port`, `:parallel` (zip,
-          default is nested), `:while` (stop early)
-        - Control qualifiers `if`, `not`, `and`, `or`
-    - Body (evaluate, transform)
+  - Comprehension (collect, aggregate/fold) `do-ec`, `list-ec`, `vector-ec`,
+    `string-ec`, `any?-ec`, `every?-ec`, `first-ec`, `last-ec`, `fold-ec`
+  - Qualifiers (generate, filter)
+    - Generational (typed) qualifiers `:list`, `:vector`, `:string`, `:integers`
+      (infinite), `:rage`, `:real-range`, `:char-range`, `:port`, `:parallel` (zip,
+      default is nested), `:while` (stop early)
+    - Control qualifiers `if`, `not`, `and`, `or`
+  - Body (evaluate, transform)
 - Record type (portable and efficient class `<record>`) `define-record-type`
   (constructor, predicate, accessors, [mutators])
 - Combinators (return procedure)
-    - `cut` compact parameter spacialization without currying
-    - `.$`, `compose` procedure composition
-    - `idenitty`, `constantly`, `complement`, `any-pred`, `every-pred`
-    - `$`, `$*` procedure application chaining
+  - `cut` compact parameter spacialization without currying
+  - `.$`, `compose` procedure composition
+  - `idenitty`, `constantly`, `complement`, `any-pred`, `every-pred`
+  - `$`, `$*` procedure application chaining
 
 ## Equality, comparison/ordering, and hashing
 
@@ -109,34 +109,40 @@
 # PostgreSQL
 
 - Query
-    - `WITH [RECURSIVE] _ AS` named subquery can be used in other named subqueries
-    - `SELECT DISTINCT ON (...)` computed value, column alias `c`
-    - `FROM` table alias `t`, `t(c)`
-      - `JOIN` restrict both relations
-      - `LEFT JOIN`, `RIGHT JOIN` keep one relation and enrich with the other if
-        matches, otherwise `NULL`
-      - `FULL JOIN` keep both relations
-      - `CROSS JOIN`=`t1, t2` Cartesian product
-      - Join conditions `ON expression`, `USING (list)`
-      - `JOIN LATERAL (SELECT ... WHERE ...)` restrict subquery to the current row in
-        `FROM` `ON true`. Run the subquery in a loop for each row in `FROM`. Push down
-        the join condition into the subquery
-    - `WHERE` no alias, `AND`, `OR`, `NOT`, `IN (...)`, `EXISTS (SELECT 1 ...)`
-    - `GROUP BY` alias
-      - `GROUPING SETS ((...), ())`=`GROUP` data separately `BY` each `GROUPING SET` and
-        then `UNION` with appropriate `NULL`. Aggregate over more than one group at the
-        same time in a single query scan
-      - `ROLLUP` all prefixes for hierarchical data analysis
-      - `CUBE` all subsets (power set)
-    - `HAVING` no alias
-    - `WINDOW _ AS (PARTITION BY ... ORDER BY ... ROWS PRECEDING | CURRENT | FOLLOWING
-      EXCLUDE)` for each input row a frame of peer rows sharing a common property is
-      available. Different `OVER` definitions can be used in the same query even with
-      `GROUP BY`
-    - `ORDER BY` alias `ASC | DESC`
-    - `LIMIT n` never use `OFFSET m` use `FETCH` cursor instead
+  - `WITH [RECURSIVE] _ AS` named subquery can be used in other named subqueries
+  - `SELECT DISTINCT ON (...)` computed value, column alias `c`, `agg_func(DISTINCT
+    ... ORDER BY ...)`
+  - `FROM` table alias `t`, `t(c)`
+    - `JOIN` restrict both relations
+    - `LEFT JOIN`, `RIGHT JOIN` keep one relation and enrich with the other if
+      matches, otherwise `NULL`
+    - `FULL JOIN` keep both relations
+    - `CROSS JOIN`=`t1, t2` Cartesian product
+    - Join conditions `ON expression`, `USING (list)`
+    - `JOIN LATERAL (SELECT ... WHERE ...)` restrict subquery to the current row in
+      `FROM` `ON true`. Run the subquery in a loop for each row in `FROM`. Push down
+      the join condition into the subquery
+  - `WHERE` no alias, `AND`, `OR`, `NOT`, `IN (...)`, `EXISTS (SELECT 1 ...)`
+  - `GROUP BY` alias
+    - `GROUPING SETS ((...), ())`=`GROUP` data separately `BY` each `GROUPING SET` and
+      then `UNION` with appropriate `NULL`. Aggregate over more than one group at the
+      same time in a single query scan
+    - `ROLLUP` all prefixes for hierarchical data analysis
+    - `CUBE` all subsets (power set)
+  - `HAVING` no alias
+  - `WINDOW _ AS (PARTITION BY ... ORDER BY ... ROWS PRECEDING | CURRENT | FOLLOWING
+    EXCLUDE)` for each input row a frame of peer rows sharing a common property is
+    available. Different `OVER` definitions can be used in the same query even with
+    `GROUP BY`
+  - `ORDER BY` alias `ASC | DESC`
+  - `LIMIT n` never use `OFFSET m` use `FETCH` cursor instead
 - Set operations `UNION [ALL]`, `INTERSECT`, `EXCEPT` combine query result sets
 - Three-valuded logic `TRUE`, `FALSE`, `NULL` + `=`, `<>`
   - `IS DISTINCT FROM` two-valued logic with `NULL`
 - Conditional `CASE _ WHEN _ THEN _ ELSE _ END`
 - Aggregate function `count(*) FILTER (WHERE ...)`
+  - `CREATE AGGREGATE <agg> (type, ...) (
+       SFUNC = state transition function (previous state, current row arguments) new state
+       STYPE = state value data type
+       INITCOND = state initial value
+       FINALFUNC = transform the final state value into the aggregate output value)`
