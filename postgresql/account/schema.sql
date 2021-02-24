@@ -111,6 +111,245 @@ RETURNS anyrange LANGUAGE SQL IMMUTABLE AS $$ SELECT a * b; $$;
 CREATE AGGREGATE range_intersect_agg (anyrange) (
     SFUNC = range_intersect, STYPE = anyrange, INITCOND = '(,)');
 
+CREATE TYPE kyc_status_t AS
+ENUM ('pending', 'up_to_date', 'outdated', 'acceptable', 'unacceptable');
+
+CREATE TYPE payment_type AS ENUM ('domestic', 'wallet', 'international');
+
+CREATE FUNCTION get_kyc_status (
+    a_account_id uuid,
+    a_payment_type payment_type,
+    a_payment_amount numeric,
+    a_currency_pair text,
+    a_country_pair text,
+    a_period interval,
+    a_payment_value numeric,
+    a_payment_volume integer,
+    a_expiration interval DEFAULT '1 year')
+RETURNS TABLE (
+    kyc_component kyc_component_t,
+    kyc_status kyc_status_t,
+    kyc_reason text)
+LANGUAGE SQL AS $$
+WITH matched_rule AS (
+    SELECT r.kyc_component, r.risk, r.description kyc_reason
+    FROM kyc_rule r
+    WHERE r.legal_entity_id = (
+        SELECT a.legal_entity_id FROM account a WHERE a.account_id = a_account_id)
+        AND a_payment_type::text ~* r.payment_type
+        AND a_payment_amount <@ r.payment_amount
+        AND a_currency_pair ~* r.currency_pair
+        AND a_country_pair ~* r.country_pair
+        AND a_period <= r.period
+        AND a_payment_value <@ r.payment_value
+        AND a_payment_volume <@ r.payment_volume),
+default_rule AS (
+    SELECT r.kyc_component, r.risk, r.kyc_reason
+    FROM matched_rule r
+    UNION ALL
+    SELECT '{basic, id, address, selfie, extra}' kyc_component, '[0, 100]' risk,
+        'By default full KYC is required and any risk is acceptable' kyc_reason
+    FROM (VALUES (1)) t
+    WHERE NOT EXISTS (SELECT 1 FROM matched_rule)),
+distinct_rule AS (
+    SELECT array_agg(DISTINCT c) kyc_component,
+        range_intersect_agg(r.risk) risk,
+        string_agg(DISTINCT r.kyc_reason, '. ') kyc_reason
+    FROM default_rule r, unnest(r.kyc_component) c),
+final_rule AS (
+    SELECT c kyc_component, r.risk, r.kyc_reason
+    FROM distinct_rule r, unnest(r.kyc_component) c)
+-- basic_info
+SELECT r.kyc_component, CASE
+    WHEN b.account_id IS NULL THEN 'pending'::kyc_status_t
+    ELSE 'up_to_date'::kyc_status_t END kyc_status, r.kyc_reason
+FROM final_rule r LEFT JOIN (
+    SELECT b.* FROM basic_info b WHERE b.account_id = a_account_id
+    ORDER BY b.creation_ts DESC LIMIT 1) b ON TRUE
+WHERE r.kyc_component = 'basic'
+UNION ALL
+-- id_Info
+SELECT r.kyc_component, CASE
+    WHEN i.account_id IS NULL THEN 'pending'::kyc_status_t
+    WHEN age(i.valid_until) > a_expiration THEN 'outdated'::kyc_status_t
+    ELSE 'up_to_date'::kyc_status_t END kyc_status, r.kyc_reason
+FROM final_rule r LEFT JOIN (
+    SELECT i.* FROM id_info i WHERE i.account_id = a_account_id
+    ORDER BY i.creation_ts DESC LIMIT 1) i ON TRUE
+WHERE r.kyc_component = 'id'
+UNION ALL
+-- address_info
+SELECT r.kyc_component, CASE
+    WHEN a.account_id IS NULL THEN 'pending'::kyc_status_t
+    WHEN age(a.creation_ts) > a_expiration THEN 'outdated'::kyc_status_t
+    ELSE 'up_to_date'::kyc_status_t END kyc_status, r.kyc_reason
+FROM final_rule r LEFT JOIN (
+    SELECT a.* FROM address_info a WHERE a.account_id = a_account_id
+    ORDER BY a.creation_ts DESC LIMIT 1) a ON TRUE
+WHERE r.kyc_component = 'address'
+UNION ALL
+-- selfie_info
+SELECT r.kyc_component, CASE
+    WHEN s.account_id IS NULL THEN 'pending'::kyc_status_t
+    WHEN age(s.creation_ts) > a_expiration THEN 'outdated'::kyc_status_t
+    ELSE 'up_to_date'::kyc_status_t END kyc_status, r.kyc_reason
+FROM final_rule r LEFT JOIN (
+    SELECT s.* FROM selfie_info s WHERE s.account_id = a_account_id
+    ORDER BY s.creation_ts DESC LIMIT 1) s ON TRUE
+WHERE r.kyc_component = 'selfie'
+UNION ALL
+-- extra_info
+SELECT r.kyc_component, CASE
+    WHEN e.account_id IS NULL THEN 'pending'::kyc_status_t
+    WHEN age(e.creation_ts) > a_expiration THEN 'outdated'::kyc_status_t
+    ELSE 'up_to_date'::kyc_status_t END kyc_status, r.kyc_reason
+FROM final_rule r LEFT JOIN (
+    SELECT e.* FROM extra_info e WHERE e.account_id = a_account_id
+    ORDER BY e.creation_ts DESC LIMIT 1) e ON TRUE
+WHERE r.kyc_component = 'extra'
+UNION ALL
+-- risk
+(SELECT 'risk' kyc_component, CASE
+    WHEN a.account_id IS NULL THEN 'pending'::kyc_status_t
+    WHEN a.risk_score <@ r.risk THEN 'acceptable'::kyc_status_t
+    ELSE 'unacceptable'::kyc_status_t END kyc_stauts,
+    'Risk intersaction from all applicable KYC rules' kyc_reason
+FROM final_rule r LEFT JOIN (
+    SELECT r.* FROM risk_info r WHERE r.account_id = a_account_id
+    ORDER BY r.creation_ts DESC LIMIT 1) a ON TRUE
+LIMIT 1);
+$$;
+
+CREATE FUNCTION get_account_info (a_account_id uuid)
+RETURNS TABLE (
+    account_id uuid,
+    account_type account_type_t,
+    account_status account_status_t,
+    account_ts timestamptz,
+    first_name text,
+    last_name text,
+    birth_date date,
+    email text,
+    phone text,
+    basic_ts timestamptz,
+    id_type id_type_t,
+    id_number text,
+    valid_until date,
+    id_ts timestamptz,
+    country text,
+    region text,
+    city text,
+    street text,
+    address_ts timestamptz,
+    selfie_uri text,
+    selfie_ts timestamptz,
+    occupation text,
+    income numrange,
+    source_of_funds text,
+    extra_ts timestamptz,
+    risk_score numeric,
+    risk_level risk_level_t,
+    risk_ts timestamptz)
+LANGUAGE SQL AS $$
+SELECT a.account_id, a.account_type, a.account_status, a.creation_ts account_ts,
+    b.first_name, b.last_name, b.birth_date, b.email, b.phone, b.creation_ts basic_ts,
+    i.id_type, i.id_number, i.valid_until, i.creation_ts id_ts,
+    d.country, d.region, d.city, d.street, d.creation_ts address_ts,
+    s.selfie_uri, s.creation_ts selfie_ts,
+    e.occupation, e.income, e.source_of_funds, e.creation_ts extra_ts,
+    r.risk_score, r.risk_level, r.creation_ts risk_ts
+FROM account a
+    LEFT JOIN (
+    SELECT b.* FROM basic_info b WHERE b.account_id = a_account_id
+    ORDER BY b.creation_ts DESC LIMIT 1) b ON TRUE
+    LEFT JOIN (
+    SELECT i.* FROM id_info i WHERE i.account_id = a_account_id
+    ORDER BY i.creation_ts DESC LIMIT 1) i ON TRUE
+    LEFT JOIN (
+    SELECT d.* FROM address_info d WHERE d.account_id = a_account_id
+    ORDER BY d.creation_ts DESC LIMIT 1) d ON TRUE
+    LEFT JOIN (
+    SELECT s.* FROM selfie_info s WHERE s.account_id = a_account_id
+    ORDER BY s.creation_ts DESC LIMIT 1) s ON TRUE
+    LEFT JOIN (
+    SELECT e.* FROM extra_info e WHERE e.account_id = a_account_id
+    ORDER BY e.creation_ts DESC LIMIT 1) e ON TRUE
+    LEFT JOIN (
+    SELECT r.* FROM risk_info r WHERE r.account_id = a_account_id
+    ORDER BY r.creation_ts DESC LIMIT 1) r ON TRUE
+WHERE a.account_id = a_account_id;
+$$;
+
+CREATE FUNCTION get_account_history (
+    a_account_id uuid,
+    a_history_limit integer DEFAULT 10)
+RETURNS jsonb
+LANGUAGE SQL AS $$
+WITH basic_history AS (
+    SELECT jsonb_build_object(
+        'first_name', b.first_name, 'last_name', b.last_name,
+        'birth_date', b.birth_date, 'email', b.email, 'phone', b.phone,
+        'basic_ts', b.creation_ts) basic_entry
+    FROM basic_info b WHERE b.account_id = a_account_id
+    ORDER BY b.creation_ts DESC LIMIT a_history_limit),
+basic_history_agg AS (
+    SELECT jsonb_agg(b.basic_entry) basic_entry
+    FROM basic_history b),
+id_history AS (
+    SELECT jsonb_build_object(
+        'id_type', i.id_type, 'id_number', i.id_number,
+        'valid_until', i.valid_until, 'id_ts', i.creation_ts) id_entry
+    FROM id_info i WHERE i.account_id = a_account_id
+    ORDER BY i.creation_ts DESC LIMIT a_history_limit),
+id_history_agg AS (
+    SELECT jsonb_agg(i.id_entry) id_entry
+    FROM id_history i),
+address_history AS (
+    SELECT jsonb_build_object(
+        'country', a.country, 'region', a.region, 'city', a.city, 'street', a.street,
+        'address_ts', a.creation_ts) address_entry
+    FROM address_info a WHERE a.account_id = a_account_id
+    ORDER BY a.creation_ts DESC LIMIT a_history_limit),
+address_history_agg AS (
+    SELECT jsonb_agg(a.address_entry) address_entry
+    FROM address_history a),
+selfie_history AS (
+    SELECT jsonb_build_object(
+        'selfie_uri', s.selfie_uri, 'selfie_ts', s.creation_ts) selfie_entry
+    FROM selfie_info s WHERE s.account_id = a_account_id
+    ORDER BY s.creation_ts DESC LIMIT a_history_limit),
+selfie_history_agg AS (
+    SELECT jsonb_agg(s.selfie_entry) selfie_entry
+    FROM selfie_history s),
+extra_history AS (
+    SELECT jsonb_build_object(
+        'occupation', e.occupation, 'income', e.income,
+        'source_of_funds', e.source_of_funds, 'extra_ts', e.creation_ts) extra_entry
+    FROM extra_info e WHERE e.account_id = a_account_id
+    ORDER BY e.creation_ts DESC LIMIT a_history_limit),
+extra_history_agg AS (
+    SELECT jsonb_agg(s.extra_entry) extra_entry
+    FROM extra_history s),
+risk_history AS (
+    SELECT jsonb_build_object(
+        'risk_score', r.risk_score, 'risk_level', r.risk_level,
+        'risk_ts', r.creation_ts) risk_entry
+    FROM risk_info r WHERE r.account_id = a_account_id
+    ORDER BY r.creation_ts DESC LIMIT a_history_limit),
+risk_history_agg AS (
+    SELECT jsonb_agg(s.risk_entry) risk_entry
+    FROM risk_history s)
+SELECT jsonb_build_object(
+    'account_id', a.account_id, 'account_type', a.account_type,
+    'account_status', a.account_status, 'account_ts', a.creation_ts,
+    'basic_history', b.basic_entry, 'id_history', i.id_entry,
+    'address_history', d.address_entry, 'selfie_history', s.selfie_entry,
+    'extra_history', e.extra_entry, 'risk_history', r.risk_entry) account_history
+FROM account a, basic_history_agg b, id_history_agg i, address_history_agg d,
+    selfie_history_agg s, extra_history_agg e, risk_history_agg r
+WHERE a.account_id = a_account_id;
+$$;
+
 -- Service launch
 
 \set legal_entity_id 'c9a68b87-664c-4170-a906-60d889f4247f'
@@ -123,11 +362,11 @@ VALUES (:'legal_entity_id', 'PagoFX UK');
 INSERT INTO kyc_rule (legal_entity_id, payment_type, payment_amount, currency_pair,
     country_pair, period, payment_value, payment_volume, risk, kyc_component, description)
 VALUES
-    (:'legal_entity_id', '^domestic$', '[0, 1000]', '^GBPEUR$', '^UKES$', '3 months',
-    '[0, 1000]', '[0, 10]', '[0, 70]', '{basic, id}',
+    (:'legal_entity_id', '^domestic$', '[0, 1000]', '^GBPEUR$', '^UKES$',
+    '3 months', '[0, 1000]', '[0, 10]', '[0, 70]', '{basic, id}',
     'Domestic payments require id check'),
-    (:'legal_entity_id', '^domestic$', '[0, 1000]', '^GBPEUR$', '^UKES$', '3 months',
-    '[0, 1000]', '[0, 10]', '[30, 80]', '{basic, id, address}',
+    (:'legal_entity_id', '^domestic$', '[0, 1000]', '^GBPEUR$', '^UKES$',
+    '3 months', '[0, 1000]', '[0, 10]', '[30, 80]', '{basic, id, address}',
     '+ address check');
 
 -- Customer sign up
@@ -179,84 +418,14 @@ VALUES (:'account_id', 'director', '[50, 60]', NULL);
 \set payment_volume 0
 \set expiration '1 year'
 
-WITH matched_rule AS (
-    SELECT r.kyc_component, r.risk, r.description kyc_reason
-    FROM kyc_rule r
-    WHERE :'payment_type' ~* r.payment_type
-        AND :payment_amount <@ r.payment_amount
-        AND :'currency_pair' ~* r.currency_pair
-        AND :'country_pair' ~* r.country_pair
-        AND :'period' <= r.period
-        AND :payment_value <@ r.payment_value
-        AND :payment_volume <@ r.payment_volume),
-default_rule AS (
-    SELECT r.kyc_component, r.risk, r.kyc_reason
-    FROM matched_rule r
-    UNION ALL
-    SELECT '{basic, id, address, selfie, extra}' kyc_component, '[0, 100]' risk,
-        'By default full KYC is required and any risk is acceptable' kyc_reason
-    FROM (VALUES (1)) t
-    WHERE NOT EXISTS (SELECT 1 FROM matched_rule)),
-distinct_rule AS (
-    SELECT array_agg(DISTINCT c) kyc_component,
-        range_intersect_agg(r.risk) risk,
-        string_agg(DISTINCT r.kyc_reason, '. ') kyc_reason
-    FROM default_rule r, unnest(r.kyc_component) c),
-final_rule AS (
-    SELECT c kyc_component, r.risk, r.kyc_reason
-    FROM distinct_rule r, unnest(r.kyc_component) c)
+-- \set account_id 'bae92617-4cfa-42fe-a593-5dfa374f905a'
 
-SELECT r.kyc_component, CASE
-    WHEN b.account_id IS NULL THEN 'pending'
-    ELSE 'up to date' END kyc_status, r.kyc_reason
-FROM final_rule r LEFT JOIN (
-    SELECT b.* FROM basic_info b WHERE b.account_id = :'account_id'
-    ORDER BY b.creation_ts DESC LIMIT 1) b ON TRUE
-WHERE r.kyc_component = 'basic'
-UNION ALL
-SELECT r.kyc_component, CASE
-    WHEN i.account_id IS NULL THEN 'pending'
-    WHEN age(i.valid_until) > :'expiration' THEN 'outdated'
-    ELSE 'up to date' END kyc_status, r.kyc_reason
-FROM final_rule r LEFT JOIN (
-    SELECT i.* FROM id_info i WHERE i.account_id = :'account_id'
-    ORDER BY i.creation_ts DESC LIMIT 1) i ON TRUE
-WHERE r.kyc_component = 'id'
-UNION ALL
-SELECT r.kyc_component, CASE
-    WHEN a.account_id IS NULL THEN 'pending'
-    WHEN age(a.creation_ts) > :'expiration' THEN 'outdated'
-    ELSE 'up to date' END kyc_status, r.kyc_reason
-FROM final_rule r LEFT JOIN (
-    SELECT a.* FROM address_info a WHERE a.account_id = :'account_id'
-    ORDER BY a.creation_ts DESC LIMIT 1) a ON TRUE
-WHERE r.kyc_component = 'address'
-UNION ALL
-SELECT r.kyc_component, CASE
-    WHEN s.account_id IS NULL THEN 'pending'
-    WHEN age(s.creation_ts) > :'expiration' THEN 'outdated'
-    ELSE 'up to date' END kyc_status, r.kyc_reason
-FROM final_rule r LEFT JOIN (
-    SELECT s.* FROM selfie_info s WHERE s.account_id = :'account_id'
-    ORDER BY s.creation_ts DESC LIMIT 1) s ON TRUE
-WHERE r.kyc_component = 'selfie'
-UNION ALL
-SELECT r.kyc_component, CASE
-    WHEN e.account_id IS NULL THEN 'pending'
-    WHEN age(e.creation_ts) > :'expiration' THEN 'outdated'
-    ELSE 'up to date' END kyc_status, r.kyc_reason
-FROM final_rule r LEFT JOIN (
-    SELECT e.* FROM extra_info e WHERE e.account_id = :'account_id'
-    ORDER BY e.creation_ts DESC LIMIT 1) e ON TRUE
-WHERE r.kyc_component = 'extra'
-UNION ALL
-(SELECT 'risk' kyc_component, CASE
-    WHEN a.risk_score <@ r.risk THEN 'acceptable'
-    ELSE 'unacceptable' END kyc_stauts,
-    'Risk intersaction from all applicable KYC rules' kyc_reason
-FROM final_rule r LEFT JOIN (
-    SELECT r.* FROM risk_info r WHERE r.account_id = :'account_id'
-    ORDER BY r.creation_ts DESC LIMIT 1) a ON TRUE
-LIMIT 1);
+-- SELECT * FROM get_kyc_status(
+--     :'account_id', :'payment_type', :payment_amount, :'currency_pair', :'country_pair',
+--     :'period', :payment_value, :payment_volume, :'expiration');
+
+-- SELECT * FROM get_account_info(:'account_id');
+
+-- SELECT jsonb_pretty(a.*) account_history FROM get_account_history(:'account_id') a;
 
 ROLLBACK;
