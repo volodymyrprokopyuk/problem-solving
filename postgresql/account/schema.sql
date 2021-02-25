@@ -82,26 +82,20 @@ CREATE TYPE kyc_component_t AS ENUM ('basic', 'id', 'address', 'selfie', 'extra'
 CREATE TABLE kyc_rule (
     kyc_rule_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     legal_entity_id uuid NOT NULL REFERENCES legal_entity (legal_entity_id),
-    payment_type text NOT NULL -- DEFAULT '^\w+$'
-        CHECK (regexp_match('', payment_type) IS NULL),
-    payment_amount numrange NOT NULL -- DEFAULT '[0, 1e10)'
+    payment_type text NOT NULL CHECK (regexp_match('', payment_type) IS NULL),
+    payment_amount numrange NOT NULL
         CHECK (lower(payment_amount) >= 0 AND upper(payment_amount) > 0),
-    currency_pair text NOT NULL -- DEFAULT '^\w{6}$'
-        CHECK (regexp_match('', currency_pair) IS NULL),
-    country_pair text NOT NULL -- DEFAULT '^\w{4}$'
-        CHECK (regexp_match('', country_pair) IS NULL),
-    payment_period interval NOT NULL, -- DEFAULT '1 century',
-    payment_value numrange NOT NULL -- DEFAUlT '[0, 1e10)'
+    currency_pair text NOT NULL CHECK (regexp_match('', currency_pair) IS NULL),
+    country_pair text NOT NULL CHECK (regexp_match('', country_pair) IS NULL),
+    payment_period interval NOT NULL,
+    payment_value numrange NOT NULL
         CHECK (lower(payment_value) >= 0 AND upper(payment_value) > 0),
-    payment_volume int4range NOT NULL -- DEFAULT '[0, 1000)'
+    payment_volume int4range NOT NULL
         CHECK (lower(payment_volume) >= 0 AND upper(payment_volume) > 0),
-    risk int4range NOT NULL -- DEFAULT '[0, 100]'
-        CHECK (lower(risk) >= 0 AND upper(risk) <= 101),
-    kyc_component kyc_component_t[] NOT NULL --DEFAULT '{basic, id, address, selfie, extra}'
-        CHECK (array_length(kyc_component, 1) > 0),
+    risk int4range NOT NULL CHECK (lower(risk) >= 0 AND upper(risk) <= 101),
+    kyc_component kyc_component_t[] NOT NULL CHECK (array_length(kyc_component, 1) > 0),
     rule_validity tstzrange NOT NULL DEFAULT '(,)',
-    description text NOT NULL -- DEFAULT 'By default full KYC is required and any risk is acceptable'
-        CHECK (description ~ '^.{5,}$'),
+    description text NOT NULL CHECK (description ~ '^.{5,}$'),
     creation_ts timestamptz NOT NULL DEFAULT current_timestamp);
 
 -- Data access interface
@@ -149,8 +143,8 @@ default_rule AS (
     SELECT r.kyc_component, r.risk, r.kyc_reason
     FROM matched_rule r
     UNION ALL
-    SELECT '{basic, id, address, selfie, extra}' kyc_component, '[0, 100]' risk,
-        'By default full KYC is required and any risk is acceptable' kyc_reason
+    SELECT '{basic, id, address, selfie, extra}' kyc_component, '[0, 70)' risk,
+        'Default: full KYC + low, medium risk' kyc_reason
     FROM (VALUES (1)) t
     WHERE NOT EXISTS (SELECT 1 FROM matched_rule)),
 distinct_rule AS (
@@ -173,7 +167,7 @@ UNION ALL
 -- id_info
 SELECT r.kyc_component, CASE
     WHEN i.account_id IS NULL THEN 'pending'::kyc_status_t
-    WHEN age(i.valid_until) > a_expiration THEN 'outdated'::kyc_status_t
+    WHEN i.valid_until < current_date THEN 'outdated'::kyc_status_t
     ELSE 'up_to_date'::kyc_status_t END kyc_status, r.kyc_reason
 FROM final_rule r LEFT JOIN (
     SELECT i.* FROM id_info i WHERE i.account_id = a_account_id
@@ -215,7 +209,7 @@ UNION ALL
     WHEN a.account_id IS NULL THEN 'pending'::kyc_status_t
     WHEN a.risk_score <@ r.risk THEN 'acceptable'::kyc_status_t
     ELSE 'unacceptable'::kyc_status_t END kyc_stauts,
-    'Risk intersaction from all applicable KYC rules' kyc_reason
+    'Risk intersection from all applicable KYC rules' kyc_reason
 FROM final_rule r LEFT JOIN (
     SELECT r.* FROM risk_info r WHERE r.account_id = a_account_id
     ORDER BY r.creation_ts DESC LIMIT 1) a ON TRUE
@@ -352,83 +346,4 @@ FROM account a, basic_history_agg b, id_history_agg i, address_history_agg d,
 WHERE a.account_id = a_account_id;
 $$;
 
--- Service launch
-
-\set legal_entity_id 'c9a68b87-664c-4170-a906-60d889f4247f'
-
-INSERT INTO legal_entity (legal_entity_id, legal_entity_name)
-VALUES (:'legal_entity_id', 'PagoFX UK');
-
--- KYC rules
-
-INSERT INTO kyc_rule (legal_entity_id, payment_type, payment_amount, currency_pair,
-    country_pair, payment_period, payment_value, payment_volume, risk, kyc_component,
-    rule_validity, description)
-VALUES
-    (:'legal_entity_id', '^domesticx$', '[0, 1000]', '^GBPEUR$', '^UKES$',
-    '3 months', '[0, 1000]', '[0, 10]', '[0, 70]', '{basic, id}', '(,)',
-    'Domestic payments require id check'),
-    (:'legal_entity_id', '^domestic$', '[0, 1000]', '^GBPEUR$', '^UKES$',
-    '3 months', '[0, 1000]', '[0, 10]', '[30, 80]', '{basic, id, address}', '(,2020-01-01)',
-    '+ address check');
-
--- Customer sign up
-
-\set account_id '5a334ae3-8319-41b5-a455-aa8d63e4b702'
-
-INSERT INTO account (account_id, legal_entity_id, account_type, account_status)
-VALUES (:'account_id', :'legal_entity_id', 'individual', 'active');
-
-INSERT INTO basic_info (account_id, first_name, last_name, birth_date, email, phone)
-VALUES (:'account_id', 'Ana', 'Perez', '1991-03-12', 'ana.perez@gmail.com', '654987321');
-INSERT INTO basic_info (account_id, first_name, last_name, birth_date, email, phone, creation_ts)
-VALUES (:'account_id', 'Ana María', 'Perez', '1991-03-12', 'ana.perez@gmail.com', '654987321',
-    clock_timestamp());
-
-INSERT INTO risk_info (account_id, risk_score)
-VALUES (:'account_id', 50);
-INSERT INTO risk_info (account_id, risk_score, creation_ts)
-VALUES (:'account_id', 80, clock_timestamp());
-
--- Before domestic payment
-
-INSERT INTO id_info (account_id, id_type, id_number, valid_until)
-VALUES (:'account_id', 'id_card', 'AB-321654', '2020-02-23');
-
--- Before wallet payment
-
-INSERT INTO address_info (account_id, country, region, city, street)
-VALUES (:'account_id', 'Spain', 'Madrid', 'Villalba', 'Avenida de los Olivos, 45');
-
--- Before international payment
-
-INSERT INTO selfie_info (account_id, selfie_uri)
-VALUES (:'account_id', 'https://selfie.com/photo/cba987.jpg');
-
--- Before > 1000 GBP payment
-
-INSERT INTO extra_info (account_id, occupation, income, source_of_funds)
-VALUES (:'account_id', 'director', '[50, 60]', NULL);
-
--- Before payment instruction
-
-\set payment_type 'domestic'
-\set payment_amount 200.0
-\set currency_pair 'GBPEUR'
-\set country_pair 'UKES'
-\set payment_period '3 months'
-\set payment_value 0.0
-\set payment_volume 0
-\set expiration '1 year'
-
--- \set account_id 'bae92617-4cfa-42fe-a593-5dfa374f905a'
-
-SELECT * FROM get_kyc_status(
-    :'account_id', :'payment_type', :payment_amount, :'currency_pair', :'country_pair',
-    :'payment_period', :payment_value, :payment_volume, :'expiration');
-
-SELECT * FROM get_account_info(:'account_id');
-
--- SELECT jsonb_pretty(a.*) account_history FROM get_account_history(:'account_id') a;
-
-ROLLBACK;
+COMMIT;
