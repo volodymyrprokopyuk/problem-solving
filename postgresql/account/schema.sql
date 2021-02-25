@@ -144,7 +144,7 @@ default_rule AS (
     FROM matched_rule r
     UNION ALL
     SELECT '{basic, id, address, selfie, extra}' kyc_component, '[0, 70)' risk,
-        'Default: full KYC + low, medium risk' kyc_reason
+        'Default: any payment, full KYC, low-medium risk' kyc_reason
     FROM (VALUES (1)) t
     WHERE NOT EXISTS (SELECT 1 FROM matched_rule)),
 distinct_rule AS (
@@ -340,7 +340,7 @@ SELECT jsonb_build_object(
     'account_status', a.account_status, 'account_ts', a.creation_ts,
     'basic_history', b.basic_entry, 'id_history', i.id_entry,
     'address_history', d.address_entry, 'selfie_history', s.selfie_entry,
-    'extra_history', e.extra_entry, 'risk_history', r.risk_entry) account_history
+    'extra_history', e.extra_entry, 'risk_history', r.risk_entry)
 FROM account a, basic_history_agg b, id_history_agg i, address_history_agg d,
     selfie_history_agg s, extra_history_agg e, risk_history_agg r
 WHERE a.account_id = a_account_id;
