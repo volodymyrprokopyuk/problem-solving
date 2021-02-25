@@ -90,7 +90,7 @@ CREATE TABLE kyc_rule (
         CHECK (regexp_match('', currency_pair) IS NULL),
     country_pair text NOT NULL -- DEFAULT '^\w{4}$'
         CHECK (regexp_match('', country_pair) IS NULL),
-    period interval NOT NULL, -- DEFAULT '1 century',
+    payment_period interval NOT NULL, -- DEFAULT '1 century',
     payment_value numrange NOT NULL -- DEFAUlT '[0, 1e10)'
         CHECK (lower(payment_value) >= 0 AND upper(payment_value) > 0),
     payment_volume int4range NOT NULL -- DEFAULT '[0, 1000)'
@@ -99,6 +99,7 @@ CREATE TABLE kyc_rule (
         CHECK (lower(risk) >= 0 AND upper(risk) <= 101),
     kyc_component kyc_component_t[] NOT NULL --DEFAULT '{basic, id, address, selfie, extra}'
         CHECK (array_length(kyc_component, 1) > 0),
+    rule_validity tstzrange NOT NULL DEFAULT '(,)',
     description text NOT NULL -- DEFAULT 'By default full KYC is required and any risk is acceptable'
         CHECK (description ~ '^.{5,}$'),
     creation_ts timestamptz NOT NULL DEFAULT current_timestamp);
@@ -122,7 +123,7 @@ CREATE FUNCTION get_kyc_status (
     a_payment_amount numeric,
     a_currency_pair text,
     a_country_pair text,
-    a_period interval,
+    a_payment_period interval,
     a_payment_value numeric,
     a_payment_volume integer,
     a_expiration interval DEFAULT '1 year')
@@ -140,9 +141,10 @@ WITH matched_rule AS (
         AND a_payment_amount <@ r.payment_amount
         AND a_currency_pair ~* r.currency_pair
         AND a_country_pair ~* r.country_pair
-        AND a_period <= r.period
+        AND a_payment_period <= r.payment_period
         AND a_payment_value <@ r.payment_value
-        AND a_payment_volume <@ r.payment_volume),
+        AND a_payment_volume <@ r.payment_volume
+        AND current_timestamp <@ r.rule_validity),
 default_rule AS (
     SELECT r.kyc_component, r.risk, r.kyc_reason
     FROM matched_rule r
@@ -168,7 +170,7 @@ FROM final_rule r LEFT JOIN (
     ORDER BY b.creation_ts DESC LIMIT 1) b ON TRUE
 WHERE r.kyc_component = 'basic'
 UNION ALL
--- id_Info
+-- id_info
 SELECT r.kyc_component, CASE
     WHEN i.account_id IS NULL THEN 'pending'::kyc_status_t
     WHEN age(i.valid_until) > a_expiration THEN 'outdated'::kyc_status_t
@@ -360,13 +362,14 @@ VALUES (:'legal_entity_id', 'PagoFX UK');
 -- KYC rules
 
 INSERT INTO kyc_rule (legal_entity_id, payment_type, payment_amount, currency_pair,
-    country_pair, period, payment_value, payment_volume, risk, kyc_component, description)
+    country_pair, payment_period, payment_value, payment_volume, risk, kyc_component,
+    rule_validity, description)
 VALUES
-    (:'legal_entity_id', '^domestic$', '[0, 1000]', '^GBPEUR$', '^UKES$',
-    '3 months', '[0, 1000]', '[0, 10]', '[0, 70]', '{basic, id}',
+    (:'legal_entity_id', '^domesticx$', '[0, 1000]', '^GBPEUR$', '^UKES$',
+    '3 months', '[0, 1000]', '[0, 10]', '[0, 70]', '{basic, id}', '(,)',
     'Domestic payments require id check'),
     (:'legal_entity_id', '^domestic$', '[0, 1000]', '^GBPEUR$', '^UKES$',
-    '3 months', '[0, 1000]', '[0, 10]', '[30, 80]', '{basic, id, address}',
+    '3 months', '[0, 1000]', '[0, 10]', '[30, 80]', '{basic, id, address}', '(,2020-01-01)',
     '+ address check');
 
 -- Customer sign up
@@ -413,18 +416,18 @@ VALUES (:'account_id', 'director', '[50, 60]', NULL);
 \set payment_amount 200.0
 \set currency_pair 'GBPEUR'
 \set country_pair 'UKES'
-\set period '3 months'
+\set payment_period '3 months'
 \set payment_value 0.0
 \set payment_volume 0
 \set expiration '1 year'
 
 -- \set account_id 'bae92617-4cfa-42fe-a593-5dfa374f905a'
 
--- SELECT * FROM get_kyc_status(
---     :'account_id', :'payment_type', :payment_amount, :'currency_pair', :'country_pair',
---     :'period', :payment_value, :payment_volume, :'expiration');
+SELECT * FROM get_kyc_status(
+    :'account_id', :'payment_type', :payment_amount, :'currency_pair', :'country_pair',
+    :'payment_period', :payment_value, :payment_volume, :'expiration');
 
--- SELECT * FROM get_account_info(:'account_id');
+SELECT * FROM get_account_info(:'account_id');
 
 -- SELECT jsonb_pretty(a.*) account_history FROM get_account_history(:'account_id') a;
 
