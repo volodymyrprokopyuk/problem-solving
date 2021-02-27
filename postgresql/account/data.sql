@@ -72,8 +72,8 @@ SELECT * FROM get_kyc_status(
     :'account_id', :'payment_type', :payment_amount, :'currency_pair', :'country_pair',
     :'payment_period', :payment_value, :payment_volume, :'expiration');
 
-INSERT INTO risk_info (account_id, risk_score)
-VALUES (:'account_id', 50);
+INSERT INTO risk_info (account_id, risk_score, risk_reason)
+VALUES (:'account_id', 50, 'Initial risk score');
 
 TABLE risk_info;
 
@@ -88,8 +88,8 @@ VALUES (:'account_id', 'id_card', 'AB-321654', '2022-02-25');
 
 TABLE id_info;
 
-INSERT INTO risk_info (account_id, risk_score, creation_ts)
-VALUES (:'account_id', 40, clock_timestamp());
+INSERT INTO risk_info (account_id, risk_score, risk_reason, creation_ts)
+VALUES (:'account_id', 40, 'ID provided', clock_timestamp());
 
 SELECT * FROM get_kyc_status(
     :'account_id', :'payment_type', :payment_amount, :'currency_pair', :'country_pair',
@@ -102,8 +102,8 @@ VALUES (:'account_id', 'Spain', 'Madrid', 'Villalba', 'Avenida de los Olivos, 45
 
 TABLE address_info;
 
-INSERT INTO risk_info (account_id, risk_score, creation_ts)
-VALUES (:'account_id', 35, clock_timestamp());
+INSERT INTO risk_info (account_id, risk_score, risk_reason, creation_ts)
+VALUES (:'account_id', 35, 'Address provided', clock_timestamp());
 
 SELECT * FROM get_kyc_status(
     :'account_id', :'payment_type', :payment_amount, :'currency_pair', :'country_pair',
@@ -116,8 +116,8 @@ VALUES (:'account_id', 'https://selfie.com/photo/cba987.jpg');
 
 TABLE selfie_info;
 
-INSERT INTO risk_info (account_id, risk_score, creation_ts)
-VALUES (:'account_id', 25, clock_timestamp());
+INSERT INTO risk_info (account_id, risk_score, risk_reason, creation_ts)
+VALUES (:'account_id', 25, 'Selfie provided', clock_timestamp());
 
 SELECT * FROM get_kyc_status(
     :'account_id', :'payment_type', :payment_amount, :'currency_pair', :'country_pair',
@@ -130,8 +130,8 @@ VALUES (:'account_id', 'director', '[7e4, 8e4)', NULL);
 
 TABLE extra_info;
 
-INSERT INTO risk_info (account_id, risk_score, creation_ts)
-VALUES (:'account_id', 20, clock_timestamp());
+INSERT INTO risk_info (account_id, risk_score, risk_reason, creation_ts)
+VALUES (:'account_id', 20, 'Extra information provided', clock_timestamp());
 
 SELECT * FROM get_kyc_status(
     :'account_id', :'payment_type', :payment_amount, :'currency_pair', :'country_pair',

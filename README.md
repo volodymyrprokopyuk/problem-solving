@@ -123,6 +123,7 @@
       `FROM` `ON true`. Run the subquery in a loop for each row in `FROM`. Push down
       the join condition into the subquery
   - `WHERE` no alias, `AND`, `OR`, `NOT`, `IN (...)`, `EXISTS (SELECT 1 ...)`
+    - Anti-join `WHERE NOT EXISTS (SELECT 1 ...)`
   - `GROUP BY` alias
     - `GROUPING SETS ((...), ())`=`GROUP` data separately `BY` each `GROUPING SET` and
       then `UNION` with appropriate `NULL`. Aggregate over more than one group at the
@@ -146,3 +147,8 @@
        STYPE = state value data type
        INITCOND = state initial value
        FINALFUNC = transform the final state value into the aggregate output value)`
+- `WITH ... INSERT INTO ... VALUES | SELECT (JOIN ...) ON CONFLICT ... DO NOTHING | DO
+  UPDATE SET ... EXCLUDED RETURNING *`
+- `WITH ... UPDATE ... SET ... FROM (JOIN ...) WHERE ... RETURNING *`
+- `WITH ... DELETE FROM ... USING (JOIN ...) WHERE ... RETURNING *`
+- `TRUNCATE ...`

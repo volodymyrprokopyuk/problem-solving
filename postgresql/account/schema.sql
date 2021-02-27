@@ -41,6 +41,7 @@ CREATE TABLE risk_info (
         WHEN risk_score <@ '[0, 30)'::int4range THEN 'low'::risk_level_t
         WHEN risk_score <@ '[30, 70)'::int4range THEN 'medium'::risk_level_t
         ELSE 'high'::risk_level_t END) STORED,
+    risk_reason text NOT NULL CHECK (risk_reason ~ '^.{5,}$'),
     creation_ts timestamptz NOT NULL DEFAULT current_timestamp);
 
 CREATE TYPE id_type_t AS ENUM ('passport', 'id_card', 'driving_license');
@@ -65,7 +66,7 @@ CREATE TABLE address_info (
 CREATE TABLE selfie_info (
     selfie_info_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     account_id uuid NOT NULL REFERENCES account (account_id),
-    selfie_uri text NOT NULL CHECK (selfie_uri ~ '\w{3,}'),
+    selfie_uri text NOT NULL CHECK (selfie_uri ~ '\S{3,}'),
     creation_ts timestamptz NOT NULL DEFAULT current_timestamp);
 
 CREATE TABLE extra_info (
@@ -245,6 +246,7 @@ RETURNS TABLE (
     extra_ts timestamptz,
     risk_score numeric,
     risk_level risk_level_t,
+    risk_reason text,
     risk_ts timestamptz)
 LANGUAGE SQL AS $$
 SELECT a.account_id, a.account_type, a.account_status, a.creation_ts account_ts,
@@ -253,7 +255,7 @@ SELECT a.account_id, a.account_type, a.account_status, a.creation_ts account_ts,
     d.country, d.region, d.city, d.street, d.creation_ts address_ts,
     s.selfie_uri, s.creation_ts selfie_ts,
     e.occupation, e.income, e.source_of_funds, e.creation_ts extra_ts,
-    r.risk_score, r.risk_level, r.creation_ts risk_ts
+    r.risk_score, r.risk_level, r.risk_reason, r.creation_ts risk_ts
 FROM account a
     LEFT JOIN (
     SELECT b.* FROM basic_info b WHERE b.account_id = a_account_id
@@ -329,7 +331,7 @@ extra_history_agg AS (
 risk_history AS (
     SELECT jsonb_build_object(
         'risk_score', r.risk_score, 'risk_level', r.risk_level,
-        'risk_ts', r.creation_ts) risk_entry
+        'risk_reason', r.risk_reason, 'risk_ts', r.creation_ts) risk_entry
     FROM risk_info r WHERE r.account_id = a_account_id
     ORDER BY r.creation_ts DESC LIMIT a_history_limit),
 risk_history_agg AS (
