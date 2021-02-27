@@ -35,7 +35,7 @@ VALUES
 
 -- TABLE kyc_rule;
 
--- Customer sign up
+\echo ** Customer sign up
 
 \set account_id '5a334ae3-8319-41b5-a455-aa8d63e4b702'
 
