@@ -152,3 +152,30 @@
 - `WITH ... UPDATE ... SET ... FROM (JOIN ...) WHERE ... RETURNING *`
 - `WITH ... DELETE FROM ... USING (JOIN ...) WHERE ... RETURNING *`
 - `TRUNCATE ...`
+- **Normalization**. Reduces data redundacy, improves data consistency, allows to extend
+  the data model without changing existing tables (DDL)
+  - **Anomalies**
+    - **Update anomaly**. Multiple rows has to be updated with the same data
+    - **Insertion anomaly**. More than necessary data has to be inserted
+    - **Deletion anomaly**. More than necessary data has to be deleted
+  - **Normalization forms** (split tables using identity PK, many-to-one FK and
+    many-to-many pivot table)
+    - **1NF**. Every attribute value must be atomic
+    - **2NF**. Every non-candidate key attribute must depend on the whole candidate key
+    - **3NF**. Transtivie dependencies between attributes must be removed
+- **Transactions**. Lower isolaiton, fewer locks, more concurrency, more
+  phenomena. Highter isolation, more locks, less concurrency, less phenomena (TCL, DML)
+  - **Phenomena**
+    - **Dirty read**. A transaction reads data written by a concurrent uncommitted
+      transaction
+    - **Nonrepeatable read**. A transaction re-reads data and finds that data has been
+      updated by another transaction that commited after the initial read (`UPDATE` +
+      `COMMIT`)
+    - **Phantom read**. A transaction re-reads data and finds that data has been
+      inserted or deleted by another transaction that commited after the initial read
+      (`INSERT`, `DELETE` + `COMMIT`)
+    - **Serialization anomaly**
+  - **Isolation levels**
+    - **Read committed**
+    - **Repeatable read**
+    - **Serializable**

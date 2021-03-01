@@ -13,27 +13,27 @@ TABLE legal_entity;
 
 \echo ** KYC rules
 
-INSERT INTO kyc_rule (legal_entity_id, payment_type, payment_amount, currency_pair,
-    country_pair, payment_period, payment_value, payment_volume, risk, kyc_component,
-    rule_validity, description)
-VALUES
-    (:'legal_entity_id', '^domestic$', '[0, 100)', '^GBPGBP$', '^UKUK$',
-    '3 months', '[0, 1)', '[0, 1)', '[0, 70)', '{basic}', '(,)',
-    'Domestic UK, <100GBP, low-medium risk, 1st transaction, basic'),
-    (:'legal_entity_id', '^domestic$', '[0, 500)', '^GBPGBP$', '^UKUK$',
-    '3 months', '[0, 1500)', '[1, 50)', '[0, 70)', '{basic, id}', '(,)',
-    'Domestic UK, <500GBP, low-medium risk, basic+id'),
-    (:'legal_entity_id', '^wallet$', '[100, 500)', '^GBPGBP$', '^UKUK$',
-    '3 months', '[0, 1500)', '[1, 50)', '[0, 70)', '{basic, id, address}', '(,)',
-    'Wallet UK, 100-500GBP, low-medium risk, basic+id+address'),
-    (:'legal_entity_id', '^international$', '[0, 500)', '^GBPEUR$', '^UK..$',
-    '3 months', '[0, 1500)', '[0, 50)', '[0, 70)', '{basic, id, address, selfie}', '(,)',
-    'International UK, <500GBP, low-medium risk, basic+id+address+selfie'),
-    (:'legal_entity_id', '^.+$', '[1000,)', '^GBP...$', '^UK..$',
-    '3 months', '[0, 1500)', '[0, 50)', '[0, 10)', '{extra}', '(,)',
-    'Any payment UK, >1000GBP, low-medium risk, extra');
+-- INSERT INTO kyc_rule (legal_entity_id, payment_type, payment_amount, currency_pair,
+--     country_pair, payment_period, payment_value, payment_volume, risk, kyc_component,
+--     rule_validity, description)
+-- VALUES
+--     (:'legal_entity_id', '^domestic$', '[0, 100)', '^GBPGBP$', '^UKUK$',
+--     '3 months', '[0, 1)', '[0, 1)', '[0, 70)', '{basic}', '(,)',
+--     'Domestic UK, <100GBP, low-medium risk, 1st transaction, basic'),
+--     (:'legal_entity_id', '^domestic$', '[0, 500)', '^GBPGBP$', '^UKUK$',
+--     '3 months', '[0, 1500)', '[1, 50)', '[0, 70)', '{basic, id}', '(,)',
+--     'Domestic UK, <500GBP, low-medium risk, basic+id'),
+--     (:'legal_entity_id', '^wallet$', '[100, 500)', '^GBPGBP$', '^UKUK$',
+--     '3 months', '[0, 1500)', '[1, 50)', '[0, 70)', '{basic, id, address}', '(,)',
+--     'Wallet UK, 100-500GBP, low-medium risk, basic+id+address'),
+--     (:'legal_entity_id', '^international$', '[0, 500)', '^GBPEUR$', '^UK..$',
+--     '3 months', '[0, 1500)', '[0, 50)', '[0, 70)', '{basic, id, address, selfie}', '(,)',
+--     'International UK, <500GBP, low-medium risk, basic+id+address+selfie'),
+--     (:'legal_entity_id', '^.+$', '[1000,)', '^GBP...$', '^UK..$',
+--     '3 months', '[0, 1500)', '[0, 50)', '[0, 10)', '{extra}', '(,)',
+--     'Any payment UK, >1000GBP, low-medium risk, extra');
 
--- TABLE kyc_rule;
+TABLE kyc_rule;
 
 \echo ** Customer sign up
 
