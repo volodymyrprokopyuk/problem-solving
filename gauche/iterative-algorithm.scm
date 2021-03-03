@@ -315,3 +315,17 @@
 ;; #?=(sublists '(a b))
 ;; #?=(sublists '(a b c))
 ;; #?=(sublists '(a b c d))
+
+;; (let ([v #(1 2 3 4 5 6 7)])
+;;   (do ([i 0 (+ i 1)]) ([= i (vector-length v)]) (print (vector-ref v i))))
+
+(define (vector-find v e :optional (c equal?))
+  "Returns the position of the element e in the vector v, otherwise -1"
+  (let ([n (vector-length v)])
+    (do ([i 0 (+ i 1)]) ((or [= i n] [c (vector-ref v i) e]) (if [= i n] -1 i)))))
+
+;; #?=(vector-find #() 7)
+;; #?=(vector-find #(1 4 7 3 2 5) 7 eq?)
+;; #?=(vector-find #(1 4 7 3 2 5) 9 eqv?)
+;; #?=(vector-find #(1 #f 2.3 #\a "Lana" 'a "Vlad") "Vlad")
+;; #?=(vector-find #((a . 1) (b . 2) (c . 3)) 'b (lambda (x e) (eq? (car x) e)))
