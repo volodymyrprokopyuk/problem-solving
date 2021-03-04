@@ -22,7 +22,8 @@
   - Usage `use`, `with-module`
 - Object system
   - Class `define-class :allocation (:instance :class :virtual [:slot-ref :slot-set!])
-    :init-keyword :init-value :init-form :accessor :getter :setter`
+    :init-keyword :init-value :init-form :accessor :getter :setter`, `initialize`,
+    `write-object`
   - Instance `make`
   - Method `define-method`, `next-method`
 - Exceptions and conditions
@@ -124,6 +125,7 @@
       the join condition into the subquery
   - `WHERE` no alias, `AND`, `OR`, `NOT`, `IN (...)`, `EXISTS (SELECT 1 ...)`
     - Anti-join `WHERE NOT EXISTS (SELECT 1 ...)`
+    - Row comparator/assignment `(a, b) = (c, d)`
   - `GROUP BY` alias
     - `GROUPING SETS ((...), ())`=`GROUP` data separately `BY` each `GROUPING SET` and
       then `UNION` with appropriate `NULL`. Aggregate over more than one group at the
