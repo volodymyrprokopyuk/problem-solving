@@ -3,12 +3,12 @@
 set -eu
 
 readonly ROOT_DIR=$(pwd)
-# export PGDATABASE=playground
+export PGDATABASE=playground
 # export PGDATABASE=booking
 # export PGDATABASE=factbook
 # export PGDATABASE=chinook
 # export PGDATABASE=racing
-export PGDATABASE=account
+# export PGDATABASE=account
 export PGUSER=vlad
 
 function create_schema {
