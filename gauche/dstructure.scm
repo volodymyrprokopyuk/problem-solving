@@ -88,7 +88,7 @@
   "Returns the null node"
   (make <node> :value #f :next #f :previous #f))
 
-(define-method fold-next (f s [n <node>])
+(define-method node-fold-next (f s [n <node>])
   "Left folds next the function f over the nodes n starting with the seed s"
   (let fold* ([n n] [r s])
     (cond
@@ -105,29 +105,31 @@
    [position :init-value 0 :accessor position]))
 
 (define-method initialize ([l <llist>] _)
-  "Initializes the list l with the null node"
+  "Initializes the head, current and tail nodes"
   (next-method)
   (let ([n (null-node)])
     (set! (head l) n) (set! (current l) n) (set! (tail l) n)))
 
+(define ((mark-node l) n s)
+  "Marks head, current and tail node"
+  (let ([v (value n)]
+        [head? (eq? n (head l))]
+        [current? (eq? n (current l))]
+        [tail? (eq? n (tail l))])
+    (cond
+      [(and head? current? tail?) (cons (cons v 'hct) s)]
+      [(and head? current?) (cons (cons v 'hc) s)]
+      [(and current? tail?) (cons (cons v 'ct) s)]
+      [head? (cons (cons v 'h) s)]
+      [current? (cons (cons v 'c) s)]
+      [tail? (cons (cons v 't) s)]
+      [else (cons v s)])))
+
 (define-method write-object ([l <llist>] p)
-  (define (kons n s)
-    (let ([v (value n)]
-          [head? (eq? n (head l))]
-          [current? (eq? n (current l))]
-          [tail? (eq? n (tail l))])
-      (cond
-        [(and head? current? tail?) (cons (cons v 'hct) s)]
-        [(and head? current?) (cons (cons v 'hc) s)]
-        [(and current? tail?) (cons (cons v 'ct) s)]
-        [head? (cons (cons v 'h) s)]
-        [current? (cons (cons v 'c) s)]
-        [tail? (cons (cons v 't) s)]
-        [else (cons v s)])))
   "Writes the representaion of the list l to the port p"
   (format p "#<~a ~a at ~a as ~a>"
           (class-name (current-class-of l))
-          (length l) (position l) (fold-next kons '() (head l))))
+          (length l) (position l) (node-fold-next (mark-node l) '() (head l))))
 
 (define-method empty? ([l <llist>])
   "Returns #t if the list is empty, otherwise #f. O(1)"
@@ -190,7 +192,7 @@
     (set! (value (next c)) v)))
 
 (define-method remove! ([l <llist>])
-  "Removes the element from the list l at the current position. O(1)"
+  "Removes the element at the current position from the list l. O(1)"
   (when [empty? l] (error "<llist> remove!: empty list"))
   (let ([c (current l)] [v (value l)])
     (when [eq? (next c) (tail l)] (set! (tail l) c))
@@ -203,41 +205,240 @@
     (set! (head l) n) (set! (current l) n) (set! (tail l) n)
     (set! (position l) 0) (set! (length l) 0)))
 
-;; (let ([x (make <avector> :capacity 5)])
-(let ([x (make <llist>)])
+;; <dlist> doubly linked list
+
+(define-class <dlist> ()
+  ([head :accessor head]
+   [current :accessor current]
+   [tail :accessor tail]
+   [length :init-value 0 :accessor length]
+   [position :init-value -1 :accessor position]))
+
+(define-method initialize ([l <dlist>] _)
+  "Initializes the head, current and tail nodes"
+  (next-method)
+  (let ([h (null-node)] [t (null-node)])
+    (set! (head l) h) (set! (current l) h) (set! (tail l) t)
+    (set! (next h) t) (set! (previous t) h)))
+
+(define-method write-object ([l <dlist>] p)
+  "Writes the representaion of the list l to the port p"
+  (format p "#<~a> ~a at ~a as ~a"
+          (class-name (current-class-of l))
+          (length l) (position l)
+          (node-fold-next (mark-node l) '() (head l))))
+
+(define-method empty? ([l <dlist>])
+  "Returns #t if the list is empty, otherwise #f. O(1)"
+  [zero? (length l)])
+
+(define-method next! ([l <dlist>])
+  "Moves the current position to the next element. O(1)"
+  (let ([c (current l)])
+    (unless [eq? (next c) (tail l)]
+      (set! (current l) (next c)) (inc! (position l)))))
+
+(define-method previous! ([l <dlist>])
+  "Moves the current posiiton to the previous element. O(1)"
+  (let ([c (current l)])
+    (unless [eq? c (head l)]
+      (set! (current l) (previous c)) (dec! (position l)))))
+
+(define-method start! ([l <dlist>])
+  "Moves the current position to the start of the list l. O(1)"
+  (set! (current l) (head l))
+  (set! (position l) -1))
+
+(define-method end! ([l <dlist>])
+  "Moves the current position to the end of the list l. O(1)"
+  (set! (current l) (previous (tail l)))
+  (set! (position l) (- (length l) 1)))
+
+(define-method position! ([l <dlist>] p)
+  "Moves the current position of the list l to the p. O(n)"
+  (when (or [< p -1] [>= p (length l)])
+    (error "<dlist> position!: position out of range"))
+  (cond
+    [(> p (position l))
+     (let forward* ([n (current l)] [i (position l)])
+       (cond
+         [(= i p) (set! (current l) n) (set! (position l) i)]
+         [else (forward* (next n) (+ i 1))]))]
+    [(< p (position l))
+     (let backward* ([n (current l)] [i (position l)])
+       (cond
+         [(= i p) (set! (current l) n) (set! (position l) i)]
+         [else (backward* (previous n) (- i 1))]))]))
+
+(define-method value ([l <dlist>])
+  "Returns the velue of the list l at the current position. O(1)"
+  (when [empty? l] (error "<dlist> value: empty list"))
+  (value (current l)))
+
+(define-method insert! ([l <dlist>] v)
+  "Inserts the value v into the list l at the current position. O(1)"
+  (let* ([c (current l)] [n (make <node> :value v :previous c :next (next c))])
+    (set! (previous (next c)) n)
+    (set! (next c) n)
+    (inc! (length l))))
+
+(define-method update! ([l <dlist>] v)
+  "Updates the element at the cuturrent position of the list l with v. O(1)"
+  (when [empty? l] (error "<dlist> update!: empty list"))
+  (set! (value (current l)) v))
+
+(define-method remove! ([l <dlist>])
+  "Removes the element at the current position from the list l. O(1)"
+  (when [empty? l] (error "<dlist> remove!: empty list"))
+  (when [= (position l) -1] (error "<dlist> remove!: negative position"))
+  (let ([c (current l)] [v (value l)])
+    (set! (current l) (previous c))
+    (dec! (position l))
+    (set! (next (current l)) (next c))
+    (set! (previous (next c)) (current l))
+    (dec! (length l)) v))
+
+(define-method clear! ([l <dlist>])
+  "Clears the list l. O(1)"
+  (let ([h (null-node)] [t (null-node)])
+    (set! (head l) h) (set! (current l) h) (set! (tail l) t)
+    (set! (next h) t) (set! (previous t) h)
+    (set! (position l) -1) (set! (length l) 0)))
+
+(let ([x (make <dlist>)])
   (print x)
-  #?=(empty? x)
   (insert! x 1)
+  (print x)
   (insert! x 2)
+  (print x)
   (insert! x 3)
-  (insert! x 4)
-  (insert! x 5)
   (print x)
-  #?=(empty? x)
-  (position! x 2)
+
+  (position! x 1)
   (print x)
-  #?=(value x)
-  (next! x)
+  (position! x 0)
   (print x)
-  #?=(value x)
-  (previous! x)
-  (print x)
-  #?=(value x)
-  (start! x)
-  (print x)
-  #?=(value x)
-  (end! x)
-  (print x)
-  #?=(value x)
-  (update! x 10)
-  (print x)
-  #?=(remove! x)
-  (end! x)
-  (print x)
-  #?=(remove! x)
-  (start! x)
-  (print x)
-  #?=(remove! x)
-  (print x)
-  (clear! x)
-  (print x))
+
+  ;; (next! x)
+  ;; (print x)
+  ;; (next! x)
+  ;; (print x)
+  ;; (next! x)
+  ;; (print x)
+  ;; (next! x)
+  ;; (print x)
+
+  ;; (previous! x)
+  ;; (print x)
+  ;; (previous! x)
+  ;; (print x)
+  ;; (previous! x)
+  ;; (print x)
+  ;; (previous! x)
+  ;; (print x)
+
+  ;; (end! x)
+  ;; (print x)
+  ;; (start! x)
+  ;; (print x)
+
+  ;; (clear! x)
+  ;; (print x)
+
+  ;; (end! x)
+  ;; (print x)
+  ;; (update! x 10)
+  ;; (print x)
+
+  ;; #?=(remove! x)
+  ;; (print x)
+  ;; #?=(remove! x)
+  ;; (print x)
+  ;; #?=(remove! x)
+  ;; (print x)
+
+  ;; (end! x)
+  ;; (print x)
+  ;; (insert! x 10)
+  ;; (print x)
+  ;; (insert! x 11)
+  ;; (print x)
+  ;; (end! x)
+  ;; (print x)
+  ;; (insert! x 20)
+  ;; (print x)
+  ;; (insert! x 21)
+  ;; (print x)
+  ;; (start! x)
+  ;; (print x)
+  ;; (insert! x 30)
+  ;; (print x)
+  ;; (insert! x 31)
+  ;; (print x)
+  ;; (next! x)
+  ;; (print x)
+  ;; (next! x)
+  ;; (print x)
+  ;; (next! x)
+  ;; (print x)
+  ;; (next! x)
+  ;; (print x)
+  ;; (previous! x)
+  ;; (print x)
+  ;; (previous! x)
+  ;; (print x)
+  ;; (previous! x)
+  ;; (print x)
+  ;; (previous! x)
+  ;; (print x)
+  ;; (update! x 11)
+  ;; (print x)
+  ;; #?=(remove! x)
+  ;; (print x)
+  ;; (end! x)
+  ;; (print x)
+  ;; #?=(remove! x)
+  ;; (print x)
+  ;; #?=(remove! x)
+  ;; (print x)
+  )
+
+;; (let ([x (make <avector> :capacity 5)])
+;; (let ([x (make <llist>)])
+;; (let ([x (make <dlist>)])
+;;   (print x)
+;;   #?=(empty? x)
+;;   (insert! x 1)
+;;   (insert! x 2)
+;;   (insert! x 3)
+;;   (insert! x 4)
+;;   (insert! x 5)
+;;   (print x)
+;;   #?=(empty? x)
+;;   (position! x 2)
+;;   (print x)
+;;   #?=(value x)
+;;   (next! x)
+;;   (print x)
+;;   #?=(value x)
+;;   (previous! x)
+;;   (print x)
+;;   #?=(value x)
+;;   (start! x)
+;;   (print x)
+;;   #?=(value x)
+;;   (end! x)
+;;   (print x)
+;;   #?=(value x)
+;;   (update! x 10)
+;;   (print x)
+;;   #?=(remove! x)
+;;   (end! x)
+;;   (print x)
+;;   #?=(remove! x)
+;;   (start! x)
+;;   (print x)
+;;   #?=(remove! x)
+;;   (print x)
+;;   (clear! x)
+;;   (print x))
