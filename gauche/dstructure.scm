@@ -117,8 +117,8 @@
 (define-method initialize ([l <llist>] _)
   "Initializes the head, current and tail nodes"
   (next-method)
-  (let ([n (null-node)])
-    (set! (head l) n) (set! (current l) n) (set! (tail l) n)))
+  (let ([h (null-node)] [t (null-node)])
+    (set! (head l) h) (set! (current l) h) (set! (tail l) t) (set! (next h) t)))
 
 (define ((mark-node l) n s)
   "Marks head, current and tail node"
@@ -139,7 +139,8 @@
   "Writes the representaion of the list l to the port p"
   (format p "#<~a ~a at ~a as ~a>"
           (class-name (current-class-of l))
-          (length l) (position l) (node-fold-next (mark-node l) '() (head l))))
+          (length l) (position l)
+          (node-fold-next (mark-node l) '() (head l))))
 
 (define-method empty? ([l <llist>])
   "Returns #t if the list is empty, otherwise #f. O(1)"
@@ -148,8 +149,9 @@
 (define-method next! ([l <llist>])
   "Moves the current position to the next element. O(1)"
   (let ([c (current l)])
-    (unless [eq? (next c) (tail l)]
-      (set! (current l) (next c)) (inc! (position l)))))
+    (unless [eq? (next (next c)) (tail l)]
+      (set! (current l) (next c))
+      (inc! (position l)))))
 
 (define-method previous! ([l <llist>])
   "Moves the current posiiton to the previous element. O(n)"
@@ -162,29 +164,31 @@
 
 (define-method start! ([l <llist>])
   "Moves the current position to the start of the list l. O(1)"
-  (set! (current l) (head l)) (set! (position l) 0))
+  (set! (current l) (head l))
+  (set! (position l) 0))
 
 (define-method end! ([l <llist>])
   "Moves the current position to the end of the list l. O(n)"
   (let ([c (current l)] [t (tail l)])
-    (unless [eq? (next c) t]
-      (let forward* ([n (head l)] [i 0])
+    (unless [eq? (next (next c)) t]
+      (let forward* ([n c] [i (position l)])
         (cond
-          [(eq? (next n) t) (set! (current l) n) (set! (position l) i)]
+          [(eq? (next (next n)) t) (set! (current l) n) (set! (position l) i)]
           [else (forward* (next n) (+ i 1))])))))
 
 (define-method position! ([l <llist>] p)
   "Moves the current position of the list l to the p. O(n)"
   (when (or [< p 0] [>= p (length l)])
     (error "<llist> position!: position out of range"))
-  (unless [= p (position l)]
-    (let forward* ([n (head l)] [i -1])
-      (cond
-        [(= (+ i 1) p) (set! (current l) n) (set! (position l) (+ i 1))]
-        [else (forward* (next n) (+ i 1))]))))
+  (let ([q (position l)])
+    (unless [= p q]
+      (let forward* ([n (if [< p q] (head l) (current l))] [i (if [< p q] 0 q)])
+        (cond
+          [(= i p) (set! (current l) n) (set! (position l) i)]
+          [else (forward* (next n) (+ i 1))])))))
 
 (define-method value ([l <llist>])
-  "Returns the velue of the list l at the current position. O(1)"
+  "Returns the value of the list l at the current position. O(1)"
   (when [empty? l] (error "<llsit> value: empty list"))
   (value (next (current l))))
 
@@ -192,27 +196,35 @@
   "Inserts the value v into the list l at the current position. O(1)"
   (let* ([c (current l)] [n (make <node> :value v :next (next c))])
     (set! (next c) n)
-    (when [eq? c (tail l)] (set! (tail l) (next c)))
     (inc! (length l))))
+
+(define-method append! ([l <llist>] v)
+  "Appends the value v at the end of the list l. O(n)"
+  (cond
+    [(empty? l) (insert! l v)]
+    [else
+     (end! l)
+     (let ([c (current l)] [n (make <node> :value v :next (tail l))])
+       (set! (next (next c)) n)
+       (inc! (length l)))]))
 
 (define-method update! ([l <llist>] v)
   "Updates the element at the cuturrent position of the list l with v. O(1)"
   (when [empty? l] (error "<llist> update!: empty list"))
-  (let ([c (current l)])
-    (set! (value (next c)) v)))
+  (set! (value (next (current l))) v))
 
 (define-method remove! ([l <llist>])
   "Removes the element at the current position from the list l. O(1)"
   (when [empty? l] (error "<llist> remove!: empty list"))
   (let ([c (current l)] [v (value l)])
-    (when [eq? (next c) (tail l)] (set! (tail l) c))
     (set! (next c) (next (next c)))
-    (dec! (length l)) v))
+    (dec! (length l))
+    v))
 
 (define-method clear! ([l <llist>])
   "Clears the list l. O(1)"
-  (let ([n (null-node)])
-    (set! (head l) n) (set! (current l) n) (set! (tail l) n)
+  (let ([h (null-node)] [t (null-node)])
+    (set! (head l) h) (set! (current l) h) (set! (tail l) t) (set! (next h) t)
     (set! (position l) 0) (set! (length l) 0)))
 
 ;; <dlist> doubly linked list
@@ -330,47 +342,58 @@
     (set! (next h) t) (set! (previous t) h)
     (set! (position l) 0) (set! (length l) 0)))
 
-(let ([x (make <avector> :capacity 5)])
-;; (let ([x (make <llist>)])
-;; (let ([x (make <dlist>)])
+;; Testing
+
+(define (lv-test-insert! x)
   (print x)
-  #?=(empty? x)
-  (insert! x 1)
+  (insert! x 1) (print x)
+  (insert! x 3) (print x)
+  (end! x) (print x)
+  (insert! x 2) (print x)
+  (start! x) (print x)
+  (insert! x 5) (print x)
+  (position! x 1) (print x)
+  (insert! x 4) (print x))
+
+(define (lv-test-append! x)
   (print x)
-  (insert! x 2)
+  (append! x 1) (print x)
+  (append! x 2) (print x))
+
+(define (lv-test-remove! x)
   (print x)
-  (position! x 1)
+  (insert! x 1) (insert! x 2) (insert! x 3) (insert! x 4) (insert! x 5) (print x)
+  #?=(remove! x) (print x)
+  (end! x) (print x)
+  #?=(remove! x) (print x)
+  (start! x) (print x)
+  #?=(remove! x) (print x)
+  (position! x 1) (print x)
+  #?=(remove! x) (print x))
+
+(define (lv-test-position! x)
   (print x)
+  (insert! x 1) (insert! x 2) (insert! x 3) (insert! x 4) (insert! x 5) (print x)
+  (end! x) (print x)
+  (start! x) (print x)
+  (position! x 2) (print x)
+  (next! x) (print x)
+  (previous! x) (print x))
+
+(define (lv-test-update! x)
+  (print x)
+  (insert! x 1) (print x)
+  (update! x 10) (print x)
   #?=(value x)
-  (insert! x 3)
-  (print x)
-  (append! x 0)
-  (print x)
-  (next! x)
-  (print x)
-  (previous! x)
-  (print x)
-  (start! x)
-  (print x)
-  (end! x)
-  (print x)
-  (insert! x 10)
-  (print x)
-  (update! x 11)
-  (print x)
-  #?=(remove! x)
-  (print x)
-  (end! x)
-  (print x)
-  #?=(remove! x)
-  (print x)
-  (start! x)
-  (print x)
-  #?=(remove! x)
-  (print x)
-  #?=(remove! x)
-  (print x)
-  #?=(remove! x)
-  (print x)
+  #?=(empty? x)
   (clear! x)
-  (print x))
+  #?=(empty? x))
+
+;; (let ([x (make <avector> :capacity 5)])
+;; (let ([x (make <llist>)])
+(let ([x (make <dlist>)])
+  ;; (lv-test-insert! x)
+  ;; (lv-test-append! x)
+  ;; (lv-test-remove! x)
+  ;; (lv-test-position! x)
+  (lv-test-update! x))
