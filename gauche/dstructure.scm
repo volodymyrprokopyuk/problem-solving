@@ -17,10 +17,11 @@
 
 (define-method write-object ([v <avector>] p)
   "Writes the representation of the vector v to the porte p"
-  (format p "#<~a ~a of ~a at ~a as ~a>"
-          (class-name (current-class-of v))
-          (length v) (capacity v) (position v)
-          (vector-copy (array v) 0 (length v))))
+  (let ([w (vector-copy (array v) 0 (length v))] [i (position v)])
+    (unless [empty? v] (set! (~ w i) (cons (~ w i) 'c)))
+    (format p "#<~a ~a of ~a at ~a as ~a>"
+            (class-name (current-class-of v))
+            (length v) (capacity v) (position v) w)))
 
 (define-method empty? ([v <avector>])
   "Returns #t if the vector v is empty, otherwise #f. O(1)"
@@ -312,20 +313,22 @@
 (define-method remove! ([l <dlist>])
   "Removes the element at the current position from the list l. O(1)"
   (when [empty? l] (error "<dlist> remove!: empty list"))
-  (when [< (position l) 0] (error "<dlist> remove!: negative position"))
   (let ([c (current l)] [v (value l)])
     (set! (current l) (previous c))
-    (dec! (position l))
+    (unless [zero? (position l)] (dec! (position l)))
     (set! (next (current l)) (next c))
     (set! (previous (next c)) (current l))
-    (dec! (length l)) v))
+    (dec! (length l))
+    (when (and (not [empty? l]) (eq? (current l) (head l)))
+      (set! (current l) (next (head l))))
+    v))
 
 (define-method clear! ([l <dlist>])
   "Clears the list l. O(1)"
   (let ([h (null-node)] [t (null-node)])
     (set! (head l) h) (set! (current l) h) (set! (tail l) t)
     (set! (next h) t) (set! (previous t) h)
-    (set! (position l) 01) (set! (length l) 0)))
+    (set! (position l) 0) (set! (length l) 0)))
 
 (let ([x (make <avector> :capacity 5)])
 ;; (let ([x (make <llist>)])
@@ -362,6 +365,10 @@
   #?=(remove! x)
   (print x)
   (start! x)
+  (print x)
+  #?=(remove! x)
+  (print x)
+  #?=(remove! x)
   (print x)
   #?=(remove! x)
   (print x)
