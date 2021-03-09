@@ -342,6 +342,49 @@
     (set! (next h) t) (set! (previous t) h)
     (set! (position l) 0) (set! (length l) 0)))
 
+;; <astack> array stack
+
+(define-class <astack> ()
+  ([capacity :init-keyword :capacity :init-value 10 :getter capacity]
+   [array :accessor array]
+   [length :init-value 0 :accessor length]))
+
+(define-method initialize ([s <astack>] _)
+  "Initializes the stack s capacity"
+  (next-method)
+  (set! (array s) (make-vector (capacity s))))
+
+(define-method write-object ([s <astack>] p)
+  "Writes the representation of the stack s into the port p"
+  (format p "#<~a ~a as ~a>"
+          (class-name (current-class-of s))
+          (length s) (vector-copy (array s) 0 (length s))))
+
+(define-method empty? ([s <astack>])
+  "Returns #t if the stack s is empty, otherwise #f. O(1)"
+  [zero? (length s)])
+
+(define-method push! ([s <astack>] e)
+  "Pushes the element e on top of the stack s. O(1)"
+  (when [>= (length s) (capacity s)] (error "<astack> push!: exceeded capacity"))
+  (set! (~ (array s) (length s)) e)
+  (inc! (length s)))
+
+(define-method peek ([s <astack>])
+  "Returns the top element of the stack s. O(1)"
+  (when [empty? s] (error "<astack> peek: empty stack"))
+  (~ (array s) (- (length s) 1)))
+
+(define-method pop! ([s <astack>])
+  "Removes the top element from the stack s. O(1)"
+  (when [empty? s] (error "<astack> peek: empty stack"))
+  (dec! (length s))
+  (~ (array s) (length s)))
+
+(define-method clear! ([s <astack>])
+  "Clears the stack s. O(1)"
+  (set! (length s) 0))
+
 ;; Testing
 
 (define (lv-test-insert! x)
@@ -389,11 +432,24 @@
   (clear! x)
   #?=(empty? x))
 
+(define (st_test! x)
+  (print x)
+  (push! x 1) (print x)
+  (push! x 2) (print x)
+  (push! x 3) (print x)
+  #?=(peek x) (print x)
+  #?=(pop! x) (print x)
+  #?=(pop! x) (print x)
+  (clear! x) (print x))
+
 ;; (let ([x (make <avector> :capacity 5)])
 ;; (let ([x (make <llist>)])
-(let ([x (make <dlist>)])
+;; (let ([x (make <dlist>)])
   ;; (lv-test-insert! x)
   ;; (lv-test-append! x)
   ;; (lv-test-remove! x)
   ;; (lv-test-position! x)
-  (lv-test-update! x))
+  ;; (lv-test-update! x))
+
+(let ([x (make <astack> :capacity 5)])
+  (st_test! x))
