@@ -355,7 +355,7 @@
   (set! (array s) (make-vector (capacity s))))
 
 (define-method write-object ([s <astack>] p)
-  "Writes the representation of the stack s into the port p"
+  "Writes the representation of the stack s to the port p"
   (format p "#<~a ~a as ~a>"
           (class-name (current-class-of s))
           (length s) (vector-copy (array s) 0 (length s))))
@@ -383,6 +383,46 @@
 
 (define-method clear! ([s <astack>])
   "Clears the stack s. O(1)"
+  (set! (length s) 0))
+
+;; <lstack> list stack
+
+(define-class <lstack> ()
+  ([top :init-form (make <node> :value #f :next #f) :accessor top]
+   [length :init-value 0 :accessor length]))
+
+(define-method write-object ([s <lstack>] p)
+  "Writes the representation of the stack s to the port p"
+  (format p "#<~a ~a as ~a>"
+          (class-name (current-class-of s))
+          (length s) (node-fold-next (lambda (n r) (cons (value n) r)) '() (top s))))
+
+(define-method empty? ([s <lstack>])
+  "Returns #t if the stack s is empty, otherwise #f. O(1)"
+  [zero? (length s)])
+
+(define-method push! ([s <lstack>] v)
+  "Pushes the value v on top of the stack s. O(1)"
+  (let ([n (make <node> :value v :next (top s))])
+    (set! (top s) n)
+    (inc! (length s))))
+
+(define-method peek ([s <lstack>])
+  "Returns the top element of the stack s. O(1)"
+  (when [empty? s] (error "<lstack> peek: empty stack"))
+  (value (top s)))
+
+(define-method pop! ([s <lstack>])
+  "Removes the top element from the stack s. O(1)"
+  (when [empty? s] (error "<lstack> peek: empty stack"))
+  (let ([v (peek s)])
+    (set! (top s) (next (top s)))
+    (dec! (length s))
+    v))
+
+(define-method clear! ([s <lstack>])
+  "Clears the stack s. O(1)"
+  (set! (top s) (make <node> :value #f :next #f))
   (set! (length s) 0))
 
 ;; Testing
@@ -451,5 +491,6 @@
   ;; (lv-test-position! x)
   ;; (lv-test-update! x))
 
-(let ([x (make <astack> :capacity 5)])
+;; (let ([x (make <astack> :capacity 5)])
+(let ([x (make <lstack> :capacity 5)])
   (st_test! x))
