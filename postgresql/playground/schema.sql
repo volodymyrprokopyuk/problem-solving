@@ -43,14 +43,17 @@
 
 -- COMMIT;
 
+-- BEGIN;
+
+-- CREATE EXTENSION hstore;
+
+-- SELECT h.e entry, h.e -> 'a' "key", h.e -> '{a, c}'::text[] keys
+-- FROM (VALUES ('a => 1, b => 2'::hstore), ('c => 3, d => 4')) h(e);
+
+-- ROLLBACK;
+
 BEGIN;
 
 CREATE EXTENSION pg_trgm;
-
-\set q trgm
-
-SELECT e.*
-FROM pg_available_extensions e
-WHERE e.name ~* :'q' OR e.comment ~* :'q';
 
 ROLLBACK;
