@@ -492,5 +492,24 @@
   ;; (lv-test-update! x))
 
 ;; (let ([x (make <astack> :capacity 5)])
-(let ([x (make <lstack> :capacity 5)])
-  (st_test! x))
+;; (let ([x (make <lstack> :capacity 5)])
+;;   (st_test! x))
+
+(define (factorial n)
+  "Tail recursive factorial"
+  (let factorial* ([i n] [r 1])
+    (cond [(< i 2) r] [else (factorial* (- i 1) (* r i))])))
+
+#?=(factorial 0)
+#?=(factorial 1)
+#?=(factorial 4)
+
+(define (factorial2 n)
+  "Iterative factorial with loops and an explicit stack"
+  (do ([i n (- i 1)] [s (list 1) (cons i s)])
+      ([< i 2]
+       (do ([r (car s) (* r (car s))] [s (cdr s) (cdr s)]) ([null? s] r)))))
+
+#?=(factorial2 0)
+#?=(factorial2 1)
+#?=(factorial2 4)
