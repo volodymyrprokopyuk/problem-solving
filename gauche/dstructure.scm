@@ -120,8 +120,8 @@
   (let ([h (null-node)] [t (null-node)])
     (set! (head l) h) (set! (current l) h) (set! (tail l) t) (set! (next h) t)))
 
-(define ((mark-node l) n s)
-  "Marks head, current and tail node"
+(define ((node-mark-hct l) n s)
+  "Marks the head, the current and the tail nodes in the list of nodes l"
   (let ([v (value n)]
         [head? (eq? n (head l))]
         [current? (eq? n (current l))]
@@ -140,7 +140,7 @@
   (format p "#<~a ~a at ~a as ~a>"
           (class-name (current-class-of l))
           (length l) (position l)
-          (node-fold-next (mark-node l) '() (head l))))
+          (node-fold-next (node-mark-hct l) '() (head l))))
 
 (define-method empty? ([l <llist>])
   "Returns #t if the list is empty, otherwise #f. O(1)"
@@ -248,7 +248,7 @@
   (format p "#<~a> ~a at ~a as ~a"
           (class-name (current-class-of l))
           (length l) (position l)
-          (node-fold-next (mark-node l) '() (head l))))
+          (node-fold-next (node-mark-hct l) '() (head l))))
 
 (define-method empty? ([l <dlist>])
   "Returns #t if the list is empty, otherwise #f. O(1)"
@@ -385,7 +385,7 @@
   "Clears the stack s. O(1)"
   (set! (length s) 0))
 
-;; <lstack> list stack
+;; <lstack> linked list stack
 
 (define-class <lstack> ()
   ([top :init-form (make <node> :value #f :next #f) :accessor top]
@@ -430,9 +430,9 @@
 (define-class <aqueue> ()
   ([capacity :init-keyword :capacity init-value 0 :getter capacity]
    [array :accessor array]
-   [length :init-value 0 :accessor length]
    [front :init-value 0 :accessor front]
-   [back :init-value 0 :accessor back]))
+   [back :init-value 0 :accessor back]
+   [length :init-value 0 :accessor length]))
 
 (define-method initialize ([q <aqueue>] _)
   "Initialize capacity of the queue q"
@@ -471,13 +471,71 @@
     e))
 
 (define-method peek ([q <aqueue>])
-  "REturns the eleemnt from the front of the queue q. O(1)"
+  "Returns the eleemnt from the front of the queue q. O(1)"
   (when [empty? q] (error "<aqueue> peek: empty queue"))
   (~ (array q) (front q)))
 
 (define-method clear! ([q <aqueue>])
   "Clears the queue q. O(1)"
   (set! (front q) 0) (set! (back q) 0) (set! (length q) 0))
+
+;; <lqueue> linked list queue
+
+(define-class <lqueue> ()
+  ([front :accessor front]
+   [back :accessor back]
+   [length :init-value 0 :accessor length]))
+
+(define-method initialize ([q <lqueue>] _)
+  "initilizes the front and the back of the queue q with the null node"
+  (next-method)
+  (let ([n (null-node)])
+    (set! (front q) n) (set! (back q) n)))
+
+(define ((node-mark-fb l) n s)
+  "Marks the front and the back nodes in the list of nodes l"
+  (let ([v (value n)] [front? (eq? n (front l))] [back? (eq? n (back l))])
+    (cond
+      [(and front? back?) (cons (cons v 'fb) s)]
+      [front? (cons (cons v 'f) s)]
+      [back? (cons (cons v 'b) s)]
+      [else (cons v s)])))
+
+(define-method write-object ([q <lqueue>] p)
+  "Writes the representation of the queue q to the port p"
+  (format p "#<~a ~a as ~a>"
+          (class-name (current-class-of p))
+          (length q) (node-fold-next (node-mark-fb q) '() (front q))))
+
+(define-method empty? ([q <lqueue>])
+  "Returns #t if the queue q is empty, otherwise #f. O(1)"
+  [zero? (length q)])
+
+(define-method enqueue! ([q <lqueue>] v)
+  "Enqueues the value v at the back of the queue q. O(1)"
+  (let ([n (make <node> :value v :next #f)])
+    (set! (next (back q)) n)
+    (set! (back q) n)
+    (inc! (length q))))
+
+(define-method dequeue! ([q <lqueue>])
+  "Dequeues the value from the front of the queue q. O(1)"
+  (when [empty? q] (error "<lqueue> dequeue!: empty queue"))
+  (let ([v (peek q)])
+    (set! (front q) (next (front q)))
+    (dec! (length q))
+    v))
+
+(define-method peek ([q <lqueue>])
+  "Returns the value from the front of the queue q. O(1)"
+  (when [empty? q] (error "<lqueue> dequeue!: empty queue"))
+  (value (next (front q))))
+
+(define-method clear! ([q <lqueue>])
+  "Clears the queue q. O(1)"
+  (let ([n (null-node)])
+    (set! (front q) n) (set! (back q) n)
+    (set! (length q) 0)))
 
 ;; Testing
 
@@ -585,5 +643,6 @@
 ;; #?=(factorial2 1)
 ;; #?=(factorial2 4)
 
-(let ([x (make <aqueue> :capacity 5)])
+;; (let ([x (make <aqueue> :capacity 5)])
+(let ([x (make <lqueue> :capacity 5)])
   (qu_test! x))
