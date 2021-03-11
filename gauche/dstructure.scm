@@ -425,6 +425,60 @@
   (set! (top s) (make <node> :value #f :next #f))
   (set! (length s) 0))
 
+;; <aqueue> array queue
+
+(define-class <aqueue> ()
+  ([capacity :init-keyword :capacity init-value 0 :getter capacity]
+   [array :accessor array]
+   [length :init-value 0 :accessor length]
+   [front :init-value 0 :accessor front]
+   [back :init-value 0 :accessor back]))
+
+(define-method initialize ([q <aqueue>] _)
+  "Initialize capacity of the queue q"
+  (next-method)
+  (set! (array q) (make-vector (capacity q))))
+
+(define-method write-object ([q <aqueue>] p)
+  "Writes the representation of the queueu to the port p"
+  (let ([v (vector-copy (array q))] [f (front q)] [b (back q)])
+    (cond
+      [(= f b) (set! (~ v f) (cons (~ v f) 'fb))]
+      [else
+       (set! (~ v f) (cons (~ v f) 'f))
+       (set! (~ v b) (cons (~ v b) 'b))])
+    (format p "#<~a ~a as ~a>"
+            (class-name (current-class-of q))
+            (length q) v)))
+
+(define-method empty? ([q <aqueue>])
+  "Returns #t if the queue q is empty, otherwise #f. O(1)"
+  [zero? (length q)])
+
+(define-method enqueue! ([q <aqueue>] e)
+  "Enqueues the element e at the back of the queue q. O(1)"
+  (when [>= (length q) (capacity q)] (error "<aqueue> enqueue!: exceeded capacity"))
+  (set! (~ (array q) (back q)) e)
+  (set! (back q) (remainder (+ (back q) 1) (capacity q)))
+  (inc! (length q)))
+
+(define-method dequeue! ([q <aqueue>])
+  "Dequeues the eleemnt from the front of the queue q. O(1)"
+  (when [empty? q] (error "<aqueue> dequeue!: empty queue"))
+  (let ([e (peek q)])
+    (set! (front q) (remainder (+ (front q) 1) (capacity q)))
+    (dec! (length q))
+    e))
+
+(define-method peek ([q <aqueue>])
+  "REturns the eleemnt from the front of the queue q. O(1)"
+  (when [empty? q] (error "<aqueue> peek: empty queue"))
+  (~ (array q) (front q)))
+
+(define-method clear! ([q <aqueue>])
+  "Clears the queue q. O(1)"
+  (set! (front q) 0) (set! (back q) 0) (set! (length q) 0))
+
 ;; Testing
 
 (define (lv-test-insert! x)
@@ -482,6 +536,23 @@
   #?=(pop! x) (print x)
   (clear! x) (print x))
 
+(define (qu_test! x)
+  (print x)
+  (enqueue! x 1) (print x)
+  (enqueue! x 2) (print x)
+  (enqueue! x 3) (print x)
+  #?=(peek x) (print x)
+  #?=(dequeue! x) (print x)
+  #?=(dequeue! x) (print x)
+  #?=(dequeue! x) (print x)
+  (enqueue! x 4) (print x)
+  (enqueue! x 5) (print x)
+  (enqueue! x 6) (print x)
+  #?=(dequeue! x) (print x)
+  #?=(dequeue! x) (print x)
+  #?=(dequeue! x) (print x)
+  (clear! x) (print x))
+
 ;; (let ([x (make <avector> :capacity 5)])
 ;; (let ([x (make <llist>)])
 ;; (let ([x (make <dlist>)])
@@ -500,9 +571,9 @@
   (let factorial* ([i n] [r 1])
     (cond [(< i 2) r] [else (factorial* (- i 1) (* r i))])))
 
-#?=(factorial 0)
-#?=(factorial 1)
-#?=(factorial 4)
+;; #?=(factorial 0)
+;; #?=(factorial 1)
+;; #?=(factorial 4)
 
 (define (factorial2 n)
   "Iterative factorial with loops and an explicit stack"
@@ -510,6 +581,9 @@
       ([< i 2]
        (do ([r (car s) (* r (car s))] [s (cdr s) (cdr s)]) ([null? s] r)))))
 
-#?=(factorial2 0)
-#?=(factorial2 1)
-#?=(factorial2 4)
+;; #?=(factorial2 0)
+;; #?=(factorial2 1)
+;; #?=(factorial2 4)
+
+(let ([x (make <aqueue> :capacity 5)])
+  (qu_test! x))
