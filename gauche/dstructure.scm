@@ -537,6 +537,53 @@
     (set! (front q) n) (set! (back q) n)
     (set! (length q) 0)))
 
+;; <adict> array dictionary
+
+(define-class <adict> ()
+  ([capacity :init-keyword :capacity :init-value 10 :getter capacity]
+   [array :accessor array]
+   [length :allocation :virtual :slot-ref (lambda (d) (length (array d)))
+           :getter length]))
+
+(define-method initialize ([d <adict>] a)
+  "Initializes capacity of the dictionary d"
+  (next-method)
+  (set! (array d) (apply make <avector> a)))
+
+(define-method write-object ([d <adict>] p)
+  "Writes the prepresentation of the dictionary d to the port p"
+  (format p "#<~a as ~a>"
+          (class-name (current-class-of d)) (write-object (array d) #f)))
+
+(define-method empty? ([d <adict>])
+  "Returns #t if the dictionary d is empty, otherwise #f. O(1)"
+  (empty? (array d)))
+
+(define-method insert! ([d <adict>] k v)
+  "Inserts the key-value pair k v into the dictionary. O(1)"
+  (append! (array d) (cons k v)))
+
+(define-method search ([d <adict>] k :optional (c equal?))
+  "Searches the dictionary d for the key k. O(n)"
+  (let ([a (array d)] [l (length d)])
+    (start! a)
+    (do ([i 0 (+ i 1)])
+        ((or [>= i l] [c (car (value a)) k]) (if [>= i l] #f (cdr (value a))))
+      (next! a))))
+
+(define-method remove! ([d <adict>] k :optional (c equal?))
+  "Removes the key-value pair with the key k from the dictionary d. O(n)"
+  (let ([a (array d)] [l (length d)])
+    (start! a)
+    (do ([i 0 (+ i 1)])
+        ((or [>= i l] [c (car (value a)) k])
+         (if [>= i l] #f (let ([v (cdr (value a))]) (remove! a) v)))
+      (next! a))))
+
+(define-method clear! ([d <adict>])
+  "Clears the dicutionary d. O(1)"
+  (clear! (array d)))
+
 ;; Testing
 
 (define (lv-test-insert! x)
@@ -611,6 +658,20 @@
   #?=(dequeue! x) (print x)
   (clear! x) (print x))
 
+(define (dc_test! x)
+  (print x)
+  (insert! x 'a 1) (print x)
+  (insert! x 'b 2) (print x)
+  (insert! x 'c 3) (print x)
+  (insert! x 'd 4) (print x)
+  #?=(search x 'b)
+  #?=(search x 'd eq?)
+  #?=(search x 'x eq?)
+  #?=(remove! x 'a) (print x)
+  #?=(remove! x 'd eq?) (print x)
+  #?=(remove! x 'x eq?) (print x)
+  (clear! x) (print x))
+
 ;; (let ([x (make <avector> :capacity 5)])
 ;; (let ([x (make <llist>)])
 ;; (let ([x (make <dlist>)])
@@ -644,5 +705,8 @@
 ;; #?=(factorial2 4)
 
 ;; (let ([x (make <aqueue> :capacity 5)])
-(let ([x (make <lqueue> :capacity 5)])
-  (qu_test! x))
+;; (let ([x (make <lqueue> :capacity 5)])
+;;   (qu_test! x))
+
+(let ([x (make <adict> :capacity 5)])
+  (dc_test! x))
