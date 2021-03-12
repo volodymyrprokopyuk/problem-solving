@@ -584,6 +584,47 @@
   "Clears the dicutionary d. O(1)"
   (clear! (array d)))
 
+;; <ldict> linked list dictionary
+
+(define-class <ldict> ()
+  ([llist :init-form (make <llist>) :accessor llist]
+   [length :allocation :virtual :slot-ref (lambda (d) (length (llist d)))
+           :getter length]))
+
+(define-method write-object ([d <ldict>] p)
+  "Writes the representation of the diction d to the port p"
+  (format p "#<~a> as ~a"
+          (class-name (current-class-of d)) (write-object (llist d) #f)))
+
+(define-method empty? ([d <ldict>])
+  "Returns #t if the dictionary d is empty, otherwise #f. O(1)"
+  (empty? (llist d)))
+
+(define-method insert! ([d <ldict>] k v)
+  "Inserts the key-value pair k v into the dictionary. O(1)"
+  (append! (llist d) (cons k v)))
+
+(define-method search ([d <ldict>] k :optional (c equal?))
+  "Searches the dictionary d for the key k. O(n)"
+  (let ([m (llist d)] [l (length d)])
+    (start! m)
+    (do ([i 0 (+ i 1)])
+        ((or [>= i l] (c (car (value m)) k)) (if [>= i l] #f (cdr (value m))))
+      (next! m))))
+
+(define-method remove! ([d <ldict>] k :optional (c equal?))
+  "Removes the key-value pair with the key k from the dictionary d. O(n)"
+  (let ([m (llist d)] [l (length d)])
+    (start! m)
+    (do ([i 0 (+ i 1)])
+        ((or [>= i l] (c (car (value m)) k))
+         (if [>= i l] #f (let ([v (cdr (value m))]) (remove! m) v)))
+      (next! m))))
+
+(define-method clear! ([d <ldict>])
+  "Clears the dicutionary d. O(1)"
+  (clear! (llist d)))
+
 ;; Testing
 
 (define (lv-test-insert! x)
@@ -708,5 +749,6 @@
 ;; (let ([x (make <lqueue> :capacity 5)])
 ;;   (qu_test! x))
 
-(let ([x (make <adict> :capacity 5)])
-  (dc_test! x))
+;; (let ([x (make <adict> :capacity 5)])
+;; (let ([x (make <ldict> :capacity 5)])
+;;   (dc_test! x))
