@@ -752,3 +752,19 @@
 ;; (let ([x (make <adict> :capacity 5)])
 ;; (let ([x (make <ldict> :capacity 5)])
 ;;   (dc_test! x))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(let ([p 100] [c 5] [i 0.05] [n 10] [t 0])
+  (do ([j 1 (+ j 1)]) ([> j n])
+    (let ([cf (/ (if [= j n] (+ c p) c) (expt (+ 1 i) j))])
+      (set! t (+ t cf))
+      (format #t "~2d: ~12,3f ~12,3f\n" j cf t))))
+
+;; (let* ([pv 145000]
+;;        [i 0.005]
+;;        [n 17]
+;;        [k (fold (lambda (j s) (+ (/ (expt (+ 1 i) j)) s)) 0 (iota n 1))]
+;;        [cf (/ pv k 12)]
+;;        [t (* cf n 12)])
+;;   (format #t "PV = ~12,3f\nCF = ~12,3f\n T = ~12,3f\n" pv cf t))
