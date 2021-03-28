@@ -755,12 +755,16 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Present value PV
-(let ([p 100] [c 5] [i 0.07] [n 5] [t 0])
-  (do ([j 1 (+ j 1)]) ([> j n])
-    (let ([cf (/ (if [= j n] (+ c p) c) (expt (+ 1 i) j))])
-      (set! t (+ t cf))
-      (format #t "~2d: ~12,3f ~12,3f\n" j cf t))))
+;; ;; Present value PV
+;; (let ([p 1000000] [c 100000] [i 0.06] [n 10] [t 0])
+;;   (do ([j 6 (+ j 1)]) ([> j n])
+;;     (let ([cf (/ (if [= j n] (+ c p) c) (expt (+ 1 i) j))])
+;;       (set! t (+ t cf))
+;;       (format #t "~2d: ~12,3f ~12,3f\n" j cf t))))
+
+;; ;; Future value FV
+;; (let* ([pv 10000] [i 0.12] [n 30] [fv (* pv (expt (+ 1 i) n))])
+;;   (format #t "FV = ~12,3f\n" fv))
 
 ;; ;; Fixed cash flows CF
 ;; (let* ([pv 145000]
@@ -771,10 +775,10 @@
 ;;        [t (* cf n 12)])
 ;;   (format #t "PV = ~12,3f\nCF = ~12,3f\n T = ~12,3f\n" pv cf t))
 
-;; Duration D
-(let ([pv 91.800] [p 100] [c 5] [i 0.07] [n 5] [d 0])
-  (do ([j 1 (+ j 1)]) ([> j n])
-    (let* ([cf (/ (if [= j n] (+ c p) c) (expt (+ 1 i) j))]
-           [fd (* (/ cf pv) j)])
-      (set! d (+ d fd))))
-  (format #t "D = ~5,3f\n" d))
+;; ;; Duration D
+;; (let ([pv 91.800] [p 100] [c 5] [i 0.07] [n 5] [d 0])
+;;   (do ([j 1 (+ j 1)]) ([> j n])
+;;     (let* ([cf (/ (if [= j n] (+ c p) c) (expt (+ 1 i) j))]
+;;            [fd (* (/ cf pv) j)])
+;;       (set! d (+ d fd))))
+;;   (format #t "D = ~5,3f\n" d))
