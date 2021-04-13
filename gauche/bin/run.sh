@@ -2,7 +2,7 @@
 
 readonly ROOT_DIR=$(pwd)
 
-# readonly SOURCE=playground-algorithm
+readonly SOURCE=playground-algorithm
 # readonly SOURCE=shell-algorithm
 # readonly SOURCE=comparator-algorithm
 # readonly SOURCE=continuation-algorithm
@@ -12,7 +12,7 @@ readonly ROOT_DIR=$(pwd)
 # readonly SOURCE=tree-algorithm
 # readonly SOURCE=syntax-algorithm
 # readonly SOURCE=lazy-algorithm
-readonly SOURCE=dstructure
+# readonly SOURCE=dstructure
 
 gosh "${SOURCE}.scm" "${@}"
 

@@ -335,3 +335,19 @@
 ;;   (print (~ p 'x) " " (~ p 'y))
 ;;   (display p)
 ;;   (print (point-xy p)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use util.match)
+
+;; (define-values (a b) (values 1 2))
+;; (if [> a 0]
+;;     (begin (set! a (* a 10)) (set! b (* b 10)))
+;;     (begin (set! a 0) (set! b 0)))
+
+(match-define (a b) '(11 22))
+(cond
+  [(< a 0) (set! a (* a 10)) (set! b (* b 10))]
+  [else (set! a 0) (set! b 0)])
+
+(print a " " b)
