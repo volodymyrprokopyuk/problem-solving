@@ -4,4 +4,4 @@ readonly ROOT_DIR=$(pwd)
 
 readonly SOURCE=playground-algorithm
 
-scala "${SOURCE}.scala" "${@}"
+scala -deprecation "${SOURCE}.scala" "${@}"

@@ -341,13 +341,31 @@
 (use util.match)
 
 ;; (define-values (a b) (values 1 2))
-;; (if [> a 0]
-;;     (begin (set! a (* a 10)) (set! b (* b 10)))
-;;     (begin (set! a 0) (set! b 0)))
-
 (match-define (a b) '(11 22))
 (cond
   [(< a 0) (set! a (* a 10)) (set! b (* b 10))]
   [else (set! a 0) (set! b 0)])
 
-(print a " " b)
+;; (print a " " b)
+
+(match-define (x x0 y y0) '(1 2 3 4))
+(define d (let ([dx (- x x0)] [dy (- y y0)]) (sqrt (+ (expt dx 2) (expt dy 2)))))
+
+;; (print d)
+
+;; (display "Vlad")
+;; (print "Vlad" "Lana")
+;; (format #t "~a ~a\n" "Vlad" "Lana")
+;; (let ([name "Vlad"] [age 36])
+;;   (display #"~name next year ~(+ age 1)\n")
+;;   (format #t "~a next year ~10,2f\n" name (+ age 1)))
+
+;; (let ([name (begin (display "name > ") (flush) (read))]
+;;       [age (begin (display "age > ") (flush) (read))])
+;;   (display #"~name is ~age\n"))
+
+;; (do ([i 0 (+ i 1)]) ([> i 4]) (display i))
+
+(use srfi-42)
+
+#?=(fold-ec 0 (:list i '(1 2 3)) i +)

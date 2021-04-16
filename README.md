@@ -66,15 +66,6 @@
   management, context switch)
 - Pattern matching `match`, `match-lambda` (one argument or list of arguments),
   `match-let`
-- Eager comprehensions `(comprehension qualifiers body)`
-  - Comprehension (collect, aggregate/fold) `do-ec`, `list-ec`, `vector-ec`,
-    `string-ec`, `any?-ec`, `every?-ec`, `first-ec`, `last-ec`, `fold-ec`
-  - Qualifiers (generate, filter)
-    - Generational (typed) qualifiers `:list`, `:vector`, `:string`, `:integers`
-      (infinite), `:rage`, `:real-range`, `:char-range`, `:port`, `:parallel` (zip,
-      default is nested), `:while` (stop early)
-    - Control qualifiers `if`, `not`, `and`, `or`
-  - Body (evaluate, transform)
 - Record type (portable and efficient class `<record>`) `define-record-type`
   (constructor, predicate, accessors, [mutators])
 - Combinators (return procedure)
@@ -106,6 +97,42 @@
   - `comparator-hash` hasing `default-hash`
   - `default-comparator #t equal? compare default-hash` automatically extended for UDDT
     via `object-equal?`, `object-compare`, and `object-hash`
+
+## Eager comprehensions
+
+- Eager comprehensions `(comprehension qualifiers body)`
+  - 3. Comprehension (collect, aggregate)
+    - Collect `do-ec`, `list-ec`, `vector-ec`, `string-ec`
+      - Side effects `(do-ec (:list i '(1 2 3)) (display i))`
+      - List `(list-ec (:list i '(1 2 3)) i)`
+      - String `(string-ec (:list i '(#\a #\b #\c)) i)`
+    - Aggregate `any?-ec`, `every?-ec`, `first-ec`, `last-ec`, `fold-ec`
+      - Any (short circuit on first #t) `(any?-ec (:list i '(1 2 3)) (even? i))`
+      - Every (short circuit on first #f) `(every?-ec (:list i '(1 2 3)) (even? i))`
+      - First (short circuit) `(first-ec 0 (:list i '(1 2 3)) i)`
+      - Last `(last-ec 0 (:list i '(1 2 3)) i)`
+      - Fold `(fold-ec 0 (:list i '(1 2 3)) i +)`
+  - 1. Qualifiers (generate, filter)
+    - Generational (typed) qualifiers `:list`, `:vector`, `:string`, `:integers`
+      (infinite), `:rage`, `:real-range`, `:char-range`, `:port`, `:parallel` (zip,
+      default is nested), `:while` (stop early)
+      - List append `(list-ec (:list i '(1 2 3) '(4 5)) i)`
+      - Index `(list-ec (:list i (index j) '(a b c)) (cons i j))`
+      - Range `(list-ec (:range i 1 7 2) i)`
+      - Port `(with-input-from-string "Vlad"
+  (lambda () (list-ec (:port i (current-input-port) read-char) i)))`
+      - Nested = cartesian product (the rightmost generator spins fastest)
+        `(list-ec (:list i '(1 2)) (:list j '(a b)) (cons i j))`
+      - Zip `(:parallel (:list i '(1 2)) (:list j '(a b)))`
+      - While from infinite `(list-ec (:while (:integers i) (< i 5)) i)`
+    - Control qualifiers `if`, `not`, `and`, `or`, `begin` (side effects)
+      - `(list-ec (:list i '(1 2 3 4 5 6)) (if [even? i]) i)`
+      - `(list-ec (:list i '(1 2 3 4 5 6)) (not [even? i]) i)`
+      - `(list-ec (:list i '(1 2 3 4 5 6)) (and [even? i] [< i 5]) i)`
+      - `(list-ec (:list i '(1 2 3 4 5 6)) (or [even? i] [odd? i]) i)`
+      - Side effects in the comprehension
+        `(list-ec (:list i '(1 2 3 4 5 6)) (begin (display i)) i)`
+  - 2. Body (evaluate, transform)
 
 # PostgreSQL
 
