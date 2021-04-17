@@ -341,15 +341,14 @@
 (use util.match)
 
 ;; (define-values (a b) (values 1 2))
-(match-define (a b) '(11 22))
-(cond
-  [(< a 0) (set! a (* a 10)) (set! b (* b 10))]
-  [else (set! a 0) (set! b 0)])
-
+;; (match-define (a b) '(11 22))
+;; (cond
+;;   [(< a 0) (set! a (* a 10)) (set! b (* b 10))]
+;;   [else (set! a 0) (set! b 0)])
 ;; (print a " " b)
 
-(match-define (x x0 y y0) '(1 2 3 4))
-(define d (let ([dx (- x x0)] [dy (- y y0)]) (sqrt (+ (expt dx 2) (expt dy 2)))))
+;; (match-define (x x0 y y0) '(1 2 3 4))
+;; (define d (let ([dx (- x x0)] [dy (- y y0)]) (sqrt (+ (expt dx 2) (expt dy 2)))))
 
 ;; (print d)
 
@@ -368,4 +367,19 @@
 
 (use srfi-42)
 
-#?=(fold-ec 0 (:list i '(1 2 3)) i +)
+;; (write (list-ec (:string c "Vlad") c))
+;; (list-ec (:string c "Vlad") (write c))
+;; (display (list-ec (:range i 1 4) (:range j 4 7) (cons i j)))
+;; (display (list-ec (:range i 1 4) (:range j 1 4) (not (= i j)) (cons i j)))
+;; (display (list-ec (:range i 1 4) (:let k (- 4 i)) (:range j k 4) (cons i j)))
+
+;; (define (=abs x) (if [>= x 0] x (- x)))
+;; (print (=abs 4) " " (=abs -5))
+
+;; (define (=fact n) (fold-ec 1 (:range i 2 (+ n 1)) i *))
+;; (print (map =fact '(0 1 2 3 4 5)))
+
+;; (define (=fact n)
+;;   (let fact* ([n n] [r 1])
+;;     (if [< n 2] r (fact* (- n 1) (* r n)))))
+;; (print (map =fact '(0 1 2 3 4 5)))

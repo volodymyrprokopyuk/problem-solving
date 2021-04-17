@@ -101,7 +101,7 @@
 ## Eager comprehensions
 
 - Eager comprehensions `(comprehension qualifiers body)`
-  - 3. Comprehension (collect, aggregate)
+  - (3) Comprehension-ec (collect, aggregate)
     - Collect `do-ec`, `list-ec`, `vector-ec`, `string-ec`
       - Side effects `(do-ec (:list i '(1 2 3)) (display i))`
       - List `(list-ec (:list i '(1 2 3)) i)`
@@ -112,10 +112,11 @@
       - First (short circuit) `(first-ec 0 (:list i '(1 2 3)) i)`
       - Last `(last-ec 0 (:list i '(1 2 3)) i)`
       - Fold `(fold-ec 0 (:list i '(1 2 3)) i +)`
-  - 1. Qualifiers (generate, filter)
-    - Generational (typed) qualifiers `:list`, `:vector`, `:string`, `:integers`
-      (infinite), `:rage`, `:real-range`, `:char-range`, `:port`, `:parallel` (zip,
-      default is nested), `:while` (stop early)
+  - (1) Qualifiers (generate, filter)
+    - Generational (typed) qualifiers = :generators `:list`, `:vector`, `:string`,
+      `:integers` (infinite), `:rage`, `:real-range`, `:char-range`, `:port`,
+      `:parallel` (zip, default is nested), `:while` (stop early), `:let` (introduce
+      intermediary variables depending on the outer scope)
       - List append `(list-ec (:list i '(1 2 3) '(4 5)) i)`
       - Index `(list-ec (:list i (index j) '(a b c)) (cons i j))`
       - Range `(list-ec (:range i 1 7 2) i)`
@@ -125,14 +126,16 @@
         `(list-ec (:list i '(1 2)) (:list j '(a b)) (cons i j))`
       - Zip `(:parallel (:list i '(1 2)) (:list j '(a b)))`
       - While from infinite `(list-ec (:while (:integers i) (< i 5)) i)`
+      - Let intermediary variable between generators
+        `(list-ec (:list i '(1 2 3)) (:let j (* i 10)) (cons i j))`
     - Control qualifiers `if`, `not`, `and`, `or`, `begin` (side effects)
       - `(list-ec (:list i '(1 2 3 4 5 6)) (if [even? i]) i)`
       - `(list-ec (:list i '(1 2 3 4 5 6)) (not [even? i]) i)`
       - `(list-ec (:list i '(1 2 3 4 5 6)) (and [even? i] [< i 5]) i)`
       - `(list-ec (:list i '(1 2 3 4 5 6)) (or [even? i] [odd? i]) i)`
-      - Side effects in the comprehension
+      - Begin side effects between generators
         `(list-ec (:list i '(1 2 3 4 5 6)) (begin (display i)) i)`
-  - 2. Body (evaluate, transform)
+  - (2) Body (evaluate, transform)
 
 # PostgreSQL
 
