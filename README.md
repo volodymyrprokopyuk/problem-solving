@@ -137,6 +137,16 @@
         `(list-ec (:list i '(1 2 3 4 5 6)) (begin (display i)) i)`
   - (2) Body (evaluate, transform)
 
+## Input and output
+
+- Current ports `current-input-port`, `current-output-port`, `current-error-port`
+- Standard ports `standard-input-port`, `standard-output-port`, `standard-error-port`
+- File I/O `with-input-from-file`, `with-output-to-file`
+- String I/O `with-input-from-string`, `with-output-to-string`, `with-string-io`
+- Input `read` s-expression, `read-char`, `read-line`, `port->string`, `eof-object?`
+- Output `write`, `write-char`, `write-string` `write-object` machine, `display`,
+  `print`, `pprint` human, `format`, `flush`
+
 # PostgreSQL
 
 - Query
