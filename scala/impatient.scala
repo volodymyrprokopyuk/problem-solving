@@ -1,4 +1,5 @@
 import scala.math._
+import scala.io._
 
 // var a = 1; var b = 2
 // if (a > 0) { a *= 10; b *= 10 }
@@ -56,3 +57,24 @@ import scala.math._
 
 // def afact(n: Int): Int = { if (n < 2) 1 else n * afact(n - 1) }
 // println(Vector(0, 1, 2, 3, 4, 5).map(afact))
+
+// def decorate(s: String, l: String = "[", r: String = "]") = { s"$l$s$r" }
+// println(decorate("Vlad"))
+// println(decorate("Vlad", "{", "}"))
+// println(decorate(r = ">", l = "<", s = "Vlad"))
+
+// def asum(x: Int*) = { var r = 0; for (i <- x) { r += i }; r }
+// println(asum(1, 2, 3, 4, 5))
+// println(asum(1 to 5: _*))
+
+// def rsum(x: Int*): Int = { if (x.length == 0) 0 else x.head + rsum(x.tail: _*) }
+// println(rsum(1, 2, 3, 4, 5))
+
+// def box(s: String) = {
+//   val l = "-" * (s.length + 4)
+//   s"$l\n| $s |\n$l"
+// }
+// println(box("Vlad"))
+
+lazy val c = Source.fromFile("./bin/run.sh").mkString
+print(c)

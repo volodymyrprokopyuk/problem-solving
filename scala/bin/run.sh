@@ -2,6 +2,6 @@
 
 readonly ROOT_DIR=$(pwd)
 
-readonly SOURCE=playground-algorithm
+readonly SOURCE=impatient
 
 scala -deprecation "${SOURCE}.scala" "${@}"

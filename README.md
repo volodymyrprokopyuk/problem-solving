@@ -69,10 +69,10 @@
 - Record type (portable and efficient class `<record>`) `define-record-type`
   (constructor, predicate, accessors, [mutators])
 - Combinators (return procedure)
-  - `cut` compact parameter spacialization without currying
+  - `cut` compact parameter spacialization without currying macro
   - `.$`, `compose` procedure composition
   - `idenitty`, `constantly`, `complement`, `any-pred`, `every-pred`
-  - `$`, `$*` procedure application chaining
+  - `$`, `$*` procedure application chaining macro
 
 ## Equality, comparison/ordering, and hashing
 
