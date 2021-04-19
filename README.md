@@ -14,7 +14,7 @@
 - Tail-call optimizaiton + recursion (`let name`)
 - First-class continuations (`call/cc`) for (non-local exit, exceptions, generators,
   coroutines, backtracking, actors)
-- Delayed evaluation (`delay`, `force`) + promises (memoization)
+- Delayed evaluation (`delay`, `force`, `lazy`, `eager`) + promises (memoization)
 - Hygienic macros (`define-syntax`, `syntax-rules`) + recursive macro expansion
 - Module system
   - Definition `define-module`, `select-module`, `export (rename)`,
@@ -98,6 +98,16 @@
   - `default-comparator #t equal? compare default-hash` automatically extended for UDDT
     via `object-equal?`, `object-compare`, and `object-hash`
 
+## Collections and sequences
+
+- **Collection** = unordered set of objects. Collection provides a set of generic
+  functions that iterate over various collecitons (list, vector, string, hash table,
+  user-defined class) using the method dispatch of the object system (CLOS)
+  - `(use gauche.collection)`
+- **Sequence** = ordered set of objects built on top of collection. Sequence is
+  accesible through an index and provides order-aware operations on top of collection
+  - `(use gauche.sequence)`
+
 ## Eager comprehensions
 
 - Eager comprehensions `(comprehension qualifiers body)`
@@ -137,6 +147,31 @@
         `(list-ec (:list i '(1 2 3 4 5 6)) (begin (display i)) i)`
   - (2) Body (evaluate, transform)
 
+## Delayed (lazy) evaluation + promises
+
+- `delay` e -> promise e, creates a promise, requires unbound memory for tail-recursive
+  algorithms (R5RS)
+- `lazy` promise e -> promise e, creates a promie for space-efficient tail-recursive
+  lazy algorithms. Generally `lazy` surrounds the entire body of a function expressing
+  lazy algorithm (SRFI-45)
+- `force` promise e -> e + memoization
+- `eager` e -> promise e, eagerly evaluated type converter to a promise
+- **Generators** = a procedure with no arguments that yields a series of values ending
+  with EOF (very lightweight implementation of on-demand calculations). Generators work
+  in a pipeline (DAG) of generators representing a lazy value-propagation network
+  - `(use gauche.generator)`
+- **Lazy sequence** = indistinguishable from ordinary list structure (all list
+  procedures can be used on a lazy sequence) with a lazy pair, whose `car` is
+  immediately / eagerly evaluated and whose `cdr` is implicitly / automatically forced
+  on demand. Lazy sequence is not strictly lazy and always evaluates one item
+  ahead. Lazy sequences are built on top of generators
+  - `generator->lseq` efficient lazy sequence, `lcons` makes a thunk / closure for each
+    item, `lrange`, `liota`
+  - `(use gauche.lazy)`, `lunfold`, `lmap`, `lappend`, `lfilter`, `ltake`, `ltake-while`
+- **Streams** = strictly lazy (both `car` and `cdr` are lazily evaluated when aboslutely
+  needed) data structure with spacial procedures
+  - `(use util.stream)`
+
 ## Input and output
 
 - Current ports `current-input-port`, `current-output-port`, `current-error-port`
@@ -144,7 +179,7 @@
 - File I/O `with-input-from-file`, `with-output-to-file`
 - String I/O `with-input-from-string`, `with-output-to-string`, `with-string-io`
 - Input `read` s-expression, `read-char`, `read-line`, `port->string`, `eof-object?`
-- Output `write`, `write-char`, `write-string` `write-object` machine, `display`,
+- Output `write`, `write-char`, `write-string`, `write-object` machine, `display`,
   `print`, `pprint` human, `format`, `flush`
 
 # PostgreSQL

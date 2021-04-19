@@ -1,5 +1,7 @@
 (use util.match)
 (use srfi-42)
+(use srfi-13)
+(use gauche.lazy)
 
 ;; (define-values (a b) (values 1 2))
 ;; (match-define (a b) '(11 22))
@@ -71,6 +73,24 @@
 ;; (box "Vlad" :p 3 :h #\=)
 ;; (box "Vlad" :p 4 :h #\# :v #\#)
 
-(with-input-from-file "./bin/run.sh"
-  ;; (lambda () (display (port->string (current-input-port)))))
-  (lambda () ($ display $ port->string $ current-input-port)))
+;; (with-input-from-string "Vlad" (lambda () ($ print $ read)))
+;; (print (with-output-to-string (lambda () (display "Lana"))))
+;; (print (with-string-io "Vlad" (lambda () ($ display $ string-upcase $ read-line))))
+
+(define (first-car-or-cdr f)
+  (with-input-from-file f
+    (lambda ()
+      (let next* ([cs (generator->lseq read-char)] [i 0])
+        (match cs
+          [() #f]
+          [(#\c (or #\a #\d) #\r . _) i]
+          [(c . cs) (next* cs (+ i 1))])))))
+
+;; (print (first-car-or-cdr "impatient.scm"))
+
+(print (lunfold (cut = <> 10) (cut * <> 10) (cut + <> 1) 0))
+(print (lunfold ($ = 10 $) ($ * 10 $) ($ + 1 $) 0))
+
+;; (let ([f (lazy (with-input-from-file "./bin/run.sh"
+;;                  (lambda () ($ display $ port->string $ current-input-port))))])
+;;   (force f))
