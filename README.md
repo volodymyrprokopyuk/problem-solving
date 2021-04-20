@@ -27,10 +27,25 @@
   - Instance `make`
   - Method `define-method`, `next-method`
 - Exceptions and conditions
-  - Conditions `define-condition-type`
-  - Signaling `error`, `raise`
+  - Conditions `define-condition-type` condition, parent, predicate, slots
+  - Signaling `error`, `errorf` simple error, `raise`, `condition` compound condition
   - Handling `guard`
-  - Cleaning up `unwind-protect`
+  - Cleaning up `unwind-protect` only calls `cleanup` on normal exit or exception,
+    ignors continuation control escapes
+  - Control flow `dynamic-wind` always calls `before` and `after` on any control flow
+    transition. Low-level management of exceptions, parameters, continuations and ports
+    - ```scheme
+(define-condition-type <app-error> <error> app-error? [reason reason])
+
+(guard
+ (e
+  [(<app-error> e)
+   (format #t "ERROR: <app-error> ~a ~a" (reason e) (condition-message e))]
+  [else (format #t "ERROR: ~a" e)])
+ (error "Message")
+ (error <app-error> :reason "Reason" "Message")
+ (raise (condition [<app-error> (reason "Reason") (message "Message")])))
+    ```
 - Fundamental and derived forms
   - `lambda` + `:optional`, `:key`, `:rest` (procedure (primitieve, closure), binding
     block, recursion)

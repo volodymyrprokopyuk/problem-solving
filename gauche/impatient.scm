@@ -88,9 +88,17 @@
 
 ;; (print (first-car-or-cdr "impatient.scm"))
 
-(print (lunfold (cut = <> 10) (cut * <> 10) (cut + <> 1) 0))
-(print (lunfold ($ = 10 $) ($ * 10 $) ($ + 1 $) 0))
-
 ;; (let ([f (lazy (with-input-from-file "./bin/run.sh"
 ;;                  (lambda () ($ display $ port->string $ current-input-port))))])
 ;;   (force f))
+
+(define-condition-type <app-error> <error> app-error? [reason reason])
+
+;; (guard
+;;  (e
+;;   [(<app-error> e)
+;;    (format #t "ERROR: <app-error> ~a ~a" (reason e) (condition-message e))]
+;;   [else (format #t "ERROR: ~a" e)])
+;;  (error "Message")
+;;  (error <app-error> :reason "Reason" "Message")
+;;  (raise (condition [<app-error> (reason "Reason") (message "Message")])))
