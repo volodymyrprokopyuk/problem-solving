@@ -182,7 +182,7 @@
   ahead. Lazy sequences are built on top of generators
   - `generator->lseq` efficient lazy sequence, `lcons` makes a thunk / closure for each
     item, `lrange`, `liota`
-  - `(use gauche.lazy)`, `lunfold`, `lmap`, `lappend`, `lfilter`, `ltake`, `ltake-while`
+  - `(use gauche.lazy)`: `lunfold`, `lappend`, `lmap`, `lfilter`, `ltake`, `ltake-while`
 - **Streams** = strictly lazy (both `car` and `cdr` are lazily evaluated when aboslutely
   needed) data structure with spacial procedures
   - `(use util.stream)`

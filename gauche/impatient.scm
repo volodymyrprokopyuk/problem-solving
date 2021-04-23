@@ -3,16 +3,17 @@
 (use srfi-13)
 (use gauche.lazy)
 
+;; *** CHAPTER 2
+
 ;; (define-values (a b) (values 1 2))
-;; (match-define (a b) '(11 22))
+;; (match-define (a b) '(1 2))
 ;; (cond
-;;   [(< a 0) (set! a (* a 10)) (set! b (* b 10))]
+;;   [(> a 0) (set! a (* a 10)) (set! b (* b 10))]
 ;;   [else (set! a 0) (set! b 0)])
 ;; (print a " " b)
 
 ;; (match-define (x x0 y y0) '(1 2 3 4))
 ;; (define d (let ([dx (- x x0)] [dy (- y y0)]) (sqrt (+ (expt dx 2) (expt dy 2)))))
-
 ;; (print d)
 
 ;; (display "Vlad")
@@ -27,7 +28,6 @@
 ;;   (display #"~name is ~age\n"))
 
 ;; (do ([i 0 (+ i 1)]) ([> i 4]) (display i))
-
 ;; (write (list-ec (:string c "Vlad") c))
 ;; (list-ec (:string c "Vlad") (write c))
 ;; (display (list-ec (:range i 1 4) (:range j 4 7) (cons i j)))
@@ -77,19 +77,21 @@
 ;; (print (with-output-to-string (lambda () (display "Lana"))))
 ;; (print (with-string-io "Vlad" (lambda () ($ display $ string-upcase $ read-line))))
 
-(define (first-car-or-cdr f)
-  (with-input-from-file f
-    (lambda ()
-      (let next* ([cs (generator->lseq read-char)] [i 0])
-        (match cs
-          [() #f]
-          [(#\c (or #\a #\d) #\r . _) i]
-          [(c . cs) (next* cs (+ i 1))])))))
-
+;; (define (first-car-or-cdr f)
+;;   (with-input-from-file f
+;;     (lambda ()
+;;       (let next* ([cs (generator->lseq read-char)] [i 0])
+;;         (match cs
+;;           [() #f]
+;;           [(#\c (or #\a #\d) #\r . _) i]
+;;           [(c . cs) (next* cs (+ i 1))])))))
 ;; (print (first-car-or-cdr "impatient.scm"))
 
-(define-condition-type <app-error> <error> app-error? [reason reason])
+;; (let ([f (lazy (with-input-from-file "./bin/run.sh"
+;;                  (lambda () ($ display $ port->string $ current-input-port))))])
+;;   (force f))
 
+;; (define-condition-type <app-error> <error> app-error? [reason reason])
 ;; (guard
 ;;  (e
 ;;   [(<app-error> e)
@@ -98,10 +100,6 @@
 ;;  (error "Message")
 ;;  (error <app-error> :reason "Reason" "Message")
 ;;  (raise (condition [<app-error> (reason "Reason") (message "Message")])))
-
-;; (let ([f (lazy (with-input-from-file "./bin/run.sh"
-;;                  (lambda () ($ display $ port->string $ current-input-port))))])
-;;   (force f))
 
 ;; (guard
 ;;  (e
@@ -117,3 +115,5 @@
 ;; (do-ec (:range i 10 -1 -1) (format #t "~a " i))
 ;; (do-ec (:range i 10 -1 -1) (display #"~i "))
 ;; #?=(fold-ec 1 (:string c "Hello") (char->integer c) *)
+
+;; *** CHAPTER 3

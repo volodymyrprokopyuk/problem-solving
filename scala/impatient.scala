@@ -1,6 +1,8 @@
 import scala.math._
 import scala.io._
 
+// *** CHAPTER 2
+
 // var a = 1; var b = 2
 // if (a > 0) { a *= 10; b *= 10 }
 // else { a = 0; b = 0 }
@@ -21,22 +23,14 @@ import scala.io._
 // print(s"$name next year ${age + 1}\n")
 // print(f"$name next year ${age + 1}%10.2f\n")
 
-// import scala.io._
 // val name = StdIn.readLine("name > ")
 // print("age > ")
 // val age = StdIn.readInt()
 // println(f"$name is $age\n")
 
 // var i = 0
-// while (i < 5) {
-//   print(i)
-//   i += 1
-// }
-
-// for (i <- 0 to 4) {
-//   print(i)
-// }
-
+// while (i < 5) { print(i); i += 1 }
+// for (i <- 0 to 4) { print(i) }
 // val s = "Vlad"
 // for (i <- 0 to s.length - 1) { print(s(i)) }
 // for (c <- s) { print(c) }
@@ -104,7 +98,9 @@ import scala.io._
 // println(stringToNumber("Hello"))
 
 // def aproduct(x: Int, n: Int): Int = { if (n < 1) 0 else x + aproduct(x, n - 1) }
-// println(Vector(0, 1, 2, 3).map((n: Int) => aproduct(4, n)))
+// println(Vector(0, 1, 2, 3).map((n) => aproduct(4, n)))
 
 // def anexponent(x: Int, n: Int): Int = { if (n < 1) 1 else x * anexponent(x, n - 1) }
-// println(Vector(0, 1, 2, 3).map((n: Int) => anexponent(4, n)))
+// println(Vector(0, 1, 2, 3).map((n) => anexponent(4, n)))
+
+// *** CHAPTER 3
