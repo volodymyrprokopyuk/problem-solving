@@ -88,10 +88,6 @@
 
 ;; (print (first-car-or-cdr "impatient.scm"))
 
-;; (let ([f (lazy (with-input-from-file "./bin/run.sh"
-;;                  (lambda () ($ display $ port->string $ current-input-port))))])
-;;   (force f))
-
 (define-condition-type <app-error> <error> app-error? [reason reason])
 
 ;; (guard
@@ -102,3 +98,22 @@
 ;;  (error "Message")
 ;;  (error <app-error> :reason "Reason" "Message")
 ;;  (raise (condition [<app-error> (reason "Reason") (message "Message")])))
+
+;; (let ([f (lazy (with-input-from-file "./bin/run.sh"
+;;                  (lambda () ($ display $ port->string $ current-input-port))))])
+;;   (force f))
+
+;; (guard
+;;  (e
+;;   [(<read-error> e) (format #t "ERROR: read error")]
+;;   [else (format #t "ERROR: unknown error")])
+;;  (unwind-protect
+;;   (begin (error <read-error> 'oh) (print 'ok))
+;;   (print 'cleaning-up-1) (print 'leaning-up-2)))
+
+;; (define (=signum x) (cond [(positive? x) 1] [(negative? x) -1] [else 0]))
+;; #?=(map =signum '(4 0 -3 4.1 0.0 -3.2))
+
+;; (do-ec (:range i 10 -1 -1) (format #t "~a " i))
+;; (do-ec (:range i 10 -1 -1) (display #"~i "))
+;; #?=(fold-ec 1 (:string c "Hello") (char->integer c) *)

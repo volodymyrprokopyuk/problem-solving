@@ -14,7 +14,7 @@
 - Tail-call optimizaiton + recursion (`let name`)
 - First-class continuations (`call/cc`) for (non-local exit, exceptions, generators,
   coroutines, backtracking, actors)
-- Delayed evaluation (`delay`, `force`, `lazy`, `eager`) + promises (memoization)
+- Delayed evaluation (`delay`, `force`, `lazy`, `eager`) + promises (thunk + memoization)
 - Hygienic macros (`define-syntax`, `syntax-rules`) + recursive macro expansion
 - Module system
   - Definition `define-module`, `select-module`, `export (rename)`,
@@ -162,7 +162,7 @@
         `(list-ec (:list i '(1 2 3 4 5 6)) (begin (display i)) i)`
   - (2) Body (evaluate, transform)
 
-## Delayed (lazy) evaluation + promises
+## Delayed (lazy) evaluation + promises (thunk + memoization)
 
 - `delay` e -> promise e, creates a promise, requires unbound memory for tail-recursive
   algorithms (R5RS)

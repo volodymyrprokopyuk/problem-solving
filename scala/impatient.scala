@@ -76,5 +76,35 @@ import scala.io._
 // }
 // println(box("Vlad"))
 
-lazy val c = Source.fromFile("./bin/run.sh").mkString
-print(c)
+// lazy val c = Source.fromFile("./bin/run.sh").mkString
+// print(c)
+
+// try {
+//   try {
+//     throw new IllegalArgumentException("oh")
+//     println("ok")
+//   } finally {
+//     println("Cleaning up")
+//   }
+// } catch {
+//   case e: IllegalArgumentException => println("ERROR: illegal argument")
+//   case e: Exception => println("ERROR: unknown error")
+// }
+
+// def asignum(n: Double) = { if (n > 0) 1 else if (n < 0) -1 else 0 }
+// println(Vector(4.1, 0.0, -3.2).map(asignum))
+
+// for (i <- 10 to 0 by -1) { print(s"$i ") }
+
+// def stringToNumber(s: String) = {
+//   var n: BigInt = 1
+//   for (c <- s) { n *= c.toInt }
+//   n
+// }
+// println(stringToNumber("Hello"))
+
+// def aproduct(x: Int, n: Int): Int = { if (n < 1) 0 else x + aproduct(x, n - 1) }
+// println(Vector(0, 1, 2, 3).map((n: Int) => aproduct(4, n)))
+
+// def anexponent(x: Int, n: Int): Int = { if (n < 1) 1 else x * anexponent(x, n - 1) }
+// println(Vector(0, 1, 2, 3).map((n: Int) => anexponent(4, n)))
