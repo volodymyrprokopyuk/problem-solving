@@ -115,13 +115,19 @@
 
 ## Collections and sequences
 
-- **Collection** = unordered set of objects. Collection provides a set of generic
-  functions that iterate over various collecitons (list, vector, string, hash table,
-  user-defined class) using the method dispatch of the object system (CLOS)
-  - `(use gauche.collection)`
-- **Sequence** = ordered set of objects built on top of collection. Sequence is
-  accesible through an index and provides order-aware operations on top of collection
-  - `(use gauche.sequence)`
+- **Collection** = unordered set of objects. Collection provides generic traversing over
+  list, vector, string, hash table, user-defined class using the method dispatch of the
+  object system (CLOS)
+  - `(use gauche.collection)` : `fold`, `map`, `for-each`, `find`, `find-min`,
+    `find-max`, `filter`, `remove`, `group-collection`, constructive methods: `map-to`,
+    `filter-to`, `remove-to`, `coerce-to`
+  - Iterator interface `end?` of collection, `next` element
+  - Builder interface `add` element, `get` collection
+- **Sequence** = ordered set of objects built on top of collection. Sequence provies
+  index-based access and order-aware operations on top of collection
+  - `(use gauche.sequence)`: `ref`=`~` and `subseq` with `set!`, `fold-right`,
+    `fold-with-index` `map-with-index`, `for-each-with-index`, `find-with-index`,
+    `sequence-contains`, `group-sequence` adjacent
 
 ## Eager comprehensions
 
@@ -172,8 +178,8 @@
 - `force` promise e -> e + memoization
 - `eager` e -> promise e, eagerly evaluated type converter to a promise
 - **Generators** = a procedure with no arguments that yields a series of values ending
-  with EOF (very lightweight implementation of on-demand calculations). Generators work
-  in a pipeline (DAG) of generators representing a lazy value-propagation network
+  with the EOF (very lightweight implementation of on-demand calculations). Generators
+  work in a pipeline (DAG) of generators representing a lazy value-propagation network
   - `(use gauche.generator)`
 - **Lazy sequence** = indistinguishable from ordinary list structure (all list
   procedures can be used on a lazy sequence) with a lazy pair, whose `car` is

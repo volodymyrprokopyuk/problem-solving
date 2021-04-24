@@ -104,3 +104,37 @@ import scala.io._
 // println(Vector(0, 1, 2, 3).map((n) => anexponent(4, n)))
 
 // *** CHAPTER 3
+
+import scala.collection.mutable.ArrayBuffer
+
+// val a = new Array[Int](5)
+// for (e <- a) { print(s"$e ") }
+// a(0) = 10
+// println(a(0))
+
+// val a = new ArrayBuffer[Int]()
+// a += 1
+// for (e <- a) { print(s"$e ") }
+// a ++= Array(2, 3, 4)
+// for (e <- a) { print(s"$e ") }
+
+// val a = Array(1, 2, 3, 4)
+// for (i <- 0 until a.length) { print(s"${a(i)} ") }
+// for (i <- 0 to 7 by 2) { print(s"$i ") }
+// for (i <- 7 to 0 by -1) { print(s"$i ") }
+// println((for (e <- a) yield e * 10).mkString(" "))
+// println((for (e <- a if e % 2 == 0) yield e * 10).mkString(" "))
+// println(a.filter(_ % 2 == 0).map(_ * 10).mkString(" "))
+// println((a filter { _ % 2 == 0 } map { _ * 10 }).mkString(" "))
+
+// val a = Array(0, 1, -2, 3, -4, 5)
+// println((for (e <- a if e >= 0) yield e).mkString(" "))
+// println(a.sum)
+// println(a.min)
+// println(a.sorted.mkString(" "))
+// println(a.sortWith(_ > _).mkString(" "))
+// println(a.count(_ => true))
+
+val t = new Array[Array[Int]](5)
+for (i <- t.indices) { t(i) = new Array[Int](i + 1) }
+for (l <- t) { println(l.mkString(" ")) }

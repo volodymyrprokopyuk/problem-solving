@@ -2,6 +2,8 @@
 (use srfi-42)
 (use srfi-13)
 (use gauche.lazy)
+(use gauche.collection)
+(use gauche.sequence)
 
 ;; *** CHAPTER 2
 
@@ -117,3 +119,36 @@
 ;; #?=(fold-ec 1 (:string c "Hello") (char->integer c) *)
 
 ;; *** CHAPTER 3
+
+;; (let ([v (make-vector 5)])
+;;   (print v) (set! (~ v 0) 10) (print v))
+;; (let ([l '()])
+;;   (set! l (cons 1 l)) (print l) (set! l (append l '(2 3 4))) (print l))
+;; (let ([v (vector 1 2 3 4)])
+;;   (do-ec (:vector e v) (display #"~e "))
+;;   (do-ec (:range i 0 8 2) (display #"~i "))
+;;   (do-ec (:range i 7 -1 -1) (display #"~i "))
+;;   (print (vector-ec (:vector e v) (* e 10)))
+;;   (print (vector-ec (:vector e v) (if [even? e]) (* e 10)))
+;;   (print (list->vector (map (cut * <> 10) (filter even? (vector->list v)))))
+;;   (print ($ list->vector $ map (cut * <> 10) $ filter even? $ vector->list v))
+;;   (print (($ list->vector $ map (cut * <> 10) $ filter even? $ vector->list $) v))
+;;   (print ($ map-to <vector> (cut * <> 10) $ filter even? v)))
+
+;; (let ([v (vector 0 1 -2 3 -4 5)])
+;;   (print (vector-ec (:vector e v) (if [>= e 0]) e))
+;;   (print (remove-to <vector> negative? v))
+;;   (print (fold-ec 0 (:vector e v) e +))
+;;   (print (fold + 0 v))
+;;   (print (fold-ec +inf.0 (:vector e v) e min))
+;;   (print (fold min +inf.0 v))
+;;   (print (sort v))
+;;   (print (sort v >))
+;;   (print (fold-ec 0 (:vector _ v) 1 +))
+;;   (print (fold (lambda (_ s) (+ s 1)) 0 v)))
+
+(let* ([t (make-vector 5)] [n (vector-length t)])
+  (do ([i 0 (+ i 1)]) ([>= i n]) (set! (~ t i) (make-vector (+ i 1) 0)))
+  (for-each-with-index (lambda (i _) (set! (~ t i) (make-vector (+ i 1) 0))) t)
+  (do-ec (:vector _ (index i) t) (set! (~ t i) (make-vector (+ i 1) 0)))
+  (print t))
