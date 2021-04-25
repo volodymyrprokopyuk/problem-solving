@@ -34,7 +34,7 @@
     ignors continuation control escapes
   - Control flow `dynamic-wind` always calls `before` and `after` on any control flow
     transition. Low-level management of exceptions, parameters, continuations and ports
-    - ```scheme
+```scheme
 (define-condition-type <app-error> <error> app-error? [reason reason])
 
 (guard
@@ -45,7 +45,7 @@
  (error "Message")
  (error <app-error> :reason "Reason" "Message")
  (raise (condition [<app-error> (reason "Reason") (message "Message")])))
-    ```
+```
 - Fundamental and derived forms
   - `lambda` + `:optional`, `:key`, `:rest` (procedure (primitieve, closure), binding
     block, recursion)
