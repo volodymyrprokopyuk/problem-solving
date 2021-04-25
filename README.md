@@ -86,7 +86,7 @@
 - Combinators (return procedure)
   - `cut` compact parameter spacialization without currying macro
   - `.$`, `compose` procedure composition
-  - `idenitty`, `constantly`, `complement`, `any-pred`, `every-pred`
+  - `identity`, `constantly`, `complement`, `any-pred`, `every-pred`
   - `$`, `$*` procedure application chaining macro
 
 ## Equality, comparison/ordering, and hashing
@@ -131,7 +131,7 @@
 
 ## Eager comprehensions
 
-- Eager comprehensions `(comprehension qualifiers body)`
+- Eager comprehensions `(use srfi-42)`: `(comprehension qualifiers body)`
   - (3) Comprehension-ec (collect, aggregate)
     - Collect `do-ec`, `list-ec`, `vector-ec`, `string-ec`
       - Side effects `(do-ec (:list i '(1 2 3)) (display i))`
@@ -202,6 +202,19 @@
 - Input `read` s-expression, `read-char`, `read-line`, `port->string`, `eof-object?`
 - Output `write`, `write-char`, `write-string`, `write-object` machine, `display`,
   `print`, `pprint` human, `format`, `flush`
+
+## Random values
+
+- `(use srfi-27)`: `(random-source-randomize! default-random-source)`
+  - `random-integer`, `random-real`
+- `(use data.random)`: `(set! (random-data-seed) (random-integer (expt 2 32)))`
+  - Uniform distribution `integers$`, `integers-between$`, `booleans`, `chars$`,
+    `reals$`, `reals-between$`, `samples$`, `regular-strings$`
+  - Non-uniform distribution `reals-normal$`, `reals-exponential$`,
+    `integers-geometric$`, `integers-poisson$`
+  - Combinators `samples-from`, `weighted-samples-from`, `pairs-of`, `tuples-of`,
+    `permulations-of`, `combinations-of`, `list-of`, `vector-of`, `string-of`,
+    `sequence-of`
 
 # PostgreSQL
 

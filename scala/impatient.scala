@@ -106,6 +106,7 @@ import scala.io._
 // *** CHAPTER 3
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Random
 
 // val a = new Array[Int](5)
 // for (e <- a) { print(s"$e ") }
@@ -135,6 +136,12 @@ import scala.collection.mutable.ArrayBuffer
 // println(a.sortWith(_ > _).mkString(" "))
 // println(a.count(_ => true))
 
-val t = new Array[Array[Int]](5)
-for (i <- t.indices) { t(i) = new Array[Int](i + 1) }
-for (l <- t) { println(l.mkString(" ")) }
+// val t = new Array[Array[Int]](5)
+// for (i <- t.indices) { t(i) = new Array[Int](i + 1) }
+// for (l <- t) { println(l.mkString(" ")) }
+
+// val a = new Array[Int](5)
+// val r = new Random()
+// for (i <- a.indices) { a(i) = r.nextInt(5) }
+// for (i <- a.indices) { a(i) = Random.between(0, 5) }
+// println(a.mkString(" "))

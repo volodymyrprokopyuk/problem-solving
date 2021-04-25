@@ -4,6 +4,12 @@
 (use gauche.lazy)
 (use gauche.collection)
 (use gauche.sequence)
+(use srfi-27)
+(use data.random)
+(use gauche.generator)
+
+(random-source-randomize! default-random-source)
+(set! (random-data-seed) (random-integer (expt 2 32)))
 
 ;; *** CHAPTER 2
 
@@ -147,8 +153,20 @@
 ;;   (print (fold-ec 0 (:vector _ v) 1 +))
 ;;   (print (fold (lambda (_ s) (+ s 1)) 0 v)))
 
-(let* ([t (make-vector 5)] [n (vector-length t)])
-  (do ([i 0 (+ i 1)]) ([>= i n]) (set! (~ t i) (make-vector (+ i 1) 0)))
-  (for-each-with-index (lambda (i _) (set! (~ t i) (make-vector (+ i 1) 0))) t)
-  (do-ec (:vector _ (index i) t) (set! (~ t i) (make-vector (+ i 1) 0)))
-  (print t))
+;; (let* ([t (make-vector 5)] [n (vector-length t)])
+;;   (do ([i 0 (+ i 1)]) ([>= i n]) (set! (~ t i) (make-vector (+ i 1) 0)))
+;;   (for-each-with-index (lambda (i _) (set! (~ t i) (make-vector (+ i 1) 0))) t)
+;;   (do-ec (:vector _ (index i) t) (set! (~ t i) (make-vector (+ i 1) 0)))
+;;   (print t))
+
+;; (let* ([g1 (integers$ 5)]
+;;        [g2 (samples$ '(head tail))]
+;;        [g3 (regular-strings$ #/\w{5}/)]
+;;        [g4 (samples-from (list g1 g2 g3))])
+;;   (print (generator->list g1 7))
+;;   (print (generator->list g2 7))
+;;   (print (generator->list g3 7))
+;;   (print (generator->list g4 14)))
+
+;; (let ([v (vector-tabulate 5 (lambda (_) (random-integer 5)))]) (print v))
+;; (let* ([r (integers$ 5)] [v (vector-tabulate 5 (lambda (_) (r)))]) (print v))
