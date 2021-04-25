@@ -109,15 +109,15 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 // val a = new Array[Int](5)
-// for (e <- a) { print(s"$e ") }
+// println(a.mkString(" "))
 // a(0) = 10
-// println(a(0))
+// println(a.mkString(" "))
 
 // val a = new ArrayBuffer[Int]()
 // a += 1
-// for (e <- a) { print(s"$e ") }
+// println(a.mkString(" "))
 // a ++= Array(2, 3, 4)
-// for (e <- a) { print(s"$e ") }
+// println(a.mkString(" "))
 
 // val a = Array(1, 2, 3, 4)
 // for (i <- 0 until a.length) { print(s"${a(i)} ") }
@@ -145,3 +145,20 @@ import scala.util.Random
 // for (i <- a.indices) { a(i) = r.nextInt(5) }
 // for (i <- a.indices) { a(i) = Random.between(0, 5) }
 // println(a.mkString(" "))
+
+// val a = Array(1, 2, 3, 4, 5)
+// for (i <- a.indices) { if (i > 0 && i % 2 == 1) {
+//   val t = a(i); a(i) = a(i - 1); a(i - 1) = t
+// }}
+// println(a.mkString(" "))
+
+// val a = Array(0, -1, 2, -3, 4, -5)
+// val p = for (e <- a if (e > 0)) yield e
+// val n = for (e <- a if (e <= 0)) yield e
+// val r = p ++ n
+// println(r.mkString(" "))
+
+// def anaverage(a: Array[Double]) = { a.sum / a.length }
+// println(anaverage(Array(1, 2, 3, 4, 5)))
+
+// *** CHAPTER 4

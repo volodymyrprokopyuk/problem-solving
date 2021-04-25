@@ -121,7 +121,7 @@
 - **Collection** = unordered set of objects. Collection provides generic traversing over
   list, vector, string, hash table, user-defined class using the method dispatch of the
   object system (CLOS)
-  - `(use gauche.collection)` : `fold`, `map`, `for-each`, `find`, `find-min`,
+  - `(use gauche.collection)` : `fold`, `fold2/3` `map`, `for-each`, `find`, `find-min`,
     `find-max`, `filter`, `remove`, `group-collection`, constructive methods: `map-to`,
     `filter-to`, `remove-to`, `coerce-to`
   - Iterator interface `end?` of collection, `next` element

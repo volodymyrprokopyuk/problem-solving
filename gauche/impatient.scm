@@ -42,39 +42,39 @@
 ;; (display (list-ec (:range i 1 4) (:range j 1 4) (not (= i j)) (cons i j)))
 ;; (display (list-ec (:range i 1 4) (:let k (- 4 i)) (:range j k 4) (cons i j)))
 
-;; (define (=abs x) (if [>= x 0] x (- x)))
+(define (=abs x) (if [>= x 0] x (- x)))
 ;; (print (=abs 4) " " (=abs -5))
 
-;; (define (=fact n) (fold-ec 1 (:range i 2 (+ n 1)) i *))
+(define (=fact n) (fold-ec 1 (:range i 2 (+ n 1)) i *))
 ;; (print (map =fact '(0 1 2 3 4 5)))
 
-;; (define (=fact n)
-;;   (let fact* ([n n] [r 1])
-;;     (if [< n 2] r (fact* (- n 1) (* r n)))))
+(define (=fact n)
+  (let fact* ([n n] [r 1])
+    (if [< n 2] r (fact* (- n 1) (* r n)))))
 ;; (print (map =fact '(0 1 2 3 4 5)))
 
-;; (define (decorate s :optional (l "[") (r "]")) #"~|l|~|s|~|r|")
+(define (decorate s :optional (l "[") (r "]")) #"~|l|~|s|~|r|")
 ;; #?=(decorate "Vlad")
 ;; #?=(decorate "Vlad" "{" "}")
-;; (define (decorate s :key (l "[") (r "]")) #"~|l|~|s|~|r|")
+(define (decorate s :key (l "[") (r "]")) #"~|l|~|s|~|r|")
 ;; #?=(decorate "Vlad")
 ;; #?=(decorate "Vlad" :r ">" :l "<")
 ;; #?=(decorate "Vlad" :r "/")
 
-;; (define (=sum . x) (apply + x))
-;; (define (=sum :rest x) (fold-ec 0 (:list i x) i +))
+(define (=sum . x) (apply + x))
+(define (=sum :rest x) (fold-ec 0 (:list i x) i +))
 ;; #?=(=sum 1 2 3 4 5)
 
-;; (define (rsum . x)
-;;   (let sum* ([x x] [r 0])
-;;     (if [null? x] r (sum* (cdr x) (+ (car x) r)))))
+(define (rsum . x)
+  (let sum* ([x x] [r 0])
+    (if [null? x] r (sum* (cdr x) (+ (car x) r)))))
 ;; #?=(rsum 1 2 3 4 5)
 
-;; (define (box s :key (p 1) (h #\-) (v #\|))
-;;   (let* ([n (string-length s)]
-;;          [l (make-string (+ n (* 2 (+ p 1))) h)]
-;;          [m (make-string p #\space)])
-;;     (format #t "~a\n~a~a~a~a~a\n~a\n" l v m s m v l)))
+(define (box s :key (p 1) (h #\-) (v #\|))
+  (let* ([n (string-length s)]
+         [l (make-string (+ n (* 2 (+ p 1))) h)]
+         [m (make-string p #\space)])
+    (format #t "~a\n~a~a~a~a~a\n~a\n" l v m s m v l)))
 
 ;; (box "Vlad")
 ;; (box "Vlad" :p 2)
@@ -85,21 +85,21 @@
 ;; (print (with-output-to-string (lambda () (display "Lana"))))
 ;; (print (with-string-io "Vlad" (lambda () ($ display $ string-upcase $ read-line))))
 
-;; (define (first-car-or-cdr f)
-;;   (with-input-from-file f
-;;     (lambda ()
-;;       (let next* ([cs (generator->lseq read-char)] [i 0])
-;;         (match cs
-;;           [() #f]
-;;           [(#\c (or #\a #\d) #\r . _) i]
-;;           [(c . cs) (next* cs (+ i 1))])))))
+(define (first-car-or-cdr f)
+  (with-input-from-file f
+    (lambda ()
+      (let next* ([cs (generator->lseq read-char)] [i 0])
+        (match cs
+          [() #f]
+          [(#\c (or #\a #\d) #\r . _) i]
+          [(c . cs) (next* cs (+ i 1))])))))
 ;; (print (first-car-or-cdr "impatient.scm"))
 
 ;; (let ([f (lazy (with-input-from-file "./bin/run.sh"
 ;;                  (lambda () ($ display $ port->string $ current-input-port))))])
 ;;   (force f))
 
-;; (define-condition-type <app-error> <error> app-error? [reason reason])
+(define-condition-type <app-error> <error> app-error? [reason reason])
 ;; (guard
 ;;  (e
 ;;   [(<app-error> e)
@@ -117,7 +117,7 @@
 ;;   (begin (error <read-error> 'oh) (print 'ok))
 ;;   (print 'cleaning-up-1) (print 'leaning-up-2)))
 
-;; (define (=signum x) (cond [(positive? x) 1] [(negative? x) -1] [else 0]))
+(define (=signum x) (cond [(positive? x) 1] [(negative? x) -1] [else 0]))
 ;; #?=(map =signum '(4 0 -3 4.1 0.0 -3.2))
 
 ;; (do-ec (:range i 10 -1 -1) (format #t "~a " i))
@@ -170,3 +170,33 @@
 
 ;; (let ([v (vector-tabulate 5 (lambda (_) (random-integer 5)))]) (print v))
 ;; (let* ([r (integers$ 5)] [v (vector-tabulate 5 (lambda (_) (r)))]) (print v))
+
+;; (let* ([v (vector 1 2 3 4 5)] [n (vector-length v)])
+;;   (do-ec (:parallel (:range i 0 n 2) (:range j 1 n 2))
+;;             (set! (subseq v i) (list (~ v j) (~ v i))))
+;;   (print v))
+
+(define (reverse-every n l)
+  (let swap* ([l l] [g '()] [r '()])
+    (cond
+      [(null? l) ($ append $* reverse $ cons g r)]
+      [(< (length g) (- n 1)) (swap* (cdr l) (cons (car l) g) r)]
+      [else (swap* (cdr l) '() (cons (cons (car l) g) r))])))
+
+(define (reverse-every n l)
+  (receive (g r)
+      (fold2
+       (lambda (e g r)
+         (if [< (length g) n] (values (cons e g) r) (values (list e) (cons g r))))
+       '() '() l)
+    ($ append $* reverse $ cons g r)))
+
+;; #?=(reverse-every 3 '(1 2 3 4 5 6 7 8))
+
+;; (let* ([v (vector 0 -1 2 -3 4 -5)]
+;;        [p (vector-ec (:vector e v) (if [> e 0]) e)]
+;;        [n (vector-ec (:vector e v) (if [<= e 0]) e)]
+;;        [r (vector-ec (:vector e p n) e)])
+;;   (print r))
+
+;; *** CHAPTER 4
