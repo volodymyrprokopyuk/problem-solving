@@ -162,3 +162,27 @@ import scala.util.Random
 // println(anaverage(Array(1, 2, 3, 4, 5)))
 
 // *** CHAPTER 4
+
+// Pair: a -> b => (a, b)
+val m = Map("Alice" -> 10, "Bob" -> 3, "Cindy" -> 8)
+println(m("Bob"))
+println(m.get("Bob"))
+println(m.getOrElse("Bobx", -1))
+val md = m.withDefaultValue(0)
+println(md("Bobx"))
+val mm = scala.collection.mutable.Map(("Alice", 10), ("Bob", 3), ("Cindy", 8))
+mm("Fred") = 7
+println(mm)
+mm ++= List("Vlad" -> 9, "Lana" -> 10)
+println(mm)
+mm -= "Fred"
+println(mm)
+val m2 = m + ("Vlad" -> 9)
+println(m2)
+for ((k, v) <- m2) { print(s"$k -> $v, ") }
+println(m2.keySet)
+println(m2.values)
+println(for ((k, v) <- m2) yield (v, k))
+val sm = new scala.collection.mutable.TreeMap[String, Int]()
+sm ++= List("Vlad" -> 9, "Lana" -> 10, "Alice" -> 10, "Bob" -> 3, "Cindy" -> 8)
+println(sm)

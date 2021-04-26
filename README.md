@@ -69,29 +69,29 @@
   - `identity`, `constantly`, `complement`, `any-pred`, `every-pred`
   - `$`, `$*` procedure application chaining macro
 
-## Equality, comparison/ordering, and hashing
+## Equality + comparison/ordering + hashing
 
 - Equality
-  - `eq?` symbol, boolean, reference
+  - `eq?` symbol, boolean, object reference
   - `eqv?` number `=`, character `char=?`
-  - `equal?` aggregate, recursive, `string=?`
+  - `equal?` aggregate (collection or object), recursive, `string=?`
     - `object-equal?` generic function for user-defined data types (UDDT)
 - Comparison and ordering
   - `compare` -1, 0, 1, `<`, `char<?`, `string<?`
     - `object-compare` generic function for UDDT
 - Hasing
-  - `default-hash`, `portable-hash`
-    - `object-hash` generic function for UDDT
-- Comparator
-  - Equality, comparison/ordering, and hasing procedure abstraction under common
-    interface
-  - `comparator-test-type` type check `type?`
-  - `=?` equality `equal?`
-  - `<?`, `<=?`, `>?`, `>=?` ordering `<` or `compare`
-  - `comparator-compare` comparison `compare`
+  - `default-hash`
+    - `object-hash` generic function for UDDT + `combine-hash-value`
+- Comparator = record with equality + comparison/ordering + hasing abstraction
+  - `comparator-test-type` type predicate `type?`
+  - `=?` equality predicate `equal?`
+  - `<?`, `<=?`, `>?`, `>=?` ordering predicate `<` or `compare`
+  - `comparator-compare` comparison `compare` or `<`
   - `comparator-hash` hasing `default-hash`
-  - `default-comparator #t equal? compare default-hash` automatically extended for UDDT
-    via `object-equal?`, `object-compare`, and `object-hash`
+  - `default-comparator`=`equal? compare default-hash` automatically extended for UDDT
+    via `object-equal?`, `object-compare`, and `object-hash` that must be defined
+  - treemap `compare` keys, hashtable `default-hash` keys
+  - `sort` and `merge` `compare` elements
 
 ## Exceptions and conditions
 
@@ -122,8 +122,8 @@
   list, vector, string, hash table, user-defined class using the method dispatch of the
   object system (CLOS)
   - `(use gauche.collection)` : `fold`, `fold2/3` `map`, `for-each`, `find`, `find-min`,
-    `find-max`, `filter`, `remove`, `group-collection`, constructive methods: `map-to`,
-    `filter-to`, `remove-to`, `coerce-to`
+    `find-max`, `filter`, `remove`, `group-collection`, `size-of`, constructive methods:
+    `map-to`, `filter-to`, `remove-to`, `coerce-to`
   - Iterator interface `end?` of collection, `next` element
   - Builder interface `add` element, `get` collection
 - **Sequence** = ordered set of objects built on top of collection. Sequence provies
@@ -170,6 +170,31 @@
       - Begin side effects between generators
         `(list-ec (:list i '(1 2 3 4 5 6)) (begin (display i)) i)`
   - (2) Body (evaluate, transform)
+
+## Dictionaries = hashtable + treemap
+
+- Hash table `<hash-table>` = unordered key-value mapping with O(1) insertion and lookup
+  - Construct `make-hash-table`, `alist->hash-table`, `hash-table-r7`
+  - Lookup `hash-table-get`, `hash-table-exists?`, `hash-table-num-entries`
+  - Mutate `hash-table-put!`, `hash-table-delete!`, `hash-table-push!`,
+    `hash-table-pop!`, `hash-table-update!`
+  - Traverse `hash-table-for-each`, `hash-table-map`, `hash-table-fold`,
+    `hash-table-find`, `hash-table-keys`, `hash-table-values`
+- Tree map `<tree-map>` = ordered key-value mapping with O(log n) insersion and lookup
+  - Construct `make-tree-map`, `alist->tree-map` MISSING `tree-map`
+  - Lookup `tree-map-get`, `tree-map-exists?`, `tree-map-num-entries`, `tree-map-min`,
+    `tree-map-max`
+  - Mutate `tree-map-put!`, `tree-map-delete!`, `tree-map-push!`, `tree-map-pop!`,
+    `tree-map-update!`, `tree-map-pop-min!`, `tree-map-pop-max!`
+  - Traverse `tree-map-for-each`, `tree-map-map`, `tree-map-fold`,
+    `tree-map-fold-right`, MISSING `tree-map-find`, `tree-map-keys`, `tree-map-values`
+- **Dictionary** = key-value mapping. `(use gauche.dictionary)` provides generic
+  functions for `<dictionary>` and `<ordered-dictuionary>` lookup, mutation and
+  traversal
+  - Lookup `dict-get` with `set!`, `dict-exists?`
+  - Mutate `dict-put!`, `dict-delete!`, `dict-push!`, `dict-pop!`, `dict-update!`
+  - Traverse `dict-for-each`, `dict-map`, `dict-fold`, `dict-fold-right` ordered,
+    `dict-keys`, `dict-values`
 
 ## Delayed (lazy) evaluation + promises (thunk + memoization)
 
