@@ -32,11 +32,11 @@
     - `case-lambda` procedure with variable number of arguments
     - `let` (block), `let*` (nested), `letrec` (set!), `let name` (recursion)
     - `and-let*` sequential `*` guarded `and` binded `let` expressions
-    - `values` + `receive` multiple values construction and access
-  - `define` (variable definition + initialization), `set!` (variable update +
-    assignment)
-    - generalized `set!`
-    - universal accessor `~`
+    - `values` construct values, `receive` access values
+      - `define-values`, `set!-values`, `let-values`
+  - `define` (variable definition + initialization), `define-constant`
+  - `set!` (variable update + assignment), generalized `set!`, `~` universal accessor,
+    `push!`, `pop!`, `inc!`, `dec!`, `update!`
   - `if` (conditionals)
     - `and`, `or`, `cond`, `case`, `when`, `unless`
   - `quote`=`'` (do not evaluate)
@@ -59,8 +59,7 @@
 - String interpolation `#"Value ~expr ~(expr) ~|var|"`
 - Parameters `make-parameter`, `parametrize`, `dynamic-wind` (dynamic environment
   management, context switch)
-- Pattern matching `match`, `match-lambda` (one argument or list of arguments),
-  `match-let`
+- Pattern matching `match`, `match-lambda`, `match-let`, `match-define`
 - Record type (portable and efficient class `<record>`) `define-record-type`
   (constructor, predicate, accessors, [mutators])
 - Combinators (return procedure)

@@ -200,3 +200,37 @@
 ;;   (print r))
 
 ;; *** CHAPTER 4
+
+;; (let ([h (hash-table-r7 eq-comparator 'alice 7 'bob 5 'cindy 8)]
+;;       [m (alist->tree-map '((fred . 7) (alice . 7) (bob . 5) (cindy . 8))
+;;                           default-comparator)])
+;;   (print (hash-table->alist h))
+;;   (print (~ h 'bob))
+;;   (print (hash-table-get h 'bobx -1))
+;;   (hash-table-put! h 'fred 7)
+;;   (print (hash-table->alist h))
+;;   (hash-table-delete! h 'fred)
+;;   (print (hash-table->alist h))
+;;   (for-each (match-lambda [(k . v) (hash-table-put! h k v)]) '((vlad . 9) (lana . 10)))
+;;   (print (hash-table->alist h))
+;;   (hash-table-for-each h (cut format #t "~a -> ~a " <> <>))
+;;   (print (hash-table-keys h) " " (hash-table-values  h))
+;;   (tree-map-put! m 'vlad 9)
+;;   (tree-map-put! m 'lana 10)
+;;   (print (tree-map->alist m)))
+
+;; (match-let ([(_ b _) '(1 vlad #t)]) (print b))
+;; (let-values ([(_ b _) (values 1 'vlad #t)]) (print b))
+
+;; (print (list-ec (:parallel (:list k '(1 2 3)) (:list v '(#\a #\b #\c))) (list k v)))
+;; (print (map list '(1 2 3) '(#\a #\b #\c)))
+;; (do-ec (:list e '((1 a) (2 b) (3 c)))
+;;        (match-let ([(k v) e]) (format #t "~a -> ~a " k v)))
+
+(let ([h (hash-table-r7 eq-comparator 'a 1 'b 3 'c 7)]
+      [h2 (make-hash-table eq-comparator)])
+  (hash-table-for-each h (lambda (k v) (hash-table-put! h k (* v (- 1 0.1)))))
+  (print (hash-table->alist h))
+  (do-ec (:list p (hash-table->alist h))
+         (match-let([(k . v) p]) (hash-table-put! h2 k v)))
+  (print (hash-table->alist h2)))
