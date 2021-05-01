@@ -227,10 +227,41 @@
 ;; (do-ec (:list e '((1 a) (2 b) (3 c)))
 ;;        (match-let ([(k v) e]) (format #t "~a -> ~a " k v)))
 
-(let ([h (hash-table-r7 eq-comparator 'a 1 'b 3 'c 7)]
-      [h2 (make-hash-table eq-comparator)])
-  (hash-table-for-each h (lambda (k v) (hash-table-put! h k (* v (- 1 0.1)))))
-  (print (hash-table->alist h))
-  (do-ec (:list p (hash-table->alist h))
-         (match-let([(k . v) p]) (hash-table-put! h2 k v)))
-  (print (hash-table->alist h2)))
+;; (let ([h (hash-table-r7 eq-comparator 'a 1 'b 3 'c 7)]
+;;       [h2 (make-hash-table eq-comparator)])
+;;   (hash-table-for-each h (lambda (k v) (hash-table-put! h k (* v (- 1 0.1)))))
+;;   (print (hash-table->alist h))
+;;   (do-ec (:list p (hash-table->alist h))
+;;          (match-let([(k . v) p]) (hash-table-put! h2 k v)))
+;;   (print (hash-table->alist h2)))
+
+;; (let ([t "a b c b a b d b a c"] [h (make-hash-table string-comparator)])
+;;   ;; ($ for-each (cut hash-table-update! h <> (cut + <> 1) 0) $ string-split t " ")
+;;   (do-ec (:list w (string-split t " ")) (hash-table-update! h w (cut + <> 1) 0))
+;;   (print (hash-table->alist h)))
+
+;; *** CHAPTER 5
+
+(define-class <counter> ()
+  ([counter :init-value 0 :accessor counter]))
+
+(define-method inc! ([c <counter>] :optional (d 1))
+  (set! (counter c) (+ (counter c) d)))
+
+;; (let ([c (make <counter>)]) (inc! c) (inc! c 2) (print (counter c)))
+
+(define-class <person> ()
+  ([.age :init-value 0]
+   [age :allocation :virtual :accessor age
+        :slot-ref (lambda (p) (slot-ref p '.age))
+        :slot-set! (lambda (p a) (when [> a (slot-ref p '.age)] (slot-set! p '.age a)))]))
+
+;; (let ([p (make <person>)]) (set! (age p) 10) (set! (age p) 5) (print (age p)))
+
+(define-class <person> ()
+  ([.name :init-value "nobody"]
+   [name :allocation :virtual :accessor name
+         :slot-ref (lambda (p) (slot-ref p '.name))
+         :slot-set! (lambda (p n) (when [#/[A-Z]\w+/ n] (slot-set! p '.name n)))]))
+
+;; (let ([p (make <person>)]) (set! (name p) "Vlad") (print (name p)))

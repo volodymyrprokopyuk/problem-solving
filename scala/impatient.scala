@@ -196,5 +196,31 @@ import scala.util.Random
 // val v = Array('a', 'b', 'c')
 // println(k.zip(v).mkString(" "))
 
-val m = Map("a" -> 1, "b" -> 3, "c" -> 7)
-println(for ((k, v) <- m) yield (k, v * (1 - 0.1)))
+// val m = Map("a" -> 1, "b" -> 3, "c" -> 7)
+// println(for ((k, v) <- m) yield (k, v * (1 - 0.1)))
+
+// val t = "a b c b a b d b a c"
+// val h = new scala.collection.mutable.HashMap[String, Int]()
+// for (w <- t.split(" ")) { h(w) = h.getOrElse(w, 0) + 1 }
+// println(h)
+
+// *** CHAPTER 5
+
+// class Counter {
+//   private var counter = 0
+//   def inc(delta: Int = 1) = counter += delta
+//   def value() = counter
+// }
+// val c = new Counter();
+// c.inc(); c.inc(2);
+// println(c.value())
+
+class Person {
+  private var _age = 0
+  def age = _age
+  def age_= (age: Int) = if (age > _age) { _age = age }
+}
+val p = new Person()
+p.age = 10
+p.age = 5
+println(p.age)

@@ -20,12 +20,6 @@
   - Definition `define-module`, `select-module`, `export (rename)`,
     `import :only :except :rename :prefix`, `extend`
   - Usage `use`, `with-module`
-- Object system
-  - Class `define-class :allocation (:instance :class :virtual [:slot-ref :slot-set!])
-    :init-keyword :init-value :init-form :accessor :getter :setter`, `initialize`,
-    `write-object`
-  - Instance `make`
-  - Method `define-method`, `next-method`
 - Fundamental and derived forms
   - `lambda` + `:optional`, `:key`, `:rest` (procedure (primitieve, closure), binding
     block, recursion)
@@ -113,6 +107,27 @@
  (error "Message")
  (error <app-error> :reason "Reason" "Message")
  (raise (condition [<app-error> (reason "Reason") (message "Message")])))
+```
+
+## Object system
+
+- Class `define-class`
+  - Allocation `:allocation` `:instance`, `:class`,
+    - `:virtual` `:slot-ref` computed value, `:slot-set!` data validation
+  - Initialization `:init-keyword` in constructor, `:init-value` evaluated once,
+    `:init-form` evaluated each time
+  - Access GFs: `:accessor` read-write, `:getter` read-only, `:setter` write-only
+  - Standard accessors: `slot-ref`, `slot-set!`, `~` universal accessor
+- Instance `make`, `initialize` post initialization
+- Method `define-method`, `next-method`, serialization `write-object`
+- Property `name` with pseudo private slot `.name`
+```scheme
+(define-class <person> ()
+  ([.name :init-value "nobody"]
+   [name :allocation :virtual :accessor name
+         :slot-ref (lambda (p) (slot-ref p '.name))
+         :slot-set! (lambda (p n) (when [#/[A-Z]\w+/ n] (slot-set! p '.name n)))]))
+(let ([p (make <person>)]) (set! (name p) "Vlad") (print (name p)))
 ```
 
 ## Collections and sequences
