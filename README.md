@@ -75,7 +75,7 @@
 - Hasing
   - `default-hash`
     - `object-hash` generic function for UDDT + `combine-hash-value`
-- Comparator = record with equality + comparison/ordering + hasing abstraction
+- Comparator R7RS = record with equality + comparison/ordering + hasing abstraction
   - `comparator-test-type` type predicate `type?`
   - `=?` equality predicate `equal?`
   - `<?`, `<=?`, `>?`, `>=?` ordering predicate `<` or `compare`
@@ -117,7 +117,8 @@
   - Initialization `:init-keyword` in constructor, `:init-value` evaluated once,
     `:init-form` evaluated each time
   - Access GFs: `:accessor` read-write, `:getter` read-only, `:setter` write-only
-  - Standard accessors: `slot-ref`, `slot-set!`, `~` universal accessor
+  - Standard accessors: `slot-ref`, `slot-set!`, `class-slot-ref`, `class-slot-set!`,
+    `~` universal accessor
 - Instance `make`, `initialize` post initialization
 - Method `define-method`, `next-method`, serialization `write-object`
 - Property `name` with pseudo private slot `.name`
@@ -132,23 +133,23 @@
 
 ## Collections and sequences
 
-- **Collection** = unordered set of objects. Collection provides generic traversing over
-  list, vector, string, hash table, user-defined class using the method dispatch of the
-  object system (CLOS)
+- **Collection** Gauche = unordered set of objects. Collection provides generic
+  traversing over list, vector, string, hash table, user-defined class using the method
+  dispatch of the object system (CLOS)
   - `(use gauche.collection)` : `fold`, `fold2/3` `map`, `for-each`, `find`, `find-min`,
     `find-max`, `filter`, `remove`, `group-collection`, `size-of`, constructive methods:
     `map-to`, `filter-to`, `remove-to`, `coerce-to`
   - Iterator interface `end?` of collection, `next` element
   - Builder interface `add` element, `get` collection
-- **Sequence** = ordered set of objects built on top of collection. Sequence provies
-  index-based access and order-aware operations on top of collection
+- **Sequence** Gauche = ordered set of objects built on top of collection. Sequence
+  provies index-based access and order-aware operations on top of collection
   - `(use gauche.sequence)`: `ref`=`~` and `subseq` with `set!`, `fold-right`,
     `fold-with-index` `map-with-index`, `for-each-with-index`, `find-with-index`,
     `sequence-contains`, `group-sequence` adjacent
 
 ## Eager comprehensions
 
-- Eager comprehensions `(use srfi-42)`: `(comprehension qualifiers body)`
+- Eager comprehensions SRFI-42 `(use srfi-42)`: `(comprehension qualifiers body)`
   - (3) Comprehension-ec (collect, aggregate)
     - Collect `do-ec`, `list-ec`, `vector-ec`, `string-ec`
       - Side effects `(do-ec (:list i '(1 2 3)) (display i))`
@@ -185,24 +186,26 @@
         `(list-ec (:list i '(1 2 3 4 5 6)) (begin (display i)) i)`
   - (2) Body (evaluate, transform)
 
-## Dictionaries = hashtable + treemap
+## Dictionaries = hash-table + tree-map
 
-- Hash table `<hash-table>` = unordered key-value mapping with O(1) insertion and lookup
+- Hash table `<hash-table>` Gauche = unordered key-value mapping with O(1) insertion and
+  lookup
   - Construct `make-hash-table`, `alist->hash-table`, `hash-table-r7`
   - Lookup `hash-table-get`, `hash-table-exists?`, `hash-table-num-entries`
   - Mutate `hash-table-put!`, `hash-table-delete!`, `hash-table-push!`,
     `hash-table-pop!`, `hash-table-update!`
   - Traverse `hash-table-for-each`, `hash-table-map`, `hash-table-fold`,
     `hash-table-find`, `hash-table-keys`, `hash-table-values`
-- Tree map `<tree-map>` = ordered key-value mapping with O(log n) insersion and lookup
-  - Construct `make-tree-map`, `alist->tree-map` MISSING `tree-map`
+- Tree map `<tree-map>` Gauche = ordered key-value mapping with O(log n) insersion and
+  lookup
+  - Construct `make-tree-map`, `alist->tree-map` MISSING `tree-map-r7`
   - Lookup `tree-map-get`, `tree-map-exists?`, `tree-map-num-entries`, `tree-map-min`,
     `tree-map-max`
   - Mutate `tree-map-put!`, `tree-map-delete!`, `tree-map-push!`, `tree-map-pop!`,
     `tree-map-update!`, `tree-map-pop-min!`, `tree-map-pop-max!`
   - Traverse `tree-map-for-each`, `tree-map-map`, `tree-map-fold`,
     `tree-map-fold-right`, MISSING `tree-map-find`, `tree-map-keys`, `tree-map-values`
-- **Dictionary** = key-value mapping. `(use gauche.dictionary)` provides generic
+- **Dictionary** Gauche = key-value mapping. `(use gauche.dictionary)` provides generic
   functions for `<dictionary>` and `<ordered-dictuionary>` lookup, mutation and
   traversal
   - Lookup `dict-get` with `set!`, `dict-exists?`
@@ -219,11 +222,12 @@
   lazy algorithm (SRFI-45)
 - `force` promise e -> e + memoization
 - `eager` e -> promise e, eagerly evaluated type converter to a promise
-- **Generators** = a procedure with no arguments that yields a series of values ending
-  with the EOF (very lightweight implementation of on-demand calculations). Generators
-  work in a pipeline (DAG) of generators representing a lazy value-propagation network
+- **Generators** Gauche = a procedure with no arguments that yields a series of values
+  ending with the EOF (very lightweight implementation of on-demand
+  calculations). Generators work in a pipeline (DAG) of generators representing a lazy
+  value-propagation network
   - `(use gauche.generator)`
-- **Lazy sequence** = indistinguishable from ordinary list structure (all list
+- **Lazy sequence** Gauche = indistinguishable from ordinary list structure (all list
   procedures can be used on a lazy sequence) with a lazy pair, whose `car` is
   immediately / eagerly evaluated and whose `cdr` is implicitly / automatically forced
   on demand. Lazy sequence is not strictly lazy and always evaluates one item
@@ -231,8 +235,8 @@
   - `generator->lseq` efficient lazy sequence, `lcons` makes a thunk / closure for each
     item, `lrange`, `liota`
   - `(use gauche.lazy)`: `lunfold`, `lappend`, `lmap`, `lfilter`, `ltake`, `ltake-while`
-- **Streams** = strictly lazy (both `car` and `cdr` are lazily evaluated when aboslutely
-  needed) data structure with spacial procedures
+- **Streams** Gauche = strictly lazy (both `car` and `cdr` are lazily evaluated when
+  aboslutely needed) data structure with spacial procedures
   - `(use util.stream)`
 
 ## Input and output
@@ -247,9 +251,9 @@
 
 ## Random values
 
-- `(use srfi-27)`: `(random-source-randomize! default-random-source)`
+- `(use srfi-27)` SRFI-27: `(random-source-randomize! default-random-source)`
   - `random-integer`, `random-real`
-- `(use data.random)`: `(set! (random-data-seed) (random-integer (expt 2 32)))`
+- `(use data.random)` Gauche: `(set! (random-data-seed) (random-integer (expt 2 32)))`
   - Uniform distribution `integers$`, `integers-between$`, `booleans`, `chars$`,
     `reals$`, `reals-between$`, `samples$`, `regular-strings$`
   - Non-uniform distribution `reals-normal$`, `reals-exponential$`,

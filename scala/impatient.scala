@@ -207,20 +207,80 @@ import scala.util.Random
 // *** CHAPTER 5
 
 // class Counter {
-//   private var counter = 0
-//   def inc(delta: Int = 1) = counter += delta
-//   def value() = counter
+//   private var _counter = 0
+//   def inc(delta: Int = 1) = _counter += delta
+//   def value() = _counter
 // }
 // val c = new Counter();
 // c.inc(); c.inc(2);
 // println(c.value())
 
-class Person {
-  private var _age = 0
-  def age = _age
-  def age_= (age: Int) = if (age > _age) { _age = age }
+// class Person {
+//   private var _age = 0
+//   def age = _age
+//   def age_= (age: Int) = if (age > _age) { _age = age }
+// }
+// val p = new Person()
+// p.age = 10
+// p.age = 5
+// println(p.age)
+
+// class Person {
+//   private var name = "nobody"
+//   private var age = 0
+//   override def toString() = s"$name $age"
+//   def this(n: String) = { this(); name = n }
+//   def this(n: String, a: Int) = { this(n); age = a }
+// }
+// val p1 = new Person()
+// println(p1.toString())
+// val p2 = new Person("Vlad")
+// println(p2.toString())
+// val p3 = new Person("Vlad", 36)
+// println(p3.toString())
+
+// class Person(var name: String = "nobody", var age: Int = 0) {
+//   override def toString() = s"$name $age"
+// }
+// val p1 = new Person()
+// println(p1.toString())
+// val p2 = new Person("Vlad")
+// println(p2.toString())
+// val p3 = new Person("Vlad", 36)
+// println(p3.toString())
+
+// class Account() {
+//   private var _balance = 0.0
+//   def balance = _balance
+//   def deposit(amount: Double) = _balance += amount
+//   def withdraw(amount: Double) = if (_balance > amount) _balance -= amount
+// }
+// val a = new Account()
+// a.deposit(50)
+// a.withdraw(10)
+// println(a.balance)
+
+// class Person(fullName: String) {
+//   val firstName = (fullName.split(" "))(0)
+//   val lastName = (fullName.split(" "))(1)
+//   override def toString() = s"$firstName $lastName"
+// }
+// val p = new Person("Vlad Veles")
+// println(p)
+
+// *** CHAPTER 6
+
+object Account {
+  private var _id = 0
+  def uniqueId() = { _id += 1; _id }
+  def apply(b: Double) = { val a = new Account(); a.balance = b; a }
 }
-val p = new Person()
-p.age = 10
-p.age = 5
-println(p.age)
+println(Account.uniqueId(), Account.uniqueId())
+class Account {
+  val id = Account.uniqueId()
+  var balance = 0.0
+}
+val a = new Account();
+println(a.id)
+val a2 = Account(10.0)
+println(a2.balance)

@@ -243,12 +243,14 @@
 ;; *** CHAPTER 5
 
 (define-class <counter> ()
-  ([counter :init-value 0 :accessor counter]))
+  ([.counter :init-value 0]
+   [value :allocation :virtual :getter value
+          :slot-ref (cut slot-ref <> '.counter)]))
 
-(define-method inc! ([c <counter>] :optional (d 1))
-  (set! (counter c) (+ (counter c) d)))
+(define-method increment! ([c <counter>] :optional (d 1))
+  (slot-set! c '.counter (+ (slot-ref c '.counter) d)))
 
-;; (let ([c (make <counter>)]) (inc! c) (inc! c 2) (print (counter c)))
+;; (let ([c (make <counter>)]) (increment! c) (increment! c 2) (print (value c)))
 
 (define-class <person> ()
   ([.age :init-value 0]
@@ -265,3 +267,60 @@
          :slot-set! (lambda (p n) (when [#/[A-Z]\w+/ n] (slot-set! p '.name n)))]))
 
 ;; (let ([p (make <person>)]) (set! (name p) "Vlad") (print (name p)))
+
+(define-class <person> ()
+  ([name :init-keyword :name :init-value "nobody" :accessor name]
+   [age :init-keyword :age :init-value 0 :accessor age]))
+
+(define-method write-object ([p <person>] pt)
+  (format pt "~a ~a" (name p) (age p)))
+
+;; (let ([p1 (make <person>)]
+;;       [p2 (make <person> :name "Vlad")]
+;;       [p3 (make <person> :name "Vlad" :age 36)])
+;;   (print p1) (print p2) (print p3))
+
+(define-class <account> ()
+  ([.balance :init-value 0.0]
+   [balance :allocation :virtual :getter balance
+            :slot-ref (cut slot-ref <> '.balance)]))
+
+(define-method deposit ([a <account>] am)
+  (slot-set! a '.balance (+ (balance a) am)))
+
+(define-method withdraw ([a <account>] am)
+  (let ([b (balance a)])
+    (when [> b am] (slot-set! a '.balance (- b am)))))
+
+;; (let ([a (make <account>)]) (deposit a 50) (withdraw a 10) (print (balance a)))
+
+(define-class <person> ()
+  ([first-name :init-value "nobody" :getter first-name]
+   [last-name :init-value "nobody" :getter last-name]))
+
+(define-method initialize ([p <person>] a)
+  (next-method)
+  (and-let* ([(= (length a) 2)] [n (cadr a)] [s (string-split n " ")] [(= (length s) 2)])
+    (slot-set! p 'first-name (car s)) (slot-set! p 'last-name (cadr s))))
+
+(define-method write-object ([p <person>] pt)
+  (format pt "~a ~a" (first-name p) (last-name p)))
+
+;; (let ([p (make <person> :full-name "Vlad Veles")]) (print p))
+;; (let ([p (make <person>)]) (print p))
+
+;; *** CHAPTER 6
+
+(define (make-account-id) (let ([id 0]) (lambda () (inc! id) id)))
+(define-constant unique-account-id (make-account-id))
+
+;; (print (unique-account-id) " " (unique-account-id))
+
+(define-class <account-id> ()
+  ([id :init-value 0 :allocation :class]))
+
+(define (unique-id)
+  (inc! (class-slot-ref <account-id> 'id))
+  (class-slot-ref <account-id> 'id))
+
+;; (print (unique-id) " " (unique-id))
