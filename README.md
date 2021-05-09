@@ -16,10 +16,6 @@
   coroutines, backtracking, actors)
 - Delayed evaluation (`delay`, `force`, `lazy`, `eager`) + promises (thunk + memoization)
 - Hygienic macros (`define-syntax`, `syntax-rules`) + recursive macro expansion
-- Module system
-  - Definition `define-module`, `select-module`, `export (rename)`,
-    `import :only :except :rename :prefix`, `extend`
-  - Usage `use`, `with-module`
 - Fundamental and derived forms
   - `lambda` + `:optional`, `:key`, `:rest` (procedure (primitieve, closure), binding
     block, recursion)
@@ -108,10 +104,22 @@
  (error <app-error> :reason "Reason" "Message")
  (raise (condition [<app-error> (reason "Reason") (message "Message")])))
 ```
+## Module system
+
+- `<module>` creates a namespce, maps symbols -> bindings and controls visibility of
+  bindings
+- Modules and files are orthogonal concepts
+  - A single file may contain multiple modules
+  - A module may be defined in multiple files
+- Definition `define-module`, `select-module`
+- Export`export (rename)`
+- Import `import :only :except :rename :prefix` not transitive
+- Extend `extend` multiple modules (module precedence list)
+- Usage `(require "a/module")` + `(import a.module)` = `(use a.module)` (file = module)
 
 ## Object system
 
-- Class `define-class`
+- Class `define-class` (class precedence list)
   - Allocation `:allocation` `:instance`, `:class`,
     - `:virtual` `:slot-ref` computed value, `:slot-set!` data validation
   - Initialization `:init-keyword` in constructor, `:init-value` evaluated once,
@@ -191,20 +199,21 @@
 - Hash table `<hash-table>` Gauche = unordered key-value mapping with O(1) insertion and
   lookup
   - Construct `make-hash-table`, `alist->hash-table`, `hash-table-r7`
-  - Lookup `hash-table-get`, `hash-table-exists?`, `hash-table-num-entries`
+  - Lookup `hash-table-get`, `hash-table-exists?`, `hash-table-num-entries`,
+    `hash-table-find`
   - Mutate `hash-table-put!`, `hash-table-delete!`, `hash-table-push!`,
     `hash-table-pop!`, `hash-table-update!`
   - Traverse `hash-table-for-each`, `hash-table-map`, `hash-table-fold`,
-    `hash-table-find`, `hash-table-keys`, `hash-table-values`
+    `hash-table-keys`, `hash-table-values`
 - Tree map `<tree-map>` Gauche = ordered key-value mapping with O(log n) insersion and
   lookup
   - Construct `make-tree-map`, `alist->tree-map` MISSING `tree-map-r7`
   - Lookup `tree-map-get`, `tree-map-exists?`, `tree-map-num-entries`, `tree-map-min`,
-    `tree-map-max`
+    `tree-map-max`, MISSING `tree-map-find`
   - Mutate `tree-map-put!`, `tree-map-delete!`, `tree-map-push!`, `tree-map-pop!`,
     `tree-map-update!`, `tree-map-pop-min!`, `tree-map-pop-max!`
   - Traverse `tree-map-for-each`, `tree-map-map`, `tree-map-fold`,
-    `tree-map-fold-right`, MISSING `tree-map-find`, `tree-map-keys`, `tree-map-values`
+    `tree-map-fold-right`, `tree-map-keys`, `tree-map-values`
 - **Dictionary** Gauche = key-value mapping. `(use gauche.dictionary)` provides generic
   functions for `<dictionary>` and `<ordered-dictuionary>` lookup, mutation and
   traversal
@@ -212,6 +221,24 @@
   - Mutate `dict-put!`, `dict-delete!`, `dict-push!`, `dict-pop!`, `dict-update!`
   - Traverse `dict-for-each`, `dict-map`, `dict-fold`, `dict-fold-right` ordered,
     `dict-keys`, `dict-values`
+- `(use scheme.mapping)` R7RS immutable, functional tree map (ordered keys)
+  - Construct `mapping`, `mapping-unfold`, `alist->mapping`
+  - Lookup `mapping-ref`, `mapping-ref/default` `mapping-empty?`, `mapping-contains?`,
+    `mapping-size`, `mapping-min/max-key/value/entry`, `mapping-find`
+  - Mutate `mapping-set`, `mapping-delete`, `mapping-update`, `mapping-update/default`
+  - Traverse `mapping-for-each`, `mapping-map`, `mapping-filter`, `mapping-remove`,
+    `mapping-fold`, `mapping-fold/reverse`, `mapping-keys`, `mapping-values`,
+    `mapping-entries`, `mapping-any?`, `mapping-every?`
+- `(use scheme.mapping.hash)` R7RS immutable, functional hash table (unordered keys)
+  - `mapping` -> `hashmap`
+- `(use scheme.set)` unordered set (no duplicates) and bags (with duplicates)
+  - Construct `set/bag`, `set/bag-unfold`, `list->set/bag`
+  - Lookup `set/bag-empty?`, `set/bag-contains?`, `set/bag-member`, `set/bag-size`,
+    `set/bag-find`
+  - Mutate `set/bag-adjoin`, `set/bag-delete`
+  - Traverse `set/bag-for-each`, `set/bag-map`, `set/bag-filter`, `set/bag-remove`,
+    `set/bag-fold`, `set/bag-any?`, `set/bag-every?`
+  - Set `set/bag-union`, `set/bag-intersection`, `set/bag-difference`, `set/bag-xor`
 
 ## Delayed (lazy) evaluation + promises (thunk + memoization)
 

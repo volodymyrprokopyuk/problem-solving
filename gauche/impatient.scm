@@ -11,7 +11,7 @@
 (random-source-randomize! default-random-source)
 (set! (random-data-seed) (random-integer (expt 2 32)))
 
-;; *** CHAPTER 2
+;; *** CHAPTER 2 - Control structures and functions
 
 ;; (define-values (a b) (values 1 2))
 ;; (match-define (a b) '(1 2))
@@ -124,7 +124,7 @@
 ;; (do-ec (:range i 10 -1 -1) (display #"~i "))
 ;; #?=(fold-ec 1 (:string c "Hello") (char->integer c) *)
 
-;; *** CHAPTER 3
+;; *** CHAPTER 3 - Arrays
 
 ;; (let ([v (make-vector 5)])
 ;;   (print v) (set! (~ v 0) 10) (print v))
@@ -199,7 +199,7 @@
 ;;        [r (vector-ec (:vector e p n) e)])
 ;;   (print r))
 
-;; *** CHAPTER 4
+;; *** CHAPTER 4 - Maps and tuples
 
 ;; (let ([h (hash-table-r7 eq-comparator 'alice 7 'bob 5 'cindy 8)]
 ;;       [m (alist->tree-map '((fred . 7) (alice . 7) (bob . 5) (cindy . 8))
@@ -240,7 +240,7 @@
 ;;   (do-ec (:list w (string-split t " ")) (hash-table-update! h w (cut + <> 1) 0))
 ;;   (print (hash-table->alist h)))
 
-;; *** CHAPTER 5
+;; *** CHAPTER 5 - Classes
 
 (define-class <counter> ()
   ([.counter :init-value 0]
@@ -309,7 +309,7 @@
 ;; (let ([p (make <person> :full-name "Vlad Veles")]) (print p))
 ;; (let ([p (make <person>)]) (print p))
 
-;; *** CHAPTER 6
+;; *** CHAPTER 6 - Objects
 
 (define (make-account-id) (let ([id 0]) (lambda () (inc! id) id)))
 (define-constant unique-account-id (make-account-id))
@@ -324,3 +324,35 @@
   (class-slot-ref <account-id> 'id))
 
 ;; (print (unique-id) " " (unique-id))
+
+(define traffic-light (list 'red 'yellow 'blue))
+
+(define (act-on-traffic-light l)
+  (case l [(red) 'stop] [(yellow) 'prepare] [else 'go]))
+
+;; (print (act-on-traffic-light 'yellow))
+;; (do-ec (:list l traffic-light) (print (act-on-traffic-light l)))
+
+;; *** CHAPTER 7 - Packages and imports
+
+;; (use hr)
+
+(load "hr.scm")
+(import hrm)
+
+(let ([e (make <employee> :name "Vlad")])
+  (set! (name e) "Volodymyr")
+  (print (name e)))
+
+
+;; (define-module a (define x 1))
+;; (define-module b (define x 2))
+;; #?=(with-module a x)
+;; #?=(with-module b x)
+
+;; (define-module a (export pi) (define pi 3.14))
+;; (define-module b (export e) (define e 2.71))
+;; ;; (define-module c (import a b)) ;; composition
+;; (define-module c (extend a b)) ;; inheritance
+;; (select-module c)
+;; (print pi " " e)

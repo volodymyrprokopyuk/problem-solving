@@ -15,7 +15,7 @@ readonly ROOT_DIR=$(pwd)
 # readonly SOURCE=dstructure
 readonly SOURCE=impatient
 
-gosh "${SOURCE}.scm" "${@}"
+gosh -I "${ROOT_DIR}" "${SOURCE}.scm" "${@}"
 
 # readonly SOURCE=tic-tac-toe
 # readonly SOURCE=recambios

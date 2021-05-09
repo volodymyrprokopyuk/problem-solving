@@ -1,7 +1,7 @@
 import scala.math._
 import scala.io._
 
-// *** CHAPTER 2
+// *** CHAPTER 2 - Control structures and functions
 
 // var a = 1; var b = 2
 // if (a > 0) { a *= 10; b *= 10 }
@@ -103,7 +103,7 @@ import scala.io._
 // def anexponent(x: Int, n: Int): Int = { if (n < 1) 1 else x * anexponent(x, n - 1) }
 // println(Vector(0, 1, 2, 3).map((n) => anexponent(4, n)))
 
-// *** CHAPTER 3
+// *** CHAPTER 3 - Arrays
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
@@ -161,7 +161,7 @@ import scala.util.Random
 // def anaverage(a: Array[Double]) = { a.sum / a.length }
 // println(anaverage(Array(1, 2, 3, 4, 5)))
 
-// *** CHAPTER 4
+// *** CHAPTER 4 - Maps and tuples
 
 // Pair: a -> b => (a, b)
 // val m = Map("Alice" -> 10, "Bob" -> 3, "Cindy" -> 8)
@@ -204,7 +204,7 @@ import scala.util.Random
 // for (w <- t.split(" ")) { h(w) = h.getOrElse(w, 0) + 1 }
 // println(h)
 
-// *** CHAPTER 5
+// *** CHAPTER 5 - Classes
 
 // class Counter {
 //   private var _counter = 0
@@ -268,19 +268,33 @@ import scala.util.Random
 // val p = new Person("Vlad Veles")
 // println(p)
 
-// *** CHAPTER 6
+// *** CHAPTER 6 - Objects
 
-object Account {
-  private var _id = 0
-  def uniqueId() = { _id += 1; _id }
-  def apply(b: Double) = { val a = new Account(); a.balance = b; a }
-}
-println(Account.uniqueId(), Account.uniqueId())
-class Account {
-  val id = Account.uniqueId()
-  var balance = 0.0
-}
-val a = new Account();
-println(a.id)
-val a2 = Account(10.0)
-println(a2.balance)
+// object Account {
+//   private var _id = 0
+//   def uniqueId() = { _id += 1; _id }
+//   def apply(b: Double) = { val a = new Account(); a.balance = b; a }
+// }
+// println(Account.uniqueId(), Account.uniqueId())
+// class Account {
+//   val id = Account.uniqueId()
+//   var balance = 0.0
+// }
+// val a = new Account();
+// println(a.id)
+// val a2 = Account(10.0)
+// println(a2.balance)
+
+// object TrafficLight extends Enumeration {
+//   val Red, Yellow, Green = Value
+// }
+// import TrafficLight._
+// def actOnTrafficLight(l: TrafficLight.Value) = {
+//   if (l == Red) "Stop"
+//   else if (l == Yellow) "Prepare"
+//   else "Go"
+// }
+// println(actOnTrafficLight(TrafficLight.Yellow))
+// for (l <- TrafficLight.values) { println(actOnTrafficLight(l)) }
+
+// *** CHAPTER 7 - Packages and imports
