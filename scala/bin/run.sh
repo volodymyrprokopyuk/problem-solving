@@ -4,4 +4,4 @@ readonly ROOT_DIR=$(pwd)
 
 readonly SOURCE=impatient
 
-scala -deprecation "${SOURCE}.scala" "${@}"
+scala -i 'hr.scala' -deprecation "${SOURCE}.scala" "${@}"

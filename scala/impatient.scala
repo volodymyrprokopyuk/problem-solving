@@ -298,3 +298,10 @@ import scala.util.Random
 // for (l <- TrafficLight.values) { println(actOnTrafficLight(l)) }
 
 // *** CHAPTER 7 - Packages and imports
+
+val e = new hr.Manager("Vlad")
+e.name = "Volodymyr"
+println(e.name)
+import hr.{Employee => AnEmployee}
+val e2 = new AnEmployee()
+println(e2.name)

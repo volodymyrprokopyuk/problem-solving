@@ -348,8 +348,10 @@
 ;; (select-module c)
 ;; (print pi " " e)
 
-(use hr)
+(use hr
+     :only (<manager> <employee>)
+     :rename ([<employee> <an-employee>]))
 
-(let ([e (make <employee> :name "Vlad")])
+(let ([e (make <manager> :name "Vlad")] [e2 (make <an-employee>)])
   (set! (~ e 'name) "Volodymyr")
-  (print (~ e 'name)))
+  (print (~ e 'name)) (print (~ e2 'name)))

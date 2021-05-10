@@ -106,8 +106,8 @@
 ```
 ## Module system
 
-- `<module>` creates a namespce, maps symbols -> bindings and controls visibility of
-  bindings
+- Open-ended `<module>` creates a namespce, maps symbols -> bindings and controls
+  visibility of bindings
 - Modules and files are orthogonal concepts
   - A single file may contain multiple modules
   - A module may be defined in multiple files
