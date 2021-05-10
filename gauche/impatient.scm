@@ -254,26 +254,27 @@
 
 (define-class <person> ()
   ([.age :init-value 0]
-   [age :allocation :virtual :accessor age
-        :slot-ref (lambda (p) (slot-ref p '.age))
-        :slot-set! (lambda (p a) (when [> a (slot-ref p '.age)] (slot-set! p '.age a)))]))
+   [age :allocation :virtual
+        :slot-ref (lambda (p) (~ p '.age))
+        :slot-set! (lambda (p a) (when [> a (~ p '.age)] (set! (~ p '.age) a)))]))
 
-;; (let ([p (make <person>)]) (set! (age p) 10) (set! (age p) 5) (print (age p)))
+;; (let ([p (make <person>)])
+;;   (set! (~ p 'age) 10) (set! (~ p 'age) 5) (print (~ p 'age)))
 
 (define-class <person> ()
   ([.name :init-value "nobody"]
-   [name :allocation :virtual :accessor name
-         :slot-ref (lambda (p) (slot-ref p '.name))
-         :slot-set! (lambda (p n) (when [#/[A-Z]\w+/ n] (slot-set! p '.name n)))]))
+   [name :allocation :virtual
+         :slot-ref (lambda (p) (~ p '.name))
+         :slot-set! (lambda (p n) (when [#/^[A-Z]\w+/ n] (set! (~ p '.name) n)))]))
 
-;; (let ([p (make <person>)]) (set! (name p) "Vlad") (print (name p)))
+;; (let ([p (make <person>)]) (set! (~ p 'name) "Vlad") (print (~ p 'name)))
 
 (define-class <person> ()
-  ([name :init-keyword :name :init-value "nobody" :accessor name]
-   [age :init-keyword :age :init-value 0 :accessor age]))
+  ([name :init-keyword :name :init-value "nobody"]
+   [age :init-keyword :age :init-value 0]))
 
 (define-method write-object ([p <person>] pt)
-  (format pt "~a ~a" (name p) (age p)))
+  (format pt "~a ~a" (~ p 'name) (~ p 'age)))
 
 ;; (let ([p1 (make <person>)]
 ;;       [p2 (make <person> :name "Vlad")]
@@ -282,29 +283,29 @@
 
 (define-class <account> ()
   ([.balance :init-value 0.0]
-   [balance :allocation :virtual :getter balance
+   [balance :allocation :virtual
             :slot-ref (cut slot-ref <> '.balance)]))
 
 (define-method deposit ([a <account>] am)
-  (slot-set! a '.balance (+ (balance a) am)))
+  (set! (~ a '.balance) (+ (~ a 'balance) am)))
 
 (define-method withdraw ([a <account>] am)
-  (let ([b (balance a)])
-    (when [> b am] (slot-set! a '.balance (- b am)))))
+  (let ([b (~ a 'balance)])
+    (when [> b am] (set! (~ a '.balance) (- b am)))))
 
-;; (let ([a (make <account>)]) (deposit a 50) (withdraw a 10) (print (balance a)))
+;; (let ([a (make <account>)]) (deposit a 50) (withdraw a 10) (print (~ a 'balance)))
 
 (define-class <person> ()
-  ([first-name :init-value "nobody" :getter first-name]
-   [last-name :init-value "nobody" :getter last-name]))
+  ([first-name :init-value "nobody"]
+   [last-name :init-value "nobody"]))
 
 (define-method initialize ([p <person>] a)
   (next-method)
   (and-let* ([(= (length a) 2)] [n (cadr a)] [s (string-split n " ")] [(= (length s) 2)])
-    (slot-set! p 'first-name (car s)) (slot-set! p 'last-name (cadr s))))
+    (set! (~ p 'first-name) (car s)) (set! (~ p 'last-name) (cadr s))))
 
 (define-method write-object ([p <person>] pt)
-  (format pt "~a ~a" (first-name p) (last-name p)))
+  (format pt "~a ~a" (~ p 'first-name) (~ p 'last-name)))
 
 ;; (let ([p (make <person> :full-name "Vlad Veles")]) (print p))
 ;; (let ([p (make <person>)]) (print p))
@@ -335,16 +336,6 @@
 
 ;; *** CHAPTER 7 - Packages and imports
 
-;; (use hr)
-
-(load "hr.scm")
-(import hrm)
-
-(let ([e (make <employee> :name "Vlad")])
-  (set! (name e) "Volodymyr")
-  (print (name e)))
-
-
 ;; (define-module a (define x 1))
 ;; (define-module b (define x 2))
 ;; #?=(with-module a x)
@@ -356,3 +347,9 @@
 ;; (define-module c (extend a b)) ;; inheritance
 ;; (select-module c)
 ;; (print pi " " e)
+
+(use hr)
+
+(let ([e (make <employee> :name "Vlad")])
+  (set! (~ e 'name) "Volodymyr")
+  (print (~ e 'name)))

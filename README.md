@@ -113,9 +113,21 @@
   - A module may be defined in multiple files
 - Definition `define-module`, `select-module`
 - Export`export (rename)`
-- Import `import :only :except :rename :prefix` not transitive
-- Extend `extend` multiple modules (module precedence list)
-- Usage `(require "a/module")` + `(import a.module)` = `(use a.module)` (file = module)
+- Import `import :only :except :rename :prefix` not transitive (module composition)
+- Extend `extend` multiple modules (module precedence list) (module inheritance)
+- Usage `(use a.module)` = `(require "a/module")` + `(import a.module)` (file = module)
+  - `load` file each time at run-time
+  - `require` file once due to auto `provide` memoization at compile time
+  - `autoload` delayed file / module loading on first reference of a variable / macro
+
+```scheme
+(define-module a (export pi) (define pi 3.14))
+(define-module b (export e) (define e 2.71))
+;; (define-module c (import a b)) ;; composition
+(define-module c (extend a b)) ;; inheritance
+(select-module c)
+(print pi " " e)
+```
 
 ## Object system
 
@@ -133,10 +145,10 @@
 ```scheme
 (define-class <person> ()
   ([.name :init-value "nobody"]
-   [name :allocation :virtual :accessor name
-         :slot-ref (lambda (p) (slot-ref p '.name))
-         :slot-set! (lambda (p n) (when [#/[A-Z]\w+/ n] (slot-set! p '.name n)))]))
-(let ([p (make <person>)]) (set! (name p) "Vlad") (print (name p)))
+   [name :allocation :virtual
+         :slot-ref (lambda (p) (~ p '.name))
+         :slot-set! (lambda (p n) (when [#/^[A-Z]\w+/ n] (set! (~ p '.name) n)))]))
+(let ([p (make <person>)]) (set! (~ p 'name) "Vlad") (print (~ p 'name)))
 ```
 
 ## Collections and sequences
