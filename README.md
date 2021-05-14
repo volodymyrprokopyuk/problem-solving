@@ -50,8 +50,6 @@
 - Parameters `make-parameter`, `parametrize`, `dynamic-wind` (dynamic environment
   management, context switch)
 - Pattern matching `match`, `match-lambda`, `match-let`, `match-define`
-- Record type (portable and efficient class `<record>`) `define-record-type`
-  (constructor, predicate, accessors, [mutators])
 - Combinators (return procedure)
   - `cut` compact parameter spacialization without currying macro
   - `.$`, `compose` procedure composition
@@ -131,6 +129,16 @@
 
 ## Object system
 
+- Gauche type system = classes are used to describe types
+  - Implicit (not explicitly expressed)
+  - Structural (type name does not matter)
+  - Nominal (type name matters)
+  - Dynamic (latent) = every value (not variable) knows its type at run-time
+  - Strong (value determines what operations can be applied)
+  - `<toc>` supertype of all types
+  - `<bottom>` subtype of all types, does not have an instance
+  - `<object>` supertype of all user-defined classes
+  - `class-of obj`, `class-name cls`, `is-a? obj cls`, `subtype? sub sup`
 - Class `define-class` (class precedence list)
   - Allocation `:allocation` `:instance`, `:class`,
     - `:virtual` `:slot-ref` computed value, `:slot-set!` data validation
@@ -150,6 +158,9 @@
          :slot-set! (lambda (p n) (when [#/^[A-Z]\w+/ n] (set! (~ p '.name) n)))]))
 (let ([p (make <person>)]) (set! (~ p 'name) "Vlad") (print (~ p 'name)))
 ```
+- Record type = portable (standard) and efficient class `<record>`
+  - `(use gauche.record)` `define-record-type` (constructor, predicate, accessors,
+    [mutators])
 
 ## Collections and sequences
 

@@ -348,10 +348,28 @@
 ;; (select-module c)
 ;; (print pi " " e)
 
-(use hr
-     :only (<manager> <employee>)
-     :rename ([<employee> <an-employee>]))
+;; (use hr
+;;      :only (<manager> <employee>)
+;;      :rename ([<employee> <an-employee>]))
 
-(let ([e (make <manager> :name "Vlad")] [e2 (make <an-employee>)])
-  (set! (~ e 'name) "Volodymyr")
-  (print (~ e 'name)) (print (~ e2 'name)))
+;; (let ([e (make <manager> :name "Vlad")] [e2 (make <an-employee>)])
+;;   (set! (~ e 'name) "Volodymyr")
+;;   (print (~ e 'name)) (print (~ e2 'name)))
+
+;; *** CHAPTER 8 - Inheritance
+
+(define-class <person2> ()
+  ([name :init-keyword :name :init-value "nobody"]))
+
+(define-method write-object ([p <person2>] s)
+  (format s "~a name=~a" (class-name (class-of p)) (~ p 'name)))
+
+(define-class <employee2> (<person2>)
+  ([salary :init-keyword :salary :init-value 0.0]))
+
+(define-method write-object ([e <employee2>] p)
+  (next-method)
+  (format p " salary=~a" (~ e 'salary)))
+
+(let ([e (make <employee2> :name "Vlad" :salary 1.0)])
+  (print e) (print (is-a? e <person2>)))

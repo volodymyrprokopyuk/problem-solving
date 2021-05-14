@@ -299,9 +299,22 @@ import scala.util.Random
 
 // *** CHAPTER 7 - Packages and imports
 
-val e = new hr.Manager("Vlad")
-e.name = "Volodymyr"
-println(e.name)
-import hr.{Employee => AnEmployee}
-val e2 = new AnEmployee()
-println(e2.name)
+// val e = new hr.Manager("Vlad")
+// e.name = "Volodymyr"
+// println(e.name)
+// import hr.{Employee => AnEmployee}
+// val e2 = new AnEmployee()
+// println(e2.name)
+
+// *** CHAPTER 8 - Inheritance
+
+class Person (val name: String = "nobody") {
+  override def toString = s"${getClass.getName} name=$name"
+}
+class Employee (name: String = "nobody", val salary: Double = 0.0)
+    extends Person(name) {
+  override def toString = s"${super.toString} salary=$salary"
+}
+val e = new Employee("Vlad", 1.0)
+println(e)
+println(e.isInstanceOf[Person])
