@@ -361,6 +361,12 @@
 (define-class <person2> ()
   ([name :init-keyword :name :init-value "nobody"]))
 
+(define-method object-equal? ([a <person2>] [b <person2>])
+  (equal? (string-downcase (~ a 'name)) (string-downcase (~ b 'name))))
+
+(define-method object-hash ([p <person2>] rec-hash)
+  (rec-hash (string-downcase (~ p 'name))))
+
 (define-method write-object ([p <person2>] s)
   (format s "~a name=~a" (class-name (class-of p)) (~ p 'name)))
 
@@ -371,5 +377,12 @@
   (next-method)
   (format p " salary=~a" (~ e 'salary)))
 
-(let ([e (make <employee2> :name "Vlad" :salary 1.0)])
-  (print e) (print (is-a? e <person2>)))
+;; (let ([e (make <employee2> :name "Vlad" :salary 1.0)])
+;;   (print e) (print (is-a? e <person2>) (equal? (class-of e) <employee2>))
+;;   (match e
+;;     [(@ <employee2> (name n) (salary s)) (print n " " s)]
+;;     [_ (print 'any)]))
+
+(let ([a (make <person2> :name "a")] [b (make <person2> :name "A")])
+  (print (equal? a b))
+  (print (default-hash a)) (print (default-hash b)))

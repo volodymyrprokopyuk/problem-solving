@@ -310,6 +310,10 @@ import scala.util.Random
 
 class Person (val name: String = "nobody") {
   override def toString = s"${getClass.getName} name=$name"
+  override def equals(b: Any) = b match {
+    case bb: Person => bb.name.toLowerCase() == name.toLowerCase()
+    case _ => false
+  }
 }
 class Employee (name: String = "nobody", val salary: Double = 0.0)
     extends Person(name) {
@@ -318,3 +322,11 @@ class Employee (name: String = "nobody", val salary: Double = 0.0)
 val e = new Employee("Vlad", 1.0)
 println(e)
 println(e.isInstanceOf[Person])
+println(e.getClass == classOf[Employee])
+e match {
+  case e: Employee => println("Employee")
+  case _ => println("Any")
+}
+val p1 = new Person("a")
+val p2 = new Person("A")
+println(p1 == p2)

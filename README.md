@@ -49,26 +49,28 @@
 - String interpolation `#"Value ~expr ~(expr) ~|var|"`
 - Parameters `make-parameter`, `parametrize`, `dynamic-wind` (dynamic environment
   management, context switch)
-- Pattern matching `match`, `match-lambda`, `match-let`, `match-define`
 - Combinators (return procedure)
   - `cut` compact parameter spacialization without currying macro
   - `.$`, `compose` procedure composition
   - `identity`, `constantly`, `complement`, `any-pred`, `every-pred`
   - `$`, `$*` procedure application chaining macro
 
-## Equality + comparison/ordering + hashing
+## Equality / equivalence + comparison / ordering + hashing
 
-- Equality
-  - `eq?` symbol, boolean, object reference
+- Equality (equivalence)
+  - `eq?` symbol, keyword, boolean, object reference
   - `eqv?` number `=`, character `char=?`
-  - `equal?` aggregate (collection or object), recursive, `string=?`
-    - `object-equal?` generic function for user-defined data types (UDDT)
-- Comparison and ordering
-  - `compare` -1, 0, 1, `<`, `char<?`, `string<?`
-    - `object-compare` generic function for UDDT
+  - `equal?` aggregate (collection, object), recursive, string `string=?`
+    - `object-equal? obj1 obj2` generic function for user-defined data types (UDDT) uses
+      `equal?`  recursively
+- Comparison (ordering)
+  - `compare` -1, 0, 1, number `<`, character `char<?`, string `string<?`
+    - `object-compare obj1 obj2` generic function for UDDT
 - Hasing
-  - `default-hash`
-    - `object-hash` generic function for UDDT + `combine-hash-value`
+  - `eq-hash` for `eq?`
+  - `eqv-hash` for `eqv?`
+  - `default-hash` for `equal?`
+    - `object-hash obj rec-hash` generic function for UDDT + `combine-hash-value`
 - Comparator R7RS = record with equality + comparison/ordering + hasing abstraction
   - `comparator-test-type` type predicate `type?`
   - `=?` equality predicate `equal?`
@@ -159,15 +161,35 @@
 (let ([p (make <person>)]) (set! (~ p 'name) "Vlad") (print (~ p 'name)))
 ```
 - Record type = portable (standard) and efficient class `<record>`
-  - `(use gauche.record)` `define-record-type` (constructor, predicate, accessors,
+  - `(use gauche.record)`: `define-record-type` (constructor, predicate, accessors,
     [mutators])
+
+## Pattern matching
+
+- `match`, `match-lambda`, `match-lambda*`, `match-let`, `match-let*` `match-define`
+- Pattern syntax
+  - Anything `symbol` matches anything and binds the matched value
+  - Placeholder `_` matches anything without binding
+  - Repetition `...` applies last pattern repeatedly
+  - Literals `#t`, `#f`, `#\a`, `1`, `"s"` match themselves with `equal?`
+  - Quotes `''symbol`, `''(s expression)`, `':keyword` match themselves with `equal?`
+  - List `()`, `(a b)`, `(a b ...)`, `(a b ..k)` k min, `(a b . c)` + pair
+  - Vector `#()`, `#(a b)`, `#(a b ...)`, `#(a b ..k)` k min
+  - Object `(@ class (slot pat) ...)` matches class / record instance and all slot names
+  - Procedure `(= procedure pat)` applies `procedure` then matches on the result
+  - Predicate `(? predicate pat ...)` matches on the `predicate` and all patterns
+  - Pattern combinators `(and pat ...)`, `(or pat ...)`, `(not pat ...)`
+  - Quasipattern `'quasipattern` matches itself as leterals except the unquoted patterns
+    that are pattern variables
+    - Quasiquote turns off the evaluation except the unquoted subtree
+    - Quasipattern turns off the pattern syntax except the unquoted subtree
 
 ## Collections and sequences
 
 - **Collection** Gauche = unordered set of objects. Collection provides generic
   traversing over list, vector, string, hash table, user-defined class using the method
   dispatch of the object system (CLOS)
-  - `(use gauche.collection)` : `fold`, `fold2/3` `map`, `for-each`, `find`, `find-min`,
+  - `(use gauche.collection)`: `fold`, `fold2/3` `map`, `for-each`, `find`, `find-min`,
     `find-max`, `filter`, `remove`, `group-collection`, `size-of`, constructive methods:
     `map-to`, `filter-to`, `remove-to`, `coerce-to`
   - Iterator interface `end?` of collection, `next` element
@@ -386,3 +408,10 @@
     - **Read committed**
     - **Repeatable read**
     - **Serializable**
+
+# Zsh
+
+- Interactive login shell with line editing (zle), code completion (compsys),
+  history mechanism, spelling correction, prompt theme
+- Shell script processor with file matching, function autoload
+- Invocation `command` `-s` short option `--long` long option `-` arguments
