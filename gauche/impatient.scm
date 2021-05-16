@@ -383,6 +383,33 @@
 ;;     [(@ <employee2> (name n) (salary s)) (print n " " s)]
 ;;     [_ (print 'any)]))
 
-(let ([a (make <person2> :name "a")] [b (make <person2> :name "A")])
-  (print (equal? a b))
-  (print (default-hash a)) (print (default-hash b)))
+;; (let ([a (make <person2> :name "a")] [b (make <person2> :name "A")])
+;;   (print (equal? a b))
+;;   (print (default-hash a)) (print (default-hash b)))
+
+(define-class <mil-time> ()
+  ([.time :init-keyword :time :init-value 0]
+   [hours :allocation :virtual :slot-ref (lambda (t) (quotient (~ t '.time) 100))]
+   [minutes :allocation :virtual :slot-ref (lambda (t) (remainder (~ t '.time) 100))]))
+
+(define-method initialize ([m <mil-time>] _)
+  (next-method)
+  (let ([t (~ m '.time)])
+    (when (or [< t 0] [> t 2400] [> (remainder t 100) 59]) (error "invalid time" t))))
+
+(define-method write-object ([t <mil-time>] p)
+  (format p "~4,'0d" (~ t '.time)))
+
+;; (let ([t (make <mil-time> :time 123)])
+;;   (format #t "~a ~a ~a\n" t (~ t 'hours) (~ t 'minutes)))
+
+;; *** CHAPTER 9 - Files and regular expressions
+
+(with-input-from-file "./bin/run.sh"
+  (lambda () (do ([l (read-line) (read-line)] [i 0 (+ i 1)]) ([eof-object? l])
+          (format #t "~3,' d ~a\n" i l))))
+
+;; TODO generator
+
+(with-input-from-file "./bin/run.sh"
+  (lambda () (display (port->string (current-input-port)))))

@@ -308,25 +308,47 @@ import scala.util.Random
 
 // *** CHAPTER 8 - Inheritance
 
-class Person (val name: String = "nobody") {
-  override def toString = s"${getClass.getName} name=$name"
-  override def equals(b: Any) = b match {
-    case bb: Person => bb.name.toLowerCase() == name.toLowerCase()
-    case _ => false
-  }
-}
-class Employee (name: String = "nobody", val salary: Double = 0.0)
-    extends Person(name) {
-  override def toString = s"${super.toString} salary=$salary"
-}
-val e = new Employee("Vlad", 1.0)
-println(e)
-println(e.isInstanceOf[Person])
-println(e.getClass == classOf[Employee])
-e match {
-  case e: Employee => println("Employee")
-  case _ => println("Any")
-}
-val p1 = new Person("a")
-val p2 = new Person("A")
-println(p1 == p2)
+// class Person (val name: String = "nobody") {
+//   override def toString = s"${getClass.getName} name=$name"
+//   override def equals(b: Any) = b match {
+//     case bb: Person => bb.name.toLowerCase() == name.toLowerCase()
+//     case _ => false
+//   }
+// }
+// class Employee (name: String = "nobody", val salary: Double = 0.0)
+//     extends Person(name) {
+//   override def toString = s"${super.toString} salary=$salary"
+// }
+// val e = new Employee("Vlad", 1.0)
+// println(e)
+// println(e.isInstanceOf[Person])
+// println(e.getClass == classOf[Employee])
+// e match {
+//   case e: Employee => println("Employee", e)
+//   case _ => println("Any")
+// }
+// val p1 = new Person("a")
+// val p2 = new Person("A")
+// println(p1 == p2)
+
+// class MilTime private(val time: Int) {
+//   def hours = time / 100
+//   def minutes = time % 100
+//   override def toString = f"$time%04d"
+// }
+// object MilTime {
+//   def apply(t: Int) =
+//     if (t >= 0 && t <= 2400 && t % 100 < 60) new MilTime(t)
+//     else throw new IllegalArgumentException
+// }
+// val t = MilTime(123)
+// println(t, t.hours, t.minutes)
+
+// *** CHAPTER 9 - Files and regular expressions
+
+import scala.io.Source
+
+val f = Source.fromFile("./bin/run.sh")
+try { for ((l, i) <- f.getLines().zipWithIndex) { println(f"$i% 3d $l") } }
+finally { f.close() }
+// try { println(f.mkString) } finally { f.close() }
