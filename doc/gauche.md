@@ -286,11 +286,19 @@
   lazy algorithm (SRFI-45)
 - `force` promise e -> e + memoization
 - `eager` e -> promise e, eagerly evaluated type converter to a promise
-- **Generators** Gauche = a procedure with no arguments that yields a series of values
-  ending with the EOF (very lightweight implementation of on-demand
-  calculations). Generators work in a pipeline (DAG) of generators representing a lazy
-  value-propagation network
-  - `(use gauche.generator)`
+- **Generators** Gauche `(use gauche.generator)` = a procedure with no arguments that
+  yields a series of values with possible side effects ending with the EOF (very
+  lightweight implementation of on-demand calculations). Generators work in a pipeline
+  (DAG) of generators representing a lazy value-propagation network
+  - Construct
+    - `list->generator`, `vector->generator`, `string->generator`, `x->generator coll`
+    - `giota`, `grange`, `circular-generator arg ...`, `gunfold`, `generate coroutine`
+```scheme
+(let ([g (generate (lambda (yield) (do ([i 0 (+ i 1)]) ([> i 10]) (yield i))))])
+  #?=(generator->list g))
+```
+  - Combine
+  - Consume
 - **Lazy sequence** Gauche = indistinguishable from ordinary list structure (all list
   procedures can be used on a lazy sequence) with a lazy pair, whose `car` is
   immediately / eagerly evaluated and whose `cdr` is implicitly / automatically forced

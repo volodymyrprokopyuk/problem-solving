@@ -13,7 +13,8 @@ readonly ROOT_DIR=$(pwd)
 # readonly SOURCE=syntax-algorithm
 # readonly SOURCE=lazy-algorithm
 # readonly SOURCE=dstructure
-readonly SOURCE=impatient
+# readonly SOURCE=impatient
+readonly SOURCE=easy
 
 gosh -I "${ROOT_DIR}" "${SOURCE}.scm" "${@}"
 
