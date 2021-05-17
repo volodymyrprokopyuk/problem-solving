@@ -298,7 +298,14 @@
   #?=(generator->list g))
 ```
   - Combine
+    - `gcons* item ... gen`, `gappend gen ...`, `gconcatenate gen`
+    - `gmap proc gen ...`, `gfilter pred gen`, `gremove pred gen` `gmerge < gen ...`
+    - `gtake gen k`, `gdrop gen k`, `gtake-while pred gen`, `gdrop-while pred gen`
   - Consume
+    - `generator->list gen`, `generator->vector gen`, `generator->string gen`,
+      `generator-unfold gen unfold arg ...`
+    - `generator-for-each proc gen ...`, `generator-fold proc seed gen ...`,
+      `generator-find pred gen`, `generator-any pred gen`, `generator-every pred gen`
 - **Lazy sequence** Gauche = indistinguishable from ordinary list structure (all list
   procedures can be used on a lazy sequence) with a lazy pair, whose `car` is
   immediately / eagerly evaluated and whose `cdr` is implicitly / automatically forced

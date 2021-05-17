@@ -405,12 +405,14 @@
 
 ;; *** CHAPTER 9 - Files and regular expressions
 
-#?=(generator->list (giota 10 0 5))
-#?=(generator->list (grange 0 50 5))
-#?=(generator->list (circular-generator 0 5 10) 10)
-(let ([g (generate (lambda (yield) (do ([i 0 (+ i 1)]) ([> i 10]) (yield i))))])
-  #?=(generator->list g))
-#?=(generator->list (gunfold null? car cdr '(1 2 3 4 5)))
+;; #?=(generator->list (giota 10 0 5))
+;; #?=(generator->list (grange 0 50 5))
+;; #?=(generator->list (circular-generator 0 5 10) 10)
+;; (let ([g (generate (lambda (yield) (do ([i 0 (+ i 1)]) ([> i 10]) (yield i))))])
+;;   #?=(generator->list g))
+;; #?=(generator->list (gunfold null? car cdr '(1 2 3 4 5)))
+(let ([g (list->generator '((1 2) (3 4) (5 6)))])
+  #?=($ generator->list $ gconcatenate $ gmap list->generator g))
 
 ;; (with-input-from-file "./bin/run.sh"
 ;;   (lambda () (do ([l (read-line) (read-line)] [i 0 (+ i 1)]) ([eof-object? l])
