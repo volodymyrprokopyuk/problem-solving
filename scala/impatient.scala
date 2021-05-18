@@ -348,7 +348,12 @@ import scala.util.Random
 
 import scala.io.Source
 
-val f = Source.fromFile("./bin/run.sh")
-try { for ((l, i) <- f.getLines().zipWithIndex) { println(f"$i% 3d $l") } }
-finally { f.close() }
+// val f = Source.fromFile("./bin/run.sh")
+// try { for ((l, i) <- f.getLines().zipWithIndex) { println(f"$i% 3d $l") } }
+// finally { f.close() }
 // try { println(f.mkString) } finally { f.close() }
+// try { for (c <- f) { print(c) } } finally { f.close }
+// try { for (w <- f.mkString.split("\\s+")) { print(s"${w.toUpperCase()} ") } }
+// finally { f.close() }
+// val s = Source.fromString("1 2 3 4\n5 6")
+// println(s.mkString.split("\\s+").map(x => x.toInt + 1).mkString)

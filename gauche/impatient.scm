@@ -7,6 +7,7 @@
 (use srfi-27)
 (use data.random)
 (use gauche.generator)
+(use file.util)
 
 (random-source-randomize! default-random-source)
 (set! (random-data-seed) (random-integer (expt 2 32)))
@@ -411,12 +412,43 @@
 ;; (let ([g (generate (lambda (yield) (do ([i 0 (+ i 1)]) ([> i 10]) (yield i))))])
 ;;   #?=(generator->list g))
 ;; #?=(generator->list (gunfold null? car cdr '(1 2 3 4 5)))
-(let ([g (list->generator '((1 2) (3 4) (5 6)))])
-  #?=($ generator->list $ gconcatenate $ gmap list->generator g))
+;; (let ([g (list->generator '((1 2) (3 4) (5 6)))])
+;;   #?=($ generator->list $ gconcatenate $ gmap list->generator g))
 
 ;; (with-input-from-file "./bin/run.sh"
 ;;   (lambda () (do ([l (read-line) (read-line)] [i 0 (+ i 1)]) ([eof-object? l])
 ;;           (format #t "~3,' d ~a\n" i l))))
 
 ;; (with-input-from-file "./bin/run.sh"
+;;   (lambda () (generator-for-each print read-line)))
+
+;; (with-input-from-file "./bin/run.sh"
+;;   (lambda () (generator-fold
+;;          (lambda (l i) (format #t "~3,' d ~a\n" i l) (+ i 1)) 0 read-line)))
+
+;; (with-input-from-file "./bin/run.sh"
 ;;   (lambda () (display (port->string (current-input-port)))))
+
+;; (with-input-from-file "./bin/run.sh"
+;;   (lambda () (generator-for-each display (gtake read-char 50))))
+
+;; (with-input-from-file "./bin/run.sh"
+;;   (lambda () ($ generator-for-each (cut format #t "~a " <>)
+;;            $ gmap string-upcase
+;;            $ gflatten
+;;            $ gmap (cut string-split <> #/\s+/) read-line)))
+
+;; (with-input-from-string "1 2 3 4\n5 6"
+;;   (lambda () ($ generator-for-each display
+;;            $ gmap (lambda (e) (+ (string->number e) 1))
+;;            $ gflatten
+;;            $ gmap (cut string-split <> #/\s+/) read-line)))
+
+;; (pprint (directory-fold "../gauche" cons '()))
+
+;; (pprint
+;;  (directory-fold
+;;   "../gauche" (lambda (p s)
+;;                 (let ([d (file-is-directory? p)]) (if d (cons d s) s))) '()
+;;   :lister (lambda (p s) (values (directory-list p :add-path? #t :children? #t)
+;;                            (cons p s)))))

@@ -290,18 +290,18 @@
   yields a series of values with possible side effects ending with the EOF (very
   lightweight implementation of on-demand calculations). Generators work in a pipeline
   (DAG) of generators representing a lazy value-propagation network
-  - Construct
+  - Construct (create generator)
     - `list->generator`, `vector->generator`, `string->generator`, `x->generator coll`
     - `giota`, `grange`, `circular-generator arg ...`, `gunfold`, `generate coroutine`
 ```scheme
 (let ([g (generate (lambda (yield) (do ([i 0 (+ i 1)]) ([> i 10]) (yield i))))])
   #?=(generator->list g))
 ```
-  - Combine
-    - `gcons* item ... gen`, `gappend gen ...`, `gconcatenate gen`
+  - Combine (return generator)
+    - `gcons* item ... gen`, `gappend gen ...`, `gconcatenate gen`, `gflatten gen`
     - `gmap proc gen ...`, `gfilter pred gen`, `gremove pred gen` `gmerge < gen ...`
     - `gtake gen k`, `gdrop gen k`, `gtake-while pred gen`, `gdrop-while pred gen`
-  - Consume
+  - Consume (return non generator)
     - `generator->list gen`, `generator->vector gen`, `generator->string gen`,
       `generator-unfold gen unfold arg ...`
     - `generator-for-each proc gen ...`, `generator-fold proc seed gen ...`,
