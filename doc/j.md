@@ -6,12 +6,16 @@
 - Tacit programming = point-free style + function composition
 - Evaluate right-to-left (no precedence, right-associative), read left-to-right
 - Literals: `_1` negative, `_` infinity, `1j2` complex
-- Common operations: `=.` assignment, `NB.` comment
+- Common operations: `=.` assignment, `+/` insertion, `i.` index generator, `NB.`
+  comment
 - Arithmetic operations: `+` conjugate / addition, `-` negate / subtraction, `*` signum
   / multiplication, `%` reciprocal / division, `%:` square root `sqrt`, `^` power
   `expt`, `^.` natural logarithm `log`, `10 ^.` decimal logarithm `log <> 10`, `<.`
-  floor / minimum, `>.` ceiling / maximum
-- Array operations: `#` length / copy, `{` index, `$` shape of / reshape, `,` append
+  floor / minimum, `>.` ceiling / maximum, `|` absolute value / remainder
+- Array operations: `#` length / copy, `{` index, `$` shape of / reshape, `,` append,
+  `e.` membership
+- Comparison operations: `<`, `<:`, `>`, `>:`, `=`, `~:` not equal
+- Logical operations: `*.` and, `+.` or, `-.` not, `"*:` not-and, `+:` not-or
 - Noun = data, verb = function, modifier = verb modification
 - Monadic verb `v n`
 - Diadic verb `n0 v n1`

@@ -326,10 +326,22 @@
 - String I/O `with-input-from-string str thunk`, `with-output-to-string thunk`,
   `with-string-io str thunk`
 - Input `read` s-expression, `read-char`, `read-line`, `port->string port`, `eof-object?
-  obj`
+  obj`, `define-reader-ctor` reader-time constructor
 - Output `write obj`, `write-char char`, `write-string str`, `write-object obj port`
   machine, `display obj`, `print obj ...`, `pprint obj` human, `format dest fstr args
   ...`, `flush`
+- Automatically read and write user-defined class
+```scheme
+(define-class <data> ()
+  ([a :init-keyword :a :init-value 'a]
+   [b :init-keyword :b :init-value 'b]))
+(define-method write-object ([d <data>] p)
+  (format p "#,(<data> ~a ~b)" (~ d 'a) (~ d 'b)))
+(define-reader-ctor '<data>
+  (lambda (a b) (make <data> :a a :b b)))
+(let ([d #,(<data> 'A 'B)])
+  (with-input-from-string (format #f "~a" d) (cut print (read))))
+```
 
 ## Random values
 

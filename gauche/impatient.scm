@@ -452,3 +452,27 @@
 ;;                 (let ([d (file-is-directory? p)]) (if d (cons d s) s))) '()
 ;;   :lister (lambda (p s) (values (directory-list p :add-path? #t :children? #t)
 ;;                            (cons p s)))))
+
+;; (define-reader-ctor 'pi (cut * (atan 1) 4))
+;; (print #,(pi))
+
+(define-reader-ctor 'hash
+  (lambda (c . d)
+    (let ([h (make-hash-table c)])
+      (for-each (match-lambda [(k . v) (hash-table-put! h k v)]) d) h)))
+
+;; (let ([h #,(hash eq? (a . 1) (b . 2) (c . 3))])
+;;   (print (hash-table->alist h)))
+
+(define-class <data> ()
+  ([a :init-keyword :a :init-value 'a]
+   [b :init-keyword :b :init-value 'b]))
+
+(define-method write-object ([d <data>] p)
+  (format p "#,(<data> ~a ~b)" (~ d 'a) (~ d 'b)))
+
+(define-reader-ctor '<data>
+  (lambda (a b) (make <data> :a a :b b)))
+
+(let ([d #,(<data> 'A 'B)])
+  (with-input-from-string (format #f "~a" d) (cut print (read))))
