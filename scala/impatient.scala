@@ -357,3 +357,28 @@ import scala.io.Source
 // finally { f.close() }
 // val s = Source.fromString("1 2 3 4\n5 6")
 // println(s.mkString.split("\\s+").map(x => x.toInt + 1).mkString)
+
+import scala.sys.process._
+
+// "ls -lah ..".!
+// val o = "ls -lah ..".!!
+// println(o)
+// ("ls -lah" #| "grep scala").!
+// #> #>> #< #&& #||
+
+// val s = "one 1 two 2 ten 10"
+// val p = """\d+""".r
+// println(p.findFirstIn(s))
+// for (m <- p.findAllIn(s)) { println(m) }
+// println(p.replaceFirstIn(s, "*"))
+// println(p.replaceAllIn(s, "*"))
+// println(p.replaceSomeIn(s, m => if (m.matched.toInt % 2 == 0) Some("*") else None))
+// val p2 = """(\w+) (\d+)""".r("wd", "nm")
+// println(p2.findFirstMatchIn(s))
+// for (m <- p2.findAllMatchIn(s)) { println(m.group(0), m.group(1), m.group(2)) }
+// println(p2.replaceAllIn(s, m => s"${m.group(2)} ${m.group(1)}"))
+// println(p2.replaceAllIn(s, m => s"""${m.group("nm")} ${m.group("wd")}"""))
+// val p3 = """(\w+) (\d+)""".r
+// val p3(wd, nm) = "eleven 11"
+// println(wd, nm)
+// for (p2(wd, nm) <- p2.findAllIn(s)) { println(wd, nm) }

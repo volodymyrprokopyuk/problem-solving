@@ -298,22 +298,24 @@
   #?=(generator->list g))
 ```
   - Combine (return generator)
-    - `gcons* item ... gen`, `gappend gen ...`, `gconcatenate gen`, `gflatten gen`
+    - `gcons* item ... gen`, `gappend gen ...` generators, `gconcatenate gen` generator
+      of generators, `gflatten gen`
     - `gmap proc gen ...`, `gfilter pred gen`, `gremove pred gen` `gmerge < gen ...`
-    - `gtake gen k`, `gdrop gen k`, `gtake-while pred gen`, `gdrop-while pred gen`
+    - `gtake gen n`, `gdrop gen n`, `gtake-while pred gen`, `gdrop-while pred gen`
   - Consume (return non generator)
     - `generator->list gen`, `generator->vector gen`, `generator->string gen`,
       `generator-unfold gen unfold arg ...`
     - `generator-for-each proc gen ...`, `generator-fold proc seed gen ...`,
       `generator-find pred gen`, `generator-any pred gen`, `generator-every pred gen`
-- **Lazy sequence** Gauche = indistinguishable from ordinary list structure (all list
-  procedures can be used on a lazy sequence) with a lazy pair, whose `car` is
-  immediately / eagerly evaluated and whose `cdr` is implicitly / automatically forced
-  on demand. Lazy sequence is not strictly lazy and always evaluates one item
+- **Lazy sequence** Gauche `(use gauche.lazy)` = indistinguishable from ordinary list
+  structure (all list procedures can be used on a lazy sequence) with a lazy pair, whose
+  `car` is immediately / eagerly evaluated and whose `cdr` is implicitly / automatically
+  forced on demand. Lazy sequence is not strictly lazy and always evaluates one item
   ahead. Lazy sequences are built on top of generators
-  - `generator->lseq` efficient lazy sequence, `lcons` makes a thunk / closure for each
-    item, `lrange`, `liota`
-  - `(use gauche.lazy)`: `lunfold`, `lappend`, `lmap`, `lfilter`, `ltake`, `ltake-while`
+  - Construct `generator->lseq`, `lrange`, `liota`,`lunfold p f g s`, `x->lseq obj`
+  - Combine `lcons` thunk for each item, `lappend seq ...` sequences, `lconcatenate
+    seqs` sequence of sequences, `lmap proc seq ...`, `lfilter pred seq`, `ltake seq n`,
+    `ltake-while pred seq`
 - **Streams** Gauche = strictly lazy (both `car` and `cdr` are lazily evaluated when
   aboslutely needed) data structure with spacial procedures
   - `(use util.stream)`
@@ -341,6 +343,42 @@
   (lambda (a b) (make <data> :a a :b b)))
 (let ([d #,(<data> 'A 'B)])
   (with-input-from-string (format #f "~a" d) (cut print (read))))
+```
+
+## Regular expressions
+
+- Regular expressions syntax
+  - `.` any char, `[char-set]` char set, `\w`, `\d`, `\s`, `\W`, `\D`, `\S`
+  - `^` begin, `$` end
+  - `\b` word boundary, `\B` non-word boundary
+  - `re*` zero or more, `re+` one or more, `re?` zero or one (greedy matching)
+  - `re{n}`, `re{n,m}` from n to m, either can be omitted (greedy matching)
+  - `re*?`, `re+?`, `re??`, `re{n,m}?` non-greedy, lazy matching
+  - `(re...)` capturing group (positional), `\1` positional backreference
+  - `(?:re...)` clustering group (without capturing)
+  - `(?<name>re...)` named capturing group, `\k<name>` named backreference
+  - `(?i:re...)` case-insensitive clustering group
+  - `(?-i:re...)` case-sensitive clustering group
+  - `re1|re2` alternatives
+  - `(?=re...)` positive lookahead, `(?!re...)` negative lookahead
+  - `(?<=re...)` positive lookbehind, `(?<!re...)` negative lookbehind
+  - `(?>re...)` atomic clustering = once matched to backtracking even if the following
+    pattern fails
+  - `re*+` = `(?>re*)`, `re++` = `(?>re+)`, `re?+` = `(?>re?)`
+  - `(?test-re then-re)`, `(?test-re then-re|else-re)` conditional matching
+- Construct `#/reg-exp/` compiled only once, `string->regexp str` compiled every time
+- Match `re str` first match, `grxmatch re str` all matches
+- Access `match index` group position, `match name` group name, `rxmatch-cond`,
+  `rxmatch-case`
+- Replace `regexp-replace re str subs`, `regexp-replace-all re str subs`
+```scheme
+(let* ([s "one 1 two 2 ten 10"] [r #/(?<wd>\w+) (?<nm>\d+)/] [m (r s)])
+  #?=(list (m 0) (m 1) (m 2) (m 'wd) (m 'nm))
+  #?=($ generator->list $ gmap (lambda (m) (list (m 0) (m 'wd) (m 'nm))) $ grxmatch r s)
+  #?=(regexp-replace-all r s "\\2 \\k<wd>")
+  #?=(regexp-replace-all r s (lambda (m) (format #f "~a ~a" (m 'nm) (m 1))))
+  #?=(rxmatch-cond [(r s) (all wd nm) (list all wd nm)] [else #f])
+  #?=(rxmatch-case s [r (all wd nm) (list all wd nm)] [else #f]))
 ```
 
 ## Random values

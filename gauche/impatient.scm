@@ -453,7 +453,7 @@
 ;;   :lister (lambda (p s) (values (directory-list p :add-path? #t :children? #t)
 ;;                            (cons p s)))))
 
-;; (define-reader-ctor 'pi (cut * (atan 1) 4))
+(define-reader-ctor 'pi (cut * (atan 1) 4))
 ;; (print #,(pi))
 
 (define-reader-ctor 'hash
@@ -474,5 +474,13 @@
 (define-reader-ctor '<data>
   (lambda (a b) (make <data> :a a :b b)))
 
-(let ([d #,(<data> 'A 'B)])
-  (with-input-from-string (format #f "~a" d) (cut print (read))))
+;; (let ([d #,(<data> 'A 'B)])
+;;   (with-input-from-string (format #f "~a" d) (cut print (read))))
+
+;; (let* ([s "one 1 two 2 ten 10"] [r #/(?<wd>\w+) (?<nm>\d+)/] [m (r s)])
+;;   #?=(list (m 0) (m 1) (m 2) (m 'wd) (m 'nm))
+;;   #?=($ generator->list $ gmap (lambda (m) (list (m 0) (m 'wd) (m 'nm))) $ grxmatch r s)
+;;   #?=(regexp-replace-all r s "\\2 \\k<wd>")
+;;   #?=(regexp-replace-all r s (lambda (m) (format #f "~a ~a" (m 'nm) (m 1))))
+;;   #?=(rxmatch-cond [(r s) (all wd nm) (list all wd nm)] [else #f])
+;;   #?=(rxmatch-case s [r (all wd nm) (list all wd nm)] [else #f]))
