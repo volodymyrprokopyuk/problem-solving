@@ -1,19 +1,32 @@
 # J
 
 - J array programming with implicit, structural, strong, dynamic typing
-- Single data type multi dimensional array + sparse array (value + index)
 - J concise notation of computation = power for rapid algorithm development
+- Noun = data, verb = function, modifier = verb modification
+- Single data type multi-dimensional array + sparse array (value + index)
 - Tacit programming = point-free style + function composition
 - Evaluate right-to-left (no precedence, right-associative), read left-to-right
+  - Monadic verb `v0 n` (one verb, one argument)
+  - Diadic verb `m v0 n` (one verb, two arguments)
+  - Hook `(v1 v0) n = n v1 (v0 n)` (two verbs, one argument)
+  - Fork `(v2 v1 v0) n = (v2 n) v1 (v0 n)` (three verbs, one argument)
+  - Hook of fork `v3 v2 v1 v0 = v3 (v2 v1 v0)` (four verbs, one argument)
+  - Fork of fork `v4 v3 v2 v1 v0 = v4 v3 (v2 v1 v0)` (five verbs, one argument)
 - Literals: `_1` negative, `_` infinity, `1j2` complex
 - Common operations:
   - `NB.` comment
   - `=.` assignment
+  - `[` / `]` extract left / right argument
   - `?` roll with repetition / deal no repetition
+  - Conjunction of verbs is left-associative
+    - `@` atop (concurrent conjunction, stronger link between verbs)
+    - `@:` at (sequencing conjunction, weaker link between verbs)
+    - `&` bound
 - Arithmetic operations:
   - `+` conjugate / addition
   - `-` negate / subtraction
   - `*` signum / multiplication
+  - `*:` square
   - `%` reciprocal / division
   - `%:` square root `sqrt`
   - `^` power `expt`
@@ -41,7 +54,3 @@
   - `a.` alphabet, `[0-9]` 48, `[A-Z]` 65, `[a-z]` 97
 - Comparison operations: `<`, `<:`, `>`, `>:`, `=` equal, `~:` not equal
 - Logical operations: `*.` and, `+.` or, `-.` not, `"*:` not-and, `+:` not-or
-- Noun = data, verb = function, modifier = verb modification
-- Monadic verb `v n`
-- Diadic verb `n0 v n1`
-- Fork `(v0 v1 v2) n = (v0 n) v1 (v2 n)`
