@@ -90,7 +90,9 @@
   (let fact* ([x x] [n 0])
     (cond [(odd? x) (values n x)] [else (fact* (quotient x 2) (+ n 1))])))
 
-(for-each
- (lambda (x)
-   (receive (n k) (integer-factorization x) (format #t "~a = 2^~a ~a\n" x n k)))
- '(1 2 3 4 5 6 7 8 9 10))
+;; (for-each
+;;  (lambda (x)
+;;    (receive (n k) (integer-factorization x) (format #t "~a = 2^~a ~a\n" x n k)))
+;;  '(1 2 3 4 5 6 7 8 9 10))
+
+;; *** Chapter 3 - Iteration and invariants
