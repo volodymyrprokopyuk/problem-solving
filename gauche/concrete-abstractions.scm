@@ -1,4 +1,5 @@
 (use math.const)
+(use gauche.generator)
 
 ;; *** Chapter 1 - Computer science and programming
 
@@ -23,6 +24,11 @@
 ;; #?=(average 1 2 3 4)
 
 ;; *** Chapter 2 - Recursion and induction
+
+;; Recursion = solve a subproblem first, then do the little bit of work that is left to
+;; solve the main problem (not tail-recursive). Put the main problem on hold while a
+;; subproblem is being solved. Less efficient due to the main problem memory overhead (the
+;; deepper is the recusion the more memory is consumed)
 
 (define (factorial n)
   (let factorial* ([n n] [r 1])
@@ -96,3 +102,43 @@
 ;;  '(1 2 3 4 5 6 7 8 9 10))
 
 ;; *** Chapter 3 - Iteration and invariants
+
+;; Iteration = transform the main problem into a subproblem with the same solution by
+;; doing a little bit of work first (tail-recursive named let). Progressively reduce the
+;; main problem by solfving the first subproblem first. More efficient as the only ever
+;; single subproblem is being solved in a fixed amount of memory no matter how many
+;; iterations are there
+
+;; Invariant = some parameters keep moving towards the base case, while some other
+;; parameters change in a compansatory fashion to keep the invariant fixed. Invariants
+;; are used to define iterative procedures and to prove their correctness (verified base
+;; case -> assume induction hypothesis -> prove inductive step)
+
+(define (fermat-number n)
+  (let fermat* ([n n] [r 2])
+    (cond [(zero? n) (+ r 1)] [else (fermat* (- n 1) (expt r 2))])))
+
+;; (for-each (lambda (n) (format #t "~a " (fermat-number n))) '(0 1 2 3 4 5 6))
+
+(define (perfect-number? x)
+  ($ = x $ fold + 0 $ filter (.$ zero? (cut remainder x <>)) $ iota (- x 1) 1))
+
+(define (perfect-number2? x)
+  (let perfect* ([i (- x 1)] [s 0])
+    (cond
+      [(zero? i) (= s x)]
+      [(zero? (remainder x i)) (perfect* (- i 1) (+ s i))]
+      [else (perfect* (- i 1) s)])))
+
+(define (perfect-number3? x)
+  (let* ([i (iota (- (floor (sqrt x)) 1) 2)]
+         [l (filter (.$ zero? (cut remainder x <>)) i)]
+         [h (map (cut / x <>) l)]
+         [d (if [null? l] '() (append '(1) l h))]
+         [s (fold + 0 d)])
+    (= s x)))
+
+(define (perfect-numbers)
+  ($ gfilter perfect-number3? $ grange 1))
+
+;; #?=(generator->list (gtake (perfect-numbers) 4)) ;; Perfect numbers 6 28 496 8128
