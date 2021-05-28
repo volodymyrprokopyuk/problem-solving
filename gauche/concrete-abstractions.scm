@@ -3,6 +3,8 @@
 
 ;; *** Chapter 1 - Computer science and programming
 
+;; A procedure is an algorithm implementation and performs a computational process
+
 (define (total-price p :optional (t 0.05)) (+ p (* p t)))
 
 ;; #?=(total-price 10)
@@ -142,3 +144,59 @@
   ($ gfilter perfect-number3? $ grange 1))
 
 ;; #?=(generator->list (gtake (perfect-numbers) 4)) ;; Perfect numbers 6 28 496 8128
+
+(define (golden-ratio :optional (p 1e-1))
+  (let golden* ([r 1])
+    (let ([r2 (+ 1 (/ r))])
+      (if [< (abs (- r2 r)) p] r2 (golden* r2)))))
+
+;; (for-each (lambda (p) (print (golden-ratio p))) '(1e-1 1e-2 1e-3 1e-4 1e-5 1/50000))
+
+(define (every-n-of? p l n)
+  (let every* ([p p] [l l])
+    (cond
+      [(< l n) #f]
+      [(= p n) #t]
+      [else (every* (if [< p n] (+ l (- p n)) (- p n)) (- l 1))])))
+
+;; #?=(every-n-of? 2 8 3)
+;; #?=(every-n-of? 5 8 3)
+;; #?=(every-n-of? 4 8 3)
+;; #?=(every-n-of? 7 8 3)
+;; #?=(remove (cut every-n-of? <> 5 4) (iota 5 1))
+;; #?=(remove (cut every-n-of? <> 40 3) (iota 40 1))
+
+(define (falling-factorial x n)
+  (let falling* ([n n] [r 1])
+    (cond [(zero? n) r] [else (falling* (- n 1) (* r (- x n -1)))])))
+
+;; #?=(falling-factorial 0 0)
+;; #?=(falling-factorial 5 1)
+;; #?=(falling-factorial 5 4)
+;; #?=(falling-factorial 7 3)
+
+(define (power2 x n)
+  (let power* ([n n] [r 1])
+    (cond
+      [(zero? n) r]
+      [(positive? n) (power* (- n 1) (* r x))]
+      [else (power* (+ n 1) (/ r x))])))
+
+;; #?=(power2 2 0)
+;; #?=(power2 2 3)
+;; #?=(power2 2 -3)
+
+;; Chapter 4 - Order of growth and tree recursion
+
+;; Asymptotic approximation of which algorithm is more rapidly taking longer on bigger
+;; input sizes
+
+;; Tree recursion = solve main problem by solving several subproblems first than combine
+;; the results to get the solution to the main problem
+
+;; Digital signature = (digest message) -> digest # one-way, many-to-one function
+;;   - (sign digest private-key) -> signature # inverse of (verify)
+;;   - (verify message signature public-key) -> valid / invalid # inverse of (sign)
+;; s = x^e mod m # (sign) # e = private-key, m public-key
+;; x = s^3 mode m # (verify)
+;; xy mod m = (x mod m) * (y mod m) mod m

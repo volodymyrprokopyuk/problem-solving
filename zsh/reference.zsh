@@ -15,4 +15,9 @@ function map_reduce {
   cat po{1,2,3}
 }
 
-printf '%s\n' vlad lana | map_reduce
+# printf '%s\n' vlad lana | map_reduce
+
+# read a b c <<< "A B C"; echo "$a $b $c"
+
+(echo "stdout"; echo "stderr" >&2) >/dev/null 2>&1
+(echo "stdout"; echo "stderr" >&2) &>/dev/null
