@@ -17,7 +17,11 @@ function map_reduce {
 
 # printf '%s\n' vlad lana | map_reduce
 
-# read a b c <<< "A B C"; echo "$a $b $c"
+# (echo "stdout"; echo "stderr" >&2) >/dev/null 2>&1
+# (echo "stdout"; echo "stderr" >&2) &>/dev/null
 
-(echo "stdout"; echo "stderr" >&2) >/dev/null 2>&1
-(echo "stdout"; echo "stderr" >&2) &>/dev/null
+# IFS="_ " read a b c d _ <<< "A_B_C D E_F"; echo "^$a, $b, $c, $d$"
+
+# read l w c _ < <(wc reference.zsh); echo "$l $w $c"
+# read l w c _ <<< $(wc reference.zsh); echo "$l $w $c"
+# echo $(wc reference.zsh) | read l w c _; echo "$l $w $c"

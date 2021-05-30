@@ -7,7 +7,8 @@
 - Builtins
   - `set` options
   - `alias al=cmd` prefer `function` over `alias` text substitution
-  - `read a b c <<< "A B C"; echo "$a $b $c"` read stdin into shell variables
+  - `IFS="_ " read a b c d _ <<< "A_B_C D E_F"; echo "^$a, $b, $c, $d$"` read stdin into
+    shell variables
 - Command -> pipeline -> sublist -> list
   - Simple command
     - `command` `-s` short option `--long` long option `-` arguments
@@ -50,9 +51,10 @@
     - `<<< "string"` here-string as stdin
     - `<< EOD\n ... \nEOD` here-document as stdin
 
+- Brace expansion `a{1,2}` generation of arbitrary strings
 - Parameter substitution `${1}`
-- Command substitution `$(cmd)` (only one direction)
-- Process substitution `<(cmd)`, `=(cmd)`, `>(cmd)` (only one direction)
+- Command substitution `$(cmd)` returns command output rather than status code
+- Process substitution `<(cmd)`, `=(cmd)`, `>(cmd)` creates anonymous named pipe
 
 - Co-process `coproc` starts a job in the background and communicates with it from the
   parent shell via `print -p` and `read -p` without using named pipes

@@ -200,3 +200,18 @@
 ;; s = x^e mod m # (sign) # e = private-key, m public-key
 ;; x = s^3 mode m # (verify)
 ;; xy mod m = (x mod m) * (y mod m) mod m
+
+(define (merge-sort l :optional (c <))
+  (let* ([n (length l)] [m (quotient n 2)])
+    (cond
+      [(< n 2) l]
+      [else
+       (let sort* ([a (merge-sort (take l m) c)] [b (merge-sort (drop l m) c)] [r '()])
+         (cond
+           [(null? a) (reverse (append (reverse b) r))]
+           [(null? b) (reverse (append (reverse a) r))]
+           [(c (car a) (car b)) (sort* (cdr a) b (cons (car a) r))]
+           [else (sort* a (cdr b) (cons (car b) r))]))])))
+
+#?=(merge-sort '(4 8 3 1 5 1 2 0 9 7 6 9))
+#?=(merge-sort '(4 8 3 1 5 1 2 0 9 7 6 9) >)
