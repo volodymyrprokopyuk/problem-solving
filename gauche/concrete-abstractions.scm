@@ -199,7 +199,6 @@
 ;;   - (verify message signature public-key) -> valid / invalid # inverse of (sign)
 ;; s = x^e mod m # (sign) # e = private-key, m public-key
 ;; x = s^3 mode m # (verify)
-;; xy mod m = (x mod m) * (y mod m) mod m
 
 (define (merge-sort l :optional (c <))
   (let* ([n (length l)] [m (quotient n 2)])
@@ -213,5 +212,13 @@
            [(c (car a) (car b)) (sort* (cdr a) b (cons (car a) r))]
            [else (sort* a (cdr b) (cons (car b) r))]))])))
 
-#?=(merge-sort '(4 8 3 1 5 1 2 0 9 7 6 9))
-#?=(merge-sort '(4 8 3 1 5 1 2 0 9 7 6 9) >)
+;; #?=(merge-sort '(4 8 3 1 5 1 2 0 9 7 6 9))
+;; #?=(merge-sort '(4 8 3 1 5 1 2 0 9 7 6 9) >)
+
+;; Chapter 5 - Higher-order procedures
+
+;; Parameters = variability of values
+;; Recursion = variability of computation cycles
+;; Higher-order procedures = variability of computation
+
+;; Uncomputable higher-order procedure = (halting-problem proc) -> proc terminates?
