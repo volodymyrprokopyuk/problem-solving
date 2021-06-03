@@ -42,9 +42,9 @@ TX003;12.3;EUR;Order one book"
 
 # (extract DSL | format DSL) < tx_data
 
-(sed -E 's/^([^;]+);([^;]+);([^;]+);([^;]+)$/\1 \2 \3 \4/' \
-   | while read id amount currency subject
- do printf "%-7s %8.2f %-4s %15s\n" $id $amount $currency $subject; done) <<< "$tx_data"
+# (sed -E 's/^([^;]+);([^;]+);([^;]+);([^;]+)$/\1 \2 \3 \4/' \
+#    | while read id amount currency subject
+#  do printf "%-7s %8.2f %-4s %15s\n" $id $amount $currency $subject; done) <<< "$tx_data"
 
 # (extract_transaction | format_transaction) < tx_data
 
@@ -68,4 +68,7 @@ function format_transaction {
   done
 }
 
-(extract_transaction | format_transaction) <<< "$tx_data"
+# (extract_transaction | format_transaction) <<< "$tx_data"
+
+exec {stdout}>&1; echo ok >&$stdout; exec {stdout}>&-
+exec {stdin}<&0; read v <&$stdin; echo $v; exec {stdin}<&-
