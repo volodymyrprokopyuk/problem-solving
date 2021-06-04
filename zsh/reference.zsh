@@ -70,5 +70,14 @@ function format_transaction {
 
 # (extract_transaction | format_transaction) <<< "$tx_data"
 
-exec {stdout}>&1; echo ok >&$stdout; exec {stdout}>&-
-exec {stdin}<&0; read v <&$stdin; echo $v; exec {stdin}<&-
+# exec {stdout}>&1; echo ok >&$stdout; exec {stdout}>&-
+# exec {stdin}<&0; read v <&$stdin; echo $v; exec {stdin}<&-
+
+# function { echo ">> $1, $@, $*" } vlad lana
+
+# zmodload zsh/mathfunc
+# integer i=2
+# float f=0.5
+# float v t
+# (( v = 1_234 + f, t = i > 0 ? 2 : 3 )); printf "%.4f %d\n" $v $t
+# (( v = sqrt(2e0) + i ** 3 )); printf "%.4f\n" $v

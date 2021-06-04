@@ -3,24 +3,27 @@
 - Interactive login shell with line editing (zle), code completion (compsys),
   history mechanism, spelling correction, prompt theme or a shell script processor with
   dataflow programming and first-class files, commands, processes and pipes
-- Shell `builtin` vs shell `function` vs external `command`
+- Lookup order: 1 `function`, 2 `builtin`, 3 external `command`
 - Builtins
   - `set` options
   - `alias al=cmd` prefer `function` definition over `alias` text substitution
   - `IFS="_ " read a b c d _ <<< "A_B_C D E_F"; echo "^$a, $b, $c, $d$"` read stdin into
     shell variables
-  - `echo`
+  - `echo expr ...`
   - `printf '%c' {a..z} $'\n'`
-  - `exec fd> file` redirects stderr for all subsequent commands
   - `exec fd< file` opens file for reading from the fd
   - `exec fd> file` opnes file for writing from the fd
   - `exec fd<&-`, `exec fd>&-` closes input / output fd
+  - `true`, `false`, `:`
+  - `trap func SIG ...`
+  - `zmodload mod` loads zsh module
+  - `typeset var ...`, `integer var ...`, `float var ...`
 - Command -> pipeline -> sublist -> list
   - Simple command
     - `command` `-s` short option `--long` long option `-` arguments
     - `exec cmd` replaces the current shell with the `cmd` by running the `cmd` in the
       current process instread of forking a sub-process. `trap ... EXIT` is not invoked
-  - Pipeline (one-way communication)
+  - Pipeline (implicit redirection)
     - `command` stdout 1 `|` 0 stdin `command2`
     - `command` stdout 1 + stderr 2 `|&` 0 stdin `command2` equivalent to `2>&1 |`
   - Sublist
@@ -41,7 +44,7 @@
     - `while / until list { list }`
   - `case word in pat [| pat] ... list ;; ... esac`
     - `case word { pat [| pat] ... list ;; ...}`
-  - `{ list }` executes in the current shell
+  - `{ list }` executes in the current shell as a job
   - `( list )` executes in a subshell with `trap reset`
   - `{ try-list } always { always-list }` returns the `try-list` exit status after
     execuing the `always-list`
@@ -64,8 +67,20 @@
   - File / stdin literal with parameter substitution and command substitution
     - `<<< "string"` here-string as stdin
     - `<< EOD\n ... \nEOD` here-document as stdin
+- Function (is executed like a command with arguments passed as positional parameters in
+  the same process)
+  - `return` early from a function
+  - `autoload func ...` lazy load of functions
+  - `zcompile` precompile functions into `*.zwc`
+  - `function { list } arg ...` anonymous function is executed immediately at the point
+    of definition and provides scope for `local` variables
+- Job (is associated with each pipeline)
+  - `bg` / `C-z`, `fg %jobid`, `jobs` puts job in background, foreground, lists jobs
+- Arithmetic evaluation `(( v = ..., t = ... ))` with assignment, `$(( ... ))` with
+  command substitution. Always excplicitly declare type of variables with `integer` and
+  `float` builtins
 
-- Brace expansion `{1,2,3}`, `{1..10}`, `{a,b}{1,2}`
+- Brace expansion `k{1,2,3}k`, `{1..10}`, `{a,b}{1,2}`
 - Parameter substitution `${1}`
 - Command substitution `$(list)` returns command output rather than status code
 - Process substitution `<(list)`, `=(list)`, `>(list)` creates anonymous named pipe
