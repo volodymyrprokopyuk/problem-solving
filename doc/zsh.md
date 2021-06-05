@@ -79,6 +79,12 @@
 - Arithmetic evaluation `(( v = ..., t = ... ))` with assignment, `$(( ... ))` with
   command substitution. Always excplicitly declare type of variables with `integer` and
   `float` builtins
+- Conditional expressions
+  - File `[[ -efdpLS file, -rwx file ]]`
+  - String `[[ -n str, str ==, !=, =~, <, > pat ]]`
+    - `setopt RE_MATCH_PCRE`: `$MATCH` whole match, `$match[1]` capture group
+  - Expressions `[[ ! expr, expr1 &&, || expr2 ]]`
+  - Use arithmetic evaluation `(( ... ))` for numerical comparison
 
 - Brace expansion `k{1,2,3}k`, `{1..10}`, `{a,b}{1,2}`
 - Parameter substitution `${1}`

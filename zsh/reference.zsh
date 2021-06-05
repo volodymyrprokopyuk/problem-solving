@@ -81,3 +81,12 @@ function format_transaction {
 # float v t
 # (( v = 1_234 + f, t = i > 0 ? 2 : 3 )); printf "%.4f %d\n" $v $t
 # (( v = sqrt(2e0) + i ** 3 )); printf "%.4f\n" $v
+
+# setopt RE_MATCH_PCRE
+# s="one 1, two 2, ten 10"
+# r='(\w+) (\d+)'
+# [[ $s =~ $r ]] && echo $MATCH $s[$MBEGIN,$MEND] $match[2] $match[1]
+# while [[ $s =~ $r ]] do
+#   echo $match[1] $match[2]
+#   s=${s/$MATCH/}
+# done

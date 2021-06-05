@@ -1,5 +1,13 @@
 (use math.const)
 (use gauche.generator)
+(use srfi-42)
+(use util.match)
+
+;; *** Part 1 - Procedural abstraction
+;;   - Recursion and induction
+;;   - Iteration and invariants
+;;   - Tree recution and order of growth
+;;   - Higher-order procedures
 
 ;; *** Chapter 1 - Computer science and programming
 
@@ -222,3 +230,48 @@
 ;; Higher-order procedures = variability of computation
 
 ;; Uncomputable higher-order procedure = (halting-problem proc) -> proc terminates?
+
+(define (number->digits n)
+  (let digit* ([n n] [l '()])
+    (receive (q r) (quotient&remainder n 10)
+      (cond
+        [(zero? q)
+         (let ([l (reverse (cons r l))])
+           (map cons l (iota (length l) 1)))]
+        [else (digit* q (cons r l))]))))
+
+;; #?=(number->digits 1234567890)
+
+(define (make-number-verifier f m)
+  (lambda (n)
+    (zero?
+     (remainder
+      (fold (match-lambda* [((d . i) s) (+ (f d i) s)]) 0 (number->digits n))
+      m))))
+
+(define valid-isbn? (make-number-verifier * 11))
+
+;; #?=(valid-isbn? 0262010771)
+;; #?=(valid-isbn? 0262010772)
+
+(define valid-upc? (make-number-verifier (lambda (d i) (if [odd? i] d (* d 3))) 10))
+
+;; #?=(valid-upc? 042272010264)
+;; #?=(valid-upc? 042272010265)
+
+(define valid-credit-card?
+  (make-number-verifier
+   (lambda (d i) (cond [(odd? i) d] [(< d 5) (* d 2)] [else (+ (* d 2) 1)])) 10))
+
+;; #?=(valid-credit-card? 5333619503715702)
+;; #?=(valid-credit-card? 5333619503715703)
+
+;; *** Part 2 - Data abstraction
+
+;; *** Chapter 6 - Compound data and data abstraction
+;; *** Chapter 7 - Lists
+;; *** Chapter 8 - Trees
+;; *** Chapter 9 - Generic operations
+;; *** Chapter 10 - Implementing programming languages
+
+;; *** Part 3 - Abstraction of state
