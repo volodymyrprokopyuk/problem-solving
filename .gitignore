@@ -3,3 +3,4 @@ guile/cities.txt
 postgresql/booking/schema.sql
 postgresql/chinook/schema.sql
 postgresql/racing/schema.sql
+ggplot2/*.pdf

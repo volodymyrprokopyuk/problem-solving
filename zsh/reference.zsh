@@ -90,3 +90,9 @@ function format_transaction {
 #   echo $match[1] $match[2]
 #   s=${s/$MATCH/}
 # done
+
+# echo 'Vlad\tLana $EDITOR $(date) $((1.0 + 0.5))'
+# echo $'Vlad\tLana $EDITOR $(date) $((1.0 + 0.5))'
+# echo "Vlad\tLana $EDITOR $(date) $((1.0 + 0.5))"
+
+# cat < <(echo ok) > >(tr '[a-z]' '[A-Z]')

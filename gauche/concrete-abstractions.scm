@@ -275,3 +275,6 @@
 ;; *** Chapter 10 - Implementing programming languages
 
 ;; *** Part 3 - Abstraction of state
+
+;; Data abstraction = speratate data interpretation (interface) from data representation
+;; (structure)

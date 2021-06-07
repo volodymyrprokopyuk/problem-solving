@@ -4,6 +4,14 @@
   history mechanism, spelling correction, prompt theme or a shell script processor with
   dataflow programming and first-class files, commands, processes and pipes
 - Lookup order: 1 `function`, 2 `builtin`, 3 external `command`
+- Expansion order:
+  - 1 Alias expansion (prefer `function` over `alias`)
+  - 2 Process substitution `<(list)`, `>(list)` creates anonymous named pipe
+  - 3 Parameter expansion `${param}`, `${array[@]}`
+  - 4 Command substitution `$(list)` returns command output rather than status code
+  - 5 Arithmetic expansion `((expr))`
+  - 7 Brace expansion `a{1,2,3}`, `{1..10}`, `{a,b}{1,2}` string generation
+  - 8 Filename expansion `**/*.*` (globbing)
 - Builtins
   - `set` options
   - `alias al=cmd` prefer `function` definition over `alias` text substitution
@@ -76,7 +84,7 @@
     of definition and provides scope for `local` variables
 - Job (is associated with each pipeline)
   - `bg` / `C-z`, `fg %jobid`, `jobs` puts job in background, foreground, lists jobs
-- Arithmetic evaluation `(( v = ..., t = ... ))` with assignment, `$(( ... ))` with
+- Arithmetic expansion `((v = ..., t = ...))` with assignment, `$((...))` with
   command substitution. Always excplicitly declare type of variables with `integer` and
   `float` builtins
 - Conditional expressions
@@ -85,8 +93,19 @@
     - `setopt RE_MATCH_PCRE`: `$MATCH` whole match, `$match[1]` capture group
   - Expressions `[[ ! expr, expr1 &&, || expr2 ]]`
   - Use arithmetic evaluation `(( ... ))` for numerical comparison
+- Quoting
+  - `'...'` = literal
+  - `"..."` = `${param}`, `$(cmd)`, `$((expr))`, `\escape`
+  - `$'...'` = `C \escape`
+- Parameter expansion `${param}`, `${array[@]}`
+  - Unquoted parameters `$param`, `$array[@]` words are not split and empty words are
+    elided
+  - Quoted parameters `"$param"`, `"${array[@]}"` empty words are not ellided
+  - Return default if not set `${v:-return default}`
+  - Set to default if not set `${v:=set default}`
+  - Raise error if not set `${v:?error message}`
+  - Subscripting `${v:offset:length}`
+  - Replace `${v/pattern/repl}`, `${v//pattern/repl}`
+  - Length `${#v}`
 
-- Brace expansion `k{1,2,3}k`, `{1..10}`, `{a,b}{1,2}`
-- Parameter substitution `${1}`
-- Command substitution `$(list)` returns command output rather than status code
-- Process substitution `<(list)`, `=(list)`, `>(list)` creates anonymous named pipe
+  - Atoms, arrays, associative arrays
