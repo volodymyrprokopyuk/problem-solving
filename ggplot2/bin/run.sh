@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-readonly ROOT_DIR=$(pwd)
+set -eu
 
 readonly SOURCE=plot
 
-Rscript "${SOURCE}.r" "${@}"
+Rscript "${SOURCE}.R" "${@}"

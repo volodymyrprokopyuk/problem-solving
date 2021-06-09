@@ -96,3 +96,5 @@ function format_transaction {
 # echo "Vlad\tLana $EDITOR $(date) $((1.0 + 0.5))"
 
 # cat < <(echo ok) > >(tr '[a-z]' '[A-Z]')
+
+setopt EXTENDED_GLOB

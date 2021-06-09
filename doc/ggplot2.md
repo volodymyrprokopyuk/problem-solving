@@ -9,5 +9,5 @@
   - `layer` = `geom` (geometric elements) + `stat` (statistical transformations)
   - `scale` = `axes` + `legend` (data space -> aesthetic space)
   - `coord` = `axes` + `gridlines` (coordinate system)
-  - `facet` breaks up big datasets into subsets
+  - `facet` split big datasets into subsets
   - `theme` = `font` + `color`

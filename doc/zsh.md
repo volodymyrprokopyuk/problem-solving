@@ -97,6 +97,16 @@
   - `'...'` = literal
   - `"..."` = `${param}`, `$(cmd)`, `$((expr))`, `\escape`
   - `$'...'` = `C \escape`
+- Filename generation
+  - `setopt EXTENDED_GLOB`
+  - `*` any string, `?` any char
+  - Char class isngle metch `[...]`, `[^...]` complement
+    - `[:alpha:]`, `[:digit:]`, `[:alnum:]`, `[:blank:]`, `[:punct:]`
+  - `^pat` pattern complement
+  - `pat1~pat2` maches `pat1` excluding `pat2`
+  - `pat#` zero or more, `pat##` one or more
+  - `(...)` capturing group
+  - `(...|...)` alternative
 - Parameter expansion `${param}`, `${array[@]}`
   - Unquoted parameters `$param`, `$array[@]` words are not split and empty words are
     elided
