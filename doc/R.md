@@ -1,3 +1,4 @@
 # R
 
-- `?func`, `??"search"` show / search help files
+- `?func`, show help `??"search"` search help
+- Literals `NULL`, `NA`, `TRUE`, `FALSE`

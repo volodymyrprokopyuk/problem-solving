@@ -4,7 +4,7 @@
   composable static graphics components for raw data representations and statistical
   transformations
   - `data` -> `aes`thetic mapping (visualization attributes)
-    - categorical variables -> color, shape
+    - categorical variables -> color, fill, shape
     - continuous variables -> size
   - `layer` = `geom` (geometric elements) + `stat` (statistical transformations)
   - `scale` = `axes` + `legend` (data space -> aesthetic space)
