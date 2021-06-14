@@ -1,0 +1,39 @@
+---
+title: Benchmarking analysis report
+date: 2021-06-08
+---
+
+```{r report-config, include = F}
+opts_chunk$set(error = F, dev = "svg")
+```
+
+# Introduction
+
+TODO
+
+# Benchmarking analysis
+
+## Pricing analysis
+
+### Single node pricing
+
+```{r benchmarking-data}
+snp <- data.frame(
+  inst.type = c("c5", "c5a", "c5n", "c6g"),
+  tps.peak = c(505, 469, 509, 572),
+  cost.hour = c(0.77, 0.69, 0.98, 0.61),
+  cost.mtx = c(0.42, 0.41, 0.53, 0.30))
+```
+
+```{r data-plot, fig.cap = "TPS peak per instance type (single node)"}
+ggplot(snp, aes(inst.type, tps.peak,
+  color = inst.type, fill = inst.type)) +
+  geom_bar(stat = "identity", alpha = 0.2) +
+  xlab("Instance type") + ylab("TPS peak")
+```
+
+### Multi-node pricing
+
+# Conclusions
+
+TODO
