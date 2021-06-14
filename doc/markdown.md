@@ -1,0 +1,52 @@
+# Markdown
+
+- Header
+    - `# Header {#id .class key="a value"}`
+- Paragraph
+    - `*emphasis*`
+    - `**strong emphasis**`
+    - `~~strikeout~~`
+    - `^superscript^`
+    - `~subscript~`
+    - `| formatted line block`
+    - `---` horizontal rule
+    - `\*` escape control character
+    - `\<newline>` hard line break
+    - `\<space>` non-breaking space
+- Link
+    - Web `[Inline link](https://organization.org)`, `<https://organization.org>` implicit
+    - Email `[Email](mailto:user@mail.com)`, `<user@mail.com>` implicit
+    - Internal link `<div id="internal-link"/>` <- `[Internal link](#internal-link)`
+    - Internal reference `<div id="internal-link"/> [Internal link]: #internal-link`
+        <- `[Internal link]`
+    - Reference explicit `[reference-label]: https://organization.org`
+        <- `[Reference link][reference-label]`
+    - Reference implicit `[Reference link]:  https://organization.org`
+      <- `[Reference link]`
+    - Link attributes `[Inline link](https://organization.org){#id .class key="a value"}`
+- Image
+    - Inline image `![Image description](image.png)`
+    - Image reference `[Image refrence]: image.png` <- `![Image reference]`
+- List
+    - `- Bulleted item`
+    - `1. Numbered item`
+    - `a. Lettered item`
+    - `Term<newline>: Definition`
+- Grid table
+- Code
+    - `langauge inline-code`
+    - ``language code with ` backtick``
+    - ```language code-block```
+- Quote
+    - `> Block quote`
+    - `> > Nested block quote`
+- Math
+    - `$inline tex math$`
+    - `$$block tex math$$`
+- Raw HTML
+    - Fenced div `:::{#id .class key="a value"} Content :::`
+    - `<div class="content">Content</div>`
+    - Bracketed span `[Content]{#id .class key="a value"}`
+    - `<span style="font-variant: small-caps;">Small caps</span>`
+    - `<span>Raw inline code</span>{=html5}`
+    - ```{=html5}<div>Raw code block</div>```
