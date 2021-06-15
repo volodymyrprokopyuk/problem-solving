@@ -5,4 +5,7 @@ postgresql/chinook/schema.sql
 postgresql/racing/schema.sql
 ggplot2/*.pdf
 knitr/figure/
+knitr/style/
 knitr/*.md
+knitr/*.html
+knitr/*.pdf

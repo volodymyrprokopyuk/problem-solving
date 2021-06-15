@@ -4,4 +4,4 @@ set -eu
 
 readonly SOURCE=plot
 
-Rscript "${SOURCE}.R" "${@}"
+exec Rscript "${SOURCE}.R"

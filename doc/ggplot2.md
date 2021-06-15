@@ -11,3 +11,8 @@
   - `coord` = `axes` + `gridlines` (coordinate system)
   - `facet` split big datasets into subsets
   - `theme` = `font` + `color`
+- Layer purposes
+  - Display row data (gross structure, local structure, outliers, inflection points)
+  - Statistical summary (model fitting and prediction) on top of raw data
+  - Metadata (background context, explanative annotations, comparison references) in the
+    beckground and in the foreground

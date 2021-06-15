@@ -1,15 +1,169 @@
 ---
 title: A minimal Rmd example
+author: Volodymyr Prokopyuk
+date: `r Sys.Date()`
+keywords: [markdown, knitr, literate-programming]
+abstract: |
+  Abstract paragarph 1
+
+  Abstract paragarph 2
 ---
+
+[Preample 1]{#ppp .preamble}
+
+Start
+
+
+End
+
+# Introduciton
+
+Start
+
+:::{#mmm .master-div}
+
+~~Demonstration of table syntax~~
+
+:::
+
+:::{.content-div}
+
+[Internal link](#internal-link)
+[Internal link 2]
+
+![Regression model](figure/model-1.png){#reg-model .figure}
+
+:::
+
+2^10^ is K1. H~2~O is water. ``code with ` backtick``
+
+![Regression model 2]
+
+[Regression model 2]: figure/model-1.png
+
+[Small caps]{.smallcaps}
+<span class="smallcaps">Small caps</span>
+<span style="font-variant: small-caps;">Small caps</span>
+
+Inline math $\binom{n}{k} = \frac{n!}{k!(n-k)!}$ $\gamma = \frac{\alpha}{\beta}$
+
+Block math
+
+$$\binom{n}{k} = \frac{n!}{k!(n-k)!}$$
+
+Table: Demonstration of table syntax
+
+ Right  Left    Center  Default
+------  -----  -------- -------
+1       2      3        4
+Right   Left   Center   Default
+
+Table: Multiline table
+
+------------------------------------
+  Right   Left      Center   Default
+ Header   Header    Header   Header
+-------   -------  --------  -------
+One       Two      Three     Four
+Eleven    Twenty   Thirty    Forty
+
+------------------------------------
+
++-------------+----------+----------+-----------+
+|Vlad and Lana|Lana      |          |           |
+|             |          |          |           |
+|             |          |          |           |
++=============+==========+==========+===========+
+|             |          |          |Last row   |
+|   Second row|          |          |           |
+|    and below|          |          |           |
++-------------+----------+----------+-----------+
+|             |          |          |           |
+|             |          |          |           |
++-------------+----------+----------+-----------+
+|             |          |          |           |
+|             |          |          |           |
++-------------+----------+----------+-----------+
+|             |          |          |           |
+|             |          |          |           |
++-------------+----------+----------+-----------+
+
+
+Term
+: We examine the relationship between speed and stopping distance using a liner
+  regression
+: We examine the relationship between speed and stopping distance using a liner
+  regression
+
+Term 2
+: We examine the relationship between speed and stopping distance using a liner
+  regression
+
+---
+
+> We examine the relationship between *speed* and\
+> stopping **distance** using a liner regression
+
+> > We examine the relationship between *speed* and stopping **distance** using a liner
+> > regression
+
+```js
+if (a > 3) {
+    moveShip(5 * gravity, DOWN);
+}
+```
+
+| Let preserve formatting
+|   of this line block
+
+- One
+
+  Item content
+  - Two
+
+    Item content
+- Three
+
+#. Abc
+    #. Def
+    #. Ghi
+#. Jkl
+#. Mno
+
+a. One
+    a. Ok
+    a. Yes
+a. Two
+
+<div id="internal-link"/>
+<div id="internal-link2"/> [Internal link 2]: #internal-link2
 
 We examine the relationship between speed and stopping distance using a liner regression
 model: $Y = \beta_0 + \beta_1 x + \epsilon$.
 
-```{r model, fig.width=4, fig.height=3, fig.align='center'}
+`r opts_chunk$set(echo = TRUE, error = FALSE)`
+
+# Data visulalizaiton
+
+```{r label = "model", fig.width = 12, fig.height = 9, fig.align = "center"}
 par(mar = c(4, 4, 1, 1), mgp = c(2, 1, 0), cex = 0.8)
 plot(cars, pch = 20, col = 'darkgray')
 fit <- lm(dist ~ speed, data = cars)
 abline(fit, lwd = 2)
 ```
 
+# Conclusion
+
 The scope of a simple linear regression is `r coef(fit)[2]`.
+
+Options: `error`, `echo`, `eval`, `tidy`, `tidy.opts`
+
+# Appendix
+
+`r 123.4567 * 1e-8`
+
+```{r tidy = TRUE, highlight = TRUE}
+f <- function() { 1 + 2 }
+f()
+```
+See [here](#data-visulalizaiton) [Data visulalizaiton]
