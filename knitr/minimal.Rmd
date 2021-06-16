@@ -7,11 +7,13 @@ abstract: |
   Markdown and knitr make literate programming in R very convenient
 ---
 
-# Introduction
+# Introduction{#into .heading-class}
 
 [Go to code block](#code-block)
 
 [Go to code block]
+
+Here is a footnote [^afootnote] and here is another footnote [^anotherf]
 
 **Markdown** and *knitr* make ***literate programming***\
 in R very convenient
@@ -73,3 +75,23 @@ Zsh inline code ``exec R script.r; echo `pwd`;``{.zsh}
 [Reference text][reference-label]
 
 [reference-label]: https://www.postgresql.org/
+
+Name | HTML syntax example | Description
+:--- | :---: | ---:
+Header | `<h1>...</h1>`{.html} | Title
+Paragraph | `<p>...</p>`{.html} | Text
+
+Left | Center  | Right
+:--- | :---: | ---:
+A | B | C
+
+[^afootnote]: A foot note content
+
+    With one more paragraph
+
+[^anotherf]: Another footnote with code block
+
+    ```sql
+    SELECT *
+    FROM data d;
+    ```

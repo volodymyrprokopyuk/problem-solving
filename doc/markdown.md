@@ -29,6 +29,7 @@
           <- `[Internal link reference]`
     - Link attributes `[Inline link](https://organization.org){#id .class key="a value"}`
     - Reference `[reference-label]: URI` <- `[Reference text][reference-label]`
+    - Footnote `[^footnote]: Content` <- `[^footnote]`
 - Image
     - Inline image `![Image description](image.png)`
     - Image reference `[Image reference]: image.png` <- `![Image reference]`
@@ -36,12 +37,27 @@
     - `- Bulleted item`
     - `1. Numbered item`
     - `a. Lettered item`
-    - `Term<newline>: Definition`
-- Grid table
+    - Definition list
+
+      ```md
+      Term
+      : Definition
+      ```
+
+- Table
+    - Pipe table
+
+      ```md
+      Left | Center  | Right
+      :--- | :---: | ---:
+      A | B | C
+        ```
+
+    - Grid table
 - Code
     - `inline code`{.language}
-    - ``inlin ecode with a ` backtick``{.language}
-    - ```{.language} code block```
+    - ``inline ecode with a ` backtick``{.language}
+    - ```{.language} code block``` = ```language code block```
 - Quote
     - `> Block quote`
     - `> > Nested block quote`
@@ -49,9 +65,9 @@
     - `$inline tex math$`
     - `$$block tex math$$`
 - Raw HTML
-    - Fenced div `:::{#id .class key="a value"} Content :::`
-    - `<div class="content">Content</div>`
-    - Bracketed span `[Content]{#id .class key="a value"}`
-    - `<span style="font-variant: small-caps;">Small caps</span>`
+    - `:::{#id .class key="a value"}\newline Content \newline:::` =
+      `<div id="id" class="class" key="a value">Content</div>`
+    - `[Content]{#id .class key="a value"}` =
+      `<span id="id" class="class" key="a value">Content</span>`
     - `<span>Raw inline code</span>{=html5}`
     - ```{=html5}<div>Raw code block</div>```

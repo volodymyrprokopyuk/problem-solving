@@ -195,14 +195,50 @@
 # s <- sub("V\\w+", "Lana", "Vlad and Lana")
 # gsub("[A-Z]\\w{3}", "Vlad", s)
 
-fname <- c("Liz", "Jolene", "Susan", "Boris", "Rochelle", "Tim", "Simon", "Amy")
-snum <- c(0, 0, 0, 1, 0, 1, 1, 0)
-schar <-  c("female", "female", "female", "male", "female", "male", "male", "female")
-snumfac <- factor(snum)
+# fname <- c("Liz", "Jolene", "Susan", "Boris", "Rochelle", "Tim", "Simon", "Amy")
+# snum <- c(0, 0, 0, 1, 0, 1, 1, 0)
+# schar <-  c("female", "female", "female", "male", "female", "male", "male", "female")
+# snumfac <- factor(snum)
 # levels(snumfac)
-scharfac <- factor(schar)
+# scharfac <- factor(schar)
 # levels(scharfac)
-levels(snumfac) <- c("1", "2")
+# levels(snumfac) <- c("1", "2")
 # snumfac == "2"
 # fname[snumfac == "2"]
 # fname[scharfac == "male"]
+
+# mob <- c("Apr", "Jan", "Dec", "Sep", "Nov", "Jul", "Jul", "Jun")
+# ms <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+# mob.fac <- factor(mob, levels = ms, ordered = T)
+# mob.fac[2]
+# mob.fac[4] < mob.fac[5]
+
+# mob2.fac <- factor(c("Oct", "Feb", "Feb"), levels = ms, ordered = T)
+# c(mob.fac, mob2.fac)
+
+# a <- c(0.53, 5.4, 1.5, 3.33, 0.45, 0.01, 2, 4.2, 1.99, 1.01)
+# l <- c("small", "medium", "large")
+# f <- cut(a, breaks = c(0, 2, 4, 6), right = F, include.lowest = T, labels = l)
+
+# s <- rep("M", times = 20)
+# s[c(1, 5:7, 12, 14:16)] <- "F"
+# sf <- factor(s)
+# p <- rep("national", times = 20)
+# p[c(1, 4, 12, 15, 16, 19)] <- "labour"
+# p[c(6, 9, 11)] <- "green"
+# p[c(10, 20)] <- "other"
+# pf <- factor(p)
+# pf[sf == "M"]
+# sf[pf == "national"]
+# s2 <- c("M", "M", "F", "F", "F", "M")
+# sf <- c(sf, factor(s2))
+# p2 <- c("National", "Maori", "Maori", "Labour", "Greens", "Labour")
+# pf <- c(pf, factor(p2))
+# con <- c(93, 55, 29, 100, 52, 84, 56, 0, 33, 52, 35, 53, 55, 46, 40, 40, 56, 45, 64,
+#   31, 10, 29, 40, 95, 18, 61)
+# l = c("low", "moderate", "high")
+# conf <- cut(con, breaks = c(0, 30, 70, 100), include.lowest = T, labels = l)
+# conf
+# conf[pf == "labour"]
+# conf[pf == "national"]

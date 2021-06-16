@@ -11,11 +11,12 @@
     - Subsetting `m[1]` column-first vector, `m[1, 1]` element, `m[1,]` row, `m[, 1]`
       column, `m[c(...), c(...)]` sub-matrix, `m[-c(...), -c(...)]` remove, `diag`
       diagonal
-- Array (row x column x layter x block) `array`
+- Array (row x column x layter x block) `array` + array subsetting
 - Logical `TRUE`, `FALSE`, `T`, `F`, `any`, `all`, `T && || F`, `v & | v`, `! v`
 - String `nchar`, `cat`, `paste`, `sprintf`, `strsplit`, `substr`, `grep[l]`,
   `[g]regexpr`, `regexec`, `[g]sub`
-- Factor `factor`, `levels`
+- Factor (string vector with ordering) `factor`, `levels`, `c`, `cut` + factor
+  subsetting
 
 - Functions `ls`, `getwd`, `setwd`
 - Evaluation `eval(parse(text = "1 + 2"))`
