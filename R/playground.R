@@ -181,3 +181,28 @@
 # which(a == 3 | a == 4, arr.ind = T)
 # a[a < 3 | a >= 7] <- 100
 # a[c(F, T)]
+
+# cat("one", "two", "three", 45, "\n", sep = "_")
+# paste("one", "two", "three", 45, "\n", sep = "_")
+# sprintf("%d %s", 1, "one")
+# strsplit("Vlad and Lana", "\\s+")
+# grepl("(\\w+) (\\d+)", c("one 1", "two 2", "11 eleven", "ten 10"))
+# gregexpr("(\\w+) (\\d+)", c("one 1", "two 2", "11 eleven", "ten 10"))
+# gregexec("(\\w+) (\\d+)", c("one 1", "two 2", "11 eleven", "ten 10"))
+# gsub("(\\w+) (\\d+)", "\\2 \\1", c("one 1", "two 2", "11 eleven", "ten 10"))
+
+# sprintf("The result of %.2f x %.2f = %.2f", 4, 0.75, 3)
+# s <- sub("V\\w+", "Lana", "Vlad and Lana")
+# gsub("[A-Z]\\w{3}", "Vlad", s)
+
+fname <- c("Liz", "Jolene", "Susan", "Boris", "Rochelle", "Tim", "Simon", "Amy")
+snum <- c(0, 0, 0, 1, 0, 1, 1, 0)
+schar <-  c("female", "female", "female", "male", "female", "male", "male", "female")
+snumfac <- factor(snum)
+# levels(snumfac)
+scharfac <- factor(schar)
+# levels(scharfac)
+levels(snumfac) <- c("1", "2")
+# snumfac == "2"
+# fname[snumfac == "2"]
+# fname[scharfac == "male"]

@@ -2,9 +2,9 @@
 
 set -eu
 
-# readonly DOC=minimal
-readonly DOC=cts-benchmarking-2021-06-08
-readonly STYLE=style/base.min.css
+readonly DOC=minimal
+# readonly DOC=cts-benchmarking-2021-06-08
+# readonly STYLE=style/base.min.css
 # readonly STYLE=style/tailwind.min.css
 
 function cleanup {

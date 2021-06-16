@@ -12,8 +12,11 @@
       column, `m[c(...), c(...)]` sub-matrix, `m[-c(...), -c(...)]` remove, `diag`
       diagonal
 - Array (row x column x layter x block) `array`
-- Logicals`TRUE`, `FALSE`, `T`, `F`, `any`, `all`, `T && || F`, `v & | v`, `! v`
+- Logical `TRUE`, `FALSE`, `T`, `F`, `any`, `all`, `T && || F`, `v & | v`, `! v`
+- String `nchar`, `cat`, `paste`, `sprintf`, `strsplit`, `substr`, `grep[l]`,
+  `[g]regexpr`, `regexec`, `[g]sub`
+- Factor `factor`, `levels`
 
-- Functions `cat`, `grep`, `ls`, `sprintf`
+- Functions `ls`, `getwd`, `setwd`
 - Evaluation `eval(parse(text = "1 + 2"))`
 - Errors: `message`, `warning`, `stop`
