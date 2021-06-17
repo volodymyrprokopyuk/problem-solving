@@ -1,7 +1,7 @@
-# Markdown
+# Markdown markup language
 
 - Header
-    - `# Header{#id .class key="a value"}`
+    - `# Header{#id .class key="a value"}` delimits a section
 - Paragraph
     - `*emphasis*`
     - `**strong emphasis**`
@@ -11,6 +11,10 @@
     - `~subscript~`
     - `| formatted line block`
     - `---` horizontal rule
+    - `-` hyphen for compound words
+    - `--` en-dash for ranges
+    - `---` em-dash substitutes coma, colon, seminolon or parentheses to set apart a
+      phrase
     - `\*` escape control character
     - `\<newline>` hard line break
     - `\<space>` non-breaking space
@@ -27,15 +31,18 @@
         - `<div id="internal-link"/>` <- `[Internal link](#internal-link)`
         - `<div id="internal-link"/>`, `[Internal link reference]: #internal-link`
           <- `[Internal link reference]`
+        - `[Header link]`
     - Link attributes `[Inline link](https://organization.org){#id .class key="a value"}`
     - Reference `[reference-label]: URI` <- `[Reference text][reference-label]`
-    - Footnote `[^footnote]: Content` <- `[^footnote]`
+- Footnote
+    - `^[Inline footnote]`
+    - `[^footnote]: Footnote reference` <- `[^footnote]`
 - Image
     - Inline image `![Image description](image.png)`
     - Image reference `[Image reference]: image.png` <- `![Image reference]`
 - List
     - `- Bulleted item`
-    - `1. Numbered item`
+    - `4. Numbered item` starts from 4
     - `a. Lettered item`
     - Definition list
 
@@ -48,6 +55,8 @@
     - Pipe table
 
       ```md
+      Table: Caption
+
       Left | Center  | Right
       :--- | :---: | ---:
       A | B | C
@@ -71,3 +80,7 @@
       `<span id="id" class="class" key="a value">Content</span>`
     - `<span>Raw inline code</span>{=html5}`
     - ```{=html5}<div>Raw code block</div>```
+
+# Pandoc document converter
+
+# Knitr dynamic documents using R

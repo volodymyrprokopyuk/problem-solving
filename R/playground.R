@@ -242,3 +242,59 @@
 # conf
 # conf[pf == "labour"]
 # conf[pf == "national"]
+
+# l <- list(matrix(data=1:4, nrow=2), c(T, F, T, T), "hello")
+# l[[1]][, 2]
+# l[1:2]
+# names(l) <- c("mat", "log", "str")
+# l$mat[, 2]
+# names(l)
+# l[[4]] <- list(1:4)
+# l$fifth <- list("ok")
+# l[[4]][[1]][2]
+
+# l <- list(seq(-4, 4, length = 20), matrix(c(F, T, T, T, F, T, T, F, F), nrow = 3),
+#   c("don", "quixote"), factor(c("LOW", "MED", "LOW", "MED", "MED", "HIGH")))
+# l[[2]][2:1, 2:3]
+# l[[3]][1] <- sub("don", "Don", l[[3]][1])
+# l[[3]][2] <- sub("quixote", "Quixote", l[[3]][2])
+# l[[1]][l[[1]] > 1]
+# which(l[[4]] == "MED")
+
+# l2 <- list(fac = factor(c("LOW", "MED", "LOW", "MED", "MED", "HIGH")),
+#   num = c(3, 2.1, 3.3, 4, 1.5, 4.9), old = l[1:3])
+# l2$fac[l2$num >= 3]
+# l2$flag <- rep(l2$old[[2]][, 3], times = 2)
+# l2$num[l2$flag]
+# l2$old[[3]] <- "Don Quixote"
+
+# df <-  data.frame(
+#   person = c("Peter", "Lois", "Meg", "Chris", "Stewie"),
+#   age = c(42, 40, 17, 14, 1),
+#   sex = factor(c("M", "F", "F", "M", "M")))
+# df[1:2, 2:3]
+# df[, c(1, 3)]
+# df$person[3]
+# nrow(df)
+# ncol(df)
+# dim(df)
+# df$person
+# df2 <- data.frame(person = "Brian", age = 7, sex = factor("M", levels = levels(df$sex)))
+# df <- rbind(df, df2)
+# ff <- factor(c("High","High","Low","Med","High","Med"))
+# df <- cbind(df, funny = ff)
+# df$age.mon <- df$age * 12
+# df[df$sex == "M", -3]
+# df[df$age > 10 | df$funny == "High",]
+# df[df$age > 45,]
+
+# df <- data.frame(
+#   person = c("Stan", "Francine", "Steve", "Roger", "Hayley", "Klaus"),
+#   sex = factor(c("M", "F", "M", "M", "F", "M")),
+#   funny = factor(c("High", "Med", "Low", "High", "Med", "Med")))
+# df$age <- c(41, 41, 15, 21, 60, 1600)
+# df <- cbind(df, age = c(41, 41, 15, 21, 60, 1600))
+# df <- df[, c(1, 4, 2, 3)]
+# df <- data.frame(person = df$person, age= df$age, sex = df$sex, funny = df$funny)
+# df[df$sex == "F" & (df$funny == "High" | df$funny == "Med"), c("person", "age")]
+# df[grep("^S.+", df$person),]
