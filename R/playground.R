@@ -298,3 +298,13 @@
 # df <- data.frame(person = df$person, age= df$age, sex = df$sex, funny = df$funny)
 # df[df$sex == "F" & (df$funny == "High" | df$funny == "Med"), c("person", "age")]
 # df[grep("^S.+", df$person),]
+
+a <- c(13563, -14156, -14319, 16981, 12921, 11979, 9568, 8833, -12968, 8133)
+# a[is.infinite(a ^ 75)]
+# a[-which(is.infinite(a ^ 75) & a < 0)]
+
+a <- matrix(c(77875.4, -35466.25, -39803.81, 27551.45, -73333.85, 55976.34, 23764.3,
+  36599.69, 76694.82, -36478.88, -70585.69, 47032), nrow=3)
+# which(is.nan(a ^ 65 / Inf), arr.ind = T)
+# all(a[!is.nan(a ^ 67 + Inf)] == a[a ^ 67 != -Inf])
+a[a ^ 67 == -Inf | is.finite(a ^ 67)]

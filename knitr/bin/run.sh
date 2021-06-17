@@ -16,13 +16,16 @@ function rmd_to_md {
 }
 
 function md_to_html {
-  pandoc -f markdown -t html5 -s --self-contained --mathml # -c $STYLE
+  pandoc -f markdown -t html5 -s --self-contained --mathml --toc # -c $STYLE
 }
 
 function md_to_pdf {
   pandoc -f markdown -t pdf --pdf-engine wkhtmltopdf -s --mathml # -c $STYLE
 }
 
-cleanup
+# cleanup
+
 rmd_to_md $DOC && md_to_html < $DOC.md > $DOC.html
 # rmd_to_md $DOC && md_to_pdf < $DOC.md > $DOC.pdf
+
+# rmd_to_md $DOC && md_to_html < $DOC.md > $DOC.html & md_to_pdf < $DOC.md > $DOC.pdf

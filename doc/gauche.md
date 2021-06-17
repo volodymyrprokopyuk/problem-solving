@@ -36,8 +36,8 @@
     - `call/cc` (continuation),
     - `with-input-from-file`, `with-output-to-file` (port)
     - (stream)
-- Literals `#t`, `#f`, `#\char`, `"string"`, `(car . cdr)` (pair), `(list)`,
-  `#(vector)`, `#[char-set]`, `#/reg-exp/`
+- Literals `+inf.0`, `-inf.0`, `+nan.0`, `#t`, `#f`, `#\char`, `"string"`, `(car . cdr)`
+  (pair), `(list)`, `#(vector)`, `#[char-set]`, `#/reg-exp/`
 - String interpolation `#"Value ~expr ~(expr) ~|var|"`
 - Parameters `make-parameter`, `parametrize`, `dynamic-wind` (dynamic environment
   management, context switch)

@@ -9,6 +9,40 @@ abstract: |
 
 # Introduction{#into .heading-class}
 
+Inline math $\int_a^b x\mathrm{d}x$
+
+Block math
+
+$$\int_a^b x\mathrm{d}x; \sum_{j+1}^N \frac{1}{j^2}$$
+
+Bigger math example
+
+$$
+d(i,j) = \begin{cases}
+\,i & j = 0 \\
+\,j & i = 0 \\
+\,\min\begin{cases}
+d(i-1,j-1) + \mathrm{1}(i\neq j) \\
+d(i,j-1) + 1 \\
+d(i-1,j) + 1
+\end{cases} & i>0,j>0
+\end{cases}
+$$
+
+```{.latex .numberLines #latex-code}
+$$
+d(i,j) = \begin{cases}
+\,i & j = 0 \\
+\,j & i = 0 \\
+\,\min\begin{cases}
+d(i-1,j-1) + \mathrm{1}(i\neq j) \\
+d(i,j-1) + 1 \\
+d(i-1,j) + 1
+\end{cases} & i>0,j>0
+\end{cases}
+$$
+```
+
 [Go to code block](#code-block)
 
 [Go to code block]
@@ -26,7 +60,7 @@ in R very convenient
 > > To create a blockquote, add a > in front of a paragraph. Blockquotes can contain
     multiple paragraphs. Add a > on the blank lines between the paragraphs.
 
-# Header 3
+## Header 3
 
 1. One
 
@@ -41,12 +75,16 @@ in R very convenient
     1. Eleven
 1. Three
 
+# Div section
+
 <div id="code-block"/>
 
 ```{.r}
 g <- grep("Cause: shooting", homicides)
 x <- data.frame(foo = 1:4, bar = c(T, T, F, F))
 ```
+
+## Code section
 
 R inline code `g <- grep("Cause: shooting", homicides)`{.r}
 
@@ -63,6 +101,8 @@ Zsh inline code ``exec R script.r; echo `pwd`;``{.zsh}
 <https://www.postgresql.org/>
 
 [PostgreSQL]
+
+## Link examples
 
 [PostgreSQL]: https://www.postgresql.org/
 
@@ -137,3 +177,5 @@ Term 2
 : Defintion 2
 
 Internal link to [Header 3]
+
+[Go to LaTeX code](#latex-code)

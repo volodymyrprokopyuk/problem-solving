@@ -66,7 +66,7 @@
 - Code
     - `inline code`{.language}
     - ``inline ecode with a ` backtick``{.language}
-    - ```{.language} code block``` = ```language code block```
+    - ```{.language .numberLines} code block``` = ```language code block```
 - Quote
     - `> Block quote`
     - `> > Nested block quote`
@@ -78,8 +78,8 @@
       `<div id="id" class="class" key="a value">Content</div>`
     - `[Content]{#id .class key="a value"}` =
       `<span id="id" class="class" key="a value">Content</span>`
-    - `<span>Raw inline code</span>{=html5}`
-    - ```{=html5}<div>Raw code block</div>```
+    - `<span>Raw inline code</span>{=html5}` only for html5 output
+    - ```{=html5}\newline <div>Raw code block</div>``` only for html5 output
 
 # Pandoc document converter
 

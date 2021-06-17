@@ -1,7 +1,8 @@
 # R
 
 - `?func`, show help `??"search"` search help
-- Literals `NULL`, `NA`, `Inf`, `-Inf`
+- Literals `NULL`, `NA`, `Inf`, `-Inf`, `NaN`
+- Type predicate `is.finite`, `is.infinite`, `is.nan`
 - Copy `a <- b`
 - Vector (homogeneous, element) `c`, `length`, `seq`, `rep`, `sort`, `which`
     - Subsetting (1-based) `v[1]` element, `v[c(1, 2)]`, `v[c(T, F)]`, `v[v > 0]`
