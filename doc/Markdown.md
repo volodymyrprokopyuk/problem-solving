@@ -81,6 +81,44 @@
     - `<span>Raw inline code</span>{=html5}` only for html5 output
     - ```{=html5}\newline <div>Raw code block</div>``` only for html5 output
 
-# Pandoc document converter
+# CSS
+
+- CSS inclusion
+    - `<div style="inline: style;"/>`
+    - `<style>sel { style: block; }</style>`
+    - `<link rel="stylesheet" href="style.css"/>`
+    - `@import "style.css";`
+- CSS selectors
+    - Specificity `<div style="inline: style;"/> > #id > .class [attribute]
+      :pseudo-class > element ::pseudo-element` (same specificity last rule wins)
+    - Overwrite specificity `property: value !important;` (prefer more specific rules)
+    - Universal selector `*`, `element`, `.class`, `#id`, `[attribute]`,
+      `[attribute="exact"]`, `[attribute~="whitespace"]`, `[attribute*="substring"]`,
+      `[attribute^="start"]`, `[attribute$="end"]`
+    - Compound selector `element.class#id[attribute="exact"]`
+    - Independent selectors `element, .class, #id, [attribute="exact"]`
+    - [In]direct descendant combinator `element descendant`
+    - Direct child combinator `element > child`
+    - General sibling combinator `element ~ sibling`
+    - Adjacent sibling combinator `element + sibling`
+    - UI state pseudo-class `:active`, `:checked`, `:focus`, `:hover`, `:[in]valid`
+    - Doc structure pseudo-class `:first-child`, `:last-chaild`, `:nth-child(n)`,
+      `:nth-child(2n)`, `:nth-child(odd|even)`, `:root` = `html`
+    - Negate selector `:not(...)`
+    - Pseudo-element `::first-line`, `::first-letter`, `::before`, `::after` + `content`
+- Box model `margin`, `border`, `padding` and content
+    - `box-sizing: content-box | border-box;` -> `width`, `height` (`margin` is never
+      considered)
+    - `display: block | inline | inline-block;`
+    - Block element `div`
+    - Inline element `span`
+- Boxes, shadows and opacity
+- Backgrounds and gradients
+- Web fonts and typography
+- Layout positioning and stacking
+- CSS transforms, transitions and animations
+- Flexbox
+- Responsive design, media queries and fluid typography
+- CSS grid
 
 # Knitr dynamic documents using R

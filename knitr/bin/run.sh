@@ -4,8 +4,10 @@ set -eu
 
 readonly DOC=minimal
 # readonly DOC=cts-benchmarking-2021-06-08
+# readonly STYLE=style/modern-normalize.min.css
 # readonly STYLE=style/base.min.css
 # readonly STYLE=style/tailwind.min.css
+readonly STYLE=style/style.css
 
 function cleanup {
   rm -rf figure $DOC.{md,html,pdf}
@@ -16,7 +18,7 @@ function rmd_to_md {
 }
 
 function md_to_html {
-  pandoc -f markdown -t html5 -s --self-contained --mathml --toc # -c $STYLE
+  pandoc -f markdown -t html5 -s --self-contained --mathml -c $STYLE
 }
 
 function md_to_pdf {

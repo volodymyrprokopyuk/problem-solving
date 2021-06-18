@@ -1,8 +1,8 @@
 # R
 
-- `?func`, show help `??"search"` search help
-- Literals `NULL`, `NA`, `Inf`, `-Inf`, `NaN`
-- Type predicate `is.finite`, `is.infinite`, `is.nan`
+- `?obj`, show help `??"search"` search help
+- Literals `Inf`, `-Inf`, `NaN`, `NA` missing data, `NULL` null object
+- Type predicate `is.finite`, `is.infinite`, `is.nan`, `is.na`, `na.omit`, `is.null`
 - Copy `a <- b`
 - Vector (homogeneous, element) `c`, `length`, `seq`, `rep`, `sort`, `which`
     - Subsetting (1-based) `v[1]` element, `v[c(1, 2)]`, `v[c(T, F)]`, `v[v > 0]`
@@ -23,6 +23,7 @@
 - Data frame (hegerogeneous named list of equal vectors, observation records = rows of
   variables = columns) `data.frame`, `nrow`, `ncol`, `dim`, `rbind`
     - Subsetting `df[1, 1]`, `df[c(1), c("name")]`, `df$name`, `df[df$name > 0,]`
+- S3 `attributes`, `attr`, `class`
 
 - Functions `ls`, `getwd`, `setwd`
 - Evaluation `eval(parse(text = "1 + 2"))`

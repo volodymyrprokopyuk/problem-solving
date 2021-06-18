@@ -9,14 +9,20 @@ abstract: |
 
 # Introduction{#into .heading-class}
 
-Inline math $\int_a^b x\mathrm{d}x$
+[External link](https://postgresql.org){.external-link}
 
+Inline math $\int_a^b x\mathrm{d}x$
+<!-- [Block math]{#block-math} -->
+
+::: {#block-math}
+:::
 Block math
 
 $$\int_a^b x\mathrm{d}x; \sum_{j+1}^N \frac{1}{j^2}$$
 
 Bigger math example
 
+[]{#eq-1}
 $$
 d(i,j) = \begin{cases}
 \,i & j = 0 \\
@@ -28,6 +34,10 @@ d(i-1,j) + 1
 \end{cases} & i>0,j>0
 \end{cases}
 $$
+
+Cuadratic roots
+
+$$x=\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
 
 ```{.latex .numberLines #latex-code}
 $$
@@ -120,7 +130,7 @@ Zsh inline code ``exec R script.r; echo `pwd`;``{.zsh}
 
 [reference-label]: https://www.postgresql.org/
 
-Table: Syntax elements
+Table: Syntax elements[]{#syntax-els}
 
 Name | HTML syntax example | Description
 :--- | :---: | ---:
@@ -179,3 +189,9 @@ Term 2
 Internal link to [Header 3]
 
 [Go to LaTeX code](#latex-code)
+
+[Go to block math](#block-math)
+
+[Syntax elements](#syntax-els)
+
+[Equiation 1](#eq-1)

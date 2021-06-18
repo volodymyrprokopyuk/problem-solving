@@ -299,12 +299,52 @@
 # df[df$sex == "F" & (df$funny == "High" | df$funny == "Med"), c("person", "age")]
 # df[grep("^S.+", df$person),]
 
-a <- c(13563, -14156, -14319, 16981, 12921, 11979, 9568, 8833, -12968, 8133)
+# a <- c(13563, -14156, -14319, 16981, 12921, 11979, 9568, 8833, -12968, 8133)
 # a[is.infinite(a ^ 75)]
 # a[-which(is.infinite(a ^ 75) & a < 0)]
 
-a <- matrix(c(77875.4, -35466.25, -39803.81, 27551.45, -73333.85, 55976.34, 23764.3,
-  36599.69, 76694.82, -36478.88, -70585.69, 47032), nrow=3)
+# a <- matrix(c(77875.4, -35466.25, -39803.81, 27551.45, -73333.85, 55976.34, 23764.3,
+#   36599.69, 76694.82, -36478.88, -70585.69, 47032), nrow=3)
 # which(is.nan(a ^ 65 / Inf), arr.ind = T)
 # all(a[!is.nan(a ^ 67 + Inf)] == a[a ^ 67 != -Inf])
-a[a ^ 67 == -Inf | is.finite(a ^ 67)]
+# a[a ^ 67 == -Inf | is.finite(a ^ 67)]
+
+# a <-  c(NA, 5.89, Inf, NA, 9.43, -2.35, NaN, 2.10, -8.53, -7.58, NA, -4.58, 2.01, NaN)
+# a[-which(is.na(a))]
+# na.omit(a)
+
+# a <- c(4.3, 2.2, NULL, 2.4, NaN, 3.3, 3.1, NULL, 3.4, NA)
+# length(a)
+# is.na(a)
+# which(is.na(a))
+# is.null(a)
+
+# l <- list(c(7, 7, NA, 3, NA, 1, 1, 5, NA))
+# names(l) <- c("alpha")
+# is.null(l$beta)
+# l$beta <- which(is.na(l$alpha))
+
+# a <- matrix(1:9, nrow = 3)
+# attributes(a)$dim
+# attr(a, "dim")
+# class(a)
+
+# class(1:4)
+# class(seq(1, 4, length = 6))
+# as.logical(c("0", "1", "1"))
+
+# a <- matrix(2:13, nrow = 3)
+# as.character(as.vector(t(a)))
+# a <- cbind(c(34, 23, 33, 42, 41), c(0, 1, 1, 0, 0), c(1, 2, 1, 1, 2))
+# a <- as.data.frame(a)
+# a$V2 <- as.logical(a$V2)
+# a[, 3] <- as.factor(a[, 3])
+
+# x <- c(1.1, 2, 3.5, 3.9, 4.2)
+# y <- c(2, 2.2, -1.3, 0, 0.2)
+# a <- cbind(x, y)
+# p <- plot(x, y)
+# p <- plot(a, type = "b", main = "Main plot", xlab = "X axis", ylab = "Y axis",
+#   col = "seagreen4")
+
+# print(p)
