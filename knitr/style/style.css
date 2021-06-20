@@ -1,0 +1,41 @@
+@import "modern-normalize.min.css";
+
+:root {
+  counter-reset: h1c;
+}
+
+h1 {
+  counter-reset: h2c;
+}
+
+h2 {
+  counter-reset: h3c;
+}
+
+h1:before {
+  counter-increment: h1c;
+  content: counter(h1c) ". ";
+}
+
+h2:before {
+  counter-increment: h2c;
+  content: counter(h1c) "." counter(h2c) ". ";
+}
+
+h3:before {
+  counter-increment: h3c;
+  content: counter(h1c) "." counter(h2c) "." counter(h3c) ". ";
+}
+
+:root {
+  --spacing: 1rem;
+}
+
+.h1 {
+  font-size: calc(var(--spacing) * 2);
+  color: rgb(0 255 0 / 0.5);
+}
+
+.external-link::after {
+  content: ' (external)';
+}

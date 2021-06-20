@@ -9,6 +9,19 @@ abstract: |
 
 # Introduction{#into .heading-class}
 
+```{r radius}
+x <- 5
+```
+Area of a circle with the radius `r x` is `r pi * x ^ 2`.
+
+:::{#plg-id}
+```{r playground, class.source = c("plg-src", "plg-src2"), class.output = "plg-out"}
+(function() { 1 + 2 })()
+```
+:::
+
+## Section A
+
 [External link](https://postgresql.org){.external-link}
 
 Inline math $\int_a^b x\mathrm{d}x$
@@ -19,6 +32,8 @@ Inline math $\int_a^b x\mathrm{d}x$
 Block math
 
 $$\int_a^b x\mathrm{d}x; \sum_{j+1}^N \frac{1}{j^2}$$
+
+### Subsection B
 
 Bigger math example
 
@@ -39,6 +54,8 @@ Cuadratic roots
 
 $$x=\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
 
+### Subsection C
+
 ```{.latex .numberLines #latex-code}
 $$
 d(i,j) = \begin{cases}
@@ -52,6 +69,8 @@ d(i-1,j) + 1
 \end{cases}
 $$
 ```
+
+## Section D
 
 [Go to code block](#code-block)
 
@@ -100,11 +119,15 @@ R inline code `g <- grep("Cause: shooting", homicides)`{.r}
 
 Zsh inline code ``exec R script.r; echo `pwd`;``{.zsh}
 
+### Subsection E
+
 <!-- ![Face](/home/vlad/.face) -->
 
 <!-- ![Face] -->
 
 [Face]: /home/vlad/.face
+
+### Subsection D
 
 [PostgreSQL](https://www.postgresql.org/)
 

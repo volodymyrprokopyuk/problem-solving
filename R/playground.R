@@ -1,3 +1,5 @@
+# library(ggplot2)
+
 # for (i in 5:8) { cat("->", i, "\n") }
 
 # a <- 2.3
@@ -346,5 +348,40 @@
 # p <- plot(x, y)
 # p <- plot(a, type = "b", main = "Main plot", xlab = "X axis", ylab = "Y axis",
 #   col = "seagreen4")
-
 # print(p)
+
+# x <- c(1.1, 2, 3.5, 3.9, 4.2)
+# y <- c(2, 2.2, -1.3, 0, 0.2)
+# p <- qplot(x, y) + ggtitle("ggplot2 example plot") + xlab("x axis") + ylab("y axis")
+# df <- data.frame(x = x, y = y)
+# p <- ggplot(df, aes(x, y)) +
+#   geom_point(size = 3, shape = 6, color = "blue") +
+#   geom_line(linetype = 2, color = "red")
+
+# x <- 1:20
+# y <- c(-1.49, 3.37, 2.59, -2.78, -3.94, -0.92, 6.43, 8.51, 3.41, -8.23, -12.01, -6.58,
+#   2.87, 14.12, 9.63, -4.58, -14.78, -11.67, 1.17, 15.62)
+# a <- rep("standard", length(x))
+# a[y >= 5] <- "big"
+# a[y <= -5] <- "small"
+# a[(x >= 5 & x <= 15) & (y > - 5 & y < 5)] <- "sweet"
+# af <- factor(a)
+# df <- data.frame(x = x, y = y, af = af)
+# p <- ggplot(df, aes(x, y, shape = af, color = af)) + geom_point(size = 3) +
+#   geom_line(aes(group = 1), color = "gray", linetype = 2, size = 0.8) +
+#   geom_hline(yintercept = c(-5, 5), color = "red") +
+#   geom_segment(x = 5, y = -5, xend = 5, yend = 5, color = "red", linetype = 4,
+#     size = 0.5) +
+#   geom_segment(x = 15, y = -5, xend = 15, yend = 5, color = "red", linetype = 4,
+#     size = 0.5)
+
+# pdf("plot.pdf")
+# svg("plot.svg")
+# png("plot.png")
+# print(p)
+# dev.off()
+
+# ggsave("plot.png", plot = p, width = 40, height = 30, units = "cm")
+
+# p <- read.table("person.dat", header = T, sep = " ", na.strings = "*")
+# write.table(p, "person2.dat", sep = "_", na = "?", quote = F, row.name = F)

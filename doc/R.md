@@ -24,6 +24,8 @@
   variables = columns) `data.frame`, `nrow`, `ncol`, `dim`, `rbind`
     - Subsetting `df[1, 1]`, `df[c(1), c("name")]`, `df$name`, `df[df$name > 0,]`
 - S3 `attributes`, `attr`, `class`
+- Data sets `read.table`, `read.csv`, `write.table`, `read.csv`
+- R objects `dput`, `dget`
 
 - Functions `ls`, `getwd`, `setwd`
 - Evaluation `eval(parse(text = "1 + 2"))`

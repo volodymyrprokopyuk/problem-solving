@@ -110,8 +110,31 @@
     - `box-sizing: content-box | border-box;` -> `width`, `height` (`margin` is never
       considered)
     - `display: block | inline | inline-block;`
-    - Block element `div`
-    - Inline element `span`
+    - `block` respects `width` and `height`, is palced on its own line, takes up the
+      full width of the container and has just enough height to fit the content
+    - `inline` ignores `width` and `height`, is palced inline in the text flow, takes up
+      enough width and height to fit the content
+    - `inline-block` respects `width` and `height` and is palced inline in the text flow
+- CSS units
+    - `px` usually used only for root `font-size`
+    - `em` variable, relative to inherited `font-size`
+    - `rem` constant, relative to root `font-size`
+    - `wv`, `wh` relative to viewport (responsive design)
+    - `%` percentage of inherited `font-size` or `width` (responsive design)
+    - `cm`, `mm`, `pt` absolute units (print styling)
+    - `calc(...)` unit calculation with CSS variables
+- CSS colors
+    - `#1a2b3c`
+    - `rgb(255, 255, 255)`, `rgb(255 255 255)`
+    - `rgba(255, 255, 255, 0.5)`, `rgba(255 255 255 / 0.5)`
+- CSS overflow
+    - `overflow-[x|y]: visible | hiddent | scroll | auto;`
+    - `white-space: nowrap;` horizontal overflow (default: only vertical overflow)
+- CSS variables
+    - Variable inheritance: variables cascade down to descendant elements
+    - `:root { --global-variable: value; }` <- `var(--global-variable, [default])`
+    -  `:root { counter-reset: h1c; }`, `h1:before { counter-increment: h1c;
+       content: counter(h1c) ". "; }`
 - Boxes, shadows and opacity
 - Backgrounds and gradients
 - Web fonts and typography
@@ -122,3 +145,6 @@
 - CSS grid
 
 # Knitr dynamic documents using R
+
+- Inline code `r ...`
+- Code block ```{r label}\newline ... \newline```

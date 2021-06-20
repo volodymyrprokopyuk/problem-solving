@@ -14,7 +14,7 @@ function cleanup {
 }
 
 function rmd_to_md {
-  Rscript -e "library(knitr); library(ggplot2); knit('$1.Rmd')"
+  command r -e "library(knitr); library(ggplot2); knit('$1.Rmd')"
 }
 
 function md_to_html {
@@ -22,7 +22,7 @@ function md_to_html {
 }
 
 function md_to_pdf {
-  pandoc -f markdown -t pdf --pdf-engine wkhtmltopdf -s --mathml # -c $STYLE
+  pandoc -f markdown -t pdf --pdf-engine wkhtmltopdf -s --mathml -c $STYLE
 }
 
 # cleanup
