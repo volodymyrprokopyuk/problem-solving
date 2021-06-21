@@ -9,6 +9,32 @@ abstract: |
 
 # Introduction{#into .heading-class}
 
+:::{.red}
+In the above example, the first set of curly braces contains the desired text color, and
+the second set of curly braces contains the text to which this color should be applied.
+:::
+
+This text is in [**red**]{.red}
+
+```gv
+digraph {
+  graph [layout = dot, rankdir = TB]
+
+  node [shape = rectangle]
+  rec1 [label = 'Step 1. Wake up']
+  rec2 [label = 'Step 2. Write code']
+  rec3 [label =  'Step 3. ???']
+  rec4 [label = 'Step 4. PROFIT']
+
+  # edge definitions with the node IDs
+  rec1 -> rec2 -> rec3 -> rec4
+}
+```
+
+| I'd like to preserve formatting
+|   of these several lines of code,
+|     rather than having them in a single line
+
 ```{r radius}
 x <- 5
 ```

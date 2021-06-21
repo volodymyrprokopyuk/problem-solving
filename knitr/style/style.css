@@ -1,5 +1,9 @@
 @import "modern-normalize.min.css";
 
+div.red, span.red {
+  color: red;
+}
+
 :root {
   counter-reset: h1c;
 }

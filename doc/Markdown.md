@@ -1,7 +1,7 @@
 # Markdown markup language
 
 - Header
-    - `# Header{#id .class key="a value"}` delimits a section
+    - `# Header{#id .class key="a value" .unlisted}` delimits a section
 - Paragraph
     - `*emphasis*`
     - `**strong emphasis**`
@@ -9,7 +9,7 @@
     - `~~strikeout~~`
     - `^superscript^`
     - `~subscript~`
-    - `| formatted line block`
+    - `| preserves formatting`
     - `---` horizontal rule
     - `-` hyphen for compound words
     - `--` en-dash for ranges
@@ -18,6 +18,7 @@
     - `\*` escape control character
     - `\<newline>` hard line break
     - `\<space>` non-breaking space
+    - `<!-- comment -->`
 - Link
     - Web
         - `[Inline link](https://organization.org)`
@@ -115,6 +116,8 @@
     - `inline` ignores `width` and `height`, is palced inline in the text flow, takes up
       enough width and height to fit the content
     - `inline-block` respects `width` and `height` and is palced inline in the text flow
+    - `display: none;` removes element from the flow
+    - `visibility: hidden` preserves element space in the flow
 - CSS units
     - `px` usually used only for root `font-size`
     - `em` variable, relative to inherited `font-size`
@@ -129,12 +132,16 @@
     - `rgba(255, 255, 255, 0.5)`, `rgba(255 255 255 / 0.5)`
 - CSS overflow
     - `overflow-[x|y]: visible | hiddent | scroll | auto;`
-    - `white-space: nowrap;` horizontal overflow (default: only vertical overflow)
+    - `white-space: normal | nowrap | pre;`
 - CSS variables
     - Variable inheritance: variables cascade down to descendant elements
     - `:root { --global-variable: value; }` <- `var(--global-variable, [default])`
-    -  `:root { counter-reset: h1c; }`, `h1:before { counter-increment: h1c;
+    - Counter `:root { counter-reset: h1c; }`, `h1:before { counter-increment: h1c;
        content: counter(h1c) ". "; }`
+- Border `border`, `border-width`, `border-style`, `border-color`, `border-radius`,
+  `box-shadow`, `opacity`
+- Background `background`, `background-color`, `background-image`, `background-repeat`,
+  `background-position`, `background-size`, `background-clip`
 - Boxes, shadows and opacity
 - Backgrounds and gradients
 - Web fonts and typography
@@ -147,4 +154,8 @@
 # Knitr dynamic documents using R
 
 - Inline code `r ...`
-- Code block ```{r label}\newline ... \newline```
+- Code block ```{r label, eval, include, echo}\newline ... \newline```
+
+# PlantUML sequence diagrams
+
+# Dot graph visualization

@@ -385,3 +385,19 @@
 
 # p <- read.table("person.dat", header = T, sep = " ", na.strings = "*")
 # write.table(p, "person2.dat", sep = "_", na = "?", quote = F, row.name = F)
+
+# a <- c(2.73, 5.40, 2.15, 5.29, 1.36, 2.16, 1.41, 6.97, 7.99, 9.52)
+# if (any((a - 1) > 9) || matrix(a, 2)[2, 1] <= 6) {
+#   cat("ok\n")
+# }
+
+# a <- 5
+# b <- -5:5
+# ifelse(b == 0, NA, a / b)
+
+# a <- c(2, 1, 1, 3, 2, 1, 0)
+# b <- c(3, 8, 2, 2, 0, 0, 0)
+# ifelse(a + b > 3, a * b, a + b)
+
+a <- matrix(as.character(1:16), 4)
+diag(a) <- ifelse(substr(diag(a), 1, 1) == "1", "HERE", diag(a))
