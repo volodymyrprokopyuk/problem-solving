@@ -1,7 +1,7 @@
 # Markdown markup language
 
 - Header
-    - `# Header{#id .class key="a value" .unlisted}` delimits a section
+    - `# Header{#id .class key="a value"}` delimits a section
 - Paragraph
     - `*emphasis*`
     - `**strong emphasis**`
@@ -67,7 +67,7 @@
 - Code
     - `inline code`{.language}
     - ``inline ecode with a ` backtick``{.language}
-    - ```{.language .numberLines} code block``` = ```language code block```
+    - ```{.language} code block``` = ```language code block```
 - Quote
     - `> Block quote`
     - `> > Nested block quote`
@@ -142,6 +142,7 @@
   `box-shadow`, `opacity`
 - Background `background`, `background-color`, `background-image`, `background-repeat`,
   `background-position`, `background-size`, `background-clip`
+- Gradient `background-image: linear-gradient() | radial-gradient()`
 - Boxes, shadows and opacity
 - Backgrounds and gradients
 - Web fonts and typography
@@ -154,7 +155,13 @@
 # Knitr dynamic documents using R
 
 - Inline code `r ...`
-- Code block ```{r label, eval, include, echo}\newline ... \newline```
+- Code block ```{r label, options ...}\newline ... \newline```
+- Evaluation ```{r label, eval, include, echo}```
+- Plot ```{r label, dev, dev.args, fig.cap, fig.width, fig.height, fig.dim}```
+
+- Output ```{r label, out.width, out.height}```
+
+# Inkscape vector graphics
 
 # PlantUML sequence diagrams
 

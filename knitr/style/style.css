@@ -1,5 +1,36 @@
 @import "modern-normalize.min.css";
 
+.two-col {
+  display: flex;
+}
+
+.first-col, .second-col {
+  width: 30rem;
+  white-space: normal;
+}
+
+pre {
+  counter-reset: lnc;
+}
+
+pre:not(.not-numbered) code > span::before {
+  counter-increment: lnc;
+  content: counter(lnc);
+  display: inline-block;
+  width: 3rem;
+  padding-right: 1rem;
+  margin-right: 0.5rem;
+  text-align: right;
+  border-right: thin solid blue;
+}
+
+figure img {
+  display: block;
+  margin:auto;
+  width: 50%;
+  border: 2px solid black;
+}
+
 div.red, span.red {
   color: red;
 }

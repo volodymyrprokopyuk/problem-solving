@@ -36,8 +36,12 @@
 - Function arguments `args(func)`
     - Arguments matching exact, partial, positional, mixed, variadic `(...)`
 - Conditionals
-    - Atomic `if (... && || ...) { ... } [else { ... }]`
-    - Vector `ifelse(test, yes, no)`
+    - Atomic `if (... && || ...) { ... } [else { ... }]` statement
+    - Vector `ifelse(test, yes, no)` function
+    - Choice `switch(str.expr, match = value, ..., else)` function
+- Loops
+    - Vector `for (... in ...) { ... }`
+    - Condition `while ... `
 
 - Functions `getwd`, `setwd`
 - Evaluation `eval(parse(text = "1 + 2"))`

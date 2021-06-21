@@ -399,5 +399,33 @@
 # b <- c(3, 8, 2, 2, 0, 0, 0)
 # ifelse(a + b > 3, a * b, a + b)
 
-a <- matrix(as.character(1:16), 4)
-diag(a) <- ifelse(substr(diag(a), 1, 1) == "1", "HERE", diag(a))
+# a <- matrix(as.character(1:16), 4)
+# diag(a) <- ifelse(substr(diag(a), 1, 1) == "1", "HERE", diag(a))
+
+# x <- 4
+# n2c <- function(x) {
+#   n <- 0:9
+#   s <- c("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
+#   s[n == x]
+# }
+# n2c(x)
+
+# for (e in 1:5) { print(e) }
+
+# a <- list(aa=c(3.4, 1), bb=matrix(1:4, 2, 2), cc=matrix(c(T, T, F, T, F, F), 3, 2),
+#   dd="string here", ee=matrix(c("red", "green", "blue", "yellow")))
+# is.mat <- rep(F, length(a))
+# nr <- rep(NA, length(a))
+# nc <- nr
+# data.type <- nr
+# for (i in 1:length(a)) {
+#   e <- a[[i]]
+#   if (is.matrix(e)) {
+#     is.mat[i] <- T
+#     nr[i] <- nrow(e)
+#     nc[i] <- ncol(e)
+#     data.type[i] <- class(as.vector(e))
+#   }
+# }
+# df <- data.frame(name = names(a), is.mat = is.mat, nrow = nr, ncol = nc,
+#   data.type = data.type)
