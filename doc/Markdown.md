@@ -1,5 +1,17 @@
 # Markdown markup language
 
+- `pandoc` options
+    - HTML `pandoc -f markdown -t html5 -s --self-contained --mathml -c $STYLE`
+    - PDF `pandoc -f markdown -t pdf -s --pdf-engine wkhtmltopdf --mathml -c $STYLE`
+- Document metadata
+    - `<head>` children
+
+      ```yaml
+      # -H head.html
+      header-includes:
+        - <link rel="shortcut icon" href="image/favicon.png"/>
+      ```
+
 - Header
     - `# Header{#id .class key="a value"}` delimits a section
 - Paragraph
@@ -90,8 +102,11 @@
     - `<link rel="stylesheet" href="style.css"/>`
     - `@import "style.css";`
 - CSS selectors
-    - Specificity `<div style="inline: style;"/> > #id > .class [attribute]
-      :pseudo-class > element ::pseudo-element` (same specificity last rule wins)
+    - Specificity (form higher to lower, same specificity last rule wins)
+        - Inline `<div style="inline: style;"/>`
+        - Id `#id`
+        - Class `.class [attribute] :pseudo-class`
+        - Element `element ::pseudo-element`
     - Overwrite specificity `property: value !important;` (prefer more specific rules)
     - Universal selector `*`, `element`, `.class`, `#id`, `[attribute]`,
       `[attribute="exact"]`, `[attribute~="whitespace"]`, `[attribute*="substring"]`,
@@ -107,9 +122,9 @@
       `:nth-child(2n)`, `:nth-child(odd|even)`, `:root` = `html`
     - Negate selector `:not(...)`
     - Pseudo-element `::first-line`, `::first-letter`, `::before`, `::after` + `content`
-- Box model `margin`, `border`, `padding` and content
+- Box model `margin`, `border`, `padding` and `content`
     - `box-sizing: content-box | border-box;` -> `width`, `height` (`margin` is never
-      considered)
+      considered) + `[min|max]-[width|height]`
     - `display: block | inline | inline-block;`
     - `block` respects `width` and `height`, is palced on its own line, takes up the
       full width of the container and has just enough height to fit the content
@@ -154,10 +169,13 @@
 
 # Knitr dynamic documents using R
 
+- Global configuration
+    - `opts_chunk$set(class.source = c(...))`
 - Inline code `r ...`
 - Code block ```{r label, options ...}\newline ... \newline```
 - Evaluation ```{r label, eval, include, echo}```
 - Plot ```{r label, dev, dev.args, fig.cap, fig.width, fig.height, fig.dim}```
+- R source and output ```{r lable, class.source = c(...), class.output = c(...)}```
 
 - Output ```{r label, out.width, out.height}```
 

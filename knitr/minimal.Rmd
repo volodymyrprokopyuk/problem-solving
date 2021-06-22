@@ -5,6 +5,8 @@ date: `r Sys.Date()`
 keywords: [markdown, knitr, literate-programming]
 abstract: |
   Markdown and knitr make literate programming in R very convenient
+header-includes:
+  - <link rel="shortcut icon" href="image/html5-favicon.png"/>
 ---
 
 # Introduction{#into .heading-class}

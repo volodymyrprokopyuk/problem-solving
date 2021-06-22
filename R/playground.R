@@ -429,3 +429,51 @@
 # }
 # df <- data.frame(name = names(a), is.mat = is.mat, nrow = nr, ncol = nc,
 #   data.type = data.type)
+
+# a <- 5:7
+# b <- 9:6
+# m <- matrix(NA, length(a), length(b))
+# for (i in 1:length(a)) {
+#   for (j in 1:length(b)) {
+#     m[i, j] <- a[i] * b[j]
+#   }
+# }
+# n <- c()
+# for (e in a) {
+#   n <- c(n, e * b)
+# }
+# m <- matrix(n, nrow = 3, byrow = T)
+# for (i in 1:length(a)) {
+#   m[i,] <- a[i] * b
+# }
+
+# a <- list(
+#   aa = c(3.4, 1),
+#   bb = matrix(1:4, 2, 2),
+#   cc = matrix(c(T, T, F, T, F, F), 3, 2),
+#   dd = "string here",
+#   ee = list(c("hello", "you"), matrix(c("hello", "there"))),
+#   ff = matrix(c("red", "green", "blue", "yellow")))
+# cnt <- 0
+# for (i in 1:length(a)) {
+#   e <- a[[i]]
+#   if (is.matrix(e)) {
+#     cnt <- cnt + 1
+#   } else if (is.list(e)) {
+#     for (n in e) {
+#         if (is.matrix(n)) { cnt <- cnt + 1 }
+#     }
+#   }
+# }
+
+# fac <- function(x) {
+#   f <- 1
+#   while (x > 1) {
+#     f <- f * x
+#     x <- x - 1
+#   }
+#   f
+# }
+# fac(0)
+# fac(5)
+# fac(7)

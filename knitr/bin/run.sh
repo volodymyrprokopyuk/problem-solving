@@ -22,7 +22,7 @@ function md_to_html {
 }
 
 function md_to_pdf {
-  pandoc -f markdown -t pdf --pdf-engine wkhtmltopdf -s --mathml -c $STYLE
+  pandoc -f markdown -t pdf -s --pdf-engine wkhtmltopdf --mathml -c $STYLE
 }
 
 # cleanup

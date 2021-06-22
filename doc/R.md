@@ -5,7 +5,7 @@
 - Type predicate `is.finite`, `is.infinite`, `is.nan`, `is.na`, `na.omit`, `is.null`
 - Copy `a <- b`
 - Vector (homogeneous, element) `c`, `length`, `seq`, `rep`, `sort`, `which`, `v2 <- v1`
-  copy
+  copy-on-write
     - Subsetting (1-based) `v[1]` element, `v[c(1, 2)]`, `v[c(T, F)]`, `v[v > 0]`
       sub-vector, `v[... & | ...]` `v[-c(...)]`, v[-which(v < 0)] remove
 - Matrix (homogeneous, column-first, row x column) `matrix`, `cbind`, `rbind`, `dim`,
@@ -21,8 +21,8 @@
   subsetting
 - List (heterogeneous, nested) `list`, `length` `l[[1]]` member reference -> object,
   `l[1]` list slicing -> list, `names`, `l$name`
-- Data frame (hegerogeneous named list of equal vectors, observation records = rows of
-  variables = columns) `data.frame`, `nrow`, `ncol`, `dim`, `rbind`
+- Data frame (hegerogeneous named list of equal-length vectors, observation records =
+  rows of variables = columns) `data.frame`, `nrow`, `ncol`, `dim`, `rbind`
     - Subsetting `df[1, 1]`, `df[c(1), c("name")]`, `df$name`, `df[df$name > 0,]`
 - S3 `attributes`, `attr`, `class`
 - Data sets serialization `read.table`, `read.csv`, `write.table`, `read.csv`
@@ -41,7 +41,7 @@
     - Choice `switch(str.expr, match = value, ..., else)` function
 - Loops
     - Vector `for (... in ...) { ... }`
-    - Condition `while ... `
+    - Condition `while (...) { ... }`
 
 - Functions `getwd`, `setwd`
 - Evaluation `eval(parse(text = "1 + 2"))`

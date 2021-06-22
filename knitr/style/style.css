@@ -1,5 +1,10 @@
 @import "modern-normalize.min.css";
 
+pre {
+  max-height: 8rem;
+  overflow-y: auto;
+}
+
 .two-col {
   display: flex;
 }
