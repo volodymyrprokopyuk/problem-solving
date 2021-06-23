@@ -454,6 +454,8 @@
 #   dd = "string here",
 #   ee = list(c("hello", "you"), matrix(c("hello", "there"))),
 #   ff = matrix(c("red", "green", "blue", "yellow")))
+# lapply(a, is.matrix)
+# sapply(a, is.matrix)
 # cnt <- 0
 # for (i in 1:length(a)) {
 #   e <- a[[i]]
@@ -477,3 +479,64 @@
 # fac(0)
 # fac(5)
 # fac(7)
+
+# a <- matrix(1:12, 4, 3)
+# sum(a)
+# row.totals = rep(NA, times = nrow(a))
+# for (i in 1:nrow(a)) { row.totals[i] <- sum(a[i,]) }
+# row.totals
+# apply(a, 1, sum)
+# apply(a, 2, sum)
+# apply(a, 2, sort)
+# apply(a, 2, sort, decreasing = T)
+# b <- apply(a, 1, sort, decreasing = T)
+# apply(b, 2, prod)
+
+# a <- array(1:18, c(3, 3, 2))
+# apply(a, 3, diag)
+
+# a <- array(96:1, dim = c(4, 4, 2, 3))
+# apply(a[,, 2,], 3, diag)
+
+a <- c(2, 3, 1.1, 4, 0, 4.1, 3)
+b <- rep(NA, length(a))
+# for (i in 1:length(a)) {
+#   e <- 5 / a[i]
+#   if (is.finite(e)) {
+#     b[i] <- e
+#   } else {
+#     # break;
+#     next;
+#   }
+# }
+# cond <- T
+# i <- 1
+# while (cond) {
+#   e <- 5 / a[i]
+#   if (is.finite(e)) {
+#     b[i] <- e
+#   } else {
+#     cond <- F
+#   }
+#   i <- i + 1
+# }
+# ifelse(is.finite(5 / a), (5 / a), NA)
+
+# fib.a <- -1
+# fib.b <- 1
+# repeat {
+#   fib.c <- fib.a + fib.b
+#   fib.a <- fib.b
+#   fib.b <- fib.c
+#   cat(fib.c, "")
+#   if (fib.c > 150) { break }
+# }
+
+# d <- cbind(x1 = runif(3), x2 = 10 ^ c(3, 5, 7), x3 = rnorm(3, 0, 1000))
+# d[rbind(c(1, 1), c(2, 3), c(3, 2))] <- NA
+
+f <- function(x) {
+  # return(10)
+  x + 1
+}
+f(1)

@@ -1,12 +1,15 @@
 # Markdown markup language
 
 - `pandoc` options
-    - HTML `pandoc -f markdown -t html5 -s --self-contained --mathml -c $STYLE`
-    - PDF `pandoc -f markdown -t pdf -s --pdf-engine wkhtmltopdf --mathml -c $STYLE`
+    - HTML `pandoc -f markdown -t html5 -s --self-contained --mathml`
+    - PDF `pandoc -f markdown -t pdf -s --pdf-engine wkhtmltopdf --mathml`
 - Document metadata
     - `<head>` children
 
       ```yaml
+      # -c style.css
+      css:
+        - style/style.css
       # -H head.html
       header-includes:
         - <link rel="shortcut icon" href="image/favicon.png"/>
@@ -73,9 +76,8 @@
       Left | Center  | Right
       :--- | :---: | ---:
       A | B | C
-        ```
+      ```
 
-    - Grid table
 - Code
     - `inline code`{.language}
     - ``inline ecode with a ` backtick``{.language}
@@ -92,7 +94,7 @@
     - `[Content]{#id .class key="a value"}` =
       `<span id="id" class="class" key="a value">Content</span>`
     - `<span>Raw inline code</span>{=html5}` only for html5 output
-    - ```{=html5}\newline <div>Raw code block</div>``` only for html5 output
+    - ```{=html5}\newline <div>Raw code block</div>\newline``` only for html5 output
 
 # CSS
 
@@ -145,9 +147,7 @@
     - `#1a2b3c`
     - `rgb(255, 255, 255)`, `rgb(255 255 255)`
     - `rgba(255, 255, 255, 0.5)`, `rgba(255 255 255 / 0.5)`
-- CSS overflow
-    - `overflow-[x|y]: visible | hiddent | scroll | auto;`
-    - `white-space: normal | nowrap | pre;`
+- CSS overflow `overflow-[x|y]: visible | hiddent | scroll | auto;`
 - CSS variables
     - Variable inheritance: variables cascade down to descendant elements
     - `:root { --global-variable: value; }` <- `var(--global-variable, [default])`
@@ -158,6 +158,15 @@
 - Background `background`, `background-color`, `background-image`, `background-repeat`,
   `background-position`, `background-size`, `background-clip`
 - Gradient `background-image: linear-gradient() | radial-gradient()`
+- Text styling `font-family`, `font-size`, `color`, `font-weight`, `font-style`,
+  `text-decoration`, `text-transform`, `letter-spacing`, `font-variant`, `text-shadow`
+- Text layout `white-space`, `line-height`, `text-indent`, `text-overflow`,
+  `text-align`, `vertical-align`
+- Web font
+    - Import `@font-face { font-family: "FF"; src: url("ff.woff2") format("woff2");
+      font-weight: ...; font-style: ...; }`
+    - Use `body { font-family: "FF", sans; }`
+
 - Boxes, shadows and opacity
 - Backgrounds and gradients
 - Web fonts and typography
@@ -169,13 +178,19 @@
 
 # Knitr dynamic documents using R
 
-- Global configuration
-    - `opts_chunk$set(class.source = c(...))`
+- Global R options
+    - `options(option = value)`
+- Global knitr chunk options
+    - `opts_chunk$set(error = F, class.source = c(...))`
 - Inline code `r ...`
 - Code block ```{r label, options ...}\newline ... \newline```
 - Evaluation ```{r label, eval, include, echo}```
 - Plot ```{r label, dev, dev.args, fig.cap, fig.width, fig.height, fig.dim}```
 - R source and output ```{r lable, class.source = c(...), class.output = c(...)}```
+- Table
+    - Global R options `knitr.table.format`, `knitr.kable.NA`
+    - `kable(x, "pipe|html", caption, col.names, row.names, align, digits, format.args)`
+    - Extra packages `gt`, `reactable`
 
 - Output ```{r label, out.width, out.height}```
 

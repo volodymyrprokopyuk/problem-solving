@@ -5,11 +5,48 @@ date: `r Sys.Date()`
 keywords: [markdown, knitr, literate-programming]
 abstract: |
   Markdown and knitr make literate programming in R very convenient
+css:
+  - style/style.css
 header-includes:
   - <link rel="shortcut icon" href="image/html5-favicon.png"/>
+  # - <link rel="stylesheet" href="style/style.css"/>
 ---
 
 # Introduction{#into .heading-class}
+
+```{r globar-r-options}
+options(knitr.kable.NA = "NULL")
+opts_chunk$set(error = F)
+```
+
+```{r mtcars-table}
+# kable(head(mtcars))
+
+# kable(head(iris), caption = "Iris table head caption example",
+#   col.names = gsub("[.]", " ", names(iris)),
+#   align = "lccrr")
+
+d <- cbind(x1 = runif(3), x2 = 10 ^ c(3, 5, 7), x3 = rnorm(3, 0, 1000))
+d[rbind(c(1, 1), c(2, 3), c(3, 2))] <- NA
+colnames(d) <- c("$\\alpha_0$", "$\\lim{\\beta}$", "$\\frac{\\lambda}{\\gamma}$")
+kable(d, digits = c(5, 0, 2), format.args = list(scientific = F))
+```
+
+![Face](/home/vlad/.face){.face}
+
+:::{.text-ellipsis}
+Your design may require that text must fit within its container without overflowing or
+wrapping. This can easily be accomplished by using the white-space, overflow, and
+text-overflow properties together.
+:::
+
+The white-space property is used to specify how whitespace is handled inside an element
+that contains text. The default value is normal. With this value, sequential whitespace
+characters are collapsed. If the text content exceeds the width of its container, it
+will be wrapped to the next line.
+
+You may have seen this behavior before, when you have multiple consecutive spaces in
+your HTML, or line breaks, and they are ignored by the browser.
 
 :::{.red}
 In the above example, the first set of curly braces contains the desired text color, and
