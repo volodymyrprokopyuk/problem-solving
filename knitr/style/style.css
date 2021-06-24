@@ -35,7 +35,7 @@ p {
   text-indent: 2rem;
 }
 
-pre {
+.pre {
   max-height: 8rem;
   overflow-y: auto;
 }

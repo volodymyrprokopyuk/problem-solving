@@ -1,4 +1,4 @@
-# library(ggplot2)
+library(ggplot2)
 
 # for (i in 5:8) { cat("->", i, "\n") }
 
@@ -535,8 +535,76 @@ b <- rep(NA, length(a))
 # d <- cbind(x1 = runif(3), x2 = 10 ^ c(3, 5, 7), x3 = rnorm(3, 0, 1000))
 # d[rbind(c(1, 1), c(2, 3), c(3, 2))] <- NA
 
-f <- function(x) {
-  # return(10)
-  x + 1
-}
-f(1)
+# f <- function(x) {
+#   # return(10)
+#   x + 1
+# }
+# f(1)
+
+# l1 <- list(matrix(1:4, 2, 2), "not a matrix", "definitely not a matrix",
+#   matrix(1:8, 2, 4), matrix(1:8, 4, 2))
+# l2 <-  list(1:4, "not a matrix", c(F, T, T, T), "??")
+# l3 <- list(1:4, "not a matrix", c(F, T, T, T), "??", matrix(1:8, 2, 4))
+# mult <- function(x, m, s1, s2) {
+#   mat.flags <- sapply(x, is.matrix)
+#   mat.flags
+#   if (!any(mat.flags)) { return(s1) }
+#   indexes <- which(mat.flags)
+#   c <- 0
+#   l <- list()
+#   for (i in indexes) {
+#     t <- x[[i]]
+#     if (ncol(t) == (nrow(m))) {
+#       c <- c + 1
+#       l[[c]] <- t %*% m
+#     }
+#   }
+#   if (c == 0) { return(s2) } else { return(l) }
+# }
+# mult(l3, diag(2), "no mat", "no appropriate mat")
+
+# plot.fib <- function(m, p = T, ...) {
+#   fib <- c(1, 1)
+#   c <- 2
+#   repeat {
+#     if (fib[c] > m) {
+#       if (!p) { return(fib) }
+#       print(list(...))
+#       p <- ggplot(data.frame(x = 1:length(fib), y = fib), aes(x, y)) + geom_point(...)
+#       pdf("plot.pdf")
+#       print(p)
+#       dev.off()
+#       break;
+#     }
+#     fib <- c(fib, fib[c - 1] + fib[c])
+#     c <- c + 1
+#   }
+# }
+# plot.fib(150, size = 3, color = "blue")
+
+# gain <- function(p, i, t, n = 12) {
+#   p * (1 + i / (100 * n)) ^ (t * n)
+# }
+# p <- 5000
+# i <- 4.4
+# t <- 25
+# n <- 1
+# p <- ggplot(data.frame(x = 1:t, y = gain(p, i, 1:t, n), z = gain(p, 2 * i, 1:t, n))) +
+#   geom_step(aes(x, y), color = "blue") + geom_step(aes(x, z), color = "red")
+# pdf("plot.pdf")
+# print(p)
+# dev.off()
+
+# quadratic <- function(a, b, c) {
+#   d <- b ^ 2 - 4 * a * c
+#   if (d < 0) {
+#     "No real roots"
+#   } else if (d == 0) {
+#     -b / (4 * a * c)
+#   } else {
+#     sd <- sqrt(d)
+#     (-b + c(-sd, sd)) / (2 * a)
+#   }
+# }
+# quadratic(2, -1, -5)
+# quadratic(1, 1, 1)

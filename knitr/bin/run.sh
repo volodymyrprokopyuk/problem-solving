@@ -21,9 +21,17 @@ function md_to_pdf {
   pandoc -f markdown -t pdf -s --pdf-engine wkhtmltopdf --mathml
 }
 
-# cleanup
+cleanup
 
 rmd_to_md $DOC && md_to_html < $DOC.md > $DOC.html
 # rmd_to_md $DOC && md_to_pdf < $DOC.md > $DOC.pdf
 
 # rmd_to_md $DOC && md_to_html < $DOC.md > $DOC.html & md_to_pdf < $DOC.md > $DOC.pdf
+
+
+function rmd_to_md {
+  command r -e "library(knitr); library(ggplot2); knit(file('stdin'), stdout(), quiet = T)"
+}
+
+# (rmd_to_md | tee $DOC.md | md_to_html) < $DOC.Rmd > $DOC.html
+# (rmd_to_md | tee $DOC.md | md_to_pdf) < $DOC.Rmd > $DOC.pdf

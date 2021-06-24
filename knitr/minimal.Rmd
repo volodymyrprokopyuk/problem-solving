@@ -9,10 +9,29 @@ css:
   - style/style.css
 header-includes:
   - <link rel="shortcut icon" href="image/html5-favicon.png"/>
-  # - <link rel="stylesheet" href="style/style.css"/>
 ---
 
 # Introduction{#into .heading-class}
+
+```{r format-code, tidy = T, tidy.opts = list(indent = 2)}
+plot.fib <- function(m, p = T, ...) {
+  fib <- c(1, 1)
+  c <- 2
+  repeat {
+    if (fib[c] > m) {
+      if (!p) { return(fib) }
+      print(list(...))
+      p <- ggplot(data.frame(x = 1:length(fib), y = fib), aes(x, y)) + geom_point(...)
+      pdf("plot.pdf")
+      print(p)
+      dev.off()
+      break;
+    }
+    fib <- c(fib, fib[c - 1] + fib[c])
+    c <- c + 1
+  }
+}
+```
 
 ```{r globar-r-options}
 options(knitr.kable.NA = "NULL")
