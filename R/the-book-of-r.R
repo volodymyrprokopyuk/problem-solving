@@ -1,4 +1,4 @@
-library(ggplot2)
+# library(ggplot2)
 
 # for (i in 5:8) { cat("->", i, "\n") }
 
@@ -608,3 +608,44 @@ b <- rep(NA, length(a))
 # }
 # quadratic(2, -1, -5)
 # quadratic(1, 1, 1)
+
+# a <- list("a", c("b", "c", "d", "e"), "f", c("g", "h", "i"))
+# lapply(a, function(m) { paste(m, "!", sep = "") })
+
+# fact <- function(x) {
+#   if (x < 2) 1 else x * fact(x - 1)
+# }
+# fact(0)
+# fact(5)
+
+# gmean <- function(x) { prod(x) ^ (1 / length(x)) }
+# gmean(c(4.3, 2.1, 2.2, 3.1))
+
+# geolist <- function(x) {
+#   lapply(x, function(m) {
+#     if (is.matrix(m)) {
+#       apply(m, 1, gmean)
+#     } else {
+#       gmean(m)
+#     }
+#   })
+# }
+
+# a <-  list(1:3, matrix(c(3.3, 3.2, 2.8, 2.1, 4.6, 4.5, 3.1, 9.4), 4, 2),
+#   matrix(c(3.3, 3.2, 2.8, 2.1, 4.6, 4.5, 3.1, 9.4), 2, 4))
+# b <- list(1:9, matrix(1:9, 1, 9), matrix(1:9, 9, 1), matrix(1:9, 3, 3))
+# geolist(b)
+
+# f <- function() {
+#   message("Msg")
+#   warning("Warn")
+#   stop("Err")
+#   1
+# }
+# r <- try(f(), silent = F)
+
+# a <- c(1, 2, 3, 4)
+# sum(a)
+# sum <- function(...) { prod(...) }
+# sum(a)
+# base::sum(a)

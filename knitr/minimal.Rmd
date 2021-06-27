@@ -13,6 +13,88 @@ header-includes:
 
 # Introduction{#into .heading-class}
 
+- unord 1
+- unord 2
+    1. Ord 1
+       a. Sub 1
+       a. Sub 2
+    1. Ord 2
+- unord 3
+
+Term 1
+: The white-space property is used to specify how whitespace is handled inside an
+  element that contains text. The default value is normal. With this value, sequential
+  whitespace characters are collapsed. If the text content exceeds the width of its
+  container, it will be wrapped to the next line.
+
+Term 2
+: The white-space property is used to specify how whitespace is handled inside an
+  element that contains text. The default value is normal. With this value, sequential
+  whitespace characters are collapsed. If the text content exceeds the width of its
+  container, it will be wrapped to the next line.
+
+Flexbox page layout
+
+<div class="container2">
+  <header>Header</header>
+  <main>
+    <div class="sidebar">Sidebar</div>
+    <div class="content2">Content</div>
+    <div class="sidebar2">Sidebar2</div>
+  </main>
+  <footer>Footer</footer>
+</div>
+
+Flexbox layout
+
+:::{.fc}
+:::{.it1}
+One
+:::
+:::{.it2}
+Two
+:::
+:::{.it3}
+Three
+:::
+:::
+
+Positioning example
+
+:::{.c1}
+:::{.i1}
+:::
+:::
+:::{.c2}
+:::{.i2}
+:::
+:::
+
+Float test
+
+:::{.c3}
+:::{.f1}
+:::
+:::{.f2}
+:::
+:::{.content1}
+The white-space property is used to specify how whitespace is handled inside an element
+that contains text. The default value is normal. With this value, sequential whitespace
+characters are collapsed. If the text content exceeds the width of its container, it
+will be wrapped to the next line.
+:::
+:::
+
+:::{.clear}
+This text is <mark>highlighted with a mark</mark> <strong>strong</strong>
+<em>emphasis</em> ~~strikeout~~, <u>underline</u> <del>delete</del> <ins>insert</ins>.
+Text <sub>subscript</sub>. Text<sup>superscript</sup> T^super^. T~sub~
+:::
+
+This is abbreviation <abbr title="Hypertext Markup Language">HTML</abbr>
+
+New tab link [PostgreSQL](https://postgresql.org){target="_blank"}
+
 ```{r format-code, tidy = T, tidy.opts = list(indent = 2)}
 plot.fib <- function(m, p = T, ...) {
   fib <- c(1, 1)
@@ -32,6 +114,12 @@ plot.fib <- function(m, p = T, ...) {
   }
 }
 ```
+Results as is
+
+```{r results-asis, comment = ""}
+cat(sprintf("- `%s`", names(iris)), sep = "\n")
+```
+
 
 ```{r globar-r-options}
 options(knitr.kable.NA = "NULL")
@@ -250,7 +338,7 @@ CREATE TABLE account (
 
 Zsh inline code ``exec R script.r; echo `pwd`;``{.zsh}
 
-```{.zsh .xnot-numbered}
+```{zsh .xnot-numbered}
 function map_reduce {
   mkfifo p{i,o}{1,2,3}
   function cleanup { rm -f p{i,o}{1,2,3} }
