@@ -2,15 +2,17 @@
 
 set -eu
 
+readonly LIB="library(knitr); library(readr); library(ggplot2); library(dplyr)"
 readonly DOC=minimal
 # readonly DOC=cts-benchmarking-2021-06-08
+
 
 function cleanup {
   rm -rf figure $DOC.{md,html,pdf}
 }
 
 function rmd_to_md {
-  command r -e "library(knitr); library(ggplot2); knit('$1.Rmd')"
+  Rscript -e "$LIB; knit('$1.Rmd')"
 }
 
 function md_to_html {

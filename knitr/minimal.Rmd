@@ -1,456 +1,83 @@
 ---
-title: A minimal Rmd example
+title: A minimal Rmd example with ggplot2
 author: Volodymyr Prokopyuk
 date: `r Sys.Date()`
-keywords: [markdown, knitr, literate-programming]
+keywords: [markdown, knitr, literate-programming, ggplot2]
 abstract: |
-  Markdown and knitr make literate programming in R very convenient
+  Markdown and knitr along with ggplot2 make literate programming in R very convenient
 css:
   - style/style.css
 header-includes:
   - <link rel="shortcut icon" href="image/html5-favicon.png"/>
 ---
 
-# Introduction{#into .heading-class}
-
-- unord 1
-- unord 2
-    1. Ord 1
-       a. Sub 1
-       a. Sub 2
-    1. Ord 2
-- unord 3
-
-Term 1
-: The white-space property is used to specify how whitespace is handled inside an
-  element that contains text. The default value is normal. With this value, sequential
-  whitespace characters are collapsed. If the text content exceeds the width of its
-  container, it will be wrapped to the next line.
-
-Term 2
-: The white-space property is used to specify how whitespace is handled inside an
-  element that contains text. The default value is normal. With this value, sequential
-  whitespace characters are collapsed. If the text content exceeds the width of its
-  container, it will be wrapped to the next line.
-
-Flexbox page layout
-
-<div class="container2">
-  <header>Header</header>
-  <main>
-    <div class="sidebar">Sidebar</div>
-    <div class="content2">Content</div>
-    <div class="sidebar2">Sidebar2</div>
-  </main>
-  <footer>Footer</footer>
-</div>
-
-Flexbox layout
-
-:::{.fc}
-:::{.it1}
-One
-:::
-:::{.it2}
-Two
-:::
-:::{.it3}
-Three
-:::
-:::
-
-Positioning example
-
-:::{.c1}
-:::{.i1}
-:::
-:::
-:::{.c2}
-:::{.i2}
-:::
-:::
-
-Float test
-
-:::{.c3}
-:::{.f1}
-:::
-:::{.f2}
-:::
-:::{.content1}
-The white-space property is used to specify how whitespace is handled inside an element
-that contains text. The default value is normal. With this value, sequential whitespace
-characters are collapsed. If the text content exceeds the width of its container, it
-will be wrapped to the next line.
-:::
-:::
-
-:::{.clear}
-This text is <mark>highlighted with a mark</mark> <strong>strong</strong>
-<em>emphasis</em> ~~strikeout~~, <u>underline</u> <del>delete</del> <ins>insert</ins>.
-Text <sub>subscript</sub>. Text<sup>superscript</sup> T^super^. T~sub~
-:::
-
-This is abbreviation <abbr title="Hypertext Markup Language">HTML</abbr>
-
-New tab link [PostgreSQL](https://postgresql.org){target="_blank"}
-
-```{r format-code, tidy = T, tidy.opts = list(indent = 2)}
-plot.fib <- function(m, p = T, ...) {
-  fib <- c(1, 1)
-  c <- 2
-  repeat {
-    if (fib[c] > m) {
-      if (!p) { return(fib) }
-      print(list(...))
-      p <- ggplot(data.frame(x = 1:length(fib), y = fib), aes(x, y)) + geom_point(...)
-      pdf("plot.pdf")
-      print(p)
-      dev.off()
-      break;
-    }
-    fib <- c(fib, fib[c - 1] + fib[c])
-    c <- c + 1
-  }
-}
-```
-Results as is
-
-```{r results-asis, comment = ""}
-cat(sprintf("- `%s`", names(iris)), sep = "\n")
+```{r document-config, include = F}
+opts_chunk$set(error = F, dev = "svg")
 ```
 
+```{r exports-data, include = T}
+raw_export <- "year,product,export,percentage
+2006,copper,4335009500,81
+2006,others,1016726518,19
+2007,copper,9005361914,86
+2007,others,1523085299,14
+2008,copper,6907056354,80
+2008,others,1762684216,20
+2009,copper,10529811075,81
+2009,others,2464094241,19
+2010,copper,14828284450,85
+2010,others,2543015596,15
+2011,copper,15291679086,82
+2011,others,3447972354,18
+2012,copper,14630686732,80
+2012,others,3583968218,20
+2013,copper,15244038840,79
+2013,others,4051281128,21
+2014,copper,14703374241,78
+2014,others,4251484600,22
+2015,copper,13155922363,78
+2015,others,3667286912,22
+"
+export <- read_csv(raw_export)
 
-```{r globar-r-options}
-options(knitr.kable.NA = "NULL")
-opts_chunk$set(error = F)
+# export <- export |>
+#   mutate(product = factor(
+#     product,
+#     levels = c("copper", "others"),
+#     labels = c("Copper", "Other goods")))
+
+export |> mutate(product = factor(
+  product,
+  levels = c("copper", "others"),
+  labels = c("Copper", "Other goods"))) -> export
 ```
 
-```{r mtcars-table}
-# kable(head(mtcars))
-
-# kable(head(iris), caption = "Iris table head caption example",
-#   col.names = gsub("[.]", " ", names(iris)),
-#   align = "lccrr")
-
-d <- cbind(x1 = runif(3), x2 = 10 ^ c(3, 5, 7), x3 = rnorm(3, 0, 1000))
-d[rbind(c(1, 1), c(2, 3), c(3, 2))] <- NA
-colnames(d) <- c("$\\alpha_0$", "$\\lim{\\beta}$", "$\\frac{\\lambda}{\\gamma}$")
-kable(d, digits = c(5, 0, 2), format.args = list(scientific = F))
+<!--
+```{r exports-line-plot, fig.cap = "Exports to China", fig.dim = c(9, 6)}
+ggplot(export, aes(x = year, y = export, color = product)) +
+  geom_line(size = 1.5) + geom_point(size = 3) +
+  scale_x_continuous(breaks = min(export$year):max(export$year)) +
+  labs(title = "Exports to China, USD", subtitle = "Source: Observatory of economics") +
+  labs(x = "Year", y = "USD") +
+  theme(
+    legend.title = element_blank(),
+legend.position = "bottom",
+    legend.direction = "horizontal") +
+  scale_color_manual(values = c("#AA3939", "#7A9F35", "#226666"))
 ```
+-->
 
-![Face](/home/vlad/.face){.face}
-
-:::{.text-ellipsis}
-Your design may require that text must fit within its container without overflowing or
-wrapping. This can easily be accomplished by using the white-space, overflow, and
-text-overflow properties together.
-:::
-
-The white-space property is used to specify how whitespace is handled inside an element
-that contains text. The default value is normal. With this value, sequential whitespace
-characters are collapsed. If the text content exceeds the width of its container, it
-will be wrapped to the next line.
-
-You may have seen this behavior before, when you have multiple consecutive spaces in
-your HTML, or line breaks, and they are ignored by the browser.
-
-:::{.red}
-In the above example, the first set of curly braces contains the desired text color, and
-the second set of curly braces contains the text to which this color should be applied.
-:::
-
-This text is in [**red**]{.red}
-
-```{r first-plot, dev = "svg", fig.cap = "Figure caption"}
-ggplot(data.frame(x = c(-15, 15)), aes(x = x, color = "red")) +
-  stat_function(fun = function(x) { x^2 })
+<!--
+```{r exports-area-plot, fig.cap = "Exports to China", fig.dim = c(9, 6)}
+ggplot(export, aes(x = year, y = export, fill = product)) +
+  geom_area(alpha = 0.7) +
+  scale_x_continuous(breaks = min(export$year):max(export$year)) +
+  labs(title = "Exports to China, USD", subtitle = "Source: Observatory of economics") +
+  labs(x = "Year", y = "USD") +
+  theme(
+    legend.position = "bottom",
+    legend.direction = "horizontal",
+    legend.title = element_blank()) +
+  scale_fill_manual(values = c("#E1B378","#5F9EA0"))
 ```
-
-```gv
-digraph {
-  graph [layout = dot, rankdir = TB]
-
-  node [shape = rectangle]
-  rec1 [label = 'Step 1. Wake up']
-  rec2 [label = 'Step 2. Write code']
-  rec3 [label =  'Step 3. ???']
-  rec4 [label = 'Step 4. PROFIT']
-
-  # edge definitions with the node IDs
-  rec1 -> rec2 -> rec3 -> rec4
-}
-```
-
-| I'd like to preserve formatting
-|   of these several lines of code,
-|     rather than having them in a single line
-
-```{r radius}
-x <- 5
-```
-Area of a circle with the radius `r x` is `r pi * x ^ 2`.
-
-:::{#plg-id}
-```{r playground, class.source = c("plg-src", "plg-src2"), class.output = "plg-out"}
-(function() { 1 + 2 })()
-```
-:::
-
-## Section A
-
-[External link](https://postgresql.org){.external-link}
-
-Inline math $\int_a^b x\mathrm{d}x$
-<!-- [Block math]{#block-math} -->
-
-::: {#block-math}
-:::
-Block math
-
-$$\int_a^b x\mathrm{d}x; \sum_{j+1}^N \frac{1}{j^2}$$
-
-### Subsection B
-
-Bigger math example
-
-[]{#eq-1}
-$$
-d(i,j) = \begin{cases}
-\,i & j = 0 \\
-\,j & i = 0 \\
-\,\min\begin{cases}
-d(i-1,j-1) + \mathrm{1}(i\neq j) \\
-d(i,j-1) + 1 \\
-d(i-1,j) + 1
-\end{cases} & i>0,j>0
-\end{cases}
-$$
-
-Cuadratic roots
-
-$$x=\frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
-
-### Subsection C
-
-```{.latex .numberLines #latex-code}
-$$
-d(i,j) = \begin{cases}
-\,i & j = 0 \\
-\,j & i = 0 \\
-\,\min\begin{cases}
-d(i-1,j-1) + \mathrm{1}(i\neq j) \\
-d(i,j-1) + 1 \\
-d(i-1,j) + 1
-\end{cases} & i>0,j>0
-\end{cases}
-$$
-```
-
-## Section D
-
-[Go to code block](#code-block)
-
-[Go to code block]
-
-Here is a footnote [^afootnote] and here is another footnote [^anotherf]
-
-## Header 2
-
-**Markdown** and *knitr* make ***literate programming***\
-in R very convenient
-
-> > To create a blockquote, add a > in front of a paragraph. Blockquotes can contain
-    multiple paragraphs. Add a > on the blank lines between the paragraphs.
->
-> > To create a blockquote, add a > in front of a paragraph. Blockquotes can contain
-    multiple paragraphs. Add a > on the blank lines between the paragraphs.
-
-## Header 3
-
-1. One
-
-   To add another element in a list while preserving the continuity of the list, indent
-   the element four spaces or one tab, as shown in the following examples.
-
-1. Two
-    1. Ten
-
-       > I need to add another paragraph below the second list item.
-
-    1. Eleven
-1. Three
-
-# Div section
-
-<div id="code-block"/>
-
-```{.r}
-g <- grep("Cause: shooting", homicides)
-x <- data.frame(foo = 1:4, bar = c(T, T, F, F))
-
-a <- list(aa=c(3.4, 1), bb=matrix(1:4, 2, 2), cc=matrix(c(T, T, F, T, F, F), 3, 2),
-  dd="string here", ee=matrix(c("red", "green", "blue", "yellow")))
-is.mat <- rep(F, length(a))
-nr <- rep(NA, length(a))
-nc <- nr
-data.type <- nr
-for (i in 1:length(a)) {
-  e <- a[[i]]
-  if (is.matrix(e)) {
-    is.mat[i] <- T
-    nr[i] <- nrow(e)
-    nc[i] <- ncol(e)
-    data.type[i] <- class(as.vector(e))
-  }
-}
-df <- data.frame(name = names(a), is.mat = is.mat, nrow = nr, ncol = nc,
-  data.type = data.type)
-```
-
-
-## Code section
-
-:::{.two-col}
-
-:::{.first-col}
-R inline code `g <- grep("Cause: shooting", homicides)`{.r}
-
-```sql
-CREATE TABLE legal_entity (
-    legal_entity_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    legal_entity_name text NOT NULL CHECK (legal_entity_name ~ '^[ \w]{3,}$'),
-    creation_ts timestamptz NOT NULL DEFAULT current_timestamp);
-
-CREATE TYPE account_type_t AS ENUM ('individual', 'sole_trader', 'sme');
-CREATE TYPE account_status_t AS ENUM ('active', 'blocked', 'closed');
-
-CREATE TABLE account (
-    account_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    legal_entity_id uuid NOT NULL REFERENCES legal_entity (legal_entity_id),
-    account_type account_type_t NOT NULL,
-    account_status account_status_t NOT NULL,
-    creation_ts timestamptz NOT NULL DEFAULT current_timestamp);
-```
-:::
-
-:::{.second-col}
-
-Zsh inline code ``exec R script.r; echo `pwd`;``{.zsh}
-
-```{zsh .xnot-numbered}
-function map_reduce {
-  mkfifo p{i,o}{1,2,3}
-  function cleanup { rm -f p{i,o}{1,2,3} }
-  trap cleanup INT TERM EXIT
-
-  tr a A < pi1 > po1 &
-  sed 's/l/L/' < pi2 > po2 &
-  cut -c 2- < pi3 > po3 &
-
-  tee pi{1,2} > pi3 &
-  cat po{1,2,3}
-}
-```
-:::
-:::
-
-### Subsection E
-
-<!-- ![Face](/home/vlad/.face) -->
-
-<!-- ![Face] -->
-
-[Face]: /home/vlad/.face
-
-### Subsection D
-
-[PostgreSQL](https://www.postgresql.org/)
-
-<https://www.postgresql.org/>
-
-[PostgreSQL]
-
-## Link examples
-
-[PostgreSQL]: https://www.postgresql.org/
-
-[Vlad's emial](mailto:volodymyrprokopyuk@gmial.com)
-
-[Vlad's email]
-
-[Vlad's email]: mailto:volodymyrprokopyuk@gmial.com
-
-<mailto:volodymyrprokopyuk@gmial.com>
-
-[Go to code block]: #code-block
-
-[Reference text][reference-label]
-
-[reference-label]: https://www.postgresql.org/
-
-Table: Syntax elements[]{#syntax-els}
-
-Name | HTML syntax example | Description
-:--- | :---: | ---:
-Header | `<h1>...</h1>`{.html} | Title
-Paragraph | `<p>...</p>`{.html} | Text
-If you want table cells to span multiple lines, you can do this as well | If you want table cells to span multiple lines, you can do this as well | If you want table cells to span multiple lines, you can do this as well
-
-Hyphen - compound words
-
-En-dash -- ranges
-
-Em-dash --- substitute
-
-Left | Center  | Right
-:--- | :---: | ---:
-A | B | C
-
-Here is an ^[Inline footnote directly in the text] to look at
-
-[^afootnote]: A foot note content
-
-    With one more paragraph
-
-[^anotherf]: Another footnote with code block
-
-    ```sql
-    SELECT *
-    FROM data d;
-    ```
-
-Numbered list
-
-a. A
-a. B
-a. C
-
-Definition list
-
-Term 1
-: Lists are frequently used to define terms or concepts, and in Pandoc you can create
-  definition lists by following a term with a colon and indenting the start of the
-  definition with a tab or at least four spaces. So you can create definition lists like
-  this
-: Definition 1
-
-Term 2
-: Definition 2
-
-Term 1
-: Defintion 1
-: Defintion 11
-
-Term 2
-: Defintion 2
-
-Internal link to [Header 3]
-
-[Go to LaTeX code](#latex-code)
-
-[Go to block math](#block-math)
-
-[Syntax elements](#syntax-els)
-
-[Equiation 1](#eq-1)
+-->
