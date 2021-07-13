@@ -2,19 +2,20 @@
 title: A minimal Rmd example with ggplot2
 author: Volodymyr Prokopyuk
 date: `r Sys.Date()`
-keywords: [markdown, knitr, literate-programming, ggplot2]
 abstract: |
   Markdown and knitr along with ggplot2 make literate programming in R very convenient
+keywords: [markdown, knitr, literate-programming, ggplot2]
+lang: en
 css:
   - style/style.css
 header-includes:
-  - <link rel="shortcut icon" href="image/html5-favicon.png"/>
+  - <link rel="shortcut icon" href="image/html5-favicon.png">
 ---
 
 ```{r document-config, include = F}
 opts_chunk$set(error = F, dev = "svg")
 ```
-
+<!--
 ```{r exports-data, include = T}
 raw_export <- "year,product,export,percentage
 2006,copper,4335009500,81
@@ -51,6 +52,7 @@ export |> mutate(product = factor(
   levels = c("copper", "others"),
   labels = c("Copper", "Other goods"))) -> export
 ```
+-->
 
 <!--
 ```{r exports-line-plot, fig.cap = "Exports to China", fig.dim = c(9, 6)}
@@ -81,3 +83,122 @@ ggplot(export, aes(x = year, y = export, fill = product)) +
   scale_fill_manual(values = c("#E1B378","#5F9EA0"))
 ```
 -->
+
+<!--
+```{r example-plot}
+# ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+# ggplot(data = NULL, aes(x = mtcars$wt, y = mtcars$mpg)) + geom_point()
+# ggplot(pressure, aes(x = temperature, y = pressure)) + geom_line() + geom_point()
+# d <- tibble(
+#   time = c(1, 2, 3, 4, 5, 7),
+#   demand = c(8.3, 10.3, 19, 16, 15.6, 19.8),
+#   name = c("a", "b", "c", "d", "e", "f"))
+# ggplot(d, aes(x = time, y = demand)) + geom_col()
+# ggplot(d, aes(x = factor(time), y = demand)) + geom_col()
+# ggplot(d, aes(x = time, y = demand)) + geom_bar(stat = "identity")
+# ggplot(mtcars, aes(x = cyl)) + geom_bar()
+# ggplot(mtcars, aes(x = factor(cyl))) + geom_bar()
+# ggplot(mtcars, aes(x = mpg)) + geom_histogram(binwidth = 2)
+# ggplot(mtcars, aes(x = mpg)) + geom_histogram(bins = 10)
+# ggplot(ToothGrowth, aes(x = supp, y = len)) + geom_boxplot()
+# ggplot(ToothGrowth, aes(x = interaction(supp, dose), y = len)) + geom_boxplot()
+# ggplot(tibble(x = -4:4), aes(x = x)) +
+#   stat_function(fun = \(x) x^3 - 5 * x, geom = "line", color = "red") +
+# ggplot(tibble(x = 0:20), aes(x = x)) +
+#   stat_function(fun = \(x) 1 / (1 + exp(-x + 10)), geom = "line", color = "green")
+# options(digits.secs = 6)
+# a = Sys.time()
+# Sys.sleep(0.001)
+# b = Sys.time()
+# b - a
+```
+-->
+
+## Physical characteristics
+
+The Moon is a very slightly scalene ellipsoid due to tidal stretching, with its long
+axis displaced 30° from facing the Earth, due to gravitational anomalies from impact
+basins. Its shape is more elongated than current tidal forces can account for. This
+'fossil bulge' indicates that the Moon solidified when it orbited at half its current
+distance to the Earth, and that it is now too cold for its shape to adjust to its
+orbit.[56]
+
+### Internal structure
+
+The Moon is a differentiated body that was initially in hydrostatic equilibrium but has
+since departed from this condition.[58] It has a geochemically distinct crust, mantle,
+and core. The Moon has a solid iron-rich inner core with a radius possibly as small as
+240 kilometres (150 mi) and a fluid outer core primarily made of liquid iron with a
+radius of roughly 300 kilometres (190 mi). Around the core is a partially molten
+boundary layer with a radius of about 500 kilometres (310 mi).[59][60] This structure is
+thought to have developed through the fractional crystallization of a global magma ocean
+shortly after the Moon's formation 4.5 billion years ago.[61]
+
+Crystallization of this magma ocean would have created a mafic mantle from the
+precipitation and sinking of the minerals olivine, clinopyroxene, and orthopyroxene;
+after about three-quarters of the magma ocean had crystallised, lower-density
+plagioclase minerals could form and float into a crust atop.[62] The final liquids to
+crystallise would have been initially sandwiched between the crust and mantle, with a
+high abundance of incompatible and heat-producing elements.[1] Consistent with this
+perspective, geochemical mapping made from orbit suggests a crust of mostly
+anorthosite.[14] The Moon rock samples of the flood lavas that erupted onto the surface
+from partial melting in the mantle confirm the mafic mantle composition, which is more
+iron-rich than that of Earth.[1] The crust is on average about 50 kilometres (31 mi)
+thick.[1]
+
+The Moon is the second-densest satellite in the Solar System, after Io.[63] However, the
+inner core of the Moon is small, with a radius of about 350 kilometres (220 mi) or
+less,[1] around 20% of the radius of the Moon. Its composition is not well understood,
+but is probably metallic iron alloyed with a small amount of sulfur and nickel; analyses
+of the Moon's time-variable rotation suggest that it is at least partly molten.[64] The
+pressure at the lunar core is estimated to be 5 GPa.[65]
+
+#### Magnetic field
+
+The Moon has an external magnetic field of generally less than 0.2 nanoteslas,[66] or
+less than one hundred thousandth that of Earth. The Moon does not currently have a
+global dipolar magnetic field and only has crustal magnetization likely acquired early
+in its history when a dynamo was still operating.[67][68] However, early in its history,
+4 billion years ago, its magnetic field strength was likely close to that of Earth
+today.[66] This early dynamo field apparently expired by about one billion years ago,
+after the lunar core had completely crystallized.[66] Theoretically, some of the remnant
+magnetization may originate from transient magnetic fields generated during large
+impacts through the expansion of plasma clouds. These clouds are generated during large
+impacts in an ambient magnetic field. This is supported by the location of the largest
+crustal magnetizations situated near the antipodes of the giant impact basins.[69]
+
+#### Surface geology
+
+Main articles: Topography of the Moon, Geology of the Moon, Moon rock, and List of lunar
+features Geological features of the Moon (near side / north pole at left, far side /
+south pole at right) Topography of the Moon measured from the Lunar Orbiter Laser
+Altimeter on the mission Lunar Reconnaissance Orbiter, referenced to a sphere of radius
+1737.4 km Topography of the Moon
+
+The topography of the Moon has been measured with laser altimetry and stereo image
+analysis.[70] Its most extensive topographic feature is the giant far-side South
+Pole–Aitken basin, some 2,240 km (1,390 mi) in diameter, the largest crater on the Moon
+and the second-largest confirmed impact crater in the Solar System.[71][72] At 13 km
+(8.1 mi) deep, its floor is the lowest point on the surface of the Moon.[71][73] The
+highest elevations of the Moon's surface are located directly to the northeast, which
+might have been thickened by the oblique formation impact of the South Pole–Aitken
+basin.[74] Other large impact basins such as Imbrium, Serenitatis, Crisium, Smythii, and
+Orientale possess regionally low elevations and elevated rims.[71] The far side of the
+lunar surface is on average about 1.9 km (1.2 mi) higher than that of the near side.[1]
+
+The discovery of fault scarp cliffs suggest that the Moon has shrunk by about 90 metres
+(300 ft) within the past billion years.[75] Similar shrinkage features exist on
+Mercury. Mare Frigoris, a basin near the north pole long assumed to be geologically
+dead, has cracked and shifted. Since the Moon doesn't have tectonic plates, its tectonic
+activity is slow and cracks develop as it loses heat.[76]
+
+### Volcanic features
+
+The dark and relatively featureless lunar plains, clearly seen with the naked eye, are
+called maria (Latin for "seas"; singular mare), as they were once believed to be filled
+with water;[77] they are now known to be vast solidified pools of ancient basaltic
+lava. Although similar to terrestrial basalts, lunar basalts have more iron and no
+minerals altered by water.[78] The majority of these lava deposits erupted or flowed
+into the depressions associated with impact basins. Several geologic provinces
+containing shield volcanoes and volcanic domes are found within the near side
+"maria".[79]

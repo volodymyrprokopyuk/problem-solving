@@ -1,0 +1,149 @@
+---
+title: Especificaicón de techos a colocar y paredes a alisar
+author: Vlad
+date: `r Sys.Date()`
+abstract: >
+  Especificación de trabajos a realizar para colocar los techos y alisar las paredes
+keywords: [techos, paredes, aislamiento, alisar]
+lang: es
+css:
+  - style/style.css
+header-includes:
+  - <link rel="shortcut icon" href="image/html5-favicon.png">
+---
+
+```{r document-config, include = F}
+opts_chunk$set(error = F, echo = F)
+```
+
+```{r datos-techo-pared}
+planta <- factor(
+  c("PB", "PB", "PB", "PB", "PB", "PB",
+    "PP", "PP", "PP", "PP", "PP", "PP", "PP", "PP", "PP"),
+  levels = c("PB", "PP"),
+  labels = c("pl_baja", "primera_pl"))
+cuarto0 <- c("recibidor", "aseo", "cocina", "salón este", "salón oeste", "escalera 0")
+cuarto1 <- c("distribuidor", "dormitorio principal", "mirador", "baño en suite",
+             "estudio", "baño común", "dormitorio este", "dormitorio oeste", "escalera 1")
+largo0 <- c(3.30, 2.15, 5.55, 3.45, 4.80, 2.25)
+ancho0 <- c(1.75, 1.10, 2.40, 3.00, 4.35, 1.80)
+largo1 <- c(3.60, 3.75, 3.25, 2.40, 3.15, 3.25, 3.05, 3.40, 2.35)
+ancho1 <- c(1.25, 2.95, 3.10, 1.70, 2.70, 1.60, 3.00, 2.70, 1.80)
+inc_techo0 <- c(T, F, F, T, T, F)
+inc_techo1 <- c(T, T, F, T, T, T, T, T, T)
+inc_pared0 <- c(T, F, F, T, T, T)
+inc_pared1 <- c(T, T, F, F, T, F, T, T, T)
+pared_alto <- 2.40
+d <- tibble(
+  planta = planta,
+  cuarto = c(cuarto0, cuarto1),
+  largo = c(largo0, largo1),
+  ancho = c(ancho0, ancho1),
+  inc_techo = c(inc_techo0, inc_techo1),
+  inc_pared = c(inc_pared0, inc_pared1),
+  area_techo = largo * ancho,
+  area_pared = 2 * (largo + ancho) * pared_alto)
+l <- d[d$cuarto == "distribuidor", "largo"]
+a <- d[d$cuarto == "distribuidor", "ancho"]
+d[d$cuarto == "distribuidor", "area_pared"] <- (l + 2 * a) * pared_alto
+l <- d[d$cuarto == "escalera 1", "largo"]
+a <- d[d$cuarto == "escalera 1", "ancho"]
+d[d$cuarto == "escalera 1", "area_pared"] <- (l * 2 + a) * pared_alto
+l <- d[d$cuarto == "recibidor", "largo"]
+a <- d[d$cuarto == "recibidor", "ancho"]
+d[d$cuarto == "recibidor", "area_pared"] <- (l * 2 + a) * pared_alto
+l <- d[d$cuarto == "escalera 0", "largo"]
+a <- d[d$cuarto == "escalera 0", "ancho"]
+d[d$cuarto == "escalera 0", "area_pared"] <- (l * 2 + a) * pared_alto
+l <- d[d$cuarto == "salón este", "largo"]
+a <- d[d$cuarto == "salón este", "ancho"]
+d[d$cuarto == "salón este", "area_pared"] <- (l + a + 3.20) * pared_alto
+l <- d[d$cuarto == "salón oeste", "largo"]
+a <- d[d$cuarto == "salón oeste", "ancho"]
+d[d$cuarto == "salón oeste", "area_pared"] <- (l + a + 2.40) * pared_alto
+# d |> gt(groupname_col = "planta", rowname_col = "cuarto")
+```
+
+## Primera planta. Techos a colocar
+
+- Colocar el techo falso con los perfiles de chapa de 0.6mm fijados a las paredes por el
+  perímetro y anclados las vigas en el medio
+- Situar el alumbrado en la parte central del techo con varios puntos de luz
+- Poner 40cm de aislamiento en horizontal encima del techo falso colocando la lana de
+  roca por el perímetro y el poliestireno estruido en el area principal
+- Atornillar el pladur al techo falso y alisar el techo con la masa adecuada
+- Colocar la corniza y pintar el techo
+
+```{r primera-pl-techo-colocar}
+d[d$planta == "primera_pl" & d$inc_techo,
+  c("planta", "cuarto", "largo", "ancho", "area_techo")] |>
+  gt(groupname_col = "planta", rowname_col = "cuarto") |>
+  tab_header(
+    title = "Cálculo del area de techo a colocar (primera planta)",
+    subtitle = "Colocar techos, poner aislamiento, adaptar alumbrado, pintar techos") |>
+  summary_rows(groups = T, columns = "area_techo", fns = list(total_techo = "sum"))
+```
+
+## Mirador. Techo, paredes y suelo a colocar
+
+- Colocar el tehco falso de pladur con el aislamiento de lana de reoca y poliestireno
+  estruido (mire [Primera planta. Techos a colocar])
+- Instalar el alumbrado y los enchufes
+- Pegar el pladur sobre las paredes
+- Colocar el revestimiento de valdosas en el suelo
+
+```{r mirador-techo-pared-suelo-colocar}
+d[d$cuarto == "mirador",
+  c("planta", "cuarto", "largo", "ancho", "area_techo", "area_pared")] |>
+  gt(groupname_col = "planta", rowname_col = "cuarto") |>
+  tab_header(
+    title = "Cálculo del area de techo, paredes y suelo a colocar (mirador)",
+    subtitle = "Colocar techo, paredes y suelo, instalar alumbrado y enchufes") |>
+  summary_rows(groups = T, columns = "area_techo", fns = list(total_techo = "sum")) |>
+  summary_rows(groups = T, columns = "area_pared", fns = list(total_pared = "sum")) |>
+  summary_rows(groups = T, columns = "area_techo", fns = list(total_suelo = "sum"))
+```
+
+## Primera planta. Paredes a alisar
+
+- Quitar la gota con la máquina adecuada
+- Alisar las paredes con la masa adecuada
+- Pintar las paredes
+
+```{r primera-pl-pared-alisar}
+d[d$planta == "primera_pl" & d$inc_pared,
+  c("planta", "cuarto", "largo", "ancho", "area_pared")] |>
+  gt(groupname_col = "planta", rowname_col = "cuarto") |>
+  tab_header(
+    title = "Cálculo del area de paredes a alisar (primera planta)",
+    subtitle = "Alisar y pintar las paredes") |>
+  summary_rows(groups = T, columns = "area_pared", fns = list(total_pared = "sum"))
+```
+
+## Planta baja. Techos a alisar
+
+- Quitar la gota, alisar y pintar los techos (mire [Primera planta. Paredes a alisar])
+
+```{r pl-baja-techo-alisar}
+d[d$planta == "pl_baja" & d$inc_techo,
+  c("planta", "cuarto", "largo", "ancho", "area_techo")] |>
+  gt(groupname_col = "planta", rowname_col = "cuarto") |>
+  tab_header(
+    title = "Cálculo del area de techos a alisar (planta baja)",
+    subtitle = "Alisar y pintar los techos") |>
+  summary_rows(groups = T, columns = "area_techo", fns = list(total_techo = "sum"))
+```
+
+## Planta baja. Paredes a alisar
+
+- Quitar la gota, alisar y pintar las paredes (mire [Primera planta. Paredes a alisar])
+
+```{r pl-baja-pared-alisar}
+d[d$planta == "pl_baja" & d$inc_pared,
+  c("planta", "cuarto", "largo", "ancho", "area_pared")] |>
+  gt(groupname_col = "planta", rowname_col = "cuarto") |>
+  tab_header(
+    title = "Cálculo del area de paredes a alisar (planta baja)",
+    subtitle = "Alisar y pintar las paredes") |>
+  summary_rows(groups = T, columns = "area_pared", fns = list(total_pared = "sum"))
+```

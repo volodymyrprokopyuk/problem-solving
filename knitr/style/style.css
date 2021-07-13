@@ -1,10 +1,19 @@
-@import "modern-normalize.min.css";
+@import url("modern-normalize.min.css");
 
 @font-face {
   font-family: "PT Sans";
   src: url("../font/pt-sans-v12-latin-regular.woff2") format("woff2");
 }
 
+body {
+  font-family: "PT Sans";
+  font-size: 16px;
+}
+
 figure > img {
-  width: 80%;
+  width: 40%;
+}
+
+thead th {
+  font-weight: bold;
 }
