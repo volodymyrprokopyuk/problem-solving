@@ -1,5 +1,5 @@
 ---
-title: Luis. Presupuesto de la cubierta
+title: Vlad - Presupuesto de la cubierta
 author: Vlad
 date: `r Sys.Date()`
 abstract: >
@@ -21,15 +21,14 @@ cubierta <- tribble(
   ~concepto, ~cantidad, ~precio,
   "Andamio", 160, 18,
   "Línea de vida", 1, 250,
-  "Levantado de pizarra", 163, 10,
-  # "Levantado de pizarra", 139, 10,
-  "Enfoscado monocapa", 24, 50,
-  # "Enfoscado monocapa", 6, 50,
+  # "Levantado de pizarra", 163, 10,
+  "Levantado de pizarra", 139, 10,
+  # "Enfoscado monocapa", 24, 50,
+  "Enfoscado monocapa", 6, 50,
   "Canalones y bajantes", 44, 35,
   # "Canalones y bajantes", 47, 35,
-  "Baberos", 30, 25,
-  # "Baberos", 19, 25,
-  "Rastrel primario", 139, 12,
+  "Baberos", 24, 25,
+  # "Rastrel primario", 139, 12,
   "Telas asfálticas", 139, 25,
   "Rastrel secundario", 139, 15,
   "Teja plana", 139, 45,

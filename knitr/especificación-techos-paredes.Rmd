@@ -1,5 +1,5 @@
 ---
-title: Especificaicón de techos a colocar y paredes a alisar
+title: Presupuesto de techos a colocar, paredes a alisar y el mirador
 author: Vlad
 date: `r Sys.Date()`
 abstract: >
@@ -147,4 +147,34 @@ d[d$planta == "pl_baja" & d$inc_pared,
     title = "Cálculo del area de paredes a alisar (planta baja)",
     subtitle = "Alisar y pintar las paredes") |>
   summary_rows(groups = T, columns = "area_pared", fns = list(total_pared = "sum"))
+```
+
+## Presupuesto de la primera planta, el mirador y la planta baja
+
+```{r datos-presupuesto}
+presupuesto <- tribble(
+  ~parte, ~concepto, ~cantidad, ~precio,
+  "mirador", "Aislamiento", 10, 28,
+  "mirador", "Techo de cartón yeso", 10, 35,
+  "mirador", "Viga de cartón yeso", 4, 30,
+  "mirador", "Paredes de cartón yeso", 30, 24,
+  "mirador", "Plastón de mortero", 10, 30,
+  "mirador", "Pavimento suelo", 10, 50,
+  "mirador", "Rodapie suelo", 12, 10,
+  "mirador", "Electricidad suministro", 1, 400,
+  "mirador", "Electricidad presentación", 7, 35,
+  "primera_pl", "Techo de cartón yeso", 56, 35,
+  "primera_pl", "Aislamiento", 56, 28,
+  "primera_pl", "Alisado de paredes", 148, 14,
+  "primera_pl", "Puntos de luz", 7, 60,
+  "primera_pl", "Soporte de alumbrado y cortinas", 14, 25,
+  "primera_pl", "Moldura de escayola", 50, 18,
+  "pl_baja", "Alisado de paredes", 86, 14,
+  "pl_baja", "Alisado de techos", 37, 14,
+)
+presupuesto |> mutate(valor = cantidad * precio) -> presupuesto
+presupuesto |> gt(groupname_col = "parte", rowname_col = "concepto") |>
+  tab_header(title = "Presupuesto primera planta + mirador + planta baja") |>
+  summary_rows(groups = T, columns = "valor", fns = list(total = "sum")) |>
+  grand_summary_rows(columns = "valor", fns = list(grand_total = "sum"))
 ```
