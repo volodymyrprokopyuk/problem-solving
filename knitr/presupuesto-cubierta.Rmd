@@ -1,0 +1,68 @@
+---
+title: Luis. Presupuesto de la cubierta
+author: Vlad
+date: `r Sys.Date()`
+abstract: >
+  Presupuesto de la cubierta y del mirador
+keywords: [techos, paredes, aislamiento, alisar]
+lang: es
+css:
+  - style/style.css
+header-includes:
+  - <link rel="shortcut icon" href="image/html5-favicon.png">
+---
+
+```{r document-config, include = F}
+opts_chunk$set(error = F, echo = F)
+```
+
+```{r datos-cubierta}
+cubierta <- tribble(
+  ~concepto, ~cantidad, ~precio,
+  "Andamio", 160, 18,
+  "Línea de vida", 1, 250,
+  "Levantado de pizarra", 163, 10,
+  # "Levantado de pizarra", 139, 10,
+  "Enfoscado monocapa", 24, 50,
+  # "Enfoscado monocapa", 6, 50,
+  "Canalones y bajantes", 44, 35,
+  # "Canalones y bajantes", 47, 35,
+  "Baberos", 30, 25,
+  # "Baberos", 19, 25,
+  "Rastrel primario", 139, 12,
+  "Telas asfálticas", 139, 25,
+  "Rastrel secundario", 139, 15,
+  "Teja plana", 139, 45,
+  "Enfoscado chimenea", 1, 250,
+  "Premarco de ventana", 1, 400,
+  "Chapas perimetrales", 55, 18,
+  "Tejas perimetrales", 55, 18,
+  # Mirador
+  "Demolición de tablero", 12, 15,
+  "Desmontaje de ventana", 1, 50,
+  "Picado de faldón", 10, 15,
+  "Picado de muro", 6, 15,
+  "Levantado de pavimento", 6, 15,
+  "Picado de mortero", 10, 20,
+  "Desmontaje de canalón", 1, 30,
+  "Camara inferior", 29.5, 38,
+  "Aislamiento", 30, 8,
+  "Ladrillo cara vista", 21.7, 75,
+  "Cargadero de sardinel", 3, 40,
+  "Sardinel de ladrillo", 2.5, 75,
+  "Camara superior", 17.5, 45,
+  "Tubo de ventilación", 1, 30,
+  "Vierteaguas", 3, 50,
+  "Viga 5.5", 2, 350,
+  "Viga 4.5", 1, 300,
+  "Pilares 3.0", 2, 200,
+  "Chapón", 2, 170,
+  "Chapa colaborante", 24.8, 85,
+  "Fibrocemento en aleros", 15.5, 35,
+  "Monocapa en aleros", 15.5, 32)
+cubierta |> mutate (valor = cantidad * precio) |>
+  gt(rowname_col = "concepto") |>
+  tab_header(title = "Presupuesto de la cubierta y del mirador") |>
+  grand_summary_rows(columns = "valor", fns = list(total = "sum"))
+
+# sum(cubierta$valor)

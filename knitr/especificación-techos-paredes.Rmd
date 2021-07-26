@@ -90,6 +90,7 @@ d[d$planta == "primera_pl" & d$inc_techo,
   estruido (mire [Primera planta. Techos a colocar])
 - Instalar el alumbrado y los enchufes
 - Pegar el pladur sobre las paredes
+- Aislar el suelo con 6cm de poliestireno estruido
 - Colocar el revestimiento de valdosas en el suelo
 
 ```{r mirador-techo-pared-suelo-colocar}

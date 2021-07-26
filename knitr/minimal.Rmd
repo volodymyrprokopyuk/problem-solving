@@ -84,18 +84,18 @@ ggplot(export, aes(x = year, y = export, fill = product)) +
 ```
 -->
 
-<!--
 ```{r example-plot}
 # ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
 # ggplot(data = NULL, aes(x = mtcars$wt, y = mtcars$mpg)) + geom_point()
 # ggplot(pressure, aes(x = temperature, y = pressure)) + geom_line() + geom_point()
-# d <- tibble(
+# dob <- tibble(
 #   time = c(1, 2, 3, 4, 5, 7),
 #   demand = c(8.3, 10.3, 19, 16, 15.6, 19.8),
 #   name = c("a", "b", "c", "d", "e", "f"))
-# ggplot(d, aes(x = time, y = demand)) + geom_col()
-# ggplot(d, aes(x = factor(time), y = demand)) + geom_col()
-# ggplot(d, aes(x = time, y = demand)) + geom_bar(stat = "identity")
+# ggplot(dob, aes(x = time, y = demand)) + geom_col()
+# ggplot(dob, aes(x = factor(time), y = demand)) +
+#   geom_col(fill = "lightblue", color = "orange")
+# ggplot(dob, aes(x = name, y = demand)) + geom_bar(stat = "identity")
 # ggplot(mtcars, aes(x = cyl)) + geom_bar()
 # ggplot(mtcars, aes(x = factor(cyl))) + geom_bar()
 # ggplot(mtcars, aes(x = mpg)) + geom_histogram(binwidth = 2)
@@ -104,15 +104,84 @@ ggplot(export, aes(x = year, y = export, fill = product)) +
 # ggplot(ToothGrowth, aes(x = interaction(supp, dose), y = len)) + geom_boxplot()
 # ggplot(tibble(x = -4:4), aes(x = x)) +
 #   stat_function(fun = \(x) x^3 - 5 * x, geom = "line", color = "red") +
+# ggplot(tibble(x = -4:4), aes(x = x)) +
+#   stat_function(fun = \(x) x^2, geom = "line")
+#   stat_function(fun = ~ .x^2, geom = "line")
 # ggplot(tibble(x = 0:20), aes(x = x)) +
 #   stat_function(fun = \(x) 1 / (1 + exp(-x + 10)), geom = "line", color = "green")
-# options(digits.secs = 6)
-# a = Sys.time()
-# Sys.sleep(0.001)
-# b = Sys.time()
-# b - a
+# ggplot(pg_mean, aes(x = group, y = weight)) + geom_col()
+# ggplot(rbind(cabbage_exp[1:5, ], list("c52", "d21", NA, NA, NA, NA)),
+#        aes(x = Date, y = Weight, fill = Cultivar)) +
+#   geom_col(position = "dodge", color = "blue") +
+#   scale_fill_brewer(palette = "Pastel1")
+# ggplot(diamonds, aes(x = cut)) + geom_bar()
+# ggplot(diamonds, aes(x = carat)) + geom_histogram(binwidth = 0.1)
+# uspopchange |> arrange(desc(Change)) |> slice(1:10) |>
+#   ggplot(aes(x = reorder(Abb, Change), y = Change, fill = Region)) +
+#   geom_col() +
+#   scale_fill_manual(values = c("#669933", "#FFCC66")) +
+#   labs(x = "State")
+# tibble(climate) |>
+#   filter(Source == "Berkeley" & Year >= 1900) |>
+#   mutate(pos = Anomaly10y >= 0) |>
+#   ggplot(aes(x = Year, y = Anomaly10y, fill = pos)) +
+#   geom_col() + scale_fill_manual(values = c("#CCEEFF", "#FFDDDD"), guide = F)
+# ggplot(pg_mean, aes(x = group, y = weight)) +
+#   geom_col(width = 0.5)
+# ggplot(cabbage_exp, aes(x = Date, y = Weight, fill = Cultivar)) +
+#   geom_col(position = position_stack(reverse = T)) +
+#   guides(fill = guide_legend(reverse = T))
+# ggplot(cabbage_exp, aes(x = Date, y = Weight, fill = Cultivar)) +
+#   geom_col(position = "fill") +
+#   scale_y_continuous(labels = scales::percent)
+# tibble(cabbage_exp)
+# cabbage_exp |> group_by(Date) |> mutate(pweight = Weight / sum(Weight)) |>
+#   ggplot(aes(x = Date, y = pweight, fill = Cultivar)) +
+#   geom_col() + scale_y_continuous(labels = scales::percent)
+# cabbage_exp |> ggplot(aes(x = interaction(Date, Cultivar), y = Weight)) +
+#   geom_col() +
+#   geom_text(aes(label = Weight), vjust = 1.5, color = "white")
+# mtcars |> ggplot(aes(x = factor(mtcars$cyl))) +
+#   geom_bar() +
+#   geom_text(aes(label = ..count..), stat = "count", color = "black", vjust = -2.5) +
+#   ylim(0, 20)
+# ggplot(cabbage_exp, aes(x = interaction(Date, Cultivar), y = Weight)) +
+#   geom_col() +
+#   geom_text(aes(label = Weight, y = Weight + 0.1))
+# cabbage_exp |> ggplot(aes(x = Date, y = Weight, fill = Cultivar)) +
+#   geom_col(position = "dodge") +
+#   geom_text(aes(label = Weight), vjust = 1.5, position = position_dodge(0.9),
+#             color = "white")
+# cabbage_exp |> group_by(Date) |>
+#   arrange(Date, desc(Cultivar)) |>
+#   mutate(cweight = cumsum(Weight) - Weight / 2) |>
+#   ggplot(aes(x = Date, y = Weight, fill = Cultivar)) +
+#   geom_col() + geom_text(aes(label = Weight, y = cweight), vjust = 1.5)
+# tophitters2001 |> slice(1:25) |> select(name, lg, avg) |>
+#   ggplot(aes(x = reorder(name, avg), y = avg)) + geom_point() +
+#   theme(axis.text.x = element_text(angle = 60, hjust = 1))
+# tophitters2001 |> slice(1:25) |> select(name, lg, avg) |>
+#   ggplot(aes(x = avg, y = reorder(name, avg))) +
+#   geom_point(aes(color = lg), size = 3) +
+#   geom_segment(aes(yend = name), xend = 0) +
+#   facet_grid(lg ~ .)
+# ggplot() + geom_point(aes(x = wt, y = mpg), data = mtcars)
+# simpledat_long |> ggplot(aes(x = Aval, y = value, fill = Bval)) +
+#   geom_col(position = "dodge")
+# simpledat_long |> ggplot(aes(x = Bval, y = value, fill = Aval)) +
+#   geom_col(position = "dodge")
+# simpledat_long |> ggplot(aes(x = Aval, y = value, group = Bval, color = Bval)) +
+#   geom_line()
+# d <- data.frame(
+#   xval = 1:4,
+#   yval = c(3, 5, 6, 9),
+#   group = c("A","B","A","B"))
+# d |> ggplot(aes(x = xval, y = yval)) + geom_point(aes(color = group), size = 3) +
+#   scale_color_manual(values = c("orange", "forestgreen"))
+# d |> ggplot(aes(x = xval, y = yval, color = group)) + geom_point()
+# d |> ggplot(aes(x = xval, y = yval)) + geom_point(color = "blue") +
+#   scale_x_continuous(limits = c(0, 8))
 ```
--->
 
 ## Physical characteristics
 

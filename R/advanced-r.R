@@ -1,7 +1,12 @@
-# library(tibble)
 # library(dplyr)
 # library(rlang)
 # library(lobstr)
+# library(memoise)
+# library(purrr)
+# library(tibble)
+# library(sloop)
+# library(R6)
+library(methods)
 
 # df <- data.frame(runif(3), runif(3))
 # names(df) <- c(1, 2)
@@ -521,12 +526,12 @@
 # g <- \() withCallingHandlers(error = \(c) print("innter"), stop("oh"))
 # f()
 
-# show_condition <- \(code) tryCatch(
-#   error = \(c) "error",
-#   warning = \(c) "warning",
-#   message = \(c) "message",
-#   code
-# )
+show_condition <- \(code) tryCatch(
+  error = \(c) "error",
+  warning = \(c) "warning",
+  message = \(c) "message",
+  code
+)
 # show_condition(stop("oh"))
 # show_condition(warning("caution"))
 # show_condition(message("ok"))
@@ -550,5 +555,400 @@
 # l <- append(l, "a", after = 1)
 # l <- append(l, "b", after = 2)
 
-x <- runif(100)
-(b <- bench::mark(sqrt(x), x^0.5))
+# x <- runif(100)
+# (b <- bench::mark(sqrt(x), x^0.5))
+
+# map(1:3, \(x) x * 10)
+# map(1:3, `*`, 10)
+# lapply(1:3, `*`, 10)
+
+# map_lgl(mtcars, is.double)
+# map_int(mtcars, \(x) length(unique(x)))
+# map_int(mtcars, \(x) x |> unique() |> length())
+# map_int(mtcars, ~ length(unique(.x)))
+# map_int(mtcars, ~ .x |> unique() |> length())
+# map_dbl(mtcars, mean)
+
+# x <- list(
+#   list(-1, x = 1L, y = c(2, 3), z = "a"),
+#   list(-2, x = 4L, y = c(5, 6), z = "b"),
+#   list(-3, x = 8L, y = c(9, 10, 11)))
+# map_int(x, "x")
+# map_dbl(x, 1)
+# map_dbl(x, list("y", 1))
+# x |> map(list("y", 3), .default = NA)
+# x |> map(list("x", 2))
+# x |> map(c(3, 2))
+
+# x <- list(a = 1:5, b = c(1:10, NA))
+# map_dbl(x, ~ mean(.x, na.rm = T))
+# map_dbl(x, mean, na.rm = T)
+
+# map_dbl(rep(0, times = 4), `+`, runif(1))
+# map_dbl(rep(0, times = 4), ~ .x + runif(1))
+
+# trims <- c(0, 0.1, 0.2, 0.5)
+# x <- rcauchy(10)
+# map_dbl(trims, ~ mean(x, trim = .x))
+
+# x <- list(
+#   list(1, c(3, 9)),
+#   list(c(3, 6), 7, c(4, 7, 6)))
+# map(x, ~ map(.x, \(x) x * 10))
+
+# mtcars |> split(mtcars$cyl) |>
+#   map(~ lm(mpg ~ wt, data = .x)) |> map(coef) |> map_dbl("wt")
+
+# x <- tibble(x = 1:3, y = 6:4)
+# modify(x, ~ .x * 10)
+
+# x <- map(1:4, ~ runif(10))
+# w <- map(1:4, ~ rpois(10, 5))
+# map2_dbl(x, w, weighted.mean)
+# map2_dbl(1:4, 10, `*`)
+
+# welcome <- \(x) cat("Welcome ", x, "!\n", sep = "")
+# l <- c("Vlad", "Lana")
+# (walk(l, welcome))
+
+# r <- tempfile()
+# s <- split(mtcars, mtcars$cyl)
+# t <- file.path(r, paste0("cyl-", names(s), ".csv"))
+
+# a <- c(a = 10, b = 20, c = 30)
+# for (e in a) print(e)
+# for (i in seq_along(a)) print(i)
+# for (n in names(a)) print(n)
+# imap(a, ~ sprintf("%i %s", ...))
+
+# d <- tibble(iris)
+# imap(d, ~ sprintf("%s %s", .x[[1]], .y))
+
+# x <- map(1:6, ~ sample(1000, 4))
+# imap_chr(x, ~ sprintf("%d %i", max(.x), .y))
+
+# f <- \(x, y) y - x
+# a <- list(y = c(10, 20, 30), x = c(1, 2, 3))
+# a <- list(y = c(10, 20, 30), x = 1)
+# pmap(a, f)
+
+# tribble(
+#   ~ n, ~ min, ~ max,
+#   1L, 0, 1,
+#   2L, 10, 100,
+#   3L, 100, 1000)
+
+# set_names(c("foo", "bar")) |> map_chr(paste0, ":suffix")
+# mtcars |> map_dbl(sum)
+# iris |> map_if(is.factor, as.character, .else = as.integer)
+# a <- tibble(a = c(1, 2, 3), b = c(10, 20, 30), c = c(100, 200, 300))
+# a |> modify(~ .x + 1)
+# add1 <- \(x) x + 1
+# a |> modify(~ .x |> add1() |> add1())
+# a |> modify(add1) |> modify(add1)
+# a |> modify_if(~ all(.x > 50), ~ .x + 1, .else = ~ .x - 1)
+# a |> modify_at("b", add1)
+# a |> modify_in(c(2, 2), add1)
+# a |> modify_in(list("b", 2), add1)
+# a |> pmap(~ ..1 + ..2 + ..3)
+# a |> pmap(\(a, b, c) a + b + c)
+# a |> pluck("b", 2) <- -99
+# a |> modify(2)
+
+# l <- map(1:4, ~ sample(1:5, 5, replace = T))
+# str(l)
+# reduce(l, intersect)
+# reduce(l, union)
+# accumulate(l, intersect)
+# reduce(1:5, `+`)
+# accumulate(1:5, `+`)
+
+# sum(integer())
+# prod(integer())
+# min(integer())
+# max(integer())
+
+# a <- tibble(
+#   num1 = c(0, 10, 20),
+#   num2 = c(5, 6, 7),
+#   chr1 = c("a", "b", "c"))
+# a |> map_if(is.numeric, mean)
+
+# make_power <- \(e) { force(e); \(x) x^e }
+# square <- make_power(2)
+# cube <- make_power(3)
+# square(2)
+# cube(2)
+# x <- 2
+# sq <- make_power(x)
+# x <- 3
+# sq(2)
+
+# make_counter <- \(init = 0) { c <- init; \() (c <<- c + 1) }
+# c1 <- make_counter()
+# c2 <- make_counter(10)
+# c1()
+# c1()
+# c2()
+# c2()
+# c1()
+# c2()
+
+# chatty <- \(f) {
+#   force(f)
+#   \(...) { cat(..., "\n"); f(...) }
+# }
+# f <- chatty(\(x, y) x + y)
+# f(1, 2)
+
+# f <- \(x) message(x)
+# sf <- quietly(f)
+# sf(1)
+
+# x <- list(
+#   c(0.512, 0.165, 0.717),
+#   c(0.064, 0.781, 0.427),
+#   c(0.890, 0.785, 0.495),
+#   "oh")
+# (r <- rep(NA, length(x)))
+# try(for (i in seq_along(x)) r[[i]] <- sum(x[[i]]))
+# x |> map(safely(sum)) |> transpose() -> y
+# y$error |> map_lgl(is.null) -> yr
+# y$result[yr]
+
+# f <- \(x) { Sys.sleep(1); x }
+# mf <- memoise(f)
+# system.time(mf(1))
+# system.time(mf(1))
+
+# fib <- \(n) if (n < 2) 1 else fib(n - 2) + fib(n - 1)
+# fib <- memoise(fib)
+# system.time(fib(30))
+
+dot_every <- \(f, n) {
+  force(f); force(n)
+  i <- 0
+  \(...) {
+    if (i %% n == 0) cat(".")
+    f(...)
+    i <<- i + 1
+  }
+}
+
+delay_by <- \(f, n) {
+  force(f); force(n)
+  \(...) { Sys.sleep(n); f(...) }
+}
+
+# 1:80 |> map_dbl(identity |> delay_by(0.1) |> dot_every(10))
+
+new_date <- \(x = double()) {
+  stopifnot(is.double(x))
+  structure(x, class = "Date")
+}
+
+# new_date(c(-1, 0, 1))
+
+new_difftime <- \(x, units = "secs") {
+  stopifnot(is.double(x))
+  units <- match.arg(units, c("secs", "mins", "hours", "days", "weeks"))
+  structure(x, class = "difftime", units = units)
+}
+
+# new_difftime(c(1, 10, 3600), "secs")
+# new_difftime(53, "weeks")
+
+new_factor <- \(x = integer(), levels = character()) {
+  stopifnot(is.integer(x))
+  stopifnot(is.character(levels))
+  structure(x, class = "factor", levels = levels)
+}
+
+validate_factor <- \(x) {
+  v <- unclass(x)
+  l <- attr(x, "levels")
+  if (any(is.na(v) | any(v < 0)))
+    stop("all values must be non-missing and non-negative")
+  if (length(l) < max(v))
+    stop("some values have messing levels")
+  x
+}
+
+a_factor <- \(x, ...) x |> new_factor(...) |> validate_factor()
+
+# f <- a_factor(c(2, 1, 1, 3) |> as.integer(), levels = c("a", "b", "c"))
+
+new_num <- \(x) {
+  stopifnot(is.double(x))
+  structure(x, class = "num")
+}
+
+display <- \(x, e) UseMethod("display", x)
+
+display.num <- \(x, e) print(paste("Displaying", x, e))
+
+# 1 |> new_num() |> display("...")
+
+new_secret <- \(x = double(), ..., class = character()) {
+  stopifnot(is.double(x))
+  structure(x, class = c(class, "secret"))
+}
+
+print.secret <- \(x, ...) {
+  print(strrep("x", nchar(x)))
+  invisible(x)
+}
+
+`[.secret` <- \(x, i) NextMethod() |> new_secret()
+
+new_supersecret <- \(x) new_secret(x, class = "supersecret")
+
+print.supersecret <- \(x, ...) {
+  print(strrep("xxx", nchar(x)))
+  invisible(x)
+}
+
+# c(15, 1, 456) |> new_supersecret()
+
+# Accumulator <- R6Class("Accumulator", list(
+#   acc = 0,
+#   inc = \(x = 1) {
+#     self$acc <- self$acc + x
+#     invisible(self)
+#   }
+# ))
+
+# a <- Accumulator$new()
+# a$inc()$inc(2)$acc
+
+# Person <- R6Class("Person", list(
+#   name = NULL,
+#   age = NA,
+#   initialize = \(name, age = 0) {
+#     stopifnot(is.character(name), length(name) == 1)
+#     stopifnot(is.numeric(age), length(age) == 1)
+#     self$name = name
+#     self$age = age
+#   },
+#   print = \() {
+#     sprintf("<Person> %s %d", self$name, self$age) |> cat()
+#     invisible(self)
+#   }
+# ))
+
+# p <- Person$new("Vlad", 36)
+
+# Accumulator2 <- R6Class(
+#   "Accumulator2",
+#   inherit = Accumulator,
+#   public = list(
+#     inc = \(x = 1) {
+#       cat("Adding ", x, "\n", sep = "")
+#       super$inc(x = x)
+#     }
+#   )
+# )
+
+# a2 <- Accumulator2$new()
+# a2$inc()$inc(2)$acc
+# class(a2)
+# names(a2)
+# attributes(a2)
+
+# Random <- R6Class("Random", active = list(
+#   random = \(v) if (missing(v)) runif(1) else stop("Read-only field")
+# ))
+
+# r <- Random$new()
+# r$random
+# r$random
+
+# Person <- R6Class(
+#   "Person",
+#   private = list(.name = NULL, .age = NA),
+#   active = list(
+#     age = \(v) if (missing(v)) private$.age else stop("age is read-only"),
+#     name = \(v)
+#     if (missing(v))
+#       private$.name
+#     else {
+#       stopifnot(is.character(v), length(v) == 1)
+#       private$.name <- v
+#       self
+#     }
+#   ),
+#   public = list(
+#     initialize = \(name, age = 0) {
+#       private$.name = name
+#       private$.age = age
+#     }
+#   )
+# )
+
+# p <- Person$new("Vlad", 36)
+# p2 <- p$clone()
+# p$name <- "Volodymyr"
+
+# Resource <- R6Class(
+#   "Resource",
+#   public = list(
+#     initialize = \() print("Initializing..."),
+#     finalize = \() print("Cleaning up...")
+#   )
+# )
+
+# r <- Resource$new()
+
+setClass(
+  "Person",
+  slots = c(
+    name = "character",
+    age = "numeric"
+  )
+)
+
+Person <- \(name, age = 0) {
+  age <- as.double(age)
+  new("Person", name = name, age = age)
+}
+
+p <- new("Person", name = "Vlad", age = 36)
+# p@name
+# slot(p, "age")
+
+setGeneric("age", \(x) standardGeneric("age"))
+setGeneric("age<-", \(x, value) standardGeneric("age<-"))
+setMethod("age", "Person", \(x) x@age)
+setMethod("age<-", "Person", \(x, value) { x@age <- value; x })
+
+# age(p) <- 37
+# age(p)
+
+setClass(
+  "Employee",
+  contains = "Person",
+  slots = c(manager = "Person"),
+  prototype = list(manager = new("Person"))
+)
+
+e <- new("Employee")
+# str(e)
+
+setValidity(
+  "Person",
+  \(object) {
+    if (length(object@name) != length(object@age))
+      "@name and @age must be of the same length"
+    else T
+  }
+)
+
+p2 <- Person("Lana", 28)
+# str(p2)
+
+setMethod(
+  "show", "Person",
+  \(object) sprintf("<%s> %s %d", is(object)[[1]], object@name, object@age) |> print()
+)
+
+p2

@@ -3,10 +3,11 @@
 set -eu
 
 readonly LIB="library(knitr); library(readr); library(dplyr); library(ggplot2);
-library(gt)"
+library(gt); library(gcookbook)"
 
 # readonly DOC=minimal
-readonly DOC=especificación-techos-paredes
+# readonly DOC=especificación-techos-paredes
+readonly DOC=presupuesto-cubierta
 # readonly DOC=cts-benchmarking-2021-06-08
 
 
