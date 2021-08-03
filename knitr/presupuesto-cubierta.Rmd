@@ -13,6 +13,7 @@ header-includes:
 ---
 
 ```{r document-config, include = F}
+options(scipen = 999)
 opts_chunk$set(error = F, echo = F)
 ```
 
@@ -114,8 +115,8 @@ tribble(
   "Canalones y bajantes", 44, 49, 35,
   "Baberos", 24, 19, 25,
   # "Rastrel primario", 139, 136, 12,
-  "Telas asfálticas", 139, 136, 25,
-  "Rastrel secundario", 139, 136, 15,
+  "Telas asfálticas", 139, 136, 22,
+  "Rastrel secundario", 139, 136, 21,
   "Teja plana", 139, 136, 45,
   "Enfoscado chimenea", 1, 1, 250,
   "Premarco de ventana", 1, 1, 400,
@@ -148,3 +149,26 @@ tribble(
   gt(rowname_col = "concepto") |>
   tab_header(title = "Presupuesto de la cubierta y del mirador") |>
   grand_summary_rows(columns = c("valor", "valor_vlad"), fns = list(total = "sum"))
+```
+
+## Pagos realizados y pendientes
+
+```{r datos-pagos}
+tribble(
+  ~fecha, ~factura, ~importe,
+  "2021-06-15", "Factura 1", 9360.00,
+  "2021-07-07", "Factura 2", 9359.79,
+  "2021-07-28", "Factura 3", 9359.79) |>
+  gt(rowname_col = "fecha") |>
+  tab_header(title = "Pagos realizados y pendientes") |>
+  grand_summary_rows(columns = "importe", fns = list(total_pagado = "sum"))
+```
+
+```{r pendiente-pago}
+total_con_iva <- 31273.20 * 1.1
+pendiente_pago <- total_con_iva - 28079.58
+```
+
+Total con 10% IVA: `r total_con_iva`
+
+Pendiente a pagar: `r pendiente_pago`
