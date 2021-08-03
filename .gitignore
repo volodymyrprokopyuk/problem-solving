@@ -10,3 +10,4 @@ knitr/*.md
 knitr/*.html
 knitr/*.pdf
 R/*.svg
+R/*.pdf
