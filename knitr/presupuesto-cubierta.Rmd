@@ -75,7 +75,7 @@ tribble(
 tribble(
   ~parte, ~largo,
   "frontal_dormitorio", 3.25,
-  "mirador", 3.80 + 4.90 * 2,
+  "mirador", 3.80 + 4.90 * 2 + 1.00,
   "chimenea", (0.5 + 0.6) * 2) |>
   gt(rowname_col = "parte") |>
   tab_header(title = "Cálculo de la longitud de los baberos") |>
@@ -110,17 +110,17 @@ tribble(
   ~concepto, ~cantidad, ~cantidad_vlad, ~precio,
   "Andamio", 160, 160, 18,
   "Línea de vida", 1, 1, 250,
-  "Levantado de pizarra", 163, 136, 10,
-  "Enfoscado hastial", 24, 6, 50,
-  "Canalones y bajantes", 44, 49, 35,
-  "Baberos", 24, 19, 25,
+  "Levantado de pizarra", 163, 163, 10,
+  "Enfoscado hastial", 6, 6, 50,
+  "Canalones y bajantes", 49, 49, 35,
+  "Baberos", 20, 20, 25,
   # "Rastrel primario", 139, 136, 12,
-  "Telas asfálticas", 139, 136, 22,
-  "Rastrel secundario", 139, 136, 21,
-  "Teja plana", 139, 136, 45,
+  "Telas asfálticas", 139, 139, 22,
+  "Rastrel secundario", 139, 139, 21,
+  "Teja plana", 139, 139, 45,
   "Enfoscado chimenea", 1, 1, 250,
   "Premarco de ventana", 1, 1, 400,
-  "Chapas perimetrales", 55, 65, 18,
+  "Chapas perimetrales", 65, 65, 18,
   "Tejas perimetrales", 55, 55, 18,
   # Mirador
   "Demolición de tablero", 12, 12, 15,
@@ -142,9 +142,10 @@ tribble(
   "Viga 4.5", 1, 1, 300,
   "Pilares 3.0", 2, 2, 200,
   "Chapón", 2, 2, 170,
-  "Chapa colaborante", 24.8, 28, 85,
-  "Fibrocemento en aleros", 15.5, round((6.15 * 2 + 4.55) * 0.3, 1), 35,
-  "Monocapa en aleros", 15.5, round((6.15 * 2 + 4.55) * 0.3, 1), 32) |>
+  "Chapa colaborante", 26, 26, 85,
+  "Fibrocemento en aleros", 15.5, 15.5, 35,
+  "Monocapa en aleros", 15.5, 15.5, 32,
+  "Plastón midrador", 10, 10, 30) |>
   mutate (valor = cantidad * precio, valor_vlad = cantidad_vlad * precio) |>
   gt(rowname_col = "concepto") |>
   tab_header(title = "Presupuesto de la cubierta y del mirador") |>
@@ -154,20 +155,24 @@ tribble(
 ## Pagos realizados y pendientes
 
 ```{r datos-pagos}
-tribble(
+total_pagado <- tribble(
   ~fecha, ~factura, ~importe,
   "2021-06-15", "Factura 1", 9360.00,
   "2021-07-07", "Factura 2", 9359.79,
-  "2021-07-28", "Factura 3", 9359.79) |>
-  gt(rowname_col = "fecha") |>
+  "2021-07-28", "Factura 3", 9359.79,
+  "2021-08-05", "Factura 4", 2843.67)
+total_pagado |> gt(rowname_col = "fecha") |>
   tab_header(title = "Pagos realizados y pendientes") |>
   grand_summary_rows(columns = "importe", fns = list(total_pagado = "sum"))
 ```
 
 ```{r pendiente-pago}
-total_con_iva <- 31273.20 * 1.1
-pendiente_pago <- total_con_iva - 28079.58
+total_sin_iva <- 32657.50
+total_con_iva <- total_sin_iva * 1.1
+pendiente_pago <- total_con_iva - sum(total_pagado$importe)
 ```
+
+Total sin IVA: `r total_sin_iva`
 
 Total con 10% IVA: `r total_con_iva`
 

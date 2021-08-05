@@ -1,9 +1,10 @@
 ---
-title: Presupuesto de techos a colocar, paredes a alisar y el mirador
+title: Presupuesto de techos a colocar y aislar, paredes a alisar y el mirador
 author: Vlad
 date: `r Sys.Date()`
 abstract: >
-  Especificación de trabajos a realizar para colocar los techos y alisar las paredes
+  Especificación de trabajos a realizar para colocar y aislar los techos, alisar las
+  paredes y hacer el mirador
 keywords: [techos, paredes, aislamiento, alisar]
 lang: es
 css:
@@ -66,13 +67,14 @@ d[d$cuarto == "salón oeste", "area_pared"] <- (l + a + 2.40) * pared_alto
 
 ## Primera planta. Techos a colocar
 
-- Colocar el techo falso con los perfiles de chapa de 0.6mm fijados a las paredes por el
-  perímetro y anclados las vigas en el medio
-- Situar el alumbrado en la parte central del techo con varios puntos de luz
-- Poner 40cm de aislamiento en horizontal encima del techo falso colocando la lana de
+- Colocar el techo falso con los perfiles de chapa galvanizada de 0.6mm fijados a las
+  paredes por el perímetro y anclados a las vigas de madera de la cubierta en el medio
+- Situar un punto de luz en el centro del techo de cada habitación
+- Poner 20cm de aislamiento en horizontal encima del techo falso colocando la lana de
   roca por el perímetro y el poliestireno estruido en el area principal
 - Atornillar el pladur al techo falso y alisar el techo con la masa adecuada
-- Colocar la corniza y pintar el techo
+- Colocar la la moldura perimentral y pintar el techo
+- Instalar la trampilla (el registro) en cada habitación
 
 ```{r primera-pl-techo-colocar}
 d[d$planta == "primera_pl" & d$inc_techo,
@@ -86,11 +88,11 @@ d[d$planta == "primera_pl" & d$inc_techo,
 
 ## Mirador. Techo, paredes y suelo a colocar
 
-- Colocar el tehco falso de pladur con el aislamiento de lana de reoca y poliestireno
+- Colocar el techo falso de pladur con el aislamiento de lana de reoca y poliestireno
   estruido (mire [Primera planta. Techos a colocar])
-- Instalar el alumbrado y los enchufes
-- Pegar el pladur sobre las paredes
-- Aislar el suelo con 6cm de poliestireno estruido
+- Instalar el punto de lus central con la conmutación (dos interruptores) y los cuatro
+  enchufes
+- Colocar el pladur sobre las paredes con sistema de perfiles
 - Colocar el revestimiento de valdosas en el suelo
 
 ```{r mirador-techo-pared-suelo-colocar}
@@ -149,9 +151,11 @@ d[d$planta == "pl_baja" & d$inc_pared,
   summary_rows(groups = T, columns = "area_pared", fns = list(total_pared = "sum"))
 ```
 
+<!--
 ## Presupuesto de la primera planta, el mirador y la planta baja
+-->
 
-```{r datos-presupuesto}
+```{r datos-presupuesto, include = F}
 presupuesto <- tribble(
   ~parte, ~concepto, ~cantidad, ~precio,
   "mirador", "Aislamiento", 10, 28,

@@ -194,5 +194,43 @@ make_datetime_hhmm <- \(year, month, day, time)
 # j <- '[ [1, 2, 3], [4, 5, 6] ]'
 # j |> fromJSON(simplifyMatrix = F)
 
-j <- '[1, 2, null, 3]'
-j |> fromJSON()
+# c(1, 2, NA) |> toJSON(na = "null")
+# c(T, F, NA) |> toJSON()
+# c("a", "b", NA) |> toJSON()
+# c(NaN, Inf, -Inf, NA) |> toJSON()
+# (Sys.time() + 1:3) |> toJSON()
+# (Sys.Date() + 1:3) |> toJSON()
+# factor(c("a", "b", "c")) |> toJSON()
+
+# c(a = 1, b = 2, c = 3) |> toJSON()
+# m <- matrix(1:12, nrow = 3)
+# colnames(m) <- letters[1:4]
+# rownames(m) <- LETTERS[1:3]
+# dimnames(m)
+# attributes(m)
+# length(m)
+# m |> toJSON(pretty = T)
+# tibble(x = c(1:4) * 1+1i, y = letters[1:4])
+# tibble(x = c(1:4) * 1+1i, y = letters[1:4]) |> toJSON(pretty = T)
+
+# total_obra <- 35923.25
+# obra_pendiente <- c(1715, 500, 6255, 400, 400, 990, 150)
+# total_obra_pendiente <- sum(obra_pendiente)
+# total_pagado <- 28079.58
+# percentage <- c(
+#   total_obra_pendiente = total_obra_pendiente,
+#   total_pagado = total_pagado) /
+#   total_obra
+# percentage
+
+# list(1, "a", T, NA) |> toJSON()
+# list(a = 1, b = "a", c = T, d = NA, 10, "A") |> toJSON()
+# iris |> tibble()
+# iris[1:2, ] |> toJSON(pretty = T)
+# (d <- tibble(x = c(1, NA, 2), y = c(NA, "a", "b")))
+# d |> toJSON(pretty = T)
+# d <- tibble(driver = c("Bowser", "Peach"), occupation = c("Koopa", "Princess"))
+# d$vehicle <- tibble(model = c("Piranha Prowler", "Royal Racer"))
+# d$vehicle$stats <- tibble(speed = c(55, 34), weight = c(67, 24), drift = c(35, 32))
+# str(d)
+# d |> toJSON(pretty = T)
