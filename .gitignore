@@ -9,5 +9,6 @@ knitr/style/*.min.css
 knitr/*.md
 knitr/*.html
 knitr/*.pdf
-R/*.svg
+R/**/*.svg
+R/**/*.png
 R/*.pdf
