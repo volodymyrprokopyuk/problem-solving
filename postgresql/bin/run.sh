@@ -16,7 +16,7 @@ export PGUSER=vlad
 function create_schema {
     # psql -c "DROP DATABASE IF EXISTS $PGDATABASE WITH (FORCE);" \
     #      -c "CREATE DATABASE $PGDATABASE WITH OWNER $PGUSER;" postgres
-    psql -f $ROOT_DIR/$PGDATABASE/schema.sql
+    psql -f $ROOT_DIR/$PGDATABASE/schema2.sql
 }
 
 function load_data {

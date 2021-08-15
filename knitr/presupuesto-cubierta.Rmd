@@ -112,7 +112,7 @@ tribble(
   "Línea de vida", 1, 1, 250,
   "Levantado de pizarra", 163, 163, 10,
   "Enfoscado hastial", 6, 6, 50,
-  "Canalones y bajantes", 49, 49, 35,
+  # "Canalones y bajantes", 49, 49, 35,
   "Baberos", 20, 20, 25,
   # "Rastrel primario", 139, 136, 12,
   "Telas asfálticas", 139, 139, 22,
@@ -167,7 +167,7 @@ total_pagado |> gt(rowname_col = "fecha") |>
 ```
 
 ```{r pendiente-pago}
-total_sin_iva <- 32657.50
+total_sin_iva <- 32657.50 - 1715.00 # Canalones y bajantes
 total_con_iva <- total_sin_iva * 1.1
 pendiente_pago <- total_con_iva - sum(total_pagado$importe)
 ```

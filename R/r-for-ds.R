@@ -1,7 +1,10 @@
 library(nycflights13)
-library(svglite)
+suppressMessages(library(tidyverse))
+# library(svglite)
 # library(lubridate, warn.conflicts = F)
-library(jsonlite, warn.conflicts = F)
+# library(jsonlite, warn.conflicts = F)
+# library(forcats)
+# library(bench)
 
 # batting <- as_tibble(Lahman::Batting)
 
@@ -174,10 +177,6 @@ make_datetime_hhmm <- \(year, month, day, time)
 # flts |> mutate(dep_hour = update(dep_time, yday = 1)) |>
 #   ggplot(aes(x = dep_hour)) + geom_freqpoly(binwidth = 300) -> p
 
-# svglite("plot.svg")
-# print(p)
-# dev.off()
-
 # flts |>
 #   mutate(
 #     overnight = arr_time < dep_time,
@@ -240,3 +239,50 @@ make_datetime_hhmm <- \(year, month, day, time)
 # matrix(1:6, nrow = 2) |> toJSON(pretty = T)
 # list(1, "a", T, list(x = 10)) |> toJSON(pretty = T)
 # list(x = 1:3, y = letters[1:3]) |> toJSON(pretty = T)
+
+# gss_cat |> ggplot(aes(x = race)) + geom_bar() + scale_x_discrete(drop = F) -> p
+
+# gss_cat |> group_by(race) |> summarize(count = n()) |>
+#   ggplot(aes(x = race, y = count)) + geom_col() + scale_x_discrete(drop = F) -> p
+
+# gss_cat |> group_by(relig) |>
+#   summarize(tvhours = mean(tvhours, na.rm = T)) |>
+#   # ggplot(aes(x = tvhours, y = reorder(relig, tvhours))) + geom_point() -> p
+#   mutate(rerelig = reorder(relig, tvhours)) |>
+#   ggplot(aes(x = tvhours, y = rerelig)) + geom_point() -> p
+
+# gss_cat |> group_by(rincome) |> summarize(age = mean(age, na.rm = T)) |>
+#   ggplot(aes(x = age, y = reorder(rincome, age))) + geom_point() -> p
+
+# gss_cat |> group_by(marital) |> summarize(count = n()) |>
+#   ggplot(aes(x = reorder(marital, count), y = count)) + geom_col() -> p
+
+# svglite("plot.svg")
+# print(p)
+# dev.off()
+
+# flights |> print(n = 20, width = Inf)
+# d <- tibble(x = runif(1e2))
+# mark(d[d$x > 0.5, ], dplyr::filter(d, x > 0.5)) |> print(width = Inf)
+# d
+# d$x
+# d[["y"]]
+# d %>% .$x
+# d %>% .[["y"]]
+
+# planes |> group_by(tailnum) |> summarize(m = n()) |> dplyr::filter(m > 1)
+# planes |> count(tailnum) |> dplyr::filter(n > 1)
+
+# flts <- flights |> select(year:day, hour, origin, dest, tailnum, carrier)
+# flts |> select(-origin, -dest) |> left_join(airlines, by = "carrier")
+# flts |> select(-origin, -dest) |>
+#   mutate(name = airlines$name[match(carrier, airlines$carrier)])
+
+x <- c(1:10)
+y <- seq(1, 10, 2)
+x
+y
+x %in% y
+match(x, y)
+x[x %in% y]
+x[match(x, y)]
