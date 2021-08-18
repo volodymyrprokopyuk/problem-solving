@@ -1,10 +1,11 @@
-library(nycflights13)
+# library(nycflights13)
 suppressMessages(library(tidyverse))
 # library(svglite)
 # library(lubridate, warn.conflicts = F)
 # library(jsonlite, warn.conflicts = F)
 # library(forcats)
 # library(bench)
+library(stringr)
 
 # batting <- as_tibble(Lahman::Batting)
 
@@ -277,12 +278,39 @@ make_datetime_hhmm <- \(year, month, day, time)
 # flts |> select(-origin, -dest) |> left_join(airlines, by = "carrier")
 # flts |> select(-origin, -dest) |>
 #   mutate(name = airlines$name[match(carrier, airlines$carrier)])
+# flts |> left_join(airports, by = c(dest = "faa"))
 
-x <- c(1:10)
-y <- seq(1, 10, 2)
-x
-y
-x %in% y
-match(x, y)
-x[x %in% y]
-x[match(x, y)]
+# x <- tribble(
+#   ~key, ~x,
+#   1, "x1",
+#   2, "x2",
+#   3, "x3",
+#   4, "x4")
+# y <- tribble(
+#   ~key2, ~y,
+#   1, "y1",
+#   2, "y2",
+#   3, "y3",
+#   1, "y11")
+# x |> inner_join(y, by = c(key = "key2"))
+
+# top_dest <- flights |> group_by(dest) |> summarize(count = n()) |>
+#   arrange(desc(count)) |> top_n(10)
+# flights |> dplyr::filter(dest %in% top_dest$dest)
+# flights |> semi_join(top_dest, by = "dest")
+# flights |> anti_join(planes, by = "tailnum") |> count(tailnum) |> arrange(desc(n))
+# airports |> count(alt, lon) |> dplyr::filter(n > 1)
+
+# words[str_detect(words, "x$")]
+# str_subset(words, "x$")
+# d <- tibble(word = words, i = seq_along(words))
+# d |> dplyr::filter(str_detect(word, "x$"))
+
+# colors <- c("red", "orange", "yellow", "green", "blue", "purple")
+# color_pattern <- str_c(colors, collapse = "|")
+# sentences |> str_subset(color_pattern) |> str_extract(color_pattern)
+# sentences[str_count(sentences, color_pattern) > 1] |> str_extract_all(color_pattern)
+# noun_pattern = "(a|the) ([^ ]+)"
+# sentences |> str_subset(noun_pattern) |> str_extract(noun_pattern) |> head(20)
+# noun_match <- sentences |> str_subset(noun_pattern) |> str_match(noun_pattern) |> head(20)
+# noun_match[, 3]

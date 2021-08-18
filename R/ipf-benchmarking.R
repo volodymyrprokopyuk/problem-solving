@@ -1,114 +1,124 @@
+library(rlang, warn.conflicts = F)
+library(R6)
 library(lubridate, warn.conflicts = F)
-# library(jsonlite, warn.conflicts = F)
 library(knitr)
 
-min_delay = 0.00
-max_delay = 0.01
+# Payment processing
 
-validate_request <- \(payment) {
-  print("validate_request")
-  runif(1, min_delay, max_delay) |> Sys.sleep()
-  payment
+make_action <- \(min_delay = 0.00, max_delay = 0.01, scale = 1.0)
+  \() runif(1, min_delay * scale, max_delay * scale) |> Sys.sleep()
+
+validate_request <- make_action()
+check_account <- make_action(scale = 2)
+check_sanctions <- make_action()
+check_fraud <- make_action()
+process_payment <- make_action(scale = 3)
+book_payment <- make_action(scale = 4)
+submit_payment <- make_action()
+
+process_credit_transfer <- \() {
+  validate_request()
+  check_account()
+  check_sanctions()
+  check_fraud()
+  process_payment()
+  book_payment()
+  submit_payment()
 }
 
-check_account <- \(payment) {
-  runif(1, min_delay, max_delay) |> Sys.sleep()
-  payment
-}
+# Application instrumentation
 
-check_sanctions <- \(payment) {
-  runif(1, min_delay, max_delay) |> Sys.sleep()
-  payment
-}
-
-check_fraud <- \(payment) {
-  runif(1, min_delay, max_delay) |> Sys.sleep()
-  payment
-}
-
-process_payment <- \(payment) {
-  runif(1, min_delay, max_delay) |> Sys.sleep()
-  payment
-}
-
-book_payment <- \(payment) {
-  runif(1, min_delay, max_delay) |> Sys.sleep()
-  payment
-}
-
-submit_payment <- \(payment) {
-  print("submit_payment")
-  runif(1, min_delay, max_delay) |> Sys.sleep()
-  payment
-}
-
-# process_credit_transfer <- \(payment)
-#   payment |> validate_request() |>
-#     check_account() |>
-#     check_sanctions() |>
-#     check_fraud() |>
-#     process_payment() |>
-#     book_payment() |>
-#     submit_payment()
-
-process_credit_transfer <- \(payment) {
-  payment <- validate_request(payment)
-  payment <- check_account(payment)
-  payment <- check_sanctions(payment)
-  payment <- check_fraud(payment)
-  payment <- process_payment(payment)
-  payment <- book_payment(payment)
-  payment <- submit_payment(payment)
-}
-
-benchmarking_metrics = NULL
-
-collect_metrics <- \(metrics) {
-  if (is.null(benchmarking_metrics)) benchmarking_metrics <<- tibble(!!! metrics)
-  else benchmarking_metrics <<- benchmarking_metrics |> add_row(!!! metrics)
-}
-
-instrument_action <- \(action, action_name) {
+instrument_action <- \(action, metrics_store, ...) {
   force(action)
+  dimensions <- list(...)
   \(...) {
     start_ts = now()
     result <- action(...)
     end_ts = now()
-    list(
-      start_ts = start_ts,
-      end_ts = end_ts,
-      action_name = action_name) |>
-      collect_metrics()
+    c(list(start_ts = start_ts, end_ts = end_ts), dimensions) |>
+      metrics_store$collect_metrics()
     result
   }
 }
 
-# instrument_module <- \(module_name) {
-instrument_module <- \() {
+instrument_application <- \(app_name, metrics_store) {
   validate_request <<- validate_request |>
-    instrument_action(action_name = "validate_request")
+    instrument_action(
+      action_name = "validate_request",
+      module_name = "payment_validation",
+      app_name = app_name,
+      metrics_store = metrics_store)
   check_account <<- check_account |>
-    instrument_action(action_name = "check_account")
+    instrument_action(
+      action_name = "check_account",
+      module_name = "payment_validation",
+      app_name = app_name,
+      metrics_store = metrics_store)
   check_sanctions <<- check_sanctions |>
-    instrument_action(action_name = "check_sanctions")
+    instrument_action(
+      action_name = "check_sanctions",
+      module_name = "payment_validation",
+      app_name = app_name,
+      metrics_store = metrics_store)
   check_fraud <<- check_fraud |>
-    instrument_action(action_name = "check_fraud")
+    instrument_action(
+      action_name = "check_fraud",
+      module_name = "payment_validation",
+      app_name = app_name,
+      metrics_store = metrics_store)
   process_payment <<- process_payment |>
-    instrument_action(action_name = "process_payment")
+    instrument_action(
+      action_name = "process_payment",
+      module_name = "payment_processing",
+      app_name = app_name,
+      metrics_store = metrics_store)
   book_payment <<- book_payment |>
-    instrument_action(action_name = "book_payment")
+    instrument_action(
+      action_name = "book_payment",
+      module_name = "payment_processing",
+      app_name = app_name,
+      metrics_store = metrics_store)
   submit_payment <<- submit_payment |>
-    instrument_action(action_name = "submit_payment")
+    instrument_action(
+      action_name = "submit_payment",
+      module_name = "payment_processing",
+      app_name = app_name,
+      metrics_store = metrics_store)
 }
 
-generate_report <- \(template) knit(template)
+# Benchmarking metrics
 
-instrument_module()
+MetricsStore <-
+  R6Class(
+    "MetricsStore",
+    public = list(
+      collect_metrics = \(metrics)
+        if (is.null(private$data)) private$data <- tibble(!!! metrics)
+        else private$data <- private$data |> add_row(!!! metrics)),
+    active = list(
+      metrics = \(metrics)
+        if (missing(metrics)) private$data else private$data <- metrics),
+    private = list(
+      data = NULL))
 
-process_credit_transfer(1)
+process_metrics <- \(metrics)
+  metrics |>
+    mutate(action_name = ordered(action_name, levels = c(
+      "validate_request", "check_account", "check_sanctions", "check_fraud",
+      "process_payment", "book_payment", "submit_payment"))) |>
+    mutate(elapsed_time = end_ts - start_ts)
 
-generate_report(template = "ipf-benchmarking.Rmd")
+# Benchmarking execution
 
-# benchmarking_metrics |>
-#   mutate(diff = end_ts - start_ts)
-#   arrange(start_ts)
+execute_benchmarking <- \(times = 30) walk(1:times, \(...) process_credit_transfer())
+
+# Benchmarking reporting
+
+generate_report <- \(metrics, template) knit(template, envir = env(metrics = metrics))
+
+
+metrics_store <- MetricsStore$new()
+instrument_application(app_name = "credit_transfer", metrics_store = metrics_store)
+execute_benchmarking(times = 30)
+metrics_store$metrics |> process_metrics() |>
+  generate_report(template = "ipf-benchmarking.Rmd")

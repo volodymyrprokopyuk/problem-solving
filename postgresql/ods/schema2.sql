@@ -63,7 +63,7 @@ SELECT random_string(10), random_pstep_type(), '{}'
 FROM generate_series(1, 9e4);
 
 WITH numbered_pstep AS (
-    SELECT s.pstep_id, row_number() OVER () FROM pstep s)
+  SELECT s.pstep_id, row_number() OVER () FROM pstep s)
 INSERT INTO plink (from_pstep_id, to_pstep_id)
 SELECT sf.pstep_id, st.pstep_id
   FROM numbered_pstep sf
