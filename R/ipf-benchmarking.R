@@ -1,12 +1,16 @@
 library(rlang, warn.conflicts = F)
+library(purrr, warn.conflicts = F)
 library(R6)
 library(lubridate, warn.conflicts = F)
+library(tibble)
+library(dplyr, warn.conflicts = F)
 library(knitr)
+library(ggplot2)
 
 # Payment processing
 
 make_action <- \(min_delay = 0.00, max_delay = 0.01, scale = 1.0)
-  \() runif(1, min_delay * scale, max_delay * scale) |> Sys.sleep()
+\() runif(1, min_delay * scale, max_delay * scale) |> Sys.sleep()
 
 validate_request <- make_action()
 check_account <- make_action(scale = 2)
@@ -32,9 +36,9 @@ instrument_action <- \(action, metrics_store, ...) {
   force(action)
   dimensions <- list(...)
   \(...) {
-    start_ts = now()
+    start_ts <- now()
     result <- action(...)
-    end_ts = now()
+    end_ts <- now()
     c(list(start_ts = start_ts, end_ts = end_ts), dimensions) |>
       metrics_store$collect_metrics()
     result
@@ -47,43 +51,50 @@ instrument_application <- \(app_name, metrics_store) {
       action_name = "validate_request",
       module_name = "payment_validation",
       app_name = app_name,
-      metrics_store = metrics_store)
+      metrics_store = metrics_store
+    )
   check_account <<- check_account |>
     instrument_action(
       action_name = "check_account",
       module_name = "payment_validation",
       app_name = app_name,
-      metrics_store = metrics_store)
+      metrics_store = metrics_store
+    )
   check_sanctions <<- check_sanctions |>
     instrument_action(
       action_name = "check_sanctions",
       module_name = "payment_validation",
       app_name = app_name,
-      metrics_store = metrics_store)
+      metrics_store = metrics_store
+    )
   check_fraud <<- check_fraud |>
     instrument_action(
       action_name = "check_fraud",
       module_name = "payment_validation",
       app_name = app_name,
-      metrics_store = metrics_store)
+      metrics_store = metrics_store
+    )
   process_payment <<- process_payment |>
     instrument_action(
       action_name = "process_payment",
       module_name = "payment_processing",
       app_name = app_name,
-      metrics_store = metrics_store)
+      metrics_store = metrics_store
+    )
   book_payment <<- book_payment |>
     instrument_action(
       action_name = "book_payment",
       module_name = "payment_processing",
       app_name = app_name,
-      metrics_store = metrics_store)
+      metrics_store = metrics_store
+    )
   submit_payment <<- submit_payment |>
     instrument_action(
       action_name = "submit_payment",
       module_name = "payment_processing",
       app_name = app_name,
-      metrics_store = metrics_store)
+      metrics_store = metrics_store
+    )
 }
 
 # Benchmarking metrics
@@ -93,20 +104,28 @@ MetricsStore <-
     "MetricsStore",
     public = list(
       collect_metrics = \(metrics)
-        if (is.null(private$data)) private$data <- tibble(!!! metrics)
-        else private$data <- private$data |> add_row(!!! metrics)),
+      if (is.null(private$data)) {
+        private$data <- tibble(!!!metrics)
+      } else {
+        private$data <- private$data |> add_row(!!!metrics)
+      }
+    ),
     active = list(
       metrics = \(metrics)
-        if (missing(metrics)) private$data else private$data <- metrics),
+      if (missing(metrics)) private$data else private$data <- metrics
+    ),
     private = list(
-      data = NULL))
+      data = NULL
+    )
+  )
 
 process_metrics <- \(metrics)
-  metrics |>
-    mutate(action_name = ordered(action_name, levels = c(
-      "validate_request", "check_account", "check_sanctions", "check_fraud",
-      "process_payment", "book_payment", "submit_payment"))) |>
-    mutate(elapsed_time = end_ts - start_ts)
+metrics |>
+  mutate(action_name = ordered(action_name, levels = c(
+    "validate_request", "check_account", "check_sanctions", "check_fraud",
+    "process_payment", "book_payment", "submit_payment"
+  ))) |>
+  mutate(elapsed_time = end_ts - start_ts)
 
 # Benchmarking execution
 
@@ -120,5 +139,6 @@ generate_report <- \(metrics, template) knit(template, envir = env(metrics = met
 metrics_store <- MetricsStore$new()
 instrument_application(app_name = "credit_transfer", metrics_store = metrics_store)
 execute_benchmarking(times = 30)
-metrics_store$metrics |> process_metrics() |>
+metrics_store$metrics |>
+  process_metrics() |>
   generate_report(template = "ipf-benchmarking.Rmd")

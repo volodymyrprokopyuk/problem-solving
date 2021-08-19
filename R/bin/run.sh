@@ -11,5 +11,7 @@
 
 readonly SOURCE=ipf-benchmarking
 
+Rscript -e "styler::style_file('$SOURCE.R', strict = T)"
+
 Rscript $SOURCE.R &&
   pandoc -f markdown -t html5 -s --self-contained --mathml < $SOURCE.md > $SOURCE.html

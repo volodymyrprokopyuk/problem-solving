@@ -11,4 +11,6 @@ knitr/*.html
 knitr/*.pdf
 R/**/*.svg
 R/**/*.png
-R/*.pdf
+R/**/*.pdf
+R/**/*.md
+R/**/*.html
