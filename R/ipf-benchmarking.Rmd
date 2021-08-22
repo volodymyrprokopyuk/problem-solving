@@ -3,16 +3,113 @@ title: IPF benchmarking
 ---
 
 ```{r report-configuraiton}
-opts_chunk$set(dev = "svglite")
+opts_chunk$set(error = F, dev = "svglite")
 ```
 
-```{r benchmarking-metrics}
-metrics |>
-  ggplot(aes(x = action_name, y = elapsed_time)) + geom_boxplot()
-metrics |>
-  group_by(action_name) |> summarize(elapsed_time = mean(elapsed_time)) |>
-  ggplot(aes(x = action_name, y = elapsed_time)) + geom_col()
-metrics |>
-  group_by(module_name, action_name) |> summarize(elapsed_time = mean(elapsed_time)) |>
-  ggplot(aes(x = action_name, y = elapsed_time, fill = module_name)) + geom_col()
+```{r benchmarking-analysis}
+elapsed_time <-
+  metrics |>
+  group_by(app_name, benchmark_name, module_name, action_name) |>
+  summarize(elapsed_time = median(elapsed_time)) |>
+  filter(benchmark_name == "Sequential 0001")
+
+elapsed_time |>
+  ggplot(aes(x = action_name, y = elapsed_time, fill = action_name)) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
+
+elapsed_time |>
+  ggplot(aes(x = module_name, y = elapsed_time, fill = action_name)) +
+  geom_col(position = position_stack(reverse = T))
+
+elapsed_time |>
+  ggplot(aes(
+    x = action_name,
+    y = elapsed_time |> as.numeric() |> cumsum(),
+    fill = action_name
+  )) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
+
+elapsed_time |>
+  ggplot(aes(x = action_name, y = elapsed_time, fill = action_name)) +
+  geom_col(width = 1) +
+  coord_polar(theta = "x")
+
+elapsed_time |>
+  ggplot(aes(x = "", y = elapsed_time, fill = action_name)) +
+  geom_col(width = 1, position = "fill") +
+  coord_polar(theta = "y") +
+  scale_y_continuous(labels = scales::percent) +
+  facet_grid(~module_name)
+
+elapsed_time |>
+  ggplot(aes(x = elapsed_time, y = action_name, color = module_name)) +
+  geom_point(size = 3) +
+  geom_segment(aes(xend = 0, yend = action_name))
+
+
+# BOD |> ggplot(aes(x = Time, y = demand)) +
+#   geom_line(linetype = "dashed", size = 1, color = "blue") +
+#   geom_point(size = 4, shape = 21, fill = "yellow")
+# BOD |> ggplot(aes(x = factor(Time), y = demand, group = 1)) + geom_line()
+# worldpop |> ggplot(aes(x = Year, y = Population)) + geom_line() +
+#   geom_point(shape = 3) + scale_y_log10()
+# tg |> ggplot(aes(x = dose, y = length, linetype = supp, fill = supp)) +
+#   geom_line(position = position_dodge(0.2)) +
+#   geom_point(size = 4, shape = 21, position = position_dodge(0.2))
+# tg |> ggplot(aes(x = dose, y = length, color = supp, group = supp)) +
+#   geom_line(aes(linetype = supp)) +
+#   geom_point(size = 4, shape = 21, color = "blue", fill = "yellow")
+# tg |> ggplot(aes(x = dose, y = length, fill = supp)) +
+#   geom_line(position = position_dodge(0.2)) +
+#   geom_point(size = 4, shape = 22, position = position_dodge(0.2)) +
+#   scale_fill_manual(values = c("lightgreen", "yellow"))
+# ssy <- tibble(year = time(sunspot.year), ss = sunspot.year)
+# ssy |> ggplot(aes(x = year, y = ss)) +
+#   geom_area(color = "black", fill = "blue", alpha = 0.2)
+# uspopage |> ggplot(aes(x = Year, y = Thousands, fill = AgeGroup)) +
+#   geom_area(position = "fill", color = "black", size = 0.2, alpha = 0.4) +
+#   scale_fill_brewer(palette = "Blues") +
+#   scale_y_continuous(labels = scales::percent)
+# climate |> filter(Source == "Berkeley") |>
+#   select(Year, Anomaly10y, Unc10y) |>
+#   ggplot(aes(x = Year, y = Anomaly10y)) +
+#   # geom_ribbon(
+#   #   aes(ymin = Anomaly10y - Unc10y, ymax = Anomaly10y + Unc10y, alpha = 0.2)) +
+#   geom_line(aes(y = Anomaly10y - Unc10y), color = "gray50", linetype = "dotted") +
+#   geom_line(aes(y = Anomaly10y + Unc10y), color = "gray50", linetype = "dotted") +
+#   geom_line()
+# heightweight |> select(ageYear, heightIn) |>
+#   ggplot(aes(x = ageYear, heightIn)) +
+#   geom_point(shape = 21, fill = "yellow", size = 3)
+# heightweight |> select(sex, ageYear, heightIn) |>
+#   ggplot(aes(x = ageYear, y = heightIn, color = sex, shape = sex, fill = sex)) +
+#   geom_point(size = 3) +
+#   scale_shape_manual(values = c(23, 24)) +
+#   scale_fill_manual(values = c("green", "yellow")) +
+#   scale_color_manual(values = c("black", "gray"))
+# heightweight |>
+#   mutate(wgroup = ifelse(weightLb < 100, "< 100", ">= 100")) |>
+#   select(sex, ageYear, heightIn, wgroup) |>
+#   ggplot(aes(x = ageYear, y = heightIn, shape = sex, fill = wgroup)) +
+#   geom_point(size = 3) +
+#   scale_shape_manual(values = c(21, 24)) +
+#   scale_fill_manual(values = c("white", "black"),
+#                     guide = guide_legend(override.aes = list(shape = 21)))
+# heightweight |>
+#   select(sex, ageYear, heightIn, weightLb) |>
+#   ggplot(aes(x = ageYear, y = heightIn, fill = weightLb)) +
+#   geom_point(size = 3, shape = 21) +
+#   scale_fill_gradient(low = "yellow", high = "red",
+#                       breaks = seq(70, 170, by = 20),
+#                       guide = guide_legend(reverse = T))
+
+
+
+# metrics |>
+#   ggplot(aes(x = action_name, y = elapsed_time)) + geom_boxplot()
+# metrics |>
+#   group_by(module_name, action_name) |> summarize(elapsed_time = mean(elapsed_time)) |>
+#   ggplot(aes(x = action_name, y = elapsed_time, fill = module_name)) + geom_col()
 ```
