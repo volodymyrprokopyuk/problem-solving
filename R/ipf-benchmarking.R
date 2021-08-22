@@ -63,7 +63,7 @@ instrument_action <- \(action, metrics_store, ...) {
   }
 }
 
-instrument_application <- \(metrics_store, app_name, benchmark_name) {
+instrument_application <- \(metrics_store, app_name, benchmark_name, iteration_name) {
   payment_actions <- payment_action_template |>
     map(\(template) {
       instrument_action(
@@ -71,6 +71,7 @@ instrument_application <- \(metrics_store, app_name, benchmark_name) {
         metrics_store,
         app_name = app_name,
         benchmark_name = benchmark_name,
+        iteration_name = iteration_name,
         module_name = template$module_name,
         action_name = template$action_name
       )
@@ -114,17 +115,17 @@ metrics |>
 
 # Benchmarking execution
 
-run_benchmark <- \(iterations = 30)
-walk(1:iterations, \(...) process_credit_transfer())
-
-execute_benchmark <- \(metrics_store, runs = 5, iterations = 30) {
+execute_benchmark <- \(metrics_store, runs = 5, iterations = 30, app_name) {
   walk(1:runs, \(run_number) {
-    instrument_application(
-      metrics_store = metrics_store,
-      app_name = "credit_transfer",
-      benchmark_name = sprintf("Sequential %04.f", run_number)
-    )
-    run_benchmark(iterations = iterations)
+    walk(1:iterations, \(iteration_number) {
+      instrument_application(
+        metrics_store = metrics_store,
+        app_name = app_name,
+        benchmark_name = sprintf("Benchmark %04.f", run_number),
+        iteration_name = sprintf("Iteraiton %04.f", iteration_number)
+      )
+      process_credit_transfer()
+    })
   })
   metrics_store$metrics
 }
@@ -136,6 +137,6 @@ generate_report <- \(metrics, template) knit(template, envir = env(metrics = met
 
 make_payment_actions()
 MetricsStore$new() |>
-  execute_benchmark(runs = 2, iterations = 2) |>
+  execute_benchmark(runs = 1, iterations = 20, app_name = "credit_transfer") |>
   process_metrics() |>
   generate_report(template = "ipf-benchmarking.Rmd")
