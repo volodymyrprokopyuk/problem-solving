@@ -5,6 +5,7 @@ library(R6)
 library(lubridate, warn.conflicts = F)
 library(tibble)
 library(dplyr, warn.conflicts = F)
+library(jsonlite, warn.conflicts = F)
 library(knitr)
 library(ggplot2)
 
@@ -102,6 +103,11 @@ MetricsStore <-
     )
   )
 
+export_metrics <- \(metrics) {
+  metrics |> toJSON(pretty = T) |> print()
+  metrics
+}
+
 process_metrics <- \(metrics)
 metrics |>
   mutate(module_name = ordered(module_name, levels = c(
@@ -121,8 +127,8 @@ execute_benchmark <- \(metrics_store, runs = 5, iterations = 30, app_name) {
       instrument_application(
         metrics_store = metrics_store,
         app_name = app_name,
-        benchmark_name = sprintf("Benchmark %04.f", run_number),
-        iteration_name = sprintf("Iteraiton %04.f", iteration_number)
+        benchmark_name = sprintf("benchmark_%04.f", run_number),
+        iteration_name = sprintf("iteraiton_%04.f", iteration_number)
       )
       process_credit_transfer()
     })
@@ -137,6 +143,7 @@ generate_report <- \(metrics, template) knit(template, envir = env(metrics = met
 
 make_payment_actions()
 MetricsStore$new() |>
-  execute_benchmark(runs = 1, iterations = 20, app_name = "credit_transfer") |>
+  execute_benchmark(runs = 1, iterations = 10, app_name = "credit_transfer") |>
+  # export_metrics() |>
   process_metrics() |>
   generate_report(template = "ipf-benchmarking.Rmd")
