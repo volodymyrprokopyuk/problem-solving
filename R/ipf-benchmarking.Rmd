@@ -3,42 +3,49 @@ title: IPF benchmarking
 ---
 
 ```{r report-configuraiton, include = F}
-opts_chunk$set(error = F, dev = "svglite")
+opts_chunk$set(error = F, echo = F, dev = "svglite")
 ```
+```{r benchmark-common}
+benchmark_names <- metrics |>
+  distinct(benchmark_name) |> slice_tail(n = 2) |> pull(benchmark_name)
+previous_benchmark <- benchmark_names[[1]]
+last_benchmark <- benchmark_names[[2]]
+```
+
 ## Last benchmark distribution
 
-```{r distribution-per-iteration, eval = T, echo = F}
+```{r benchmark-distribution, eval = T}
 data <- metrics |>
-  filter(benchmark_name == "benchmark_0001") |>
+  filter(benchmark_name == last_benchmark) |>
   group_by(app_name, benchmark_name, iteration_name) |>
   summarize(elapsed_time = sum(elapsed_time))
 
 data |>
   ggplot(aes(x = iteration_name, y = elapsed_time, group = 1)) +
-  geom_point(size = 3) +
   geom_line() +
-  geom_smooth(formula = y ~ x, method = "loess") +
+  geom_point(size = 3) +
+  geom_smooth(formula = y ~ x, method = loess) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
 data <- metrics |>
-  filter(benchmark_name == "benchmark_0001") |>
+  filter(benchmark_name == last_benchmark) |>
   group_by(app_name, benchmark_name, iteration_name, module_name) |>
   summarize(elapsed_time = sum(elapsed_time))
 
 data |>
   ggplot(aes(x = iteration_name, y = elapsed_time, group = module_name)) +
-  geom_point(size = 3) +
   geom_line() +
-  geom_smooth(formula = y ~ x, method = "loess") +
+  geom_point(size = 3) +
+  geom_smooth(formula = y ~ x, method = loess) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1)) +
   facet_grid(~module_name)
 ```
 
 ## Last benchmark summary
 
-```{r summary-per-action, eval = T, echo = F}
+```{r benchmark-summary, eval = T}
 data <- metrics |>
-  filter(benchmark_name == "benchmark_0001") |>
+  filter(benchmark_name == last_benchmark) |>
   group_by(app_name, benchmark_name, module_name, action_name) |>
   summarize(elapsed_time = median(elapsed_time))
 
@@ -77,19 +84,80 @@ data |>
   geom_point(size = 3) +
   geom_segment(aes(xend = 0, yend = action_name))
 
-data <- metrics |> filter(benchmark_name == "benchmark_0001")
+data <- metrics |> filter(benchmark_name == last_benchmark)
 
-data |>
+plot <- data |>
   ggplot(aes(x = action_name, y = elapsed_time)) +
-  geom_boxplot() +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
-data |>
+plot + geom_point()
+plot + geom_violin()
+plot + geom_boxplot()
+
+plot <-data |>
   ggplot(aes(x = module_name, y = elapsed_time)) +
-  geom_boxplot() +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
+
+plot + geom_point()
+plot + geom_violin()
+plot + geom_boxplot()
 ```
 
 ## Comparison with the previous benchmark
 
+```{r benchmark-comparison, eval = T}
+data <- metrics |>
+  filter(benchmark_name %in% c(previous_benchmark, last_benchmark)) |>
+  group_by(app_name, benchmark_name, module_name, action_name) |>
+  summarize(elapsed_time = median(elapsed_time))
+
+data |>
+  ggplot(aes(x = action_name, y = elapsed_time, color = benchmark_name)) +
+  geom_line(aes(group = benchmark_name)) +
+  geom_point(aes(fill = benchmark_name), shape = 21, size = 3) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
+
+data |>
+  ggplot(aes(x = action_name, y = elapsed_time, fill = benchmark_name)) +
+  geom_col(position = "dodge") +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
+
+data <- metrics |>
+  filter(benchmark_name %in% c(previous_benchmark, last_benchmark)) |>
+  group_by(app_name, benchmark_name, iteration_name, module_name) |>
+  summarize(elapsed_time = sum(elapsed_time))
+
+data |>
+  ggplot(aes(x = module_name, y = elapsed_time, fill = benchmark_name)) +
+  geom_col(position = "dodge")
+```
+
 ## Recent benchmarks trends
+
+```{r benchmark-trends, eval = T}
+```
+
+```{r ggplot-example, eval = F}
+# diamonds |>
+#   ggplot(aes(x = carat, y = price)) +
+#   # stat_bin2d(bins = 50) +
+#   stat_binhex(bins = 50) +
+#   scale_fill_gradient(low = "lightblue", high = "red")
+# ChickWeight |>
+#   ggplot(aes(x = Time, y = weight)) +
+#   geom_point(position = position_jitter(width = 0.5, height = 0))
+# heightweight |>
+#   ggplot(aes(x = ageYear, y = heightIn)) +
+#   geom_point() + stat_smooth(method = loess)
+# biopsy |>
+#   mutate(classn = recode(class, benign = 0, malignant = 1)) |>
+#   ggplot(aes(x = V1, y = classn)) +
+#   geom_point(
+#     position = position_jitter(width = 0.3, height = 0.06),
+#     shape = 21, size = 1.5, alpha = 0.4) +
+#   stat_smooth(method = glm, method.args = list(family = binomial))
+# heightweight |>
+#   ggplot(aes(x = ageYear, y = heightIn, color = sex)) +
+#   geom_point() +
+#   geom_smooth()
+```

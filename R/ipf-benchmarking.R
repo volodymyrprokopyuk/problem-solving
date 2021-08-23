@@ -10,6 +10,7 @@ library(knitr)
 library(ggplot2)
 
 library(gcookbook)
+library(MASS, warn.conflicts = F)
 
 # Payment processing
 
@@ -143,7 +144,7 @@ generate_report <- \(metrics, template) knit(template, envir = env(metrics = met
 
 make_payment_actions()
 MetricsStore$new() |>
-  execute_benchmark(runs = 1, iterations = 10, app_name = "credit_transfer") |>
+  execute_benchmark(runs = 2, iterations = 10, app_name = "credit_transfer") |>
   # export_metrics() |>
   process_metrics() |>
   generate_report(template = "ipf-benchmarking.Rmd")
