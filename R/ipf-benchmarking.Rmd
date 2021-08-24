@@ -17,6 +17,24 @@ last_benchmark <- benchmark_names[[2]]
 ## Last benchmark distribution
 
 ```{r benchmark-distribution, eval = T}
+data <- metrics |> filter(benchmark_name == last_benchmark)
+
+plot <- data |>
+  ggplot(aes(x = action_name, y = elapsed_time)) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
+
+plot + geom_point()
+plot + geom_violin()
+plot + geom_boxplot()
+
+plot <- data |>
+  ggplot(aes(x = module_name, y = elapsed_time)) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
+
+plot + geom_point()
+plot + geom_violin()
+plot + geom_boxplot()
+
 data <- metrics |>
   filter(benchmark_name == last_benchmark) |>
   group_by(app_name, benchmark_name, iteration_name) |>
@@ -85,24 +103,6 @@ data |>
   ggplot(aes(x = elapsed_time, y = action_name, color = module_name)) +
   geom_point(size = 3) +
   geom_segment(aes(xend = 0, yend = action_name))
-
-data <- metrics |> filter(benchmark_name == last_benchmark)
-
-plot <- data |>
-  ggplot(aes(x = action_name, y = elapsed_time)) +
-  theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
-
-plot + geom_point()
-plot + geom_violin()
-plot + geom_boxplot()
-
-plot <- data |>
-  ggplot(aes(x = module_name, y = elapsed_time)) +
-  theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
-
-plot + geom_point()
-plot + geom_violin()
-plot + geom_boxplot()
 ```
 
 ## Comparison with the previous benchmark
@@ -137,7 +137,36 @@ data |>
 ## Recent benchmarks trends
 
 ```{r benchmark-trends, eval = T}
+data <- metrics |>
+  group_by(app_name, benchmark_name, iteration_name) |>
+  summarize(elapsed_time = sum(elapsed_time)) |>
+  ungroup() |>
+  group_by(app_name, benchmark_name) |>
+  summarize(elapsed_time = median(elapsed_time))
 
+data |>
+  ggplot(aes(x = benchmark_name, y = elapsed_time, group = 1)) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_smooth(formula = y ~ x, method = loess) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
+
+data <- metrics |>
+  group_by(app_name, benchmark_name, iteration_name, module_name) |>
+  summarize(elapsed_time = sum(elapsed_time)) |>
+  ungroup() |>
+  group_by(app_name, benchmark_name, module_name) |>
+  summarize(elapsed_time = median(elapsed_time))
+
+data |>
+  ggplot(aes(
+    x = benchmark_name, y = elapsed_time,
+    color = module_name, group = module_name
+  )) +
+  geom_line() +
+  geom_point(size = 3) +
+  geom_smooth(formula = y ~ x, method = loess) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 ```
 
 ```{r ggplot-example, eval = F}
