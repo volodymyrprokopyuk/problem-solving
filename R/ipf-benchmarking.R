@@ -8,13 +8,14 @@ library(dplyr, warn.conflicts = F)
 library(jsonlite, warn.conflicts = F)
 library(knitr)
 library(ggplot2)
+library(readr)
 
 library(gcookbook)
 library(MASS, warn.conflicts = F)
 
 # Payment processing
 
-payment_action_template <-
+payment_actions_template <-
   list(
     validate_request = list(
       scale = 1.0, action_name = "validate_request", module_name = "payment_validation"
@@ -39,12 +40,12 @@ payment_action_template <-
     )
   )
 
-make_action <- \(min_delay = 0.00, max_delay = 0.01, scale = 1.0)
+make_action <- \(min_delay = 0.001, max_delay = 0.005, scale = 1.0)
 \(...) runif(1, min_delay * scale, max_delay * scale) |> Sys.sleep()
 
 make_payment_actions <- \() {
-  payment_actions <- payment_action_template |>
-    map(\(template) make_action(scale = template$scale)) %>%
+  payment_actions <- payment_actions_template |>
+    map(\(action) make_action(scale = action$scale)) %>%
     env_bind(global_env(), !!!.)
   process_credit_transfer <- \() freduce(NULL, payment_actions)
   env_bind(global_env(), process_credit_transfer = process_credit_transfer)
@@ -52,9 +53,8 @@ make_payment_actions <- \() {
 
 # Application instrumentation
 
-instrument_action <- \(action, metrics_store, ...) {
+instrument_action <- \(action, dimensions, metrics_store) {
   force(action)
-  dimensions <- list(...)
   \(...) {
     start_ts <- now()
     result <- action(...)
@@ -65,18 +65,16 @@ instrument_action <- \(action, metrics_store, ...) {
   }
 }
 
-instrument_application <- \(metrics_store, app_name, benchmark_name, iteration_name) {
-  payment_actions <- payment_action_template |>
+instrument_application <- \(..., metrics_store) {
+  payment_actions <- payment_actions_template |>
     map(\(template) {
-      instrument_action(
-        env_get(global_env(), nm = template$action_name, default = NULL),
-        metrics_store,
-        app_name = app_name,
-        benchmark_name = benchmark_name,
-        iteration_name = iteration_name,
+      action <- env_get(global_env(), nm = template$action_name, default = NULL)
+      dimensions <- c(
+        list(...),
         module_name = template$module_name,
         action_name = template$action_name
       )
+      instrument_action(action, dimensions, metrics_store)
     })
   process_credit_transfer <- \() freduce(NULL, payment_actions)
   env_bind(global_env(), process_credit_transfer = process_credit_transfer)
@@ -104,10 +102,17 @@ MetricsStore <-
     )
   )
 
-export_metrics <- \(metrics) {
-  metrics |> toJSON(pretty = T) |> print()
-  metrics
-}
+export_metrics <- \(metrics, sink)
+metrics |>
+  toJSON(pretty = T) |>
+  write_file(file = sink)
+
+import_metrics <- \(source)
+source |>
+  read_file() |>
+  fromJSON() |>
+  tibble() |>
+  mutate(start_ts = ymd_hms(start_ts), end_ts = ymd_hms(end_ts))
 
 process_metrics <- \(metrics)
 metrics |>
@@ -122,14 +127,14 @@ metrics |>
 
 # Benchmarking execution
 
-execute_benchmark <- \(metrics_store, runs = 5, iterations = 30, app_name) {
+execute_benchmark <- \(app_name, runs = 5, iterations = 30, metrics_store) {
   walk(1:runs, \(run_number) {
     walk(1:iterations, \(iteration_number) {
       instrument_application(
-        metrics_store = metrics_store,
         app_name = app_name,
         benchmark_name = sprintf("benchmark_%04.f", run_number),
-        iteration_name = sprintf("iteraiton_%04.f", iteration_number)
+        iteration_name = sprintf("iteraiton_%04.f", iteration_number),
+        metrics_store = metrics_store
       )
       process_credit_transfer()
     })
@@ -139,12 +144,19 @@ execute_benchmark <- \(metrics_store, runs = 5, iterations = 30, app_name) {
 
 # Benchmarking reporting
 
-generate_report <- \(metrics, template) knit(template, envir = env(metrics = metrics))
+generate_report <- \(metrics, template)
+knit(template, envir = env(metrics = metrics))
 
+# Benchmarking management
 
-make_payment_actions()
-MetricsStore$new() |>
-  execute_benchmark(runs = 2, iterations = 10, app_name = "credit_transfer") |>
-  # export_metrics() |>
+# make_payment_actions()
+
+# execute_benchmark(
+#   app_name = "credit_transfer",
+#   runs = 10, iterations = 10,
+#   metrics_store = MetricsStore$new()) |>
+#   export_metrics(sink = "data/ipf-benchmarking.json")
+
+import_metrics(source = "data/ipf-benchmarking.json") |>
   process_metrics() |>
   generate_report(template = "ipf-benchmarking.Rmd")

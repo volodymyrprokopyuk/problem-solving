@@ -5,9 +5,11 @@ title: IPF benchmarking
 ```{r report-configuraiton, include = F}
 opts_chunk$set(error = F, echo = F, dev = "svglite")
 ```
-```{r benchmark-common}
+```{r benchmark-common, eval = T}
 benchmark_names <- metrics |>
-  distinct(benchmark_name) |> slice_tail(n = 2) |> pull(benchmark_name)
+  distinct(benchmark_name) |>
+  slice_tail(n = 2) |>
+  pull(benchmark_name)
 previous_benchmark <- benchmark_names[[1]]
 last_benchmark <- benchmark_names[[2]]
 ```
@@ -74,7 +76,7 @@ data |>
 
 data |>
   ggplot(aes(x = "", y = elapsed_time, fill = action_name)) +
-  geom_col(width = 1, position = "fill") +
+  geom_col(position = "fill", width = 1) +
   coord_polar(theta = "y") +
   scale_y_continuous(labels = scales::percent) +
   facet_grid(~module_name)
@@ -94,7 +96,7 @@ plot + geom_point()
 plot + geom_violin()
 plot + geom_boxplot()
 
-plot <-data |>
+plot <- data |>
   ggplot(aes(x = module_name, y = elapsed_time)) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
@@ -113,8 +115,8 @@ data <- metrics |>
 
 data |>
   ggplot(aes(x = action_name, y = elapsed_time, color = benchmark_name)) +
-  geom_line(aes(group = benchmark_name)) +
-  geom_point(aes(fill = benchmark_name), shape = 21, size = 3) +
+  geom_line(aes(group = benchmark_name), position = position_dodge(width = 0.4)) +
+  geom_point(size = 3, position = position_dodge(width = 0.4)) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
 data |>
@@ -135,29 +137,13 @@ data |>
 ## Recent benchmarks trends
 
 ```{r benchmark-trends, eval = T}
+
 ```
 
 ```{r ggplot-example, eval = F}
-# diamonds |>
-#   ggplot(aes(x = carat, y = price)) +
-#   # stat_bin2d(bins = 50) +
-#   stat_binhex(bins = 50) +
-#   scale_fill_gradient(low = "lightblue", high = "red")
-# ChickWeight |>
-#   ggplot(aes(x = Time, y = weight)) +
-#   geom_point(position = position_jitter(width = 0.5, height = 0))
-# heightweight |>
-#   ggplot(aes(x = ageYear, y = heightIn)) +
-#   geom_point() + stat_smooth(method = loess)
-# biopsy |>
-#   mutate(classn = recode(class, benign = 0, malignant = 1)) |>
-#   ggplot(aes(x = V1, y = classn)) +
-#   geom_point(
-#     position = position_jitter(width = 0.3, height = 0.06),
-#     shape = 21, size = 1.5, alpha = 0.4) +
-#   stat_smooth(method = glm, method.args = list(family = binomial))
-# heightweight |>
-#   ggplot(aes(x = ageYear, y = heightIn, color = sex)) +
-#   geom_point() +
-#   geom_smooth()
+# models <- heightweight |>
+#   group_by(sex) %>%
+#   across(model = lm(heightIn ~ ageYear, .)) |>
+#   ungroup()
+# models$model
 ```
