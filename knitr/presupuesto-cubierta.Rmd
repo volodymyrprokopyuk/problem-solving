@@ -160,7 +160,8 @@ total_pagado <- tribble(
   "2021-06-15", "Factura 1", 9360.00,
   "2021-07-07", "Factura 2", 9359.79,
   "2021-07-28", "Factura 3", 9359.79,
-  "2021-08-05", "Factura 4", 2843.67)
+  "2021-08-05", "Factura 4", 2843.67,
+  "2021-08-26", "Factura 5", 2871.4)
 total_pagado |> gt(rowname_col = "fecha") |>
   tab_header(title = "Pagos realizados y pendientes") |>
   grand_summary_rows(columns = "importe", fns = list(total_pagado = "sum"))
@@ -168,12 +169,12 @@ total_pagado |> gt(rowname_col = "fecha") |>
 
 ```{r pendiente-pago}
 total_sin_iva <- 32657.50 - 1715.00 # Canalones y bajantes
-total_con_iva <- total_sin_iva * 1.1
+total_con_iva <- total_sin_iva * 1.1 - 51.00 - 41.10 # Tornillos 50, Sikaflex
 pendiente_pago <- total_con_iva - sum(total_pagado$importe)
 ```
 
-Total sin IVA: `r total_sin_iva`
+Total sin IVA (-1715.00 canalones): `r total_sin_iva`
 
-Total con 10% IVA: `r total_con_iva`
+Total con 10% IVA (-51.00 - 41.10 tornillos 50 y Sikaflex): `r total_con_iva`
 
-Pendiente a pagar: `r pendiente_pago`
+Pendiente a pagar (certificado de contenedor): `r pendiente_pago`

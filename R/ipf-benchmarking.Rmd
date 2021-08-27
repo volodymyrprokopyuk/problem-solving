@@ -3,7 +3,7 @@ title: IPF benchmarking
 ---
 
 ```{r report-configuraiton, include = F}
-opts_chunk$set(error = F, echo = F, dev = "svglite")
+opts_chunk$set(echo = F, message = F, warning = F, error = F, dev = "svglite")
 ```
 ```{r benchmark-common, eval = T}
 benchmark_names <- metrics |>
@@ -21,6 +21,7 @@ data <- metrics |> filter(benchmark_name == last_benchmark)
 
 plot <- data |>
   ggplot(aes(x = action_name, y = elapsed_time)) +
+  scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
 plot + geom_point()
@@ -29,6 +30,7 @@ plot + geom_boxplot()
 
 plot <- data |>
   ggplot(aes(x = module_name, y = elapsed_time)) +
+  scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
 plot + geom_point()
@@ -38,25 +40,27 @@ plot + geom_boxplot()
 data <- metrics |>
   filter(benchmark_name == last_benchmark) |>
   group_by(app_name, benchmark_name, iteration_name) |>
-  summarize(elapsed_time = sum(elapsed_time))
+  summarize(total_elapsed_time = sum(elapsed_time))
 
 data |>
-  ggplot(aes(x = iteration_name, y = elapsed_time, group = 1)) +
+  ggplot(aes(x = iteration_name, y = total_elapsed_time, group = 1)) +
   geom_line() +
   geom_point(size = 3) +
   geom_smooth(formula = y ~ x, method = loess) +
+  scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
 data <- metrics |>
   filter(benchmark_name == last_benchmark) |>
   group_by(app_name, benchmark_name, iteration_name, module_name) |>
-  summarize(elapsed_time = sum(elapsed_time))
+  summarize(total_module_elapsed_time = sum(elapsed_time))
 
 data |>
-  ggplot(aes(x = iteration_name, y = elapsed_time, group = module_name)) +
+  ggplot(aes(x = iteration_name, y = total_module_elapsed_time, group = module_name)) +
   geom_line() +
   geom_point(size = 3) +
   geom_smooth(formula = y ~ x, method = loess) +
+  scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1)) +
   facet_grid(~module_name)
 ```
@@ -67,41 +71,46 @@ data |>
 data <- metrics |>
   filter(benchmark_name == last_benchmark) |>
   group_by(app_name, benchmark_name, module_name, action_name) |>
-  summarize(elapsed_time = median(elapsed_time))
+  summarize(action_elapsed_time = median(elapsed_time))
 
 data |>
-  ggplot(aes(x = action_name, y = elapsed_time, fill = action_name)) +
+  ggplot(aes(x = action_name, y = action_elapsed_time, fill = action_name)) +
   geom_col() +
+  scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
 data |>
-  ggplot(aes(x = module_name, y = elapsed_time, fill = action_name)) +
+  ggplot(aes(x = module_name, y = action_elapsed_time, fill = action_name)) +
+  scale_y_time(labels = second) +
   geom_col(position = position_stack(reverse = T))
 
 data |>
   ggplot(aes(
     x = action_name,
-    y = elapsed_time |> as.numeric() |> cumsum(),
+    y = action_elapsed_time |> as.numeric() |> cumsum(),
     fill = action_name
   )) +
   geom_col() +
+  scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
 data |>
-  ggplot(aes(x = action_name, y = elapsed_time, fill = action_name)) +
+  ggplot(aes(x = action_name, y = action_elapsed_time, fill = action_name)) +
   geom_col(width = 1) +
+  scale_y_time(labels = second) +
   coord_polar(theta = "x")
 
 data |>
-  ggplot(aes(x = "", y = elapsed_time, fill = action_name)) +
+  ggplot(aes(x = "", y = action_elapsed_time, fill = action_name)) +
   geom_col(position = "fill", width = 1) +
   coord_polar(theta = "y") +
   scale_y_continuous(labels = scales::percent) +
   facet_grid(~module_name)
 
 data |>
-  ggplot(aes(x = elapsed_time, y = action_name, color = module_name)) +
+  ggplot(aes(x = action_elapsed_time, y = action_name, color = module_name)) +
   geom_point(size = 3) +
+  scale_x_time(labels = second) +
   geom_segment(aes(xend = 0, yend = action_name))
 ```
 
@@ -110,28 +119,47 @@ data |>
 ```{r benchmark-comparison, eval = T}
 data <- metrics |>
   filter(benchmark_name %in% c(previous_benchmark, last_benchmark)) |>
-  group_by(app_name, benchmark_name, module_name, action_name) |>
-  summarize(elapsed_time = median(elapsed_time))
+  group_by(app_name, benchmark_name, action_name) |>
+  summarize(action_elapsed_time = median(elapsed_time))
 
 data |>
-  ggplot(aes(x = action_name, y = elapsed_time, color = benchmark_name)) +
+  ggplot(aes(x = action_name, y = action_elapsed_time, color = benchmark_name)) +
   geom_line(aes(group = benchmark_name), position = position_dodge(width = 0.4)) +
   geom_point(size = 3, position = position_dodge(width = 0.4)) +
+  scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
 data |>
-  ggplot(aes(x = action_name, y = elapsed_time, fill = benchmark_name)) +
+  ggplot(aes(x = action_name, y = action_elapsed_time, fill = benchmark_name)) +
   geom_col(position = "dodge") +
+  scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
 data <- metrics |>
   filter(benchmark_name %in% c(previous_benchmark, last_benchmark)) |>
   group_by(app_name, benchmark_name, iteration_name, module_name) |>
-  summarize(elapsed_time = sum(elapsed_time))
+  summarize(total_module_elapsed_time = sum(elapsed_time))
 
 data |>
-  ggplot(aes(x = module_name, y = elapsed_time, fill = benchmark_name)) +
+  ggplot(aes(x = module_name, y = total_module_elapsed_time, fill = benchmark_name)) +
+  scale_y_time(labels = second) +
   geom_col(position = "dodge")
+
+# data <- metrics |>
+#   filter(benchmark_name %in% c(previous_benchmark, last_benchmark)) |>
+#   group_by(app_name, benchmark_name, module_name, action_name) |>
+#   summarize(
+#     elapsed_time = median(elapsed_time),
+#     min_elapsed_time = min(elapsed_time),
+#     max_elapsed_time = max(elapsed_time)
+#   )
+# data |>
+#   ggplot(aes(x = action_name, y = elapsed_time, color = benchmark_name)) +
+#   geom_ribbon(aes(ymin = min_elapsed_time, ymax = max_elapsed_time), alpha = 0.5) +
+#   geom_line(aes(group = benchmark_name)) +
+#   geom_point(size = 3) +
+#   theme(axis.text.x = element_text(angle = 30, hjust = 1.1)) +
+#   facet_grid(~benchmark_name)
 ```
 
 ## Recent benchmarks trends
@@ -139,40 +167,34 @@ data |>
 ```{r benchmark-trends, eval = T}
 data <- metrics |>
   group_by(app_name, benchmark_name, iteration_name) |>
-  summarize(elapsed_time = sum(elapsed_time)) |>
+  summarize(total_elapsed_time = sum(elapsed_time)) |>
   ungroup() |>
   group_by(app_name, benchmark_name) |>
-  summarize(elapsed_time = median(elapsed_time))
+  summarize(total_elapsed_time = median(total_elapsed_time))
 
 data |>
-  ggplot(aes(x = benchmark_name, y = elapsed_time, group = 1)) +
+  ggplot(aes(x = benchmark_name, y = total_elapsed_time, group = 1)) +
   geom_line() +
   geom_point(size = 3) +
   geom_smooth(formula = y ~ x, method = loess) +
+  scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
 data <- metrics |>
   group_by(app_name, benchmark_name, iteration_name, module_name) |>
-  summarize(elapsed_time = sum(elapsed_time)) |>
+  summarize(module_elapsed_time = sum(elapsed_time)) |>
   ungroup() |>
   group_by(app_name, benchmark_name, module_name) |>
-  summarize(elapsed_time = median(elapsed_time))
+  summarize(module_elapsed_time = median(module_elapsed_time))
 
 data |>
   ggplot(aes(
-    x = benchmark_name, y = elapsed_time,
+    x = benchmark_name, y = module_elapsed_time,
     color = module_name, group = module_name
   )) +
   geom_line() +
   geom_point(size = 3) +
   geom_smooth(formula = y ~ x, method = loess) +
+  scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
-```
-
-```{r ggplot-example, eval = F}
-# models <- heightweight |>
-#   group_by(sex) %>%
-#   across(model = lm(heightIn ~ ageYear, .)) |>
-#   ungroup()
-# models$model
 ```
