@@ -6,10 +6,14 @@ readonly LIB="library(knitr); library(readr); library(dplyr); library(ggplot2);
 library(gt); library(gcookbook)"
 
 # readonly DOC=minimal
-readonly DOC=presupuesto-cubierta
+readonly DOC=mflow
+# readonly DOC=presupuesto-cubierta
 # readonly DOC=presupuesto-techos-paredes
 # readonly DOC=cts-benchmarking-2021-06-08
 
+function format {
+  Rscript -e "styler::style_file('$DOC.Rmd', strict = T)"
+}
 
 function cleanup {
   rm -rf figure $DOC.{md,html,pdf}
@@ -26,6 +30,8 @@ function md_to_html {
 function md_to_pdf {
   pandoc -f markdown -t pdf -s --pdf-engine wkhtmltopdf --mathml
 }
+
+[[ ${1:-} == -f ]] && format
 
 # cleanup
 

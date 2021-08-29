@@ -1,0 +1,37 @@
+---
+title: Flujo de dinero
+---
+
+```{r document-configuration, include = F}
+opts_chunk$set(echo = F, error = F, dev = "svglite")
+```
+
+```{r money-flow-data}
+data <- tribble(
+  ~date, ~concept, ~amount,
+  "2014-10-23 00:00", "Piso - Compra", 100000,
+  "2014-10-23 01:00", "Piso - Compra - Impuestos y gastos", 9000,
+  "2014-10-23 02:00", "Piso - Hipoteca 1.70%", -75963,
+  "2014-10-23 03:00", "Piso - Ahorros", -33037,
+  "2019-10-18 00:00", "Piso - Venta", 140000,
+  "2019-10-18 01:00", "Piso - Venta - Impuestos y gastos", -2000,
+  "2019-10-22 00:00", "Chalet - Compra", 365000,
+  "2019-10-22 01:00", "Chalet - Compra - Impuestos y gastos", 23000,
+  "2019-10-22 02:00", "Chalet - Hipoteca 1.00%", -230000,
+  "2019-10-22 03:00", "Chalet - Ahorros (venta de piso)", -138000,
+  "2019-10-22 04:00", "Chalet - Ahorros", -17000,
+  "2019-10-22 04:00", "Chalet - Deuda (2021-08-29)", -141000,
+  "2020-03-11 00:00", "Ventanas - Casa", 11896,
+  "2020-07-17 00:00", "Caldera", 2383,
+  "2021-08-26 00:00", "Cubierta - Obra", 33794,
+  "2021-08-26 00:00", "Cubierta - Impuestos y gastos", 820,
+  "2021-09-06 00:00", "Ventanas - Mirador y escalera", 2966,
+  "2021-10-06 00:00", "Techos - Materiales", 2760,
+  "2021-10-06 00:00", "Techos - Trabajo", 2000,
+) |>
+  mutate(balance = cumsum(amount), credit = ifelse(amount > 0, T, F))
+data |> select(-credit) |> gt()
+data |> ggplot(aes(x = date, y = amount, fill = credit)) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1.1))
+```
