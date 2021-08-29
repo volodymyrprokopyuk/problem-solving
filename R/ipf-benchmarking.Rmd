@@ -3,9 +3,9 @@ title: IPF benchmarking
 ---
 
 ```{r report-configuraiton, include = F}
-opts_chunk$set(echo = F, message = F, warning = F, error = F, dev = "svglite")
+opts_chunk$set(eval = T, echo = F, message = F, warning = F, error = F, dev = "svglite")
 ```
-```{r benchmark-common, eval = T}
+```{r benchmark-common}
 benchmark_names <- metrics |>
   distinct(benchmark_name) |>
   slice_tail(n = 2) |>
@@ -16,7 +16,7 @@ last_benchmark <- benchmark_names[[2]]
 
 ## Last benchmark distribution
 
-```{r benchmark-distribution, eval = T}
+```{r benchmark-distribution}
 data <- metrics |> filter(benchmark_name == last_benchmark)
 
 plot <- data |>
@@ -67,7 +67,7 @@ data |>
 
 ## Last benchmark summary
 
-```{r benchmark-summary, eval = T}
+```{r benchmark-summary}
 data <- metrics |>
   filter(benchmark_name == last_benchmark) |>
   group_by(app_name, benchmark_name, module_name, action_name) |>
@@ -108,15 +108,26 @@ data |>
   facet_grid(~module_name)
 
 data |>
-  ggplot(aes(x = action_elapsed_time, y = action_name, color = module_name)) +
-  geom_point(size = 3) +
-  scale_x_time(labels = second) +
-  geom_segment(aes(xend = 0, yend = action_name))
+  ggplot(aes(
+    x = action_name, y = action_elapsed_time,
+    size = action_elapsed_time |> as.numeric(), fill = action_name)
+    ) +
+  geom_point(shape = 21) +
+  scale_y_time(labels = second) +
+  scale_size_area(max_size = 15)
+
+data |>
+  ggplot(aes(x = action_elapsed_time, y = action_name,)) +
+  geom_segment(aes(xend = 0, yend = action_name, color = module_name), size = 2) +
+  geom_point(aes(
+    size = action_elapsed_time |> as.numeric(), fill = action_name), shape = 21) +
+  scale_x_time(labels = second, limits = c(0, max(data$action_elapsed_time) * 1.1)) +
+  scale_size_area(max_size = 15)
 ```
 
 ## Comparison with the previous benchmark
 
-```{r benchmark-comparison, eval = T}
+```{r benchmark-comparison}
 data <- metrics |>
   filter(benchmark_name %in% c(previous_benchmark, last_benchmark)) |>
   group_by(app_name, benchmark_name, action_name) |>
@@ -164,19 +175,31 @@ data |>
 
 ## Recent benchmarks trends
 
-```{r benchmark-trends, eval = T}
+```{r benchmark-trends}
 data <- metrics |>
   group_by(app_name, benchmark_name, iteration_name) |>
   summarize(total_elapsed_time = sum(elapsed_time)) |>
   ungroup() |>
   group_by(app_name, benchmark_name) |>
-  summarize(total_elapsed_time = median(total_elapsed_time))
+  summarize(
+    min_elapsed_time = min(total_elapsed_time),
+    max_elapsed_time = max(total_elapsed_time),
+    total_elapsed_time = median(total_elapsed_time)
+  )
 
 data |>
   ggplot(aes(x = benchmark_name, y = total_elapsed_time, group = 1)) +
   geom_line() +
   geom_point(size = 3) +
   geom_smooth(formula = y ~ x, method = loess) +
+  scale_y_time(labels = second) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
+
+data |>
+  ggplot(aes(x = benchmark_name, y = total_elapsed_time, group = 1)) +
+  geom_ribbon(aes(ymin = min_elapsed_time, ymax = max_elapsed_time), alpha = 0.2) +
+  geom_line() +
+  geom_point(size = 3) +
   scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
@@ -197,4 +220,20 @@ data |>
   geom_smooth(formula = y ~ x, method = loess) +
   scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
+```
+
+```{r ggplot-examples, eval = T}
+country_list <- c(
+  "Canada", "Ireland", "United Kingdom", "United States", "New Zealand", "Iceland",
+  "Japan", "Luxembourg", "Netherlands", "Switzerland"
+)
+countries |> filter(Year == 2009 & Name %in% country_list) |>
+  ggplot(aes(x = healthexp, y = infmortality, size = GDP)) +
+  geom_point(shape = 21, color = "black", fill = "cornsilk") +
+  geom_text(
+    aes(label = Name), size = 3.5, hjust = 0, vjust = 0,
+    position = position_nudge(x = 150, y = 0.15)
+  ) +
+  scale_size_area(max_size = 15) +
+  xlim(2e3, 1e4)
 ```
