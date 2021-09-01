@@ -158,7 +158,7 @@ knit(template, envir = env(metrics = metrics))
 #   metrics_store = MetricsStore$new()) |>
 #   export_metrics(sink = "data/ipf-benchmarking.json")
 
-import_metrics(source = "data/ipf-benchmarking.json") |>
+  import_metrics(source = "data/ipf-benchmarking.json") |>
   process_metrics() |>
   generate_report(template = "ipf-benchmarking.Rmd")
 
