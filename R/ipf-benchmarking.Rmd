@@ -5,6 +5,7 @@ title: IPF benchmarking
 ```{r report-configuraiton, include = F}
 opts_chunk$set(eval = T, echo = F, message = F, warning = F, error = F, dev = "svglite")
 ```
+
 ```{r benchmark-common}
 benchmark_names <- metrics |>
   distinct(benchmark_name) |>
@@ -25,8 +26,10 @@ plot <- data |>
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
 plot + geom_point()
-plot + geom_violin()
-plot + geom_boxplot()
+plot + geom_violin() +
+  stat_summary(fun = median, geom = "point", shape = 22, size = 3, fill = "yellow")
+plot + geom_boxplot() +
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "yellow")
 
 plot <- data |>
   ggplot(aes(x = module_name, y = elapsed_time)) +
@@ -34,8 +37,10 @@ plot <- data |>
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
 
 plot + geom_point()
-plot + geom_violin()
-plot + geom_boxplot()
+plot + geom_violin() +
+  stat_summary(fun = median, geom = "point", shape = 22, size = 3, fill = "yellow")
+plot + geom_boxplot() +
+  stat_summary(fun = mean, geom = "point", shape = 23, size = 3, fill = "white")
 
 data <- metrics |>
   filter(benchmark_name == last_benchmark) |>
@@ -62,7 +67,7 @@ data |>
   geom_smooth(formula = y ~ x, method = loess) +
   scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1)) +
-  facet_grid(~module_name)
+  facet_grid(. ~ module_name)
 ```
 
 ## Last benchmark summary
@@ -105,7 +110,7 @@ data |>
   geom_col(position = "fill", width = 1) +
   coord_polar(theta = "y") +
   scale_y_continuous(labels = scales::percent) +
-  facet_grid(~module_name)
+  facet_grid(module_name ~ .)
 
 data |>
   ggplot(aes(
@@ -155,22 +160,6 @@ data |>
   ggplot(aes(x = module_name, y = total_module_elapsed_time, fill = benchmark_name)) +
   scale_y_time(labels = second) +
   geom_col(position = "dodge")
-
-# data <- metrics |>
-#   filter(benchmark_name %in% c(previous_benchmark, last_benchmark)) |>
-#   group_by(app_name, benchmark_name, module_name, action_name) |>
-#   summarize(
-#     elapsed_time = median(elapsed_time),
-#     min_elapsed_time = min(elapsed_time),
-#     max_elapsed_time = max(elapsed_time)
-#   )
-# data |>
-#   ggplot(aes(x = action_name, y = elapsed_time, color = benchmark_name)) +
-#   geom_ribbon(aes(ymin = min_elapsed_time, ymax = max_elapsed_time), alpha = 0.5) +
-#   geom_line(aes(group = benchmark_name)) +
-#   geom_point(size = 3) +
-#   theme(axis.text.x = element_text(angle = 30, hjust = 1.1)) +
-#   facet_grid(~benchmark_name)
 ```
 
 ## Recent benchmarks trends
@@ -220,20 +209,24 @@ data |>
   geom_smooth(formula = y ~ x, method = loess) +
   scale_y_time(labels = second) +
   theme(axis.text.x = element_text(angle = 30, hjust = 1.1))
-```
 
-```{r ggplot-examples, eval = T}
-country_list <- c(
-  "Canada", "Ireland", "United Kingdom", "United States", "New Zealand", "Iceland",
-  "Japan", "Luxembourg", "Netherlands", "Switzerland"
-)
-countries |> filter(Year == 2009 & Name %in% country_list) |>
-  ggplot(aes(x = healthexp, y = infmortality, size = GDP)) +
-  geom_point(shape = 21, color = "black", fill = "cornsilk") +
-  geom_text(
-    aes(label = Name), size = 3.5, hjust = 0, vjust = 0,
-    position = position_nudge(x = 150, y = 0.15)
-  ) +
-  scale_size_area(max_size = 15) +
-  xlim(2e3, 1e4)
+data <- metrics |>
+  group_by(app_name, benchmark_name, iteration_name) |>
+  summarize(total_elapsed_time = sum(elapsed_time))
+
+data |>
+  ggplot(aes(x = total_elapsed_time)) +
+  geom_histogram(aes(y = stat(density)), bins = 30, color = "gray50", fill = "khaki1") +
+  geom_density(adjust = 0.7, color = "gray50", fill = "greenyellow", alpha = 0.2) +
+  scale_x_time(labels = second)
+
+data <- metrics |>
+  group_by(app_name, benchmark_name, iteration_name, module_name) |>
+  summarize(module_elapsed_time = sum(elapsed_time))
+
+data |>
+  ggplot(aes(x = module_elapsed_time, fill = module_name)) +
+  geom_histogram(aes(y = stat(density)), bins = 30, color = "gray50") +
+  geom_density(adjust = 0.7, color = "gray50", fill = "yellow", alpha = 0.2) +
+  facet_grid(module_name ~ .)
 ```

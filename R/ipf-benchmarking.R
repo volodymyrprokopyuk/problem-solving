@@ -12,6 +12,7 @@ library(readr)
 
 library(gcookbook)
 library(MASS, warn.conflicts = F)
+library(grid)
 
 # Payment processing
 
