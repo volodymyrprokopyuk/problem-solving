@@ -2,11 +2,10 @@
 
 set -eu
 
-readonly LIB="library(knitr); library(readr); library(dplyr); library(ggplot2);
-library(gt); library(gcookbook)"
+readonly LIB="library(knitr); library(ggplot2)"
 
-# readonly DOC=minimal
-readonly DOC=mflow
+readonly DOC=minimal
+# readonly DOC=mflow
 # readonly DOC=presupuesto-cubierta
 # readonly DOC=presupuesto-techos-paredes
 # readonly DOC=cts-benchmarking-2021-06-08

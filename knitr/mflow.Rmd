@@ -3,10 +3,12 @@ title: Flujo de dinero
 ---
 
 ```{r document-configuration, include = F}
+library(data.table)
+library(huxtable)
 opts_chunk$set(echo = F, error = F, dev = "svglite")
 ```
 
-```{r money-flow-data}
+```{r money-flow-data, eval = F}
 data <- tribble(
   ~date, ~concept, ~amount,
   "2014-10-23 00:00", "Piso - Compra", 100000,
@@ -26,7 +28,7 @@ data <- tribble(
   "2021-08-26 00:00", "Cubierta - Obra", 33794,
   "2021-08-26 00:00", "Cubierta - Impuestos y gastos", 820,
   "2021-09-06 00:00", "Ventanas - Mirador y escalera", 2966,
-  "2021-10-06 00:00", "Techos - Materiales", 2760,
+  "2021-10-06 00:00", "Techos - Materiales", 3892,
   "2021-10-06 00:00", "Techos - Trabajo", 2000,
 ) |>
   mutate(balance = cumsum(amount), credit = ifelse(amount > 0, T, F))
@@ -34,4 +36,29 @@ data |> select(-credit) |> gt()
 data |> ggplot(aes(x = date, y = amount, fill = credit)) +
   geom_col() +
   theme(axis.text.x = element_text(angle = 90, vjust = 1.1))
+```
+
+```{r}
+d <- tribble(
+  ~date, ~concept, ~amount,
+  "2021-09-04", "Dormitorio este", 9.10 * (15 + 8) + 25 + 70,
+  "2021-09-10", "Baño común", 5.20 * (15 + 8) + 25 + 70,
+  "2021-09-10", "Distribuidor + Escalera", (4.50 + 4.20) * (15 + 8) + 2 * 25 + 70,
+  "2021-09-10", "Dormitorio principal", 12.50 * (15 + 8) + 2 * 25 + 70,
+  "2021-09-15", "Baño en suite", 4.10 * (15 + 8) + 25 + 70,
+  "2021-09-1X", "Aislamiento Vlad", (12.50 + 10.00 + 9.20 + 8.50) * -8,
+  "2021-09-1X", "Dormitorio oeste", 9.20 * (15 + 8) + 25 + 70,
+  "2021-09-1X", "Estudio", 8.50 * (15 + 8) + 25 + 70,
+  "2021-09-1X", "Mirador", 10.00 * (15 + 8) + 7 * 25 + 70 + 30 * 15 + 10 * 25
+) |> as.data.table()
+t <- d |> as_hux() |> theme_plain()
+number_format(t)[, "amount"] <- 2
+t
+t <- data.table(
+  total_pagado = d[grepl("\\d$", date), sum(amount)],
+  total_pendiente = d[grepl("X$", date), sum(amount)],
+  total = d[, sum(amount)]
+) |> as_hux() |> theme_plain()
+number_format(t) <- 2
+t
 ```

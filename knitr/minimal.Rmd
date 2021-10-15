@@ -1,7 +1,7 @@
 ---
 title: A minimal Rmd example with ggplot2
 author: Volodymyr Prokopyuk
-date: `r Sys.Date()`
+date: "`r Sys.Date()`"
 abstract: |
   Markdown and knitr along with ggplot2 make literate programming in R very convenient
 keywords: [markdown, knitr, literate-programming, ggplot2]
@@ -13,261 +13,57 @@ header-includes:
 ---
 
 ```{r document-config, include = F}
-opts_chunk$set(error = F, dev = "svg")
-```
-<!--
-```{r exports-data, include = T}
-raw_export <- "year,product,export,percentage
-2006,copper,4335009500,81
-2006,others,1016726518,19
-2007,copper,9005361914,86
-2007,others,1523085299,14
-2008,copper,6907056354,80
-2008,others,1762684216,20
-2009,copper,10529811075,81
-2009,others,2464094241,19
-2010,copper,14828284450,85
-2010,others,2543015596,15
-2011,copper,15291679086,82
-2011,others,3447972354,18
-2012,copper,14630686732,80
-2012,others,3583968218,20
-2013,copper,15244038840,79
-2013,others,4051281128,21
-2014,copper,14703374241,78
-2014,others,4251484600,22
-2015,copper,13155922363,78
-2015,others,3667286912,22
-"
-export <- read_csv(raw_export)
-
-# export <- export |>
-#   mutate(product = factor(
-#     product,
-#     levels = c("copper", "others"),
-#     labels = c("Copper", "Other goods")))
-
-export |> mutate(product = factor(
-  product,
-  levels = c("copper", "others"),
-  labels = c("Copper", "Other goods"))) -> export
-```
--->
-
-<!--
-```{r exports-line-plot, fig.cap = "Exports to China", fig.dim = c(9, 6)}
-ggplot(export, aes(x = year, y = export, color = product)) +
-  geom_line(size = 1.5) + geom_point(size = 3) +
-  scale_x_continuous(breaks = min(export$year):max(export$year)) +
-  labs(title = "Exports to China, USD", subtitle = "Source: Observatory of economics") +
-  labs(x = "Year", y = "USD") +
-  theme(
-    legend.title = element_blank(),
-legend.position = "bottom",
-    legend.direction = "horizontal") +
-  scale_color_manual(values = c("#AA3939", "#7A9F35", "#226666"))
-```
--->
-
-<!--
-```{r exports-area-plot, fig.cap = "Exports to China", fig.dim = c(9, 6)}
-ggplot(export, aes(x = year, y = export, fill = product)) +
-  geom_area(alpha = 0.7) +
-  scale_x_continuous(breaks = min(export$year):max(export$year)) +
-  labs(title = "Exports to China, USD", subtitle = "Source: Observatory of economics") +
-  labs(x = "Year", y = "USD") +
-  theme(
-    legend.position = "bottom",
-    legend.direction = "horizontal",
-    legend.title = element_blank()) +
-  scale_fill_manual(values = c("#E1B378","#5F9EA0"))
-```
--->
-
-```{r example-plot}
-# ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
-# ggplot(data = NULL, aes(x = mtcars$wt, y = mtcars$mpg)) + geom_point()
-# ggplot(pressure, aes(x = temperature, y = pressure)) + geom_line() + geom_point()
-# dob <- tibble(
-#   time = c(1, 2, 3, 4, 5, 7),
-#   demand = c(8.3, 10.3, 19, 16, 15.6, 19.8),
-#   name = c("a", "b", "c", "d", "e", "f"))
-# ggplot(dob, aes(x = time, y = demand)) + geom_col()
-# ggplot(dob, aes(x = factor(time), y = demand)) +
-#   geom_col(fill = "lightblue", color = "orange")
-# ggplot(dob, aes(x = name, y = demand)) + geom_bar(stat = "identity")
-# ggplot(mtcars, aes(x = cyl)) + geom_bar()
-# ggplot(mtcars, aes(x = factor(cyl))) + geom_bar()
-# ggplot(mtcars, aes(x = mpg)) + geom_histogram(binwidth = 2)
-# ggplot(mtcars, aes(x = mpg)) + geom_histogram(bins = 10)
-# ggplot(ToothGrowth, aes(x = supp, y = len)) + geom_boxplot()
-# ggplot(ToothGrowth, aes(x = interaction(supp, dose), y = len)) + geom_boxplot()
-# ggplot(tibble(x = -4:4), aes(x = x)) +
-#   stat_function(fun = \(x) x^3 - 5 * x, geom = "line", color = "red") +
-# ggplot(tibble(x = -4:4), aes(x = x)) +
-#   stat_function(fun = \(x) x^2, geom = "line")
-#   stat_function(fun = ~ .x^2, geom = "line")
-# ggplot(tibble(x = 0:20), aes(x = x)) +
-#   stat_function(fun = \(x) 1 / (1 + exp(-x + 10)), geom = "line", color = "green")
-# ggplot(pg_mean, aes(x = group, y = weight)) + geom_col()
-# ggplot(rbind(cabbage_exp[1:5, ], list("c52", "d21", NA, NA, NA, NA)),
-#        aes(x = Date, y = Weight, fill = Cultivar)) +
-#   geom_col(position = "dodge", color = "blue") +
-#   scale_fill_brewer(palette = "Pastel1")
-# ggplot(diamonds, aes(x = cut)) + geom_bar()
-# ggplot(diamonds, aes(x = carat)) + geom_histogram(binwidth = 0.1)
-# uspopchange |> arrange(desc(Change)) |> slice(1:10) |>
-#   ggplot(aes(x = reorder(Abb, Change), y = Change, fill = Region)) +
-#   geom_col() +
-#   scale_fill_manual(values = c("#669933", "#FFCC66")) +
-#   labs(x = "State")
-# tibble(climate) |>
-#   filter(Source == "Berkeley" & Year >= 1900) |>
-#   mutate(pos = Anomaly10y >= 0) |>
-#   ggplot(aes(x = Year, y = Anomaly10y, fill = pos)) +
-#   geom_col() + scale_fill_manual(values = c("#CCEEFF", "#FFDDDD"), guide = F)
-# ggplot(pg_mean, aes(x = group, y = weight)) +
-#   geom_col(width = 0.5)
-# ggplot(cabbage_exp, aes(x = Date, y = Weight, fill = Cultivar)) +
-#   geom_col(position = position_stack(reverse = T)) +
-#   guides(fill = guide_legend(reverse = T))
-# ggplot(cabbage_exp, aes(x = Date, y = Weight, fill = Cultivar)) +
-#   geom_col(position = "fill") +
-#   scale_y_continuous(labels = scales::percent)
-# tibble(cabbage_exp)
-# cabbage_exp |> group_by(Date) |> mutate(pweight = Weight / sum(Weight)) |>
-#   ggplot(aes(x = Date, y = pweight, fill = Cultivar)) +
-#   geom_col() + scale_y_continuous(labels = scales::percent)
-# cabbage_exp |> ggplot(aes(x = interaction(Date, Cultivar), y = Weight)) +
-#   geom_col() +
-#   geom_text(aes(label = Weight), vjust = 1.5, color = "white")
-# mtcars |> ggplot(aes(x = factor(mtcars$cyl))) +
-#   geom_bar() +
-#   geom_text(aes(label = ..count..), stat = "count", color = "black", vjust = -2.5) +
-#   ylim(0, 20)
-# ggplot(cabbage_exp, aes(x = interaction(Date, Cultivar), y = Weight)) +
-#   geom_col() +
-#   geom_text(aes(label = Weight, y = Weight + 0.1))
-# cabbage_exp |> ggplot(aes(x = Date, y = Weight, fill = Cultivar)) +
-#   geom_col(position = "dodge") +
-#   geom_text(aes(label = Weight), vjust = 1.5, position = position_dodge(0.9),
-#             color = "white")
-# cabbage_exp |> group_by(Date) |>
-#   arrange(Date, desc(Cultivar)) |>
-#   mutate(cweight = cumsum(Weight) - Weight / 2) |>
-#   ggplot(aes(x = Date, y = Weight, fill = Cultivar)) +
-#   geom_col() + geom_text(aes(label = Weight, y = cweight), vjust = 1.5)
-# tophitters2001 |> slice(1:25) |> select(name, lg, avg) |>
-#   ggplot(aes(x = reorder(name, avg), y = avg)) + geom_point() +
-#   theme(axis.text.x = element_text(angle = 60, hjust = 1))
-# tophitters2001 |> slice(1:25) |> select(name, lg, avg) |>
-#   ggplot(aes(x = avg, y = reorder(name, avg))) +
-#   geom_point(aes(color = lg), size = 3) +
-#   geom_segment(aes(yend = name), xend = 0) +
-#   facet_grid(lg ~ .)
-# ggplot() + geom_point(aes(x = wt, y = mpg), data = mtcars)
-# simpledat_long |> ggplot(aes(x = Aval, y = value, fill = Bval)) +
-#   geom_col(position = "dodge")
-# simpledat_long |> ggplot(aes(x = Bval, y = value, fill = Aval)) +
-#   geom_col(position = "dodge")
-# simpledat_long |> ggplot(aes(x = Aval, y = value, group = Bval, color = Bval)) +
-#   geom_line()
-# d <- data.frame(
-#   xval = 1:4,
-#   yval = c(3, 5, 6, 9),
-#   group = c("A","B","A","B"))
-# d |> ggplot(aes(x = xval, y = yval)) + geom_point(aes(color = group), size = 3) +
-#   scale_color_manual(values = c("orange", "forestgreen"))
-# d |> ggplot(aes(x = xval, y = yval, color = group)) + geom_point()
-# d |> ggplot(aes(x = xval, y = yval)) + geom_point(color = "blue") +
-#   scale_x_continuous(limits = c(0, 8))
+library(data.table)
+library(huxtable)
+opts_chunk$set(echo = F, message = F, warning = F, error = F, dev = "svglite")
 ```
 
-## Physical characteristics
+```{r, eval = F}
+d <- data.table(
+  Type  = c("Strawberry", "Raspberry", "Plum"),
+  Price = c(1.90, 2.10, 1.80)
+)
+d[3, Type := "Snozberry"] |> invisible()
+d[3, c("Type", "Price") := .("Snozberry", 1.7)] |> invisible()
+d[, Price := c(1.40, 1.50, 1.60)] |> invisible()
+d[, Sugar := c(40, 50, 30)] |> invisible()
+d <- rbindlist(list(d, list("Gooseberry", 2.1, 55)))
+d[, Sugar := paste0(Sugar, "%")] |> invisible()
+# d[, Type := Type |> toupper()] |> invisible()
+t <- d |> hux()
+caption(t) <- "Jam prices"
+width(t) <- 0.3
+top_padding(t)[-1, ] <- 3
+number_format(t)[, "Price"] <- 2
+bold(t)[1, ] <- T
+bottom_border(t)[1, ] <- 1
+# italic(t)[1, 1] <- T
+# italic(t)[1, "Type"] <- T
+# italic(t)[grepl("berry", t$Type), 1] <- T
+# italic(t)[t$Type %like% "berry", 1] <- T
+text_color(t)[nrow(t), ] <- "blue"
+text_color(t)[2:3, 1] <- "purple"
+background_color(t)[c(T, F), ] <- "gray95"
+align(t)[1, ] <- "center"
+align(t)[-1, "Sugar"] <- "right"
+right_border(t)[, 1] <- brdr(3, "double", "gray")
+t
+```
 
-The Moon is a very slightly scalene ellipsoid due to tidal stretching, with its long
-axis displaced 30° from facing the Earth, due to gravitational anomalies from impact
-basins. Its shape is more elongated than current tidal forces can account for. This
-'fossil bulge' indicates that the Moon solidified when it orbited at half its current
-distance to the Earth, and that it is now too cold for its shape to adjust to its
-orbit.[56]
-
-### Internal structure
-
-The Moon is a differentiated body that was initially in hydrostatic equilibrium but has
-since departed from this condition.[58] It has a geochemically distinct crust, mantle,
-and core. The Moon has a solid iron-rich inner core with a radius possibly as small as
-240 kilometres (150 mi) and a fluid outer core primarily made of liquid iron with a
-radius of roughly 300 kilometres (190 mi). Around the core is a partially molten
-boundary layer with a radius of about 500 kilometres (310 mi).[59][60] This structure is
-thought to have developed through the fractional crystallization of a global magma ocean
-shortly after the Moon's formation 4.5 billion years ago.[61]
-
-Crystallization of this magma ocean would have created a mafic mantle from the
-precipitation and sinking of the minerals olivine, clinopyroxene, and orthopyroxene;
-after about three-quarters of the magma ocean had crystallised, lower-density
-plagioclase minerals could form and float into a crust atop.[62] The final liquids to
-crystallise would have been initially sandwiched between the crust and mantle, with a
-high abundance of incompatible and heat-producing elements.[1] Consistent with this
-perspective, geochemical mapping made from orbit suggests a crust of mostly
-anorthosite.[14] The Moon rock samples of the flood lavas that erupted onto the surface
-from partial melting in the mantle confirm the mafic mantle composition, which is more
-iron-rich than that of Earth.[1] The crust is on average about 50 kilometres (31 mi)
-thick.[1]
-
-The Moon is the second-densest satellite in the Solar System, after Io.[63] However, the
-inner core of the Moon is small, with a radius of about 350 kilometres (220 mi) or
-less,[1] around 20% of the radius of the Moon. Its composition is not well understood,
-but is probably metallic iron alloyed with a small amount of sulfur and nickel; analyses
-of the Moon's time-variable rotation suggest that it is at least partly molten.[64] The
-pressure at the lunar core is estimated to be 5 GPa.[65]
-
-#### Magnetic field
-
-The Moon has an external magnetic field of generally less than 0.2 nanoteslas,[66] or
-less than one hundred thousandth that of Earth. The Moon does not currently have a
-global dipolar magnetic field and only has crustal magnetization likely acquired early
-in its history when a dynamo was still operating.[67][68] However, early in its history,
-4 billion years ago, its magnetic field strength was likely close to that of Earth
-today.[66] This early dynamo field apparently expired by about one billion years ago,
-after the lunar core had completely crystallized.[66] Theoretically, some of the remnant
-magnetization may originate from transient magnetic fields generated during large
-impacts through the expansion of plasma clouds. These clouds are generated during large
-impacts in an ambient magnetic field. This is supported by the location of the largest
-crustal magnetizations situated near the antipodes of the giant impact basins.[69]
-
-#### Surface geology
-
-Main articles: Topography of the Moon, Geology of the Moon, Moon rock, and List of lunar
-features Geological features of the Moon (near side / north pole at left, far side /
-south pole at right) Topography of the Moon measured from the Lunar Orbiter Laser
-Altimeter on the mission Lunar Reconnaissance Orbiter, referenced to a sphere of radius
-1737.4 km Topography of the Moon
-
-The topography of the Moon has been measured with laser altimetry and stereo image
-analysis.[70] Its most extensive topographic feature is the giant far-side South
-Pole–Aitken basin, some 2,240 km (1,390 mi) in diameter, the largest crater on the Moon
-and the second-largest confirmed impact crater in the Solar System.[71][72] At 13 km
-(8.1 mi) deep, its floor is the lowest point on the surface of the Moon.[71][73] The
-highest elevations of the Moon's surface are located directly to the northeast, which
-might have been thickened by the oblique formation impact of the South Pole–Aitken
-basin.[74] Other large impact basins such as Imbrium, Serenitatis, Crisium, Smythii, and
-Orientale possess regionally low elevations and elevated rims.[71] The far side of the
-lunar surface is on average about 1.9 km (1.2 mi) higher than that of the near side.[1]
-
-The discovery of fault scarp cliffs suggest that the Moon has shrunk by about 90 metres
-(300 ft) within the past billion years.[75] Similar shrinkage features exist on
-Mercury. Mare Frigoris, a basin near the north pole long assumed to be geologically
-dead, has cracked and shifted. Since the Moon doesn't have tectonic plates, its tectonic
-activity is slow and cracks develop as it loses heat.[76]
-
-### Volcanic features
-
-The dark and relatively featureless lunar plains, clearly seen with the naked eye, are
-called maria (Latin for "seas"; singular mare), as they were once believed to be filled
-with water;[77] they are now known to be vast solidified pools of ancient basaltic
-lava. Although similar to terrestrial basalts, lunar basalts have more iron and no
-minerals altered by water.[78] The majority of these lava deposits erupted or flowed
-into the depressions associated with impact basins. Several geologic provinces
-containing shield volcanoes and volcanic domes are found within the near side
-"maria".[79]
+```{r}
+d <- iris |> data.table()
+d <- d[, .SD[1:5], by = Species]
+t <- d |> huxtable()
+t <- t |>
+  insert_row("", "Sepal", "", "Petal", "", after = 0) |>
+  merge_cells(1, 2:3) |> merge_cells(1, 4:5)
+t[2, 2:5] <- c("Length", "Width")
+align(t)[1, ] <- "center"
+top_padding(t) <- bottom_padding(t) <- 4
+width(t) <- 0.4
+col_width(t) <- c(0.6, 0.1, 0.1, 0.1, 0.1)
+header_rows(t)[1:2] <- T
+header_cols(t)[1] <- T
+style_headers(t, bold = T)
+t
+```

@@ -150,47 +150,14 @@ knit(template, envir = env(metrics = metrics))
 
 # Benchmarking management
 
-# make_payment_actions()
+make_payment_actions()
 
-# execute_benchmark(
-#   app_name = "credit_transfer",
-#   runs = 10, iterations = 10,
-#   metrics_store = MetricsStore$new()) |>
-#   export_metrics(sink = "data/ipf-benchmarking.json")
+execute_benchmark(
+  app_name = "credit_transfer",
+  runs = 10, iterations = 10,
+  metrics_store = MetricsStore$new()) |>
+  export_metrics(sink = "data/ipf-benchmarking.json")
 
   import_metrics(source = "data/ipf-benchmarking.json") |>
   process_metrics() |>
   generate_report(template = "ipf-benchmarking.Rmd")
-
-
-
-# d <- tribble(
-#   ~bench, ~iter, ~module, ~action, ~etime,
-#   "1", "01", "validate", "check", 1,
-#   "1", "01", "process", "book", 2,
-#   "1", "01", "process", "submit", 3,
-#   "1", "02", "validate", "check", 4,
-#   "1", "02", "process", "book", 5,
-#   "1", "02", "process", "submit", 6,
-#   "2", "01", "validate", "check", 10,
-#   "2", "01", "process", "book", 20,
-#   "2", "01", "process", "submit", 30,
-#   "2", "02", "validate", "check", 40,
-#   "2", "02", "process", "book", 50,
-#   "2", "02", "process", "submit", 60,
-#   ) |>
-#   mutate(
-#     module = factor(module, levels = c("validate", "process")),
-#     action = factor(action, levels = c("check", "book", "submit"))
-#   )
-
-# d |> group_by(bench, iter, module) |> summarize(
-#   avg_time = mean(etime), min_time = min(etime), max_time = max(etime)
-# )
-# d |> group_by(bench, iter, module) |> mutate(
-#   avg_time = mean(etime), min_time = min(etime), max_time = max(etime)
-# )
-# d |> group_by (action) |> mutate(
-#   avg_time = mean(etime), min_time = min(etime), max_time = max(etime)
-# )
-# d |> group_by (bench, iter, module) |> mutate(total_time = sum(etime))
