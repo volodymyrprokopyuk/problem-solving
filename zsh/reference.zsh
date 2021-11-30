@@ -2,6 +2,18 @@
 
 set -eu
 
+# if [[ -f reference.zshx ]]; then echo exists; else echo does not exist; fi
+# if [[ -f reference.zshx ]] { echo exists } else { echo does not exist }
+# for n in {a..e}; do echo -n $n; done
+# for n ({a..e}) { echo -n $n }
+# for ((i = 0; i < 5; i++)); do echo -n $i; done
+# for ((i = 0; i < 5; i++)) { echo -n $i }
+# i=0; while ((i < 5)); do echo -n $i; i=$((i + 1)); done
+# i=0; while ((i < 5)) { echo -n $i; i=$((i + 1)) }
+# n=a; case $n in a | b) echo -n $n;; *) echo -n unknown;; esac
+# n=b; case $n { a | b) echo -n $n;; *) echo -n unknown;; }
+# set +e; { echo; ls /x } always { echo always }; set -e
+
 function map_reduce {
   mkfifo p{i,o}{1,2,3}
   function cleanup { rm -f p{i,o}{1,2,3} }
@@ -73,20 +85,21 @@ function format_transaction {
 # exec {stdout}>&1; echo ok >&$stdout; exec {stdout}>&-
 # exec {stdin}<&0; read v <&$stdin; echo $v; exec {stdin}<&-
 
-# function { echo ">> $1, $@, $*" } vlad lana
+# function { echo $1, $@, $* } vlad lana
 
 # zmodload zsh/mathfunc
 # integer i=2
-# float f=0.5
-# float v t
+# float f=0.5 v t
 # (( v = 1_234 + f, t = i > 0 ? 2 : 3 )); printf "%.4f %d\n" $v $t
 # (( v = sqrt(2e0) + i ** 3 )); printf "%.4f\n" $v
+# (( i > 0 )) && echo positive || echo non-positive
 
+# [[ Vlad =~ .+([aeiou]).+ ]] && echo $MATCH $match[1]
 # setopt RE_MATCH_PCRE
 # s="one 1, two 2, ten 10"
-# r='(\w+) (\d+)'
-# [[ $s =~ $r ]] && echo $MATCH $s[$MBEGIN,$MEND] $match[2] $match[1]
-# while [[ $s =~ $r ]] do
+# p='(\w+) (\d+)'
+# # [[ $s =~ $p ]] && echo $MATCH $s[$MBEGIN,$MEND] $match[2] $match[1]
+# while [[ $s =~ $p ]]; do
 #   echo $match[1] $match[2]
 #   s=${s/$MATCH/}
 # done
@@ -98,3 +111,6 @@ function format_transaction {
 # cat < <(echo ok) > >(tr '[a-z]' '[A-Z]')
 
 setopt EXTENDED_GLOB
+
+
+print -l ${${:-=cat}:h}

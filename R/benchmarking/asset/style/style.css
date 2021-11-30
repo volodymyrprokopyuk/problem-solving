@@ -1,0 +1,41 @@
+@import url("modern-normalize.min.css");
+
+@font-face {
+  font-family: "Titillium Web";
+  src: url("../font/TitilliumWeb-Light.woff2") format("woff2");
+}
+
+/* Layout */
+
+body > header, .content {
+  width: 90%;
+  margin: 0 auto;
+}
+
+/* Content */
+
+:root {
+  counter-reset: figure-number;
+  counter-reset: table-number;
+}
+
+figure > figcaption:before {
+  counter-increment: figure-number;
+  content: "Figure " counter(figure-number) ". ";
+}
+
+table > caption:before {
+  counter-increment: table-number;
+  content: "Table " counter(table-number) ". ";
+}
+
+/* Typography */
+
+body {
+  font-family: "Titillium Web";
+}
+
+figure > figcaption, table > caption {
+  font-weight: bold;
+  font-size: medium;
+}
