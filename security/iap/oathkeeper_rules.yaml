@@ -1,0 +1,91 @@
+---
+- id: hydra_manage_jwks
+  upstream:
+    url: https://hydra:4445
+  match:
+    methods: [GET, PUT, DELETE]
+    url: https://localhost:4455/keys/<.+>
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+- id: hydra_manage_clients
+  upstream:
+    url: https://hydra:4445
+  match:
+    methods: [GET, POST]
+    url: https://localhost:4455/clients<.*>
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+- id: hydra_get_token
+  upstream:
+    url: https://hydra:4444
+  match:
+    methods: [POST]
+    url: https://localhost:4455/oauth2/token
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+- id: hydra_introspect_token
+  upstream:
+    url: https://hydra:4445
+  match:
+    methods: [POST]
+    url: https://localhost:4455/oauth2/introspect
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+- id: hydra_well_known_jwks
+  upstream:
+    url: https://hydra:4444
+  match:
+    methods: [GET]
+    url: https://localhost:4455/.well-known/jwks.json
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+- id: ds_opaque_token_introspection
+  upstream:
+    url: http://ds:4477
+  match:
+    methods: [GET]
+    url: https://localhost:4455/opaque-introspection
+  authenticators:
+    - handler: oauth2_introspection
+      config:
+        target_audience: [ods_inquiry]
+        required_scope: [read_public, read_confidential]
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+- id: ds_jwt_token_verification
+  upstream:
+    url: http://ds:4477
+  match:
+    methods: [GET]
+    url: https://localhost:4455/jwt-verification
+  authenticators:
+    - handler: jwt
+      config:
+        target_audience: [ods_inquiry]
+        required_scope: [read_public, read_confidential]
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop

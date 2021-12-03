@@ -1,0 +1,14 @@
+---
+server:
+  host: 0.0.0.0
+  port: 4477
+authorization:
+  introspection_url: https://hydra:4445/oauth2/introspect
+  jwks_url: https://hydra:4444/.well-known/jwks.json
+  trusted_issuers: [https://hydra:4444/]
+  opaque_introspection:
+    target_audience: [ods_inquiry]
+    required_scope: [read_public, read_confidential]
+  jwt_verification:
+    target_audience: [ods_inquiry]
+    required_scope: [read_public, read_confidential]
