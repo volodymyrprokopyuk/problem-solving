@@ -1,4 +1,5 @@
 {.hint[XDeclaredButNotUsed]: off.}
+{.hint[DuplicateModuleImport]: off.}
 {.warning[UnusedImport]: off.}
 
 type User = object
@@ -12,7 +13,7 @@ proc say(user: User) = echo "Hi proc"
 
 from std/sugar import `=>`, dup
 from std/sequtils import toSeq, map, mapIt
-from std/strutils import join, toUpperAscii
+from std/strutils import join, toUpperAscii, toBin
 from std/strformat import fmt
 
 # let nums = [1, 2, 3, 4]
@@ -178,7 +179,7 @@ type
 # p[] += 1
 # echo p[], " ", cast[int](p) # unsafe, destroys type safety
 
-# var # unmanaged typed pointers (pointer -> untyped)
+# var # ptr => unmanaged, typed pointer (pointer => unmanaged, untyped pointer)
 #   p, p2: ptr int
 # p = create int # manual allocation (create, alloc)
 # p[] = 1
@@ -340,6 +341,15 @@ func scanDigits(input: string): string =
 
 # echo scanDigits "0a1bc23d45", " ", scanDigits "abc", " ", scanDigits ""
 
+iterator scanDigits2(input: string): char =
+  var pos = 0
+  while pos < input.len:
+    let c = input[pos]
+    inc pos
+    if c in {'0'..'9'}: yield c
+
+# for d in scanDigits2 "0a1bc23d45": stdout.write d
+
 func addN[T](n: T): auto =
   (proc(x: T): T = x + n)
 
@@ -400,3 +410,193 @@ proc draw(shape: ShapeVariant) = # static dispatch
 # let shapes2 =
 #   [ShapeVariant(shapeKind: skRect), ShapeVariant(shapeKind: skCircle)]
 # for shape in shapes2: draw shape
+
+# let a = 12345 # cast breaks type safety
+# echo cast[float](a) # reitnerpret the same binary representation
+# echo a.float # type conversion creates new binary structure
+
+type
+  Rec = object
+  RecRef = ref object of RootObj
+  SubRecRef = ref object of RecRef
+
+proc `=destroy`(r: var Rec) =
+  echo "Rec =destroy"
+
+proc `=destroy`(r: var typeof RecRef()[]) = # ref object
+  echo "RecRef =destory" # --gc:arc
+
+proc `=destroy`(r: var typeof SubRecRef()[]) = # sub object
+  echo "SubRecRef =destroy" # --gc:arc
+
+# let
+#   r = Rec()
+#   rr = RecRef()
+#   srr = SubRecRef()
+
+from std/math import Pi
+
+# echo Pi, " ", math.sin Pi
+
+import std/macros
+
+#[
+- Tempalte is a tamplate-based macro
+- `{.gensym.}` (default) template private, hygienic variables (e. g.
+  type, var, let, const)
+- `{.inject.}` template variables are exposed to the instantiation
+  scope (e. g. proc, iterator, converter)
+]#
+
+#[
+- Macro is a compile-time funciton that transforms AST
+- `untyped` is the only possible return value `NimNode` for a macro
+  (can be omitted)
+- all macro params (exept `static[T]` params which are of type `T`)
+  and the predefined `result` are `NimNode` inside a macro
+- `static[T]` passes compile-time constant expression to a macro as an
+  ordinary value (not a `NimNode`)
+- `typed` applies syntax checking + semantic checking, `NimNode` + type
+  infomration
+- `untyped` applies only syntax checking (no semantic checking), `NimNode`
+  without type information
+- `expectKind`, `expectLen` explicity semantic checking inside a macro
+- result of macro expansion is always chacked by the compiler
+- `parseStmt(s: string): NimNode` string-based code generation
+- `quote do:` ` ``NimNode symbol`` ` declarative code generation
+- `newLit`, `newIdentNode`, `newTree` programmatic code generation
+- last argument to a `proc`, `template`, `macro` can be a code block
+- macros and templates can be used as `{.pagma.}` attached to procedures,
+  type names and type expressions
+]#
+
+template runTimeEcho(s: string): untyped = echo s
+
+macro compileTimeEcho(s: string): untyped = echo s
+
+# runTimeEcho "ok"
+# compileTimeEcho "ok"
+
+macro fromString(code: static[string]): untyped = parseStmt code
+
+# fromString """echo "ok" """
+
+macro printFields(obj: untyped, fields: varargs[untyped]): untyped =
+  var code = ""
+  for field in fields: code.add(fmt "echo {obj}.{field}\n")
+  echo code
+  parseStmt code
+
+type Point3D = object
+  x, y, z: float
+
+# let p = Point3D(x: 1.0, y: 2.0, z: 3.0)
+# printFields p, x, y, z
+
+# echo "a": # last argument to proc, template, macro as a code block
+#   "b"
+
+macro m(x: untyped): untyped =
+  echo "ok"
+  echo x
+
+# var x = 1.0
+# m y
+
+macro debugExpr(e: untyped): untyped =
+  let strLit = e.toStrLit
+  quote do:
+    echo `strLit`, " => ", `e`
+
+# let
+#   a = 2.0
+#   b = 3.0
+# debugExpr sqrt(a) + b
+
+# dumpTree: # dump AST structure
+#   echo "a + b", " => ", a + b
+# dumpAstGen: # dump AST generation
+#   echo "a + b", " => ", a + b
+
+macro debugExpr2(expr: varargs[untyped]): untyped =
+  result = nnkStmtList.newTree
+  for e in expr:
+    let command = nnkCommand.newTree
+    command.add newIdentNode "echo"
+    command.add newLit repr e
+    command.add newLit " => "
+    command.add e
+    result.add command
+
+# let
+#   a = 2.0
+#   b = 3.0
+# debugExpr2 sqrt(a) + b, a^2 - b
+
+macro anAssert(arg: untyped): untyped =
+  # echo treeRepr arg
+  arg.expectKind nnkInfix
+  arg.expectLen 3
+  let
+    op =  newLit repr arg[0]
+    lhs = arg[1]
+    rhs = arg[2]
+  quote do:
+    if not `arg`:
+      raise newException(AssertionDefect, $`lhs` & `op` & $`rhs`)
+
+# let
+#   a = 1
+#   b = 2
+# anAssert a != b
+
+
+# dumpAstGen:
+#   proc p(i: int) =
+#     let pn = "p"
+#     echo p
+#     echo "ok"
+
+macro procName(p: untyped): untyped =
+  p.expectKind nnkProcDef
+  let
+    pn = name p
+    pb = body p
+    echoNode = nnkCommand.newTree(newIdentNode "echo", newLit $pn)
+  pb.insert 0, echoNode
+  result = p
+
+proc printProcName(s: string) {.procName.} = echo s # use macro as pragma
+
+# printProcName "ok"
+
+type
+  Seqs = object
+    a, b, c: seq[int]
+
+# dumpAstGen: # print macro target structure
+#   for e in ss.a: stdout.write e, " "
+
+macro iterateSeqs(fields: openArray[string], iter: untyped): untyped =
+  # echo treeRepr iter # print parameters structure
+  iter.expectKind nnkIteratorDef
+  let
+    iterBody = body iter
+    objName = iter.params[1][0]
+  for field in fields:
+    let forNode =
+      nnkStmtList.newTree(
+        nnkForStmt.newTree(
+          newIdentNode "e",
+          nnkDotExpr.newTree(newIdentNode $objName, newIdentNode $field),
+          nnkStmtList.newTree(
+            nnkCommand.newTree(
+              nnkDotExpr.newTree(newIdentNode "stdout", newIdentNode "write"),
+              newIdentNode "e", newLit " "))))
+    iterBody.insert(iterBody.len, forNode)
+  result = iter
+
+iterator items(ss: Seqs): int {.iterateSeqs(["a", "b", "c"]).} = discard
+
+# let ss = Seqs(a: @[1], b: @[2, 3], c: @[4, 5, 6])
+# for e in ss: stdout.write e, " "
