@@ -441,7 +441,8 @@ from std/math import Pi
 import std/macros
 
 #[
-- Tempalte is a tamplate-based macro
+- Tempalte is a compile-time function with only constant substitutions in
+  the AST that inlines its body at the place of its instantiation
 - `{.gensym.}` (default) template private, hygienic variables (e. g.
   type, var, let, const)
 - `{.inject.}` template variables are exposed to the instantiation
@@ -449,7 +450,12 @@ import std/macros
 ]#
 
 #[
-- Macro is a compile-time funciton that transforms AST
+- Macro is a compile-time funciton that transforms the AST at the point of
+  instantiation
+- Macro invocation as a procedure call with arguments
+- Macro invocation as a pragma annotation for a procedure which AST is passed
+  to the macro
+- Macro invocation as a block macro which AST ia passed to the macro
 - `untyped` is the only possible return value `NimNode` for a macro
   (can be omitted)
 - all macro params (exept `static[T]` params which are of type `T`)
@@ -462,12 +468,13 @@ import std/macros
   without type information
 - `expectKind`, `expectLen` explicity semantic checking inside a macro
 - result of macro expansion is always chacked by the compiler
-- `parseStmt(s: string): NimNode` string-based code generation
+- `parseExpr|Stmt(s: string): NimNode` string-based code generation
 - `quote do:` ` ``NimNode symbol`` ` declarative code generation
 - `newLit`, `newIdentNode`, `newTree` programmatic code generation
 - last argument to a `proc`, `template`, `macro` can be a code block
 - macros and templates can be used as `{.pagma.}` attached to procedures,
   type names and type expressions
+- `dumpTree`, `dumpAstGen` prints target NimNode structure
 ]#
 
 template runTimeEcho(s: string): untyped = echo s
@@ -527,6 +534,7 @@ macro debugExpr2(expr: varargs[untyped]): untyped =
     command.add newLit " => "
     command.add e
     result.add command
+  # echo repr result
 
 # let
 #   a = 2.0
@@ -557,16 +565,18 @@ macro anAssert(arg: untyped): untyped =
 #     echo p
 #     echo "ok"
 
-macro procName(p: untyped): untyped =
-  p.expectKind nnkProcDef
+macro procName(procedure: untyped): untyped =
+  procedure.expectKind nnkProcDef
   let
-    pn = name p
-    pb = body p
-    echoNode = nnkCommand.newTree(newIdentNode "echo", newLit $pn)
-  pb.insert 0, echoNode
-  result = p
+    # procName = name procedure
+    # echoNode = nnkCommand.newTree(newIdentNode "echo", newLit $procName)
+    procName = repr(name procedure)
+    echoNode = quote do: echo `procName`
+    procBody = body procedure
+  procBody.insert 0, echoNode
+  result = procedure
 
-proc printProcName(s: string) {.procName.} = echo s # use macro as pragma
+proc printProcName(s: string) {.procName.} = echo s # use macro as a pragma
 
 # printProcName "ok"
 
@@ -600,3 +610,148 @@ iterator items(ss: Seqs): int {.iterateSeqs(["a", "b", "c"]).} = discard
 
 # let ss = Seqs(a: @[1], b: @[2, 3], c: @[4, 5, 6])
 # for e in ss: stdout.write e, " "
+
+# inline iterator translated in high-performance loop that cannot be passed around
+iterator reverseIt[T](c: T): auto =
+  for i in countdown(c.high, c.low): yield c[i]
+
+# for e in "Vlad".reverseIt: stdout.write e
+
+# closure iterator keeps its state and can be passed around
+func powers[T](b, n: T): auto =
+  (iterator: T =
+    for i in 0..b: yield i^n)
+
+# let squares = 10.powers 2
+# for s in squares(): stdout.write s, " "
+
+from os import sleep, paramCount, paramStr, commandLineParams,
+  getAppFilename
+
+type LogLevel = enum debug, info, warn, error
+
+var logLevel = info
+
+proc debugProc(msg: string) =
+  if logLevel <= debug: echo msg
+
+template debugTempl(msg: string) =
+  if logLevel <= debug: echo msg
+
+proc expensiveCall(i: int): string = (sleep i; "done")
+
+# debugProc expensiveCall 1000
+# debugTempl expensiveCall 1000
+
+# dumpTree:
+#   a != b
+# static:
+#   echo treeRepr parseStmt "a != b"
+#   echo repr parseStmt "a != b"
+
+macro createHello(): untyped =
+  let code = """ proc hello() = echo "Hi" """
+  parseStmt code
+
+# createHello()
+# hello()
+
+# dumpTree:
+#   proc hello() = echo "Hi"
+# dumpAstGen:
+#   proc hello() = echo "Hi"
+
+macro createHello2(): untyped =
+  quote do:
+    proc hello() = echo "Hi"
+
+# createHello()
+# hello()
+
+# macro greet(name: string, procedure: untyped): untyped =
+macro greet(name: static[string], procedure: untyped): untyped =
+  procedure.expectKind nnkProcDef
+  let
+    procBody = body procedure
+    greetNode =
+      nnkStmtList.newTree(
+        nnkCommand.newTree(
+          newIdentNode("echo"),
+          # nnkInfix.newTree(newIdentNode("&"), newLit("Hello "), name)))
+          nnkInfix.newTree(newIdentNode("&"), newLIt("Hello "), newLit(name))))
+  procBody.insert(0, greetNode)
+  # echo repr procedure
+  procedure
+
+proc withGreeting() {.greet: "Vlad".} = echo "ok" # pagram macro with param
+
+# withGreeting()
+
+macro insertBefore(n: static[int], codeBlock: untyped): untyped =
+  let beforeNode = quote do: echo `n`
+  codeBlock.insert 0, beforeNode
+  codeBlock
+
+# insertBefore(0): # block macro with param
+#   echo 1
+#   echo 2
+
+macro `:=`(name: untyped, value: typed): untyped =
+  let varType = getType value
+  quote do:
+    let `name`: `varType` = `value`
+  # newVarStmt name, value
+
+# a := 1
+# echo a
+
+macro resetToInit(symbol: typed): untyped =
+  symbol.expectKind nnkSym
+  let initValue = symbol.getImpl[^1]
+  quote do:
+    `symbol` = `initValue`
+
+# var a = 1
+# a += 1
+# echo a
+# resetToInit a
+# echo a
+
+proc parseOptions() =
+  for i in 0..paramCount(): echo paramStr i
+  echo getAppFilename()
+  for p in commandLineParams(): echo p
+
+# parseOptions()
+
+proc ffiHello(name: ptr array[4, char]) = echo "Hello " & $name[]
+
+# var name = "Vlad"
+# ffiHello cast[ptr array[4, char]](addr name[0]) # reinterpret binary structure
+
+# block outOfBoth: # new scope without new proc
+#   while true:
+#     echo "a"
+#     while true:
+#       echo "b"
+#       break outOfBoth
+
+iterator `...`[T](a, b: T): T = # iterator can be an operator
+  var e = a
+  while e <= b:
+    yield e
+    inc e
+
+# for e in 10...15: stdout.write e, " "
+
+# iterator countTo(n: int): int = # inline iterator inlines the loop
+func countTo(n: int): auto = # closure interator retains the state
+  (iterator (): int =
+    var i = 0
+    while i <= n:
+      yield i
+      inc i)
+
+# for i in countTo 5: echo i
+# let countTo5 = countTo 5
+# for i in countTo5(): echo i
