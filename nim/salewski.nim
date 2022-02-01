@@ -11,8 +11,8 @@ proc say(user: User) = echo "Hi proc"
 # let user = User()
 # say user
 
-from std/sugar import `=>`, dup
-from std/sequtils import toSeq, map, mapIt
+from std/sugar import `->`, `=>`, dup
+from std/sequtils import toSeq, map, mapIt, filter
 from std/strutils import join, toUpperAscii, toBin
 from std/strformat import fmt
 
@@ -755,3 +755,41 @@ func countTo(n: int): auto = # closure interator retains the state
 # for i in countTo 5: echo i
 # let countTo5 = countTo 5
 # for i in countTo5(): echo i
+
+# let a = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+# echo a.filter(proc(x: int): bool = x mod 2 == 0) # anonymous proc
+# echo a.filter do (x: int) -> bool: x mod 2 == 0 # do notation
+# echo a.filter(x => x mod 2 == 0) # => lambda expression sugar
+
+# -> type declaration sugar
+func mapStr(s: string, f: (char) -> char): string =
+  for c in s: result &= f c
+
+# echo "Vlad".mapStr toUpperAscii
+
+type
+  Cat = object
+    name: string
+
+# var c = Cat(name: "Orysia") # stack allocated
+# c.name = "Kotsyub" # let/var immutable/mutable content
+# echo c
+
+# let c: ref Cat = new(Cat) # heap allocated immutable reference
+# c.name = "Orysia" # mutable content
+# echo c[]
+
+type
+  Dir = enum dNorth, dEast = 1, dSouth = "South", dWest = (3, "West")
+
+# echo dNorth, " ", Dir(1), " ", dSouth, " ", ord dWest
+# for d in dNorth..dWest: echo d
+
+type EUR = distinct float
+
+func `$`(a: EUR): string = $a.float
+func `+`(a, b: EUR): EUR {.borrow.} # borrow float's +
+
+# var a = 5.EUR
+# a = a + EUR 5
+# echo a

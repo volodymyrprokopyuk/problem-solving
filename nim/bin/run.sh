@@ -3,8 +3,8 @@
 set -e
 
 # SRC=tutorial.nim
-SRC=salewski.nim
+# SRC=salewski.nim
+SRC=regex.nim
 
-[[ $1 == -f ]] && nimpretty $SRC
 nim r $SRC $@
 # nim --gc:arc r $SRC $@
