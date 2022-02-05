@@ -57,5 +57,3 @@ echo s.replace(re"(\w{3,}) (\w{3,})", "$2 $1") # replace with captured content
 echo s.replace(re"(?P<a>\w{3,}) (?P<b>\w{3,})", # replace with proc(Match)
                proc(m: RegexMatch, s: string): string =
                  m.groupFirstCapture("b", s) & " " & m.groupFirstCapture("a", s))
-
-# ** Regex language
