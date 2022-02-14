@@ -90,3 +90,14 @@ proc setName(person: ref Person, name: string) =
 # echo rp[]
 # rp.setName "Svitlana"
 # echo rp[]
+
+type
+  Box = object # object variant on bool
+    case empty: bool # empty field is always present
+    of false:
+      content: string
+    else:
+      discard
+
+# let box = Box(empty: false, content: "full")
+# echo box
