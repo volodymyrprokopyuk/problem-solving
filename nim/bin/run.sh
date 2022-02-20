@@ -6,7 +6,8 @@ set -e
 # SRC=salewski.nim
 # SRC=regex.nim
 # SRC=nim_in_action.nim
-SRC=json.nim
+# SRC=json.nim
+SRC=options.nim
 
 nim --verbosity:0 r $SRC $@
 # nim --gc:arc r $SRC $@

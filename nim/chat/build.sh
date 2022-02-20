@@ -9,7 +9,7 @@ case $1 in
     ;;
   -s)
     shift
-    nim r server.nim $@
+    nim r --threads:on server.nim $@
     ;;
   *)
     echo "ERROR: unknown option $1"
