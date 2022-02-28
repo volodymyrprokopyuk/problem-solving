@@ -1,13 +1,12 @@
 #!/usr/bin/env zsh
 
-set -e
-
+# SRC=regex.nim
+# SRC=json.nim
+# SRC=options.nim
+#
 # SRC=tutorial.nim
 # SRC=salewski.nim
-# SRC=regex.nim
-# SRC=nim_in_action.nim
-# SRC=json.nim
-SRC=options.nim
+SRC=nim_in_action.nim
 
-nim --verbosity:0 r $SRC $@
-# nim --gc:arc r $SRC $@
+# exec nim --verbosity:0 --threads:on --gc:orc r $SRC $@
+exec nim --verbosity:0 --threads:on r $SRC $@

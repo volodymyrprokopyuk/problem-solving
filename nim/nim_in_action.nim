@@ -101,3 +101,107 @@ type
 
 # let box = Box(empty: false, content: "full")
 # echo box
+
+import std/[tables, hashes]
+
+type
+  Cat = object
+    name: string
+
+func newCat(name: string): Cat = Cat(name: name)
+
+func hash(cat: Cat): Hash = # Cat hash
+  result = cat.name.hash
+  result = !$result # finalize hash
+
+# let catOwners = toTable({
+#   newCat("Orysia"): "Lana", newCat("Kotsyub"): "Vlad"
+# })
+# echo catOwners
+# echo catOwners[newCat("Orysia")]
+
+# var catOwners = initTable[Cat, string]()
+# catOwners[newCat("Orysia")] = "Lana"
+# catOwners[newCat("Kotsyub")] = "Vlad"
+# echo catOwners
+# echo catOwners[newCat("Kotsyub")]
+
+import std/sets
+
+# let family = toHashSet(["Vlad", "Lana"])
+# echo "Vlad" in family
+
+import std/algorithm
+
+# var numbers = [3, 2, 8, 5, 7, 6, 1, 4, 9, 0]
+# echo numbers.sorted(Descending) # sorted sequence copy
+# numbers.sort(cmp[int]) # in-place sorting
+# echo numbers
+
+import std/osproc
+
+# let (version, _) = execCmdEx "uname -sr"
+# echo version
+
+# let
+#   param = "--port=1234"
+#   pname = param.substr(2, 5)
+#   pvalue = param[7..^1]
+#   pcomp = param.split({'=', ':'})
+# echo pname, " ", pvalue
+# echo pcomp[0].substr(2), " ", pcomp[1]
+
+import std/[asyncdispatch, httpclient]
+
+# let
+#   client = newAsyncHttpClient()
+#   res = waitFor client.get("https://nim-lang.org/")
+# echo res.status
+# echo waitFor res.body
+
+type
+  ThreadData = (string, string)
+
+# var
+#   globalData = "Global data"
+#   globalData2 = "Global data 2"
+
+proc showGlobalData(tdata: ThreadData) {.thread.} =
+  let (data, data2) = tdata
+  echo data
+  echo data2
+
+# var thread: Thread[ThreadData]
+# createThread[ThreadData](thread, showGlobalData, (globalData, globalData2))
+# joinThread(thread) # no return value from the thread procedure
+
+proc threadCount(n: int) {.thread.} =
+  for i in 0..n: stdout.write(i)
+  echo()
+
+# var ths: array[2, Thread[int]]
+# createThread(ths[0], threadCount, 9)
+# createThread(ths[1], threadCount, 9)
+# joinThreads(ths)
+
+import std/[threadpool, os]
+
+proc forwardCount(n: int): int =
+  for i in 0..n: stdout.write(i)
+  echo()
+  n
+
+# let
+#   r1 = spawn forwardCount(9)
+#   r2 = spawn forwardCount(9)
+# sync() # waits for all spawned procedures to finish
+# echo ^r1, " ", ^r2 # retrieves result from the thread procedure
+
+proc raiseException(): string {.raises: [ValueError].} =
+  raise newException(ValueError, "oh")
+
+# let flowVarLine = spawn raiseException() #stdin.readLine()
+# while not flowVarLine.isReady: # periodically check result from the thread
+#   echo "Waiting for input"
+#   sleep(3000)
+# echo ^flowVarLine
