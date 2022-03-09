@@ -1,13 +1,14 @@
 #!/usr/bin/env zsh
 
-# SRC=regex.nim
-# SRC=json.nim
-# SRC=options.nim
-# SRC=threads.nim
+# SRC=stdlib/regex.nim
+# SRC=stdlib/json.nim
+# SRC=stdlib/options.nim
+# SRC=stdlib/threads.nim
+SRC=stdlib/locks.nim
 
 # SRC=tutorial.nim
 # SRC=salewski.nim
-SRC=nim_in_action.nim
+# SRC=nim_in_action.nim
 # SRC=chat/{client,server}.nim
 # SRC=wiki/parser.nim
 
