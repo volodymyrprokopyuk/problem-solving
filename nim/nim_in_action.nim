@@ -205,3 +205,61 @@ proc raiseException(): string {.raises: [ValueError].} =
 #   echo "Waiting for input"
 #   sleep(3000)
 # echo ^flowVarLine
+
+var globalCounter = 0
+
+proc increment(until: int) =
+  for i in 0..<until: # globalCounter.inc # works correctly
+    var counter = globalCounter
+    counter.inc
+    globalCounter = counter
+
+# spawn increment(60_000)
+# spawn increment(60_000)
+# sync()
+# echo globalCounter
+
+import std/locks
+
+var
+  counterLock: Lock
+  globalCounter2 {.guard: counterLock.} = 0 # variable guarded with lock
+# counterLock.initLock
+
+proc lockIncrement(until: int) =
+  for i in 0..<until:
+    withLock counterLock: # acquire / release lock to access guarded variable
+      var counter = globalCounter2
+      counter.inc
+      globalCounter2 = counter
+
+# spawn lockIncrement(60_000)
+# spawn lockIncrement(60_000)
+# sync()
+# echo globalCounter2
+
+var greetChannel: Channel[string] # channel as global variable
+
+proc channelGreet(name: string) =
+  sleep(1000)
+  greetChannel.send("Hello " & name)
+
+# greetChannel.open
+# spawn channelGreet("Vladyslava")
+# echo greetChannel.recv() # blocks main thread until the message is received
+
+var counterChannel: Channel[int]
+
+proc channelIncrement(until: int) =
+  var counter = 0
+  for _ in 0..<until: counter.inc # local increment
+  counterChannel.send(counter)
+
+# counterChannel.open
+# spawn channelIncrement(60_000)
+# spawn channelIncrement(60_000)
+# sync()
+# var globalCounter3 = 0
+# globalCounter3.inc(counterChannel.recv)
+# globalCounter3.inc(counterChannel.recv)
+# echo globalCounter3
