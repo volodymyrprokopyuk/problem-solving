@@ -148,13 +148,6 @@ proc say2(what: HelloType, name: string) = echo what name
 # say(hello, "Vlad")
 # say2(hello, "Lana")
 
-# import moda as ma
-# echo @[1, 2, 3] * @[2, 3, 4]
-
-# from moda as ma import `*`
-# echo ma.`*`(@[1, 2, 3], @[2, 3, 4])
-# echo `*`(@[1, 2, 3], @[2, 3, 4])
-
 type
   Person2 = ref object of RootObj
     name: string
