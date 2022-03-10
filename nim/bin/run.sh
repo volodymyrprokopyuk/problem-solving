@@ -4,7 +4,8 @@
 # SRC=stdlib/json.nim
 # SRC=stdlib/options.nim
 # SRC=stdlib/threads.nim
-SRC=stdlib/locks.nim
+# SRC=stdlib/locks.nim
+SRC=stdlib/channels.nim
 
 # SRC=tutorial.nim
 # SRC=salewski.nim

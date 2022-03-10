@@ -9,7 +9,7 @@ import std/[os, threadpool]
 # To use the most of CPU power create one thread per CPU core
 # Unhandlad exception in any thread terminates the whole process
 
-var th1, th2: Thread[Slice[int]] # Slice param for the thread procedure
+var th1, th2: Thread[Slice[int]] # Slice input param for the thread procedure
 
 proc count(slice: Slice[int]) {.thread.} = # thread procedure, no return value
   # thread-local finish handler
