@@ -1,0 +1,16 @@
+{#
+  - Generic template defines overall document structure in terms of `block`s
+    (inheritance parent template)
+  - Specific templates extends the generic template by overriding `block`s
+    (inheritance child template)
+  - Partial template does not extend another template, but is `importnwt`ed
+    (fragment, mixin)
+  - Parametrized `macro` is called (modularity)
+#}
+{% block header %} {# Define structure of generic template #}
+  Default header
+{% endblock %}
+
+{% block content %} {# Define block with default content #}
+  Default content
+{% endblock %}
