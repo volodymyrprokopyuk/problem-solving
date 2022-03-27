@@ -1,0 +1,44 @@
+{% extends uibase.nwt %}
+
+{% block content %}
+  <h1>{{user.uname}}</h1>
+  <span>Following: {{user.following.len}}</span>
+
+  {% if principal != user.uname %}
+    {% if principal in user.following %}
+      <form action="/unfollow" method="post">
+        <input type="hidden" name="principal" value="{{principal}}"/>
+        <input type="hidden" name="unfollow" value="{{user.uname}}"/>
+        <input type="submit" value="Unfollow"/>
+      </form>
+    {% else %}
+      <form action="/follow" method="post">
+        <input type="hidden" name="principal" value="{{principal}}"/>
+        <input type="hidden" name="following" value="{{user.uname}}"/>
+        <input type="submit" value="Follow"/>
+      </form>
+    {% endif %}
+  {% endif %}
+
+  <p>{{principal}}</p>
+  <form action="/logout" method="post">
+    <input type="hidden" name="principal" value="{{principal}}"/>
+    <input type="submit" value="Logout"/>
+  </form>
+
+  <h2>New message</h2>
+  <form action="/message" method="post">
+    <input type="text" name="mtext" placeholder="Message"/>
+    <input type="hidden" name="principal" value="{{principal}}"/>
+    <input type="submit" value="Post"/>
+  </form>
+
+  <h2>Messages</h2>
+  {% for message in messages %}
+    <div>
+      <a href="/timeline/{{message.uname}}">{{message.uname}}</a>
+      <span>{{message.mtime.format("MMMM, d")}}</span>
+      <p>{{message.mtext}}</p>
+    </div>
+  {% endfor %}
+{% endblock %}

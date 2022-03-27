@@ -1,5 +1,5 @@
 chat/client
 chat/server
 wiki/parser
-tweet/src/tweet
+tweet/src/webcontroller
 tweet/tweet.db
