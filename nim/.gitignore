@@ -1,3 +1,4 @@
+stdlib/db_sqlite.db
 chat/client
 chat/server
 wiki/parser
