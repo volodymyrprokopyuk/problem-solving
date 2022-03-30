@@ -1,4 +1,5 @@
 stdlib/db_sqlite.db
+pkg/out.yaml
 chat/client
 chat/server
 wiki/parser
