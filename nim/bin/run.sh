@@ -8,10 +8,11 @@
 # SRC=stdlib/strformat.nim
 # SRC=stdlib/system2.nim
 # SRC=stdlib/db_sqlite.nim
+SRC=stdlib/times.nim
 
 # SRC=pkg/regex.nim
 # SRC=pkg/nimja.nim
-SRC=pkg/yaml.nim
+# SRC=pkg/yaml.nim
 
 # SRC=tutorial.nim
 # SRC=salewski.nim
