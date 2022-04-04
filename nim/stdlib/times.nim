@@ -9,7 +9,7 @@ let esLocale = DateTimeLocale(
   dddd: ["Luens", "Martes", "Miércoles", "Jueves", "Viernes",
          "Sábado", "Domingo"])
 
-# DateTime = time parts
+# DateTime = time parts extraction + timezone support
 #   - now(), dateTime() constructors
 #   - [nanosecond..year] extractors
 #   - toTime() DateTime => Time convertor
@@ -31,10 +31,11 @@ let dt = parse("2022-03-31", "yyyy-MM-dd") # parse DateTime
 echo dt
 echo dt.format("yyyy, dddd, MMM d", esLocale) # format DateTime with locale
 
-# Time = seconds + nanoseconds
+# Time = seconds + nanoseconds + efficient arithmetic (recommended default)
 #   - getTime(), initTime() constructors
 #   - NO extractors
 #   - toUnix(), fromUnix() convertors
+#   - inZone(), local(), utc() Time => DateTime convertor
 #   - parseTime() + format()
 let localT = getTime() # current local Time
 echo localT

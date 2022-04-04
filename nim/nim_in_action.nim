@@ -1,7 +1,7 @@
 {.warning[UnusedImport]: off.}
 {.hint[XDeclaredButNotUsed]: off.}
 
-import std/[strutils, sequtils, sugar]
+import std/[strutils, sequtils, strformat, sugar]
 
 # let names = ["A word", "A noun", "Countable noun"]
 
@@ -263,3 +263,23 @@ proc channelIncrement(until: int) =
 # globalCounter3.inc(counterChannel.recv)
 # globalCounter3.inc(counterChannel.recv)
 # echo globalCounter3
+
+proc printf(format: cstring): cint {.importc, header: "stdio.h", varargs.}
+# discard printf("Name %s, height %d\n", "Vlad", 172)
+
+proc printFormatted(format: cstring): cint
+  {.importc: "printf", header: "stdio.h", varargs, discardable.}
+# printFormatted("Name %s, height %d\n", "Vlad", 172)
+
+type
+  CTime = int64
+  TM {.importc: "struct tm", header: "time.h".} = object
+    tm_min: cint
+    hour {.importc: "tm_hour".}: cint
+
+proc time(arg: ptr CTime): CTime {.importc, header: "time.h"}
+proc localtime(time: ptr CTime): ptr TM {.importc, header: "time.h"}
+
+# var seconds = time(nil)
+# let tm = localtime(addr seconds)
+# echo fmt "{tm.hour:>02}:{tm.tm_min:>02}"
