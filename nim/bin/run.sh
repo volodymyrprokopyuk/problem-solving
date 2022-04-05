@@ -12,11 +12,11 @@
 
 # SRC=pkg/regex.nim
 # SRC=pkg/nimja.nim
-# SRC=pkg/yaml.nim
+SRC=pkg/yaml.nim
 
 # SRC=tutorial.nim
 # SRC=salewski.nim
-SRC=nim_in_action.nim
+# SRC=nim_in_action.nim
 # SRC=chat/{client,server}.nim
 # SRC=wiki/parser.nim
 

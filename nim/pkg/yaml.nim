@@ -1,5 +1,5 @@
-import std/streams
-import pkg/yaml
+import std/[streams, times]
+import pkg/yaml/[serialization, presenter]
 
 var s: FileStream
 
@@ -7,19 +7,29 @@ type
   Person = object
     name: string
     height: int
+    creationTime: Time
+
+proc representObject( # dump of custom object Time
+  o: Time, ts: TagStyle = tsNone, c: SerializationContext, tag: Tag) =
+  c.put(scalarEvent($o, tag, yAnchorNone))
+
+var people: seq[Person]
 
 # Dump object
-let person = Person(name: "Vlad", height: 172)
-echo person.dump
+people = @[
+  Person(name: "Vlad", height: 172, creationTime: getTime()),
+  Person(name: "Lana", height: 165, creationTime: getTime()),
+  Person(name: "Lada", height: 52, creationTime: getTime())]
+echo people.dump
 s = newFileStream("pkg/out.yaml", fmWrite)
-person.dump(s)
+people.dump(s)
 s.close
 
 # Load objec
-var person2: Person
-s = newFileStream("pkg/out.yaml", fmRead)
-s.load(person2)
-echo person2
+people = @[]
+s = newFileStream("pkg/yaml-sample.yaml", fmRead)
+s.load(people)
+echo people
 s.close
 
 type
@@ -42,11 +52,4 @@ var cat2: Animal
 s = newFileStream("pkg/out.yaml", fmRead)
 s.load(cat2)
 echo cat2
-s.close
-
-# Load YAML in Nim
-var people: seq[tuple[name: string, height: int]]
-s = newFileStream("pkg/yaml-sample.yaml", fmRead)
-s.load(people)
-echo people
 s.close

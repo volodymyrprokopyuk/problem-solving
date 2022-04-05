@@ -1,8 +1,12 @@
 %YAML 1.2
----
+%TAG !n! tag:nimyaml.org,2016:
+--- !n!system:seq(tag:nimyaml.org;2016:custom:Person)
 - name: Vlad
   height: 172
+  creationTime: 2022-04-05T17:29:14+02:00
 - name: Lana
   height: 165
+  creationTime: 2022-04-05T17:29:14+02:00
 - name: Lada
   height: 52
+  creationTime: 2022-04-05T17:29:14+02:00
