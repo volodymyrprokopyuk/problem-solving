@@ -444,9 +444,9 @@ import std/macros
 - Tempalte is a compile-time function with only constant substitutions in
   the AST that inlines its body at the place of its instantiation
 - `{.gensym.}` (default) template private, hygienic variables (e. g.
-  type, var, let, const)
+  type, const, let, var)
 - `{.inject.}` template variables are exposed to the instantiation
-  scope (e. g. proc, iterator, converter)
+  scope (e. g. proc, iterator, converter, method, template, macro)
 ]#
 
 #[
@@ -463,9 +463,9 @@ import std/macros
 - `static[T]` passes compile-time constant expression to a macro as an
   ordinary value (not a `NimNode`)
 - `typed` applies syntax checking + semantic checking, `NimNode` + type
-  infomration
+  infomration. Any type, resolved and typed value or variable
 - `untyped` applies only syntax checking (no semantic checking), `NimNode`
-  without type information
+  without type information. Any identifier, not resolved, not typed
 - `expectKind`, `expectLen` explicity semantic checking inside a macro
 - result of macro expansion is always chacked by the compiler
 - `parseExpr|Stmt(s: string): NimNode` string-based code generation

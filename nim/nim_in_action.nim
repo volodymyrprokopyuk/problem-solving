@@ -283,3 +283,27 @@ proc localtime(time: ptr CTime): ptr TM {.importc, header: "time.h"}
 # var seconds = time(nil)
 # let tm = localtime(addr seconds)
 # echo fmt "{tm.hour:>02}:{tm.tm_min:>02}"
+
+type
+  Comparable = int | float | char # type class
+
+# func amax[T: int or float or char](a, b: T): T = # generic funciton
+# func amax[T: int | float | char](a, b: T): T = # generic funciton
+func amax[T: Comparable](a, b: T): T =
+  if a > b: a else: b
+
+# echo amax(1, 2), " ", amax('a', 'b'), " ", amax(3.0, 4.0)
+# echo amax[float](6, 7) # explicit generic type
+
+template repeat(n: int, st: untyped) =
+  for _ in 0..<n: st
+
+# 5.repeat: echo "ok"
+
+template defVar(name: untyped, value: typed) =
+  var name = value # automatic injeciton (variable name = template parameter)
+  var hygienic = 1
+  var injected {.inject.} = hygienic + 1 # explicitly injected (bad style)
+
+defVar(a, 1)
+echo a, " ", injected
