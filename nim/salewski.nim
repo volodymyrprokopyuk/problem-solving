@@ -441,8 +441,9 @@ from std/math import Pi
 import std/macros
 
 #[
-- Tempalte is a compile-time function with only constant substitutions in
-  the AST that inlines its body at the place of its instantiation
+- `tempalte` (declarative metapgoramming, substitution mechanism) is a
+  compile-time function with only constant substitutions in the AST that inlines
+  its body at the place of its instantiation
 - `{.gensym.}` (default) template private, hygienic variables (e. g.
   type, const, let, var)
 - `{.inject.}` template variables are exposed to the instantiation
@@ -450,8 +451,8 @@ import std/macros
 ]#
 
 #[
-- Macro is a compile-time funciton that transforms the AST at the point of
-  instantiation
+- `macro` (imperative metaprogramming, procedural mechanism) is a compile-time
+  funciton that transforms the AST at the point of instantiation
 - Macro invocation as a procedure call with arguments
 - Macro invocation as a pragma annotation for a procedure which AST is passed
   to the macro

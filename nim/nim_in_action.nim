@@ -305,5 +305,45 @@ template defVar(name: untyped, value: typed) =
   var hygienic = 1
   var injected {.inject.} = hygienic + 1 # explicitly injected (bad style)
 
-defVar(a, 1)
-echo a, " ", injected
+# defVar(a, 1)
+# echo a, " ", injected
+
+func genSeries(n: int): string =
+  for i in 0..<n: result &= $i
+
+# const a = genSeries(10) # compile-time function execution CTFE
+# echo a
+
+import std/macros
+
+# dumpTree: # expression => NimNode
+#   5 * (5 + 10)
+
+# static:
+#   var node = newStmtList(
+#     infix(
+#       newIntLitNode(5),
+#       "*",
+#       newPar(
+#         infix(
+#           newIntLitNode(5),
+#           "+",
+#           newIntLitNode(10)))))
+#   echo node.repr # NimNode => expression
+
+# All macro params are NimNodes inside the macro except
+#   - static[T] compile-time value param
+#   - typedesc[T] type of type param
+macro arguments(n: int, bl: untyped): untyped = # macro must have a return type
+  result = newStmtList()
+  echo n.treeRepr # textual representation of NimNode
+  echo bl.treeRepr
+
+# arguments(1, ["one", "two"])
+
+template procedure(ident: untyped) =
+  proc `ident`() =
+    echo "ok"
+
+# procedure(abc)
+# abc()
