@@ -6,7 +6,7 @@
 # SRC=stdlib/locks.nim
 # SRC=stdlib/channels.nim
 # SRC=stdlib/strformat.nim
-# SRC=stdlib/system2.nim
+SRC=stdlib/system2.nim
 # SRC=stdlib/db_sqlite.nim
 # SRC=stdlib/times.nim
 
@@ -16,7 +16,7 @@
 
 # SRC=tutorial.nim
 # SRC=salewski.nim
-SRC=nim_in_action.nim
+# SRC=nim_in_action.nim
 # SRC=chat/{client,server}.nim
 # SRC=wiki/parser.nim
 
