@@ -1,10 +1,12 @@
-import std/[algorithm, sets, sugar]
+import std/[sequtils, algorithm, sets, sugar]
+{.hint[XDeclaredButNotUsed]: off.}
+{.warning[UnusedImport]: off.}
 
 #[
 - Big O notation = time complexity of the worst-case scenario, unless otherwise
   stated
     - How many algorithm steps => for input of length N (concrete complexity)
-    - How algorithm steps change => on input increase (complexity grows)
+    - How algorithm steps change => on input increase (complexity growth)
     - How algorithm steps change => on large inputs (asymptotic complexity)
     - Big O provides general categories of algorithms and ignores constants O(n)
       = O(2n) = O(10n + 100)
@@ -13,7 +15,8 @@ import std/[algorithm, sets, sugar]
     - O(1) = constant time (does not depends on the input lenght)
     - O(lon(n)) = logarithmic time (input * => step +)
     - O(n) = linear time (proportional growth)
-    - o(n^2) = quadratic time (exponetial growth)
+    - o(n^2) = quadratic time
+    - o(2^n) = exponetial time (input + => step *)
 ]#
 
 template valueError(message: string) =
@@ -88,11 +91,11 @@ proc insertion_sort[T](a: var openArray[T], cmp: proc(a, b: T): int = cmp) =
       j.dec
     a[j + 1] = e
 
-var
-  e: array[0, int] = []
-  a = [1]
-  b = [2, 1]
-  c = [5, 3, 6, 1, 8, 2, 7, 9, 0, 4]
+# var
+#   e: array[0, int] = []
+#   a = [1]
+#   b = [2, 1]
+#   c = [5, 3, 6, 1, 8, 2, 7, 9, 0, 4]
 
 # e.bubble_sort
 # a.bubble_sort
@@ -106,11 +109,11 @@ var
 # c.selection_sort((a, b) => -cmp(a, b))
 # echo e, " ", a, " ", b, " ", c
 
-e.insertion_sort
-a.insertion_sort
-b.insertion_sort
-c.insertion_sort((a, b) => -cmp(a, b))
-echo e, " ", a, " ", b, " ", c
+# e.insertion_sort
+# a.insertion_sort
+# b.insertion_sort
+# c.insertion_sort((a, b) => -cmp(a, b))
+# echo e, " ", a, " ", b, " ", c
 
 # O(n)
 func hasDuplicates[T](a: openArray[T]): bool =
@@ -119,3 +122,81 @@ func hasDuplicates[T](a: openArray[T]): bool =
     if s.containsOrIncl(e): return true
 
 # echo [1.0, 2.0, 3.0].hasDuplicates, " ", [1, 2, 3, 1].hasDuplicates
+
+# O(n)
+func isPalindrome(s: string): bool =
+  result = true
+  var (i, j) = (0, s.high)
+  while i <= j:
+    if s[i] != s[j]: return false
+    i.inc; j.dec
+
+# for s in ["", "a", "racecar", "kayak", "deified", "abcdba"]:
+#   echo s.isPalindrome
+
+func passwords2(n: int, r = 'a'..'c', all = true): seq[string] =
+  var a = @[""]
+  for _ in 0..<n:
+    var b = newSeq[string]()
+    for s in a:
+      for c in r: b.add(s & c)
+    a = b
+    if all: result &= b else: result = b
+
+# O(nm)
+func `*`(a: seq[string], r: Slice[char]): seq[string] =
+  for s in a:
+    for c in r: result.add(s & c)
+
+# O(26^n)
+func passwords(n: int, r = 'a'..'c', all = true): seq[string] =
+  var a = @[""]
+  for _ in 0..<n:
+    a = a * r
+    if all: result &= a else: result = a
+
+# echo 0.passwords
+# echo 1.passwords
+# echo 2.passwords
+# echo 2.passwords(all = false)
+
+# O(n)
+func mergeSorted[T](a, b: openArray[T]): seq[T] =
+  var (i, j) = (0, 0)
+  while i <= a.high or j <= b.high:
+    if i > a.high:
+      result &= b[j..b.high]
+      return
+    elif j > b.high:
+      result &= a[i..a.high]
+      return
+    elif a[i] < b[j]:
+      result &= a[i]
+      i.inc
+    else:
+      result &= b[j]
+      j.inc
+
+# let e: array[0, int] = []
+# echo e.mergeSorted(e)
+# echo [1].mergeSorted([2])
+# echo [1, 3, 7, 8, 9].mergeSorted([2, 4, 5, 6])
+
+# O(nm)
+func find(n, h: string): int =
+  result = -1
+  for i in 0..h.high - n.high:
+    var f = true
+    for j in 0..n.high:
+      if n[j] != h[i + j]:
+        f = false
+        break
+    if f: return i
+
+# echo "".find("")
+# echo "a".find("a")
+# echo "a".find("b")
+# echo "a".find("bab")
+# echo "ab".find("bcab")
+# echo "ab".find("bcabc")
+# echo "abx".find("bcabc")
