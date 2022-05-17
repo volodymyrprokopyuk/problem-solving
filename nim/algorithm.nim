@@ -1,22 +1,18 @@
-import std/[sequtils, algorithm, sets, sugar]
+import std/[strformat, sequtils, algorithm, sets, sugar]
 {.hint[XDeclaredButNotUsed]: off.}
 {.warning[UnusedImport]: off.}
 
 #[
 - Big O notation = time complexity of the worst-case scenario, unless otherwise
   stated
-    - How many algorithm steps => for input of length N (concrete complexity)
-    - How algorithm steps change => on input increase (complexity growth)
-    - How algorithm steps change => on large inputs (asymptotic complexity)
-    - Big O provides general categories of algorithms and ignores constants O(n)
-      = O(2n) = O(10n + 100)
-    - Bit O only takes into account the highest order of n O(n^3) = O(n^3) +
-      O(n^2) + O(n)
-    - O(1) = constant time (does not depends on the input lenght)
-    - O(lon(n)) = logarithmic time (input * => step +)
-    - O(n) = linear time (proportional growth)
-    - o(n^2) = quadratic time
-    - o(2^n) = exponetial time (input + => step *)
+- How many algorithm steps => for input of length N (concrete complexity) How
+- algorithm steps change => on input increase (complexity growth) How algorithm
+- steps change => on large inputs (asymptotic complexity) Big O provides general
+- categories of algorithms and ignores constants O(n) = O(2n) = O(10n + 100) Bit
+- O only takes into account the highest order of n O(n^3) = O(n^3) + O(n^2) +
+- O(n) O(1) = constant time (does not depends on the input lenght) O(lon(n)) =
+- logarithmic time (input * => step +) O(n) = linear time (proportional growth)
+- o(n^2) = quadratic time o(2^n) = exponetial time (input + => step *)
 ]#
 
 template valueError(message: string) =
@@ -200,3 +196,82 @@ func find(n, h: string): int =
 # echo "ab".find("bcab")
 # echo "ab".find("bcabc")
 # echo "abx".find("bcabc")
+
+#[
+- HashTable O(1) insert, O(1) lookup
+- Uses: mapping logic, object field-value, sets (index with no values)
+- key1.hash == key2.hash => collision => associative array with O(1) linear
+  search: same key.hash [[key1, value1], [key2, value2]]
+- Bigger number of keys => more collissions with fixed storage
+- Bigger storage + better hash function => less collisions
+- Ideal load factor = 0.7 (7 keys in 10 cells) => expand storage + hash function
+- Set = ADT on top of HashTable
+]#
+
+#[
+- Stack = ADT, LIFO restricted array (ordered temporary data)
+    - Data can be inserted only at the end / top of stack (push)
+    - Data can be deleted only from the end / top of stack (pop)
+    - Only the last element / top of a stack can be read (peek)
+- Queue = ADT, FIFO restricted array (ordered temporary data)
+    - Data can be inserted onlty at the end / back of queue (enqueue)
+    - Data can be delete only from the beginning / front of queue (dequeue)
+    - Onnly the element from the front can be read (peek)
+]#
+
+type Stack[T] = seq[T]
+
+proc push[T](s: var Stack[T], v: T) = s.add(v)
+
+func top[T](s: Stack[T]): T = s[s.high]
+
+# var s: Stack[int]
+# s.push(1)
+# s.push(2)
+# echo s, " ", s.len
+# echo s.pop
+# echo s.top
+
+func lintParens(
+  code: string,
+  parens: varargs[(char, char)] = {'(': ')', '[': ']', '{': '}', '<': '>'}):
+  tuple[success: bool, position: int, error: string] =
+  let parens = @parens
+  func isOpen(c: char): bool =
+    for (a, _) in parens:
+      if c == a: return true
+  func isClose(c: char): bool =
+    for (_, b) in parens:
+      if c == b: return true
+  func close(c: char): char =
+    for (a, b) in parens:
+      if c == a: return b
+  result = (true, -1, "")
+  var stack: Stack[char]
+  for i, c in code:
+    if c.isOpen: stack.push(c)
+    elif c.isClose:
+      if stack.len == 0: return (false, i, fmt "extra close {c}")
+      let b = stack.pop.close
+      if c != b: return (false, i, fmt "mismatch: expected {b}, got {c}")
+  if stack.len != 0: return (false, code.high, fmt "extra open {stack.top}")
+
+# for code in ["a(b[c{d<e>}])", "(a)b]", "<a(b]>", "{a(b[c<d>])"]:
+#   echo code, " ", code.lintParens
+
+type Queue[T] = seq[T]
+
+proc enqueue[T](q: var Queue[T], v: T) = q.add(v)
+
+proc dequeue[T](q: var Queue[T]): T =
+  result = q.front
+  q.delete(0..0)
+
+func front[T](q: Queue[T]): T = q[q.low]
+
+# var q: Queue[int]
+# q.enqueue(1)
+# q.enqueue(2)
+# echo q, " ", q.len
+# echo q.dequeue
+# echo q.front
