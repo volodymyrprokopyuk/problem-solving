@@ -1,53 +1,55 @@
-SELECT * FROM node_cpu_utilization_long;
-SELECT * FROM node_cpu_utilization_wide;
+-- SELECT count(*) FROM node_cpu_utilization_long;
+-- SELECT count(*) FROM node_cpu_utilization_wide;
 
 -- BEGIN;
 
 -- DROP TABLE IF EXISTS node_cpu_utilization_long;
 -- DROP TABLE IF EXISTS node_cpu_utilization_wide;
 
--- CREATE TABLE node_cpu_utilization_long (
---   time timestamp NOT NULL,
---   job text NOT NULL,
---   instance text NOT NULL,
---   cpu text NOT NULL,
---   mode text NOT NULL,
---   utilization double precision NULL);
+CREATE TABLE node_cpu_utilization_long (
+  time timestamp NOT NULL,
+  job text NOT NULL,
+  instance text NOT NULL,
+  cpu text NOT NULL,
+  mode text NOT NULL,
+  utilization double precision NULL,
+  PRIMARY KEY (time, job, instance, cpu, mode));
 
--- SELECT create_hypertable('node_cpu_utilization_long', 'time');
+SELECT create_hypertable('node_cpu_utilization_long', 'time');
 
--- CREATE TABLE node_cpu_utilization_wide (
---   time timestamp NOT NULL,
---   job text NOT NULL,
---   instance text NOT NULL,
---   cpu text NOT NULL,
---   idle double precision NULL,
---   iowait double precision NULL,
---   irq double precision NULL,
---   nice double precision NULL,
---   softirq double precision NULL,
---   steal double precision NULL,
---   system double precision NULL,
---   "user" double precision NULL);
+CREATE TABLE node_cpu_utilization_wide (
+  time timestamp NOT NULL,
+  job text NOT NULL,
+  instance text NOT NULL,
+  cpu text NOT NULL,
+  idle double precision NULL,
+  iowait double precision NULL,
+  irq double precision NULL,
+  nice double precision NULL,
+  softirq double precision NULL,
+  steal double precision NULL,
+  system double precision NULL,
+  "user" double precision NULL,
+  PRIMARY KEY (time, job, instance, cpu));
 
--- SELECT create_hypertable('node_cpu_utilization_wide', 'time');
+SELECT create_hypertable('node_cpu_utilization_wide', 'time');
 
--- CREATE OR REPLACE FUNCTION transform_node_cpu_utilization()
--- RETURNS void
--- LANGUAGE SQL AS $$
--- INSERT INTO node_cpu_utilization_wide
--- SELECT l.time, l.job, l.instance, l.cpu,
---   max(l.utilization) FILTER (WHERE l.mode = 'idle') idle,
---   max(l.utilization) FILTER (WHERE l.mode = 'iowait') iowait,
---   max(l.utilization) FILTER (WHERE l.mode = 'irq') irq,
---   max(l.utilization) FILTER (WHERE l.mode = 'nice') nice,
---   max(l.utilization) FILTER (WHERE l.mode = 'softirq') softirq,
---   max(l.utilization) FILTER (WHERE l.mode = 'steal') steal,
---   max(l.utilization) FILTER (WHERE l.mode = 'system') system,
---   max(l.utilization) FILTER (WHERE l.mode = 'user') "user"
--- FROM node_cpu_utilization_long l
--- GROUP BY l.time, l.job, l.instance, l.cpu;
--- $$;
+CREATE OR REPLACE FUNCTION transform_node_cpu_utilization()
+RETURNS void
+LANGUAGE SQL AS $$
+INSERT INTO node_cpu_utilization_wide
+SELECT l.time, l.job, l.instance, l.cpu,
+  max(l.utilization) FILTER (WHERE l.mode = 'idle') idle,
+  max(l.utilization) FILTER (WHERE l.mode = 'iowait') iowait,
+  max(l.utilization) FILTER (WHERE l.mode = 'irq') irq,
+  max(l.utilization) FILTER (WHERE l.mode = 'nice') nice,
+  max(l.utilization) FILTER (WHERE l.mode = 'softirq') softirq,
+  max(l.utilization) FILTER (WHERE l.mode = 'steal') steal,
+  max(l.utilization) FILTER (WHERE l.mode = 'system') system,
+  max(l.utilization) FILTER (WHERE l.mode = 'user') "user"
+FROM node_cpu_utilization_long l
+GROUP BY l.time, l.job, l.instance, l.cpu;
+$$;
 
 -- COMMIT;
 
