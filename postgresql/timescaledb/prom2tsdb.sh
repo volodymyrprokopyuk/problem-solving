@@ -23,8 +23,7 @@ function metric_migrate() {
 }
 
 # Node CPU utilization
-METRIC_FETCH='node_cpu_seconds_total
-  {instance=~"mongodb.+", cpu="0"}'"[$METRIC_BACK_INTERVAL]"
+METRIC_FETCH='node_cpu_seconds_total'"[$METRIC_BACK_INTERVAL]"
 METRIC_CONVERT='.data.result[] | .metric as $metric | .values[] |
   [(.[0] | strftime("%Y-%m-%dT%H:%M:%SZ")),
     $metric.job, $metric.instance, $metric.cpu, $metric.mode, .[1]] | @csv'
