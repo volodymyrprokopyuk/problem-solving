@@ -1,0 +1,13 @@
+{
+  "name": "reporting",
+  "version": "0.1.0",
+  "description": "Performance testing reporting",
+  "main": "index.js",
+  "type": "module",
+  "author": "Volodymyr Prokopyuk",
+  "license": "ISC",
+  "dependencies": {
+    "pg": "^8.7.3",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.10.0"
+  }
+}
