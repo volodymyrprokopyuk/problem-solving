@@ -1,8 +1,10 @@
-SELECT time_bucket('1 hour', u.time) "time", u.job, u.instance,
-  avg(u.idle) idle, avg(u.user) "user"
+SELECT time_bucket('1 minute', u.time) tbucket, u.job,
+  substring(u.instance FROM '^[^-]+') igroup,
+  avg(u.idle) idle, avg(u.system + u.user) system_user, avg(u.iowait) iowait
 FROM node_cpu_utilization_wide u
-GROUP BY "time", u.job, u.instance
-ORDER BY "time", u.job, u.instance;
+WHERE u.instance ~* '^(?:mongodb).+'
+GROUP BY u.job, igroup, tbucket
+ORDER BY u.job, igroup, tbucket;
 
 
 -- BEGIN;
