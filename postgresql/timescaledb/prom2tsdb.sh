@@ -7,7 +7,7 @@ PROM_QUERY_URL=/api/v1/query
 
 PG_HOST=localhost
 PG_USER=postgres
-PG_DATABASE=timeseries
+PG_DATABASE=metrics
 
 METRIC_END_TIME=2022-04-27T03:25:00Z
 METRIC_BACK_INTERVAL=50m
@@ -27,7 +27,7 @@ METRIC_FETCH='node_cpu_seconds_total'"[$METRIC_BACK_INTERVAL]"
 METRIC_CONVERT='.data.result[] | .metric as $metric | .values[] |
   [(.[0] | strftime("%Y-%m-%dT%H:%M:%SZ")),
     $metric.job, $metric.instance, $metric.cpu, $metric.mode, .[1]] | @csv'
-METRIC_LOAD="\COPY node_cpu_utilization_long FROM stdin
+METRIC_LOAD="\COPY node_cpu_long FROM stdin
   WITH (FORMAT csv, HEADER false, DELIMITER ',')"
-METRIC_TRANSFORM="SELECT transform_node_cpu_utilization();"
+METRIC_TRANSFORM="SELECT transform_node_cpu();"
 metric_migrate

@@ -1,11 +1,55 @@
-SELECT time_bucket('1 minute', u.time) tbucket, u.job,
-  substring(u.instance FROM '^[^-]+') igroup,
-  avg(u.idle) idle, avg(u.system + u.user) system_user, avg(u.iowait) iowait
-FROM node_cpu_utilization_wide u
-WHERE u.instance ~* '^(?:mongodb).+'
-GROUP BY u.job, igroup, tbucket
-ORDER BY u.job, igroup, tbucket;
+CREATE TEMPORARY TABLE metric (
+  ts timestamp NOT NULL,
+  val double precision NULL,
+  PRIMARY KEY (ts, val)
+);
 
+INSERT INTO metric(ts, val) VALUES
+  ('2022-05-24 00:00:01', 1),
+  ('2022-05-24 00:00:16', 3),
+  ('2022-05-24 00:00:31', 7),
+  ('2022-05-24 00:00:46', 9),
+
+  ('2022-05-24 00:01:01', 12),
+  ('2022-05-24 00:01:16', 1),
+  ('2022-05-24 00:01:31', 2),
+  ('2022-05-24 00:01:46', 6),
+
+  ('2022-05-24 00:02:01', 9),
+  ('2022-05-24 00:02:16', 10),
+  ('2022-05-24 00:02:31', 3),
+  ('2022-05-24 00:02:46', 8);
+
+-- SELECT time_bucket('1 min', m.ts) tsb, counter_agg(m.ts, m.val) cs
+SELECT time_bucket('1 min', m.ts) tsb,
+  delta(counter_agg(m.ts, m.val)),
+  -- idelta_left(counter_agg(m.ts, m.val)),
+  -- idelta_right(counter_agg(m.ts, m.val)),
+  rate(counter_agg(m.ts, m.val)),
+  -- irate_left(counter_agg(m.ts, m.val)),
+  -- irate_right(counter_agg(m.ts, m.val)),
+  time_delta(counter_agg(m.ts, m.val))
+FROM metric m
+GROUP BY tsb
+ORDER BY tsb;
+
+
+
+-- WITH metrics_wide AS (
+--   SELECT time_bucket('1 minute', u.time) tbucket, u.job,
+--     substring(u.instance FROM '^[^-]+') igroup,
+--     avg(u.idle) idle, avg(u.system + u.user) system_user, avg(u.iowait) iowait
+--   FROM node_cpu_utilization_wide u
+--   WHERE u.instance ~* '^mongodb'
+--   GROUP BY u.job, igroup, tbucket
+--   ORDER BY u.job, igroup, tbucket)
+-- SELECT array_agg(mw.tbucket) tbucket,
+--   array_agg(mw.job) job,
+--   array_agg(mw.igroup) igourp,
+--   array_agg(mw.idle) idle,
+--   array_agg(mw.iowait) iowait,
+--   array_agg(mw.system_user) system_user
+-- FROM metrics_wide mw;
 
 -- BEGIN;
 
@@ -58,81 +102,3 @@ ORDER BY u.job, igroup, tbucket;
 -- $$;
 
 -- COMMIT;
-
-
--- SELECT *
--- FROM stock_price sp
--- WHERE sp.symbol = 'AMZN' AND sp.day_volume IS NOT NULL
--- ORDER BY sp.time DESC, sp.day_volume
--- LIMIT 10;
-
--- SELECT avg(sp.price)
--- FROM stock_price sp
---   JOIN company c USING (symbol)
--- WHERE c.name = 'Apple' AND sp.time > now() - '4 days'::interval;
-
--- SELECT sp.symbol, first(sp.price, sp.time), last(sp.price, sp.time)
--- FROM stock_price sp
--- WHERE sp.time > now() - '4 days'::interval
---   AND sp.symbol IN ('AMZN', 'AAPL', 'MSFT', 'GOOG')
--- GROUP BY sp.symbol
--- ORDER BY sp.symbol;
-
--- SELECT time_bucket('1 day', time) bucket, sp.symbol, avg(sp.price)
--- FROM stock_price sp
--- WHERE sp.time > now() - '1 week'::interval
---   AND sp.symbol IN ('AMZN', 'AAPL', 'MSFT', 'GOOG')
--- GROUP BY sp.symbol, bucket
--- ORDER BY sp.symbol, bucket;
-
-
--- BEGIN;
-
--- CREATE TABLE stock_price (
---   time timestamptz NOT NULL,
---   symbol text NOT NULL,
---   price double precision NULL,
---   day_volume integer NULL);
-
--- -- Partition on time + index on time
--- SELECT create_hypertable('stock_price', 'time');
-
--- CREATE INDEX ix_stock_price_symbol_time ON stock_price (symbol, time DESC);
-
--- CREATE TABLE company (
---   symbol text NOT NULL,
---   name text NOT NULL);
-
--- \COPY stock_price FROM 'tutorial_sample_tick.csv' WITH (FORMAT csv, DELIMITER ',', HEADER);
-
--- \COPY company FROM 'tutorial_sample_company.csv' WITH (FORMAT csv, DELIMITER ',', HEADER);
-
--- COMMIT;
-
-
--- BEGIN;
-
--- CREATE TABLE conditions (
---   time timestamptz NOT NULL,
---   device integer NOT NULL,
---   temperature real NOT NULL,
---   PRIMARY KEY (time, device));
-
--- SELECT create_hypertable('conditions', 'time', 'device', 3);
-
--- INSERT INTO conditions(time, device, temperature)
--- SELECT t.ts, (random() * 4)::int, (random() * 80 - 40)::real
--- FROM generate_series(
---   '2022-04-01 00:00:00'::timestamptz, '2022-05-01 00:00:00'::timestamptz,
---   '5 mins'::interval) t(ts);
-
--- SELECT * FROM conditions c ORDER BY c.device, c.time LIMIT 10;
-
--- SELECT c.device, time_bucket('1 hour'::interval, c.time) bucket,
---   min(c.temperature), avg(c.temperature), max(c.temperature)
--- FROM conditions c
--- GROUP BY c.device, bucket
--- ORDER BY c.device, bucket
--- LIMIT 10;
-
--- ROLLBACK;

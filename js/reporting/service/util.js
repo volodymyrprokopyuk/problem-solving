@@ -18,6 +18,11 @@ export const contentType = {
   json: "application/json"
 }
 
+export function qs(res, req) {
+  res.qs = req.getQuery().split("&").map(kv => kv.split("="))
+              .reduce((acc, [k, v]) => { acc[k] = v; return acc }, {})
+}
+
 export async function file(res, file) {
   try {
     const content = await readFile(file)
