@@ -52,49 +52,78 @@
 -- GROUP BY l.ts, l.job, l.instance, l.cpu;
 -- $$;
 
-CREATE OR REPLACE FUNCTION node_cpu(a_instance text)
-RETURNS TABLE (
-  tsb timestamptz[], job text[], instance text[],
-  idle double precision[], sysuser double precision[],
-  iowait double precision[], other double precision[]
-)
-LANGUAGE SQL AS $$
-WITH counter AS (
-  SELECT time_bucket('1 min', c.ts) tsb, c.job,
-    substring(c.instance FROM '^[^-]+') instance,
-    counter_agg(c.ts, c.idle) idle,
-    counter_agg(c.ts, c.system + c.user) sysuser,
-    counter_agg(c.ts, c.iowait) iowait,
-    counter_agg(c.ts, c.irq + c.nice + c.softirq + c.steal) other
-  FROM node_cpu_wide c
-  WHERE c.instance ~* a_instance
-  GROUP BY c.job, instance, tsb
-  ORDER BY c.job, instance, tsb
-), rate AS (
-  SELECT c.tsb, c.job, c.instance,
-    -- extrapolated_rate(with_bounds(c.idle,
-    --   tstzrange(c.tsb, c.tsb + '1 min')), 'prometheus') idle,
-    -- extrapolated_rate(with_bounds(c.sysuser,
-    --   tstzrange(c.tsb, c.tsb + '1 min')), 'prometheus') sysuser,
-    -- extrapolated_rate(with_bounds(c.iowait,
-    --   tstzrange(c.tsb, c.tsb + '1 min')), 'prometheus') iowait,
-    -- extrapolated_rate(with_bounds(c.other,
-    --   tstzrange(c.tsb, c.tsb + '1 min')), 'prometheus') other
+-- CREATE OR REPLACE FUNCTION node_cpu(a_instance text)
+-- RETURNS TABLE (
+--   tsb timestamptz[], job text[], instance text[],
+--   idle double precision[], sysuser double precision[],
+--   iowait double precision[], other double precision[]
+-- )
+-- LANGUAGE SQL AS $$
+-- WITH counter AS (
+--   SELECT time_bucket('1 min', c.ts) tsb, c.job,
+--     substring(c.instance FROM '^[^-]+') instance,
+--     counter_agg(c.ts, c.idle) idle,
+--     counter_agg(c.ts, c.system + c.user) sysuser,
+--     counter_agg(c.ts, c.iowait) iowait,
+--     counter_agg(c.ts, c.irq + c.nice + c.softirq + c.steal) other
+--   FROM node_cpu_wide c
+--   WHERE c.instance ~* a_instance
+--   GROUP BY c.job, instance, tsb
+--   ORDER BY c.job, instance, tsb
+-- ), rate AS (
+--   SELECT c.tsb, c.job, c.instance,
+--     -- extrapolated_rate(with_bounds(c.idle,
+--     --   tstzrange(c.tsb, c.tsb + '1 min')), 'prometheus') idle,
+--     -- extrapolated_rate(with_bounds(c.sysuser,
+--     --   tstzrange(c.tsb, c.tsb + '1 min')), 'prometheus') sysuser,
+--     -- extrapolated_rate(with_bounds(c.iowait,
+--     --   tstzrange(c.tsb, c.tsb + '1 min')), 'prometheus') iowait,
+--     -- extrapolated_rate(with_bounds(c.other,
+--     --   tstzrange(c.tsb, c.tsb + '1 min')), 'prometheus') other
 
-    rate(c.idle) idle,
-    rate(c.sysuser) sysuser,
-    rate(c.iowait) iowait,
-    rate(c.other) other
-  FROM counter c
+--     rate(c.idle) idle,
+--     rate(c.sysuser) sysuser,
+--     rate(c.iowait) iowait,
+--     rate(c.other) other
+--   FROM counter c
+-- )
+-- SELECT array_agg(r.tsb) tsb,
+--   array_agg(r.job) job,
+--   array_agg(r.instance) instance,
+--   array_agg(r.idle) idle,
+--   array_agg(r.sysuser) sysuser,
+--   array_agg(r.iowait) iowait,
+--   array_agg(r.other) other
+-- FROM rate r;
+-- $$;
+
+-- COMMIT;
+
+
+-- BEGIN;
+
+-- DROP TABLE IF EXISTS node_memory;
+
+-- CREATE TABLE node_memory (
+--   ts timestamptz NOT NULL,
+--   job text NOT NULL,
+--   instance text NOT NULL,
+--   free double precision NULL,
+--   PRIMARY KEY (ts, job, instance));
+
+-- SELECT create_hypertable('node_memory', 'ts');
+
+CREATE OR REPLACE FUNCTION node_memory(a_instance text)
+RETURNS TABLE (tsb timestamptz[], free double precision[])
+LANGUAGE SQL AS $$
+WITH memory AS (
+  SELECT time_bucket('15 sec', m.ts) tsb, avg(m.free) free
+  FROM node_memory m WHERE m.instance ~* a_instance
+  GROUP BY tsb ORDER BY tsb
 )
-SELECT array_agg(r.tsb) tsb,
-  array_agg(r.job) job,
-  array_agg(r.instance) instance,
-  array_agg(r.idle) idle,
-  array_agg(r.sysuser) sysuser,
-  array_agg(r.iowait) iowait,
-  array_agg(r.other) other
-FROM rate r;
+SELECT array_agg(m.tsb) tsb,
+  array_agg(((16 * 2 ^ 30 - m.free) / 2 ^ 30) / 16 * 100) used
+FROM memory m;
 $$;
 
 -- COMMIT;

@@ -13,3 +13,9 @@ export async function nodeCpuMetrics(instance) {
   const { rows } = await pool.query(query, [`^${instance}`])
   return rows
 }
+
+export async function nodeMemoryMetrics(instance) {
+  const query = "SELECT m.* FROM node_memory($1) m;"
+  const { rows } = await pool.query(query, [`^${instance}`])
+  return rows
+}
