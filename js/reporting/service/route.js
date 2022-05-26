@@ -14,5 +14,5 @@ export async function nodeMemory(res, req) {
 }
 
 export async function report(res, req) {
-  render(res, 200, "app/index.html", { title: "Report" })
+  render(res, 200, "app/index.html", { title: "Performance analysis" })
 }

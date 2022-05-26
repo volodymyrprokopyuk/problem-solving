@@ -32,12 +32,12 @@ METRIC_LOAD="\COPY node_cpu_long FROM stdin
 METRIC_TRANSFORM="SELECT transform_node_cpu();"
 metric_migrate
 
-# Node memory
+# Node memory consumption
 METRIC_FETCH='node_memory_MemFree_bytes'"[$METRIC_BACK_INTERVAL]"
 METRIC_CONVERT='.data.result[] | .metric as $metric | .values[] |
   [(.[0] | strftime("%Y-%m-%dT%H:%M:%SZ")),
     $metric.job, $metric.instance, .[1]] | @csv'
 METRIC_LOAD="\COPY node_memory FROM stdin
   WITH (FORMAT csv, HEADER false, DELIMITER ',')"
-METRIC_TRANSFORM="SELECT 1;"
+METRIC_TRANSFORM="SELECT 1 transform_node_memory;"
 metric_migrate
