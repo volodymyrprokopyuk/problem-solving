@@ -1,1 +1,7 @@
 @import "/asset/modern-normalize.min.css";
+
+@media print {
+  div {
+    break-inside: avoid;
+  }
+}
