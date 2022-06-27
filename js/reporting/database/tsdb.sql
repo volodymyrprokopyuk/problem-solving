@@ -95,7 +95,7 @@ CREATE TABLE node_memory (
 SELECT create_hypertable('node_memory', 'ts');
 
 CREATE OR REPLACE FUNCTION node_memory(a_instance text)
-RETURNS TABLE (tsb timestamptz[], free double precision[])
+RETURNS TABLE (tsb timestamptz[], used double precision[])
 LANGUAGE SQL AS $$
 WITH memory AS (
   SELECT time_bucket('15 sec', m.ts) tsb, avg(m.free) free
@@ -103,7 +103,7 @@ WITH memory AS (
   GROUP BY tsb ORDER BY tsb
 )
 SELECT array_agg(m.tsb) tsb,
-  array_agg(((16 * 2 ^ 30 - m.free) / 2 ^ 30) / 16 * 100) used
+  array_agg((16 * 2 ^ 30 - m.free) / (16 * 2 ^ 30) * 100) used
 FROM memory m;
 $$;
 

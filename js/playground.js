@@ -1,15 +1,15 @@
-function add(x) {
-  return function(y) { return x + y }
-}
+// function add(x) {
+//   return function(y) { return x + y }
+// }
 
-const add1 = add(1)
+// const add1 = add(1)
 // console.log(add1(2))
 
-const sum = x => y => x + y
-const sum1 = sum(1)
+// const sum = x => y => x + y
+// const sum1 = sum(1)
 // console.log(sum1(2))
 
-function f() { console.log(this.p) }
+// function f() { console.log(this.p) }
 
 // const p = 0
 // const o1 = { p: 1, f: f }
@@ -35,25 +35,25 @@ function f() { console.log(this.p) }
 //   setTimeout(function() { console.log(i) }, i * 500)
 // }
 
-function module(a) {
-  let b = a // private state
-  function f() { return ++b } // closure over state
-  return { f } // public interface
-}
+// function module(a) {
+//   let b = a // private state
+//   function f() { return ++b } // closure over state
+//   return { f } // public interface
+// }
 // const m = module(10) // module instance
 // console.log(m.f())
 
-const o5 = {
-  count: 0,
-  f: function() { return function() { console.log(++this.count) }.bind(this) }
-}
+// const o5 = {
+//   count: 0,
+//   f: function() { return function() { console.log(++this.count) }.bind(this) }
+// }
 // o5.f()()
 // setTimeout(o5.f(), 100)
 
-const o6 = {
-  count: 0,
-  f: function() { return () => console.log(++this.count) }
-}
+// const o6 = {
+//   count: 0,
+//   f: function() { return () => console.log(++this.count) }
+// }
 // o6.f()()
 // setTimeout(o6.f(), 100)
 
@@ -131,44 +131,44 @@ const o6 = {
 // })
 // for (const e of o) { console.log(e) } // 1, 2
 
-const random = {
-  [Symbol.iterator]: function () {
-    function next() { return { value: Math.random(), done: false } }
-    return { next }
-  }
-}
+// const random = {
+//   [Symbol.iterator]: function () {
+//     function next() { return { value: Math.random(), done: false } }
+//     return { next }
+//   }
+// }
 // let i = 0;
 // for (const r of random) {
 //   console.log(r)
 //   if (++i > 10) break;
 // }
 
-function mixin(source, target) {
-  for (key in source) {
-    if (!(key in target)) { target[key] = source[key] }
-  }
-  return target
-}
+// function mixin(source, target) {
+//   for (key in source) {
+//     if (!(key in target)) { target[key] = source[key] }
+//   }
+//   return target
+// }
 
-var Vehicle = {
-  engines: 1,
-  ignition: function() {
-    console.log(`Vehicle: turning on ${this.engines} engines`)
-  },
-  drive: function() {
-    this.ignition()
-    console.log("Vehicle: moving forward")
-  }
-}
+// var Vehicle = {
+//   engines: 1,
+//   ignition: function() {
+//     console.log(`Vehicle: turning on ${this.engines} engines`)
+//   },
+//   drive: function() {
+//     this.ignition()
+//     console.log("Vehicle: moving forward")
+//   }
+// }
 
-var Car = mixin(Vehicle, {
-  wheels: 4,
-  drive: function() {
-    // Vehicle.drive.call(this)
-    Vehicle.drive()
-    console.log(`Car: rolling on ${this.wheels} wheels`)
-  }
-})
+// var Car = mixin(Vehicle, {
+//   wheels: 4,
+//   drive: function() {
+//     // Vehicle.drive.call(this)
+//     Vehicle.drive()
+//     console.log(`Car: rolling on ${this.wheels} wheels`)
+//   }
+// })
 
 // Car.engines = 2
 // Vehicle.drive()
@@ -181,28 +181,97 @@ var Car = mixin(Vehicle, {
 // console.log(o2.a) // 1
 // for (const p in o2) { console.log(p, o2[p]) } // a, 1
 
-function F() { this.a = 1 }
-F.prototype.b = 2
-const o = new F() // constructor call returns an object
-console.log(o.a, o.b) // 1, 2
-console.log(F.prototype.constructor === F, o instanceof F) // true, true
-console.log(Object.getPrototypeOf(o) === F.prototype) // true
-function G() {
-  F.call(this) // call parent constructor
-  this.c = 3
+// function F() { this.a = 1 } // constructor
+// F.prototype.b = function() { return 2 } // method
+// const o = new F()
+// console.log(o.a, o.b()) // 1, 2
+// function G() { F.call(this); this.c = 3 } // call parent constructor
+// // Prototypal inheritance Option 1. Overwrite G.prototype
+// G.prototype = Object.create(F.prototype)
+// // Prototypal inheritance Option 2. Update G.prototype
+// Object.setPrototypeOf(G.prototype, F.prototype)
+// G.prototype.d =
+//   function() { return F.prototype.b.call(this) + 2 } // call parent method
+// const o2 = new G()
+// console.log(o2.a, o2.b(), o2.c, o2.d()) // 1, 2, 3, 4
+
+// class F {
+//   constructor() { this.a = 1 } // constructor + property
+//   b() { return 2 } // method
+// }
+// const o = new F()
+// console.log(o.a, o.b()) // 1, 2
+// class G extends F { // prototypal ihheritance
+//   constructor() { super(); this.c = 3 }// call parent constructor
+//   d() { return super.b() + 2 } // call parent method
+// }
+// const o2 = new G()
+// console.log(o2.a, o2.b(), o2.c, o2.d()) // 1, 2, 3, 4
+
+// const sym = Symbol("a")
+// const o = { [sym]: 1 }
+// console.log(o[sym]) // 1
+
+// const o = { a: 1, toJSON() { return { a: this.a } } }
+// o.oo = o // circular reference
+// console.log(JSON.stringify(o))
+
+// function timeoutify(fun, timeout) {
+//   let id = setTimeout(() => {
+//     id = null
+//     fun(new Error("timeout"))
+//   }, timeout)
+//   return (...a) => {
+//     if (id) {
+//       clearTimeout(id)
+//       fun(null, ...a)
+//     }
+//   }
+// }
+// function f(e, d) {
+//   if (e) { console.error(e) } else { console.log(d) }
+// }
+// const tf = timeoutify(f, 500)
+// setTimeout(() => tf(1), 400) // 1
+
+// function timeoutPromise(timeout) {
+//   return new Promise((_, reject) =>
+//     setTimeout(() => reject("timeout"), timeout)
+//   )
+// }
+// function f(x, timeout) {
+//   return new Promise((resolve) =>
+//     setTimeout(() => resolve(x), timeout)
+//   )
+// }
+// Promise.race([f(1, 400), timeoutPromise(500)])
+//   .then(console.log).catch(console.error)
+
+// Promise.resolve(1)
+//   .then(x => x + 1)
+//   .then(x => new Promise(resolve => setTimeout(_ => resolve(x * 2), 100)))
+//   .then(console.log) // 4
+
+// Promise.resolve(1)
+//   // default rejection handler: e => { throw e } for incoming errors
+//   .then(_ => { throw new Error("oh") })
+//   // default resolution handler: x => { return x } for incoming values
+//   .catch(e => { console.error(e.message); return 2 }) // for outgoing errors
+//   .then(console.log) // oh, 2 (back to normal)
+
+function f(x, cb) {
+  setTimeout(_ => { if (x >= 0) { cb(null, "ok") } else { cb("oh") } }, 100)
 }
-
-// prototypal inheritance
-// Option 1. Throws away G.prototype = new object o.[[Prototype]] = F.prototype
-G.prototype = Object.create(F.prototype) prototype chain
-// true, true, not G
-console.log(G.prototype.constructor === F, o instanceof F)
-
-// Option 2. Updates G.prototype (the right ES6 way)
-Object.setPrototypeOf(G.prototype, F.prototype) // prototype chain
-G.prototype.d = 4
-const o2 = new G()
-console.log(o2.a, o2.b, o2.c, o2.d) // 1, 2, 3, 4
-// true, true, true
-console.log(G.prototype.constructor === G, o2 instanceof G, o2 instanceof F)
-console.log(F.prototype.isPrototypeOf(o2)) // true
+f(1, console.log)
+f(-1, console.error)
+function promisify(f) {
+  return function(...args) {
+    return new Promise((resolve, reject) => {
+      f.apply(null, args.concat(
+        function(e, x) { if (e) { reject(e) } else { resolve(x) } }))
+    })
+  }
+}
+const ff = promisify(f)
+ff(1).then(console.log)
+ff(-1).catch(console.error)

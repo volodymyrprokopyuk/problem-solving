@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "nodejs-polars": "^0.5.4",
+    "rambda": "^7.1.4"
+  }
+}

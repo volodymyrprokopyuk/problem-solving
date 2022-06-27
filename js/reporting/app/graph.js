@@ -6,8 +6,8 @@ async function fetchData(url) {
   return res.json()
 }
 
-async function nodeCpu(gd, instance) {
-  const url = `/metrics/node-cpu?instance=${instance}`
+async function nodeCpu(gd, backend, instance) {
+  const url = `/metrics/${backend}-node-cpu?instance=${instance}`
   const { metrics: [{ tsb, idle, sysuser, iowait, other }] } =
         await fetchData(url)
   const data = [
@@ -21,10 +21,10 @@ async function nodeCpu(gd, instance) {
   Plotly.newPlot(gd, data, layout, config)
 }
 
-async function nodeMemory(gd, instance) {
-  const url = `/metrics/node-memory?instance=${instance}`
-  const { metrics: [{ tsb, free }] } = await fetchData(url)
-  const data = [{ name: "Free memory", x: tsb, y: free }]
+async function nodeMemory(gd, backend, instance) {
+  const url = `/metrics/${backend}-node-memory?instance=${instance}`
+  const { metrics: [{ tsb, used }] } = await fetchData(url)
+  const data = [{ name: "Used memory", x: tsb, y: used }]
   const layout = {
     title: `${instance} memory consumtion`,
     yaxis: { range: [0, 100] }
@@ -33,8 +33,14 @@ async function nodeMemory(gd, instance) {
   Plotly.newPlot(gd, data, layout, config)
 }
 
-nodeCpu("mongodb-cpu", "mongodb")
-nodeMemory("mongodb-memory", "mongodb")
+let backend = "ts"
+// nodeCpu("ts-mongodb-cpu", backend, "mongodb")
+nodeMemory("ts-mongodb-memory", backend, "mongodb")
+// nodeCpu("ts-bi-cpu", backend, "bi")
+nodeMemory("ts-bi-memory", backend, "bi")
 
-nodeCpu("bi-cpu", "bi")
-nodeMemory("bi-memory", "bi")
+backend = "pl"
+// nodeCpu("pl-mongodb-cpu", backend, "mongodb")
+nodeMemory("pl-mongodb-memory", backend, "mongodb")
+// nodeCpu("pl-bi-cpu", backend, "bi")
+nodeMemory("pl-bi-memory", backend, "bi")
