@@ -42,5 +42,5 @@ nodeMemory("ts-bi-memory", backend, "bi")
 backend = "pl"
 nodeCpu("pl-mongodb-cpu", backend, "mongodb")
 nodeMemory("pl-mongodb-memory", backend, "mongodb")
-// nodeCpu("pl-bi-cpu", backend, "bi")
+nodeCpu("pl-bi-cpu", backend, "bi")
 nodeMemory("pl-bi-memory", backend, "bi")
