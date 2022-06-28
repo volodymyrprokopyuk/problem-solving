@@ -1,6 +1,6 @@
 import { curry, pipe } from "rambda"
 import pl from "nodejs-polars"
-const { DataFrame, col, when } = pl
+const { DataFrame, col, when, lit } = pl
 
 // const df = new DataFrame({a: [1, 2, 3], b: [4, 5, 6]})
 // console.log(df, df.columns, df.dtypes, df.height, df.width)
@@ -140,22 +140,43 @@ const { DataFrame, col, when } = pl
 // console.log(df2)
 
 
-const df = new DataFrame([
-  ["a", new Date("2022-06-08T00:00:01"), 0],
-  ["a", new Date("2022-06-08T00:00:06"), 2],
-  ["a", new Date("2022-06-08T00:00:11"), 3],
-  ["a", new Date("2022-06-08T00:00:16"), 6],
-  ["a", new Date("2022-06-08T00:00:21"), 2],
-  ["a", new Date("2022-06-08T00:00:26"), 4],
-  ["b", new Date("2022-06-08T00:00:31"), 7],
-  ["b", new Date("2022-06-08T00:00:36"), 9],
-  ["b", new Date("2022-06-08T00:00:41"), 3],
-  ["b", new Date("2022-06-08T00:00:46"), 4],
-  ["b", new Date("2022-06-08T00:00:51"), 6],
-  ["b", new Date("2022-06-08T00:00:56"), 7],
-], { orient: "row", columns: ["group", "ts", "value"] })
+// const df = new DataFrame([
+//   ["a", new Date("2022-06-08T00:00:01"), 0],
+//   ["a", new Date("2022-06-08T00:00:06"), 2],
+//   ["a", new Date("2022-06-08T00:00:11"), 3],
+//   ["a", new Date("2022-06-08T00:00:16"), 6],
+//   ["a", new Date("2022-06-08T00:00:21"), 2],
+//   ["a", new Date("2022-06-08T00:00:26"), 4],
+//   ["b", new Date("2022-06-08T00:00:31"), 7],
+//   ["b", new Date("2022-06-08T00:00:36"), 9],
+//   ["b", new Date("2022-06-08T00:00:41"), 3],
+//   ["b", new Date("2022-06-08T00:00:46"), 4],
+//   ["b", new Date("2022-06-08T00:00:51"), 6],
+//   ["b", new Date("2022-06-08T00:00:56"), 7],
+// ], { orient: "row", columns: ["group", "ts", "value"] })
+const df = new DataFrame({
+  group: ["a", "a", "a", "a", "a", "a", "b", "b", "b", "b", "b", "b"],
+  ts: [
+    new Date("2022-06-08T00:00:01"),
+    new Date("2022-06-08T00:00:06"),
+    new Date("2022-06-08T00:00:11"),
+    new Date("2022-06-08T00:00:16"),
+    new Date("2022-06-08T00:00:21"),
+    new Date("2022-06-08T00:00:26"),
+    new Date("2022-06-08T00:00:31"),
+    new Date("2022-06-08T00:00:36"),
+    new Date("2022-06-08T00:00:41"),
+    new Date("2022-06-08T00:00:46"),
+    new Date("2022-06-08T00:00:51"),
+    new Date("2022-06-08T00:00:56")],
+  value: [0, 2, 3, 6, 2, 4, 7, 9, 3, 4, 6, 7,]
+})
 console.log(df)
-// const df2 = df.groupBy("group").agg(
-//   col("value").sortBy("ts").cumSum().alias("x")
-// )
-// console.log(df2)
+const df2 = df.groupBy("group").agg(
+  col("value").sortBy("ts")
+    .when(col("value").diff(1).gtEq(0))
+    .then(col("value").diff(1))
+    .otherwise(col("value"))
+    .cumSum().alias("valueCounter")
+)
+console.log(df2)

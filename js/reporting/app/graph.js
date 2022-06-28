@@ -34,13 +34,13 @@ async function nodeMemory(gd, backend, instance) {
 }
 
 let backend = "ts"
-// nodeCpu("ts-mongodb-cpu", backend, "mongodb")
+nodeCpu("ts-mongodb-cpu", backend, "mongodb")
 nodeMemory("ts-mongodb-memory", backend, "mongodb")
-// nodeCpu("ts-bi-cpu", backend, "bi")
+nodeCpu("ts-bi-cpu", backend, "bi")
 nodeMemory("ts-bi-memory", backend, "bi")
 
 backend = "pl"
-// nodeCpu("pl-mongodb-cpu", backend, "mongodb")
+nodeCpu("pl-mongodb-cpu", backend, "mongodb")
 nodeMemory("pl-mongodb-memory", backend, "mongodb")
 // nodeCpu("pl-bi-cpu", backend, "bi")
 nodeMemory("pl-bi-memory", backend, "bi")

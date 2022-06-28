@@ -131,15 +131,15 @@ function formatNodeCpu(df) {
 
 export async function nodeCpuAnalytics(instance) {
   const { data: { result } } = await fetchNodeCpu(backInterval, endTime)
-  return pipe(flatNodeCpu, wideNodeCpu, analyzeNodeCpu(instance), formatNodeCpu)
+  pipe(flatNodeCpu, wideNodeCpu, analyzeNodeCpu("mongodb"), formatNodeCpu)
   (result)
 }
 
-// try {
-//   const { data: { result } } = await fetchNodeCpu(backInterval, endTime)
-//   pipe(flatNodeCpu, wideNodeCpu, analyzeNodeCpu("bi"), formatNodeCpu,
-//        console.log)(result)
-//   // const { data: { result } } = await fetchNodeMemory(backInterval, endTime)
-//   // pipe(flatNodeMemory, analyzeNodeMemory("mongodb"), formatNodeMemory,
-//   //      console.log)(result)
-// } catch (e) { console.error(e) }
+try {
+  const { data: { result } } = await fetchNodeCpu(backInterval, endTime)
+  pipe(flatNodeCpu, wideNodeCpu, analyzeNodeCpu("mongodb"), formatNodeCpu,
+       console.log)(result)
+  // const { data: { result } } = await fetchNodeMemory(backInterval, endTime)
+  // pipe(flatNodeMemory, analyzeNodeMemory("mongodb"), formatNodeMemory,
+  //      console.log)(result)
+} catch (e) { console.error(e) }
