@@ -1,9 +1,21 @@
 import { file, render, json } from "./util.js"
-import { nodeCpuMetrics, nodeMemoryMetrics } from "../database/db.js"
 import { nodeCpuAnalytics, nodeMemoryAnalytics } from "../database/df.js"
+import { nodeCpuMetrics, nodeMemoryMetrics } from "../database/db.js"
 
 export async function asset(res, req) {
   file(res, `app/${req.getParameter(0)}`)
+}
+
+export async function nodeCpu(res, req) {
+  json(res, 200, {
+    metrics: await nodeCpuAnalytics(res.qs.endTime, res.qs.instance)
+  })
+}
+
+export async function nodeMemory(res, req) {
+  json(res, 200, {
+    metrics: await nodeMemoryAnalytics(res.qs.endTime, res.qs.instance)
+  })
 }
 
 export async function tsNodeCpu(res, req) {
@@ -12,14 +24,6 @@ export async function tsNodeCpu(res, req) {
 
 export async function tsNodeMemory(res, req) {
   json(res, 200, { metrics: await nodeMemoryMetrics(res.qs.instance) })
-}
-
-export async function plNodeCpu(res, req) {
-  json(res, 200, { metrics: await nodeCpuAnalytics(res.qs.instance) })
-}
-
-export async function plNodeMemory(res, req) {
-  json(res, 200, { metrics: await nodeMemoryAnalytics(res.qs.instance) })
 }
 
 export async function report(res, req) {
