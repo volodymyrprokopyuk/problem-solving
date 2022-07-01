@@ -1,3 +1,4 @@
+import { mkdir } from "fs/promises"
 import { URLSearchParams } from "url"
 import { curry, pipe } from "rambda"
 import axios from "axios"
@@ -7,8 +8,6 @@ const { DataFrame, col, when, lit } = pl
 
 const url = "/api/v1/query"
 const baseURL = "http://localhost:9090"
-const backInterval = "60m"
-const endTime = "2022-04-27T03:25:00Z"
 
 const fetchMetric = curry(async (baseURL, url, query, time) => {
   const req = new URLSearchParams({ query, time })
@@ -16,6 +15,8 @@ const fetchMetric = curry(async (baseURL, url, query, time) => {
   const { data } = await POST(url, req, { baseURL, headers })
   return data
 })(baseURL, url)
+
+const df2Parquet = curry((file, df) => df.writeParquet(file))
 
 const counterAgg = curry((columns, df) =>
   columns.reduce((df, [column, alias]) =>
@@ -58,6 +59,7 @@ function wideNodeCpu(json) {
     .groupBy("job", "instance", "cpu", "ts").pivot("mode", "value").first()
 }
 
+
 const analyzeNodeCpu= curry((instance, df) => {
   df = df.filter(
     col("instance").str.contains(`^${instance}-1.+`)
@@ -91,6 +93,13 @@ function formatNodeCpu(df) {
   }]
 }
 
+export async function archiveNodeCpu(backInterval, endTime, path) {
+  const file = `${path}/${endTime}-node-cpu.parquet`
+  const { data: { result } } = await fetchNodeCpu(backInterval, endTime)
+  await mkdir(path, { recursive: true })
+  pipe(flatNodeCpu, wideNodeCpu, df2Parquet(file))(result)
+}
+
 export async function nodeCpuAnalytics(instance) {
   const { data: { result } } = await fetchNodeCpu(backInterval, endTime)
   return pipe(flatNodeCpu, wideNodeCpu, analyzeNodeCpu(instance), formatNodeCpu)
@@ -108,17 +117,18 @@ function flatNodeMemory(json) {
   return json.map(({ metric: { job, instance }, values }) =>
     values.map(([ts, value]) => {
       return {
-        job, instance, ts: new Date(ts * 1000), value: parseFloat(value)
+        job, instance, ts: new Date(ts * 1000), free: parseFloat(value)
       }
     })
   ).flat()
 }
 
-const analyzeNodeMemory = curry((instance, json) =>
-  pl.readRecords(json)
-    .filter(col("instance").str.contains(`^${instance}.+`))
+function wideNodeMemory(json) { return pl.readRecords(json) }
+
+const analyzeNodeMemory = curry((instance, df) =>
+  df.filter(col("instance").str.contains(`^${instance}.+`))
     .groupByDynamic({ indexColumn: "ts", every: "15s" })
-    .agg(pl.avg("value").alias("free"))
+    .agg(pl.avg("free").alias("free"))
     .sort("ts")
     .withColumn(
       lit(16 * 2 ** 30).sub(col("free"))
@@ -129,17 +139,35 @@ function formatNodeMemory(df) {
   return [{ tsb: df["ts"].toArray(), used: df["used"].toArray() }]
 }
 
+export async function archiveNodeMemory(backInterval, endTime, path) {
+  const file = `${path}/${endTime}-node-memory.parquet`
+  const { data: { result } } = await fetchNodeMemory(backInterval, endTime)
+  await mkdir(path, { recursive: true })
+  pipe(flatNodeMemory, wideNodeMemory, df2Parquet(file))(result)
+}
+
 export async function nodeMemoryAnalytics(instance) {
   const { data: { result } } = await fetchNodeMemory(backInterval, endTime)
   return pipe(flatNodeMemory, analyzeNodeMemory(instance), formatNodeMemory)
   (result)
 }
 
-// try {
-//   // const { data: { result } } = await fetchNodeMemory(backInterval, endTime)
-//   // pipe(flatNodeMemory, analyzeNodeMemory("mongodb"), formatNodeMemory,
-//   //      console.log)(result)
-//   const { data: { result } } = await fetchNodeCpu(backInterval, endTime)
-//   pipe(flatNodeCpu, wideNodeCpu, analyzeNodeCpu("bi"), formatNodeCpu,
-//        console.log)(result)
-// } catch (e) { console.error(e) }
+try {
+  // let backInterval = "60m"
+  // let endTime = "2022-04-27T03:25:00Z"
+  // await archiveNodeCpu(backInterval, endTime, "data")
+  // await archiveNodeMemory(backInterval, endTime, "data")
+  // backInterval = "35m"
+  // endTime = "2022-06-29T21:25:00Z"
+  // await archiveNodeCpu(backInterval, endTime, "data")
+  // await archiveNodeMemory(backInterval, endTime, "data")
+  // console.log(pl.readParquet(`data/${endTime}-node-cpu.parquet`))
+  // console.log(pl.readParquet(`data/${endTime}-node-memory.parquet`))
+
+  // const { data: { result } } = await fetchNodeMemory(backInterval, endTime)
+  // pipe(flatNodeMemory, analyzeNodeMemory("mongodb"), formatNodeMemory,
+  //      console.log)(result)
+  // const { data: { result } } = await fetchNodeCpu(backInterval, endTime)
+  // pipe(flatNodeCpu, wideNodeCpu, analyzeNodeCpu("bi"), formatNodeCpu,
+  //      console.log)(result)
+} catch (e) { console.error(e) }

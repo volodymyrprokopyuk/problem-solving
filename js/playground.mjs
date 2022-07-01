@@ -259,19 +259,36 @@
 //   .catch(e => { console.error(e.message); return 2 }) // for outgoing errors
 //   .then(console.log) // oh, 2 (back to normal)
 
-function f(x, cb) {
-  setTimeout(_ => { if (x >= 0) { cb(null, "ok") } else { cb("oh") } }, 100)
-}
-f(1, console.log)
-f(-1, console.error)
-function promisify(f) {
-  return function(...args) {
-    return new Promise((resolve, reject) => {
-      f.apply(null, args.concat(
-        function(e, x) { if (e) { reject(e) } else { resolve(x) } }))
-    })
-  }
-}
-const ff = promisify(f)
-ff(1).then(console.log)
-ff(-1).catch(console.error)
+// function f(x, cb) {
+//   setTimeout(_ => { if (x >= 0) { cb(null, "ok") } else { cb("oh") } }, 100)
+// }
+// f(1, console.log)
+// f(-1, console.error)
+// function promisify(f) {
+//   return function(...args) {
+//     return new Promise((resolve, reject) => {
+//       f.apply(null, args.concat(
+//         function(e, x) { if (e) { reject(e) } else { resolve(x) } }))
+//     })
+//   }
+// }
+// const ff = promisify(f)
+// ff(1).then(console.log)
+// ff(-1).catch(console.error)
+
+// let m
+// if (m = "a 1 b 2".match(/(?<letter>\w) (?<digit>\d)/)) {
+//   console.log(m[0], m[1], m[2])
+//   console.log(m.groups.letter, m.groups.digit)
+// }
+// if (m = "a 1 b 2".matchAll(/(\w) (\d)/g)) {
+//   for (const mm of m) { console.log(mm[0], mm[1], mm[2]) }
+// }
+
+// const f = x => new Promise((resolve) => setTimeout(_ => resolve(x + 1), 100))
+// const p = [f, f].reduce((p, f) => p.then(f), Promise.resolve(1))
+// p.then(console.log) // 3
+// let r = 1
+// for (const ff of [f, f]) { r = await ff(r) }
+// console.log(r) // 3
+
