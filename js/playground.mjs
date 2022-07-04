@@ -292,3 +292,77 @@
 // for (const ff of [f, f]) { r = await ff(r) }
 // console.log(r) // 3
 
+// function* f(x) {
+//   console.log(x++)
+//   const y = yield "a" // yield requires 2 iterations: start + resume
+//   console.log(y, x) // implicit return undefined;
+// }
+// const it = f(1) // creates iterator + initiates generator
+// const { value } = it.next() // starts generator (must always be empty)
+// console.log(value)
+// const r = it.next("b") // message to generator + resumes generator 1, a, b, 2
+// console.log(r) // { value: undefined, done: true }
+
+// const closure = (function() {
+//   let v = 0
+//   return function() { return ++v }
+// })()
+// console.log(closure(), closure(), closure()) // 1, 2, 3
+
+// const iterator = function(n) {
+//   let v = 0
+//   return {
+//     [Symbol.iterator]() { return this },
+//     next() {
+//       return v < n ? { value: ++v, done: false } :
+//       { value: undefined, done: true } }
+//   }
+// }
+// for (const i of iterator(3)) { console.log(i) } // 1, 2, 3
+
+// const generator = function*(n) {
+//   let v = 0
+//   while (v < n) { yield ++v }
+// }
+// for (const i of generator(3)) { console.log(i) } // 1, 2, 3
+
+// const generator = function*() {
+//   let v = 0
+//   try {
+//     while (true) { yield ++v }
+//   } finally { console.log("finally") }
+// }
+// let gen = generator()
+// for (const i of gen) {
+//   if (i > 2) { const { value } = gen.return("return"); console.log(value) }
+//   console.log(i) // 1, 2, finally, return, 3
+// }
+
+// function f(x, cb) {
+//   setTimeout(_ => x === "oh" ? cb(new Error(x)) : cb(null, x), 100)
+// }
+// function cb(err, data) { if (err) { it.throw(err) } else { it.next(data) } }
+// function* gen() {
+//   try {
+//     const a = yield f(1, cb)
+//     console.log(a)
+//     const b = yield f("oh", cb)
+//   } catch (e) { console.error(e.message) }
+// }
+// const it = gen()
+// it.next() // 1, oh
+
+function f(x) {
+  return new Promise((resolve, reject) =>
+    setTimeout(_ => x === "oh" ? reject(new Error(x)) : resolve(x), 100)
+  )
+}
+function* gen() {
+  try {
+    const a = yield f(1)
+    console.log(a)
+    const b = yield f("oh")
+  } catch(e) { console.error(e.message) }
+}
+const it = gen()
+it.next().value.then(console.log)

@@ -124,15 +124,15 @@ export async function archiveNodeMemory(backInterval, endTime, path) {
   pipe(transformNodeMemory, writeParquet(file))(result)
 }
 
-const analyzeNodeMemory = curry((instance, df) =>
-  df.filter(col("instance").str.contains(`^${instance}.+`))
+const analyzeNodeMemory = curry((instance, df) => {
+  const maxMemory = 48 * 2 ** 30
+  return df.filter(col("instance").str.contains(`^${instance}.+`))
     .groupByDynamic({ indexColumn: "ts", every: "15s" })
-    .agg(pl.avg("value").alias("free"))
+    .agg(col("value").mean().alias("free"))
     .sort("ts")
     .withColumn(
-      lit(16 * 2 ** 30).sub(col("free"))
-        .div(16 * 2 ** 30).mul(100).alias("used"))
-)
+      lit(maxMemory).sub(col("free")).div(maxMemory).mul(100).alias("used"))
+})
 
 function formatNodeMemory(df) {
   return { ts: df["ts"].toArray(), used: df["used"].toArray() }
