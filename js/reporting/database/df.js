@@ -64,7 +64,7 @@ export async function archiveNodeCpu(backInterval, endTime, path) {
 
 const analyzeNodeCpu = curry((instance, df) => {
   df = df.filter(
-    col("instance").str.contains(`^${instance}-1.+`)
+    col("instance").str.contains(`^${instance}.+`)
       .and(col("cpu").eq(lit("0")))
   ).sort("ts")
   df = pipe(

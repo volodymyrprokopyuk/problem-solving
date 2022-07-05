@@ -352,17 +352,25 @@
 // const it = gen()
 // it.next() // 1, oh
 
-function f(x) {
-  return new Promise((resolve, reject) =>
-    setTimeout(_ => x === "oh" ? reject(new Error(x)) : resolve(x), 100)
-  )
-}
-function* gen() {
-  try {
-    const a = yield f(1)
-    console.log(a)
-    const b = yield f("oh")
-  } catch(e) { console.error(e.message) }
-}
-const it = gen()
-it.next().value.then(console.log)
+// function f(x) {
+//   return new Promise((resolve, reject) =>
+//     setTimeout(_ => x === "oh" ? reject(new Error(x)) : resolve(x), 100)
+//   )
+// }
+// function* gen() {
+//   try {
+//     const a = yield f(1)
+//     console.log(a)
+//     const b = yield f("oh")
+//     // const b = yield f(2)
+//     // console.log(b)
+//   } catch(e) { console.error(e.message) }
+// }
+// const it = gen()
+// it.next().value
+//   .then(a => it.next(a).value.then(b => it.next(b)))
+//   .catch(e => console.log(e.message)) // 1, oh
+
+function* a() { yield 1; yield* b(); yield 4 }
+function* b() { yield 2; yield 3 }
+for (const i of a()) { console.log(i) } // 1, 2, 3, 4
