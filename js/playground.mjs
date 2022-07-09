@@ -371,6 +371,25 @@
 //   .then(a => it.next(a).value.then(b => it.next(b)))
 //   .catch(e => console.log(e.message)) // 1, oh
 
-function* a() { yield 1; yield* b(); yield 4 }
-function* b() { yield 2; yield 3 }
-for (const i of a()) { console.log(i) } // 1, 2, 3, 4
+// function* a() { yield 1; yield* b(); yield 4 }
+// function* b() { yield 2; yield 3 }
+// for (const i of a()) { console.log(i) } // 1, 2, 3, 4
+
+// function f(a, b, c) { console.log(a, b, c) }
+// f.apply(null, [1, 2, 3])
+// f(...[1, 2, 3])
+// console.log([1, ...[2, 3], 4])
+// console.log([1, [2, 3], 4].flat())
+
+const o = { a: 1, b: 2, c: 3 }
+const a = [10, 20, 30]
+let o2 = { }
+let a2 = [];
+({ a: o2.A, b: o2.B, c: o2.C } = o)  // object => object
+console.log(o2); // { A: 1, B: 2, C: 3 }
+[a2[2], a2[1], a2[0]] = a  // array => array
+console.log(a2); // [ 30, 20, 10 ]
+({ a: a2[0], b: a2[1], c: a2[2] } = o) // object => array
+console.log(a2); // [ 1, 2, 3 ]
+[o2.A, o2.B, o2.C] = a // array => object
+console.log(o2) // { A: 10, B: 20, C: 30 }
