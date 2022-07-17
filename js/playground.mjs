@@ -381,15 +381,106 @@
 // console.log([1, ...[2, 3], 4])
 // console.log([1, [2, 3], 4].flat())
 
-const o = { a: 1, b: 2, c: 3 }
-const a = [10, 20, 30]
-let o2 = { }
-let a2 = [];
-({ a: o2.A, b: o2.B, c: o2.C } = o)  // object => object
-console.log(o2); // { A: 1, B: 2, C: 3 }
-[a2[2], a2[1], a2[0]] = a  // array => array
-console.log(a2); // [ 30, 20, 10 ]
-({ a: a2[0], b: a2[1], c: a2[2] } = o) // object => array
-console.log(a2); // [ 1, 2, 3 ]
-[o2.A, o2.B, o2.C] = a // array => object
-console.log(o2) // { A: 10, B: 20, C: 30 }
+// const o = { a: 1, b: 2, c: 3 }
+// const a = [10, 20, 30]
+// let o2 = { }
+// let a2 = [];
+// ({ a: o2.A, b: o2.B, c: o2.C } = o)  // object => object
+// console.log(o2); // { A: 1, B: 2, C: 3 }
+// [a2[2], a2[1], a2[0]] = a  // array => array
+// console.log(a2); // [ 30, 20, 10 ]
+// ({ a: a2[0], b: a2[1], c: a2[2] } = o) // object => array
+// console.log(a2); // [ 1, 2, 3 ]
+// [o2.A, o2.B, o2.C] = a // array => object
+// console.log(o2) // { A: 10, B: 20, C: 30 }
+
+// const [x, ...y] = a
+// console.log(x, y, [x, ...y]) // 10, [ 20, 30 ], [ 10, 20, 30 ]
+// const { a, ...x } = o
+// console.log(a, x, { a, ...x }) // 1 { b: 2, c: 3 } { a: 1, b: 2, c: 3 }
+
+// const [p, q, r, s = 0] = a
+// console.log(p, q, r, s) // 10, 20, 30, 0
+// const { a: p, d: s = 0 } = o
+// console.log(p, s) // 1, 0
+
+// const o = {
+//   _a: 1,
+//   get a() { return this._a },
+//   set a(v) { this._a = v }
+// }
+// o.a++
+// console.log(o.a) // 2
+
+// const p = "a"
+// const o = { [p]: 1 }
+// console.log(o.a, o[p]) // 1, 1
+
+// function tag(strings, ...values) {
+//   return `${strings[1].trim()} ${values[0] + 1} ${strings[0]}`
+// }
+// const a = 1
+// console.log(tag`A ${a + 1} B`) // B 3 A
+
+// function Singleton() {
+//   // const instance = Symbol("instance")
+//   const instance = Symbol.for("singleton.instance") // Symbol registry
+//   if (!Singleton[instance]) {
+//     this.a = 1
+//     Singleton[instance] = this
+//   }
+//   return Singleton[instance]
+// }
+// const s1 = new Singleton()
+// const s2 = new Singleton()
+// console.log(s1, s2, s1 === s2, new Number(1) === new Number(1))
+// // Singleton { a: 1 }, Singleton { a: 1 }, true, false
+
+// function iterator(n) { // iterator configuration
+//   let i = 0; // iterator state
+//   const next = _ => ({ value: i < n ? i : undefined, done: ++i > n })
+//   // iterable + iterator
+//   return { [Symbol.iterator]() { return this }, next }
+// }
+// for (const i of iterator(5)) { console.log(i) }
+
+// function* gen() {
+//   const a = yield 1
+//   const b = yield 2
+//   console.log(a, b)
+// }
+// const it = gen() // create controlling iterator
+// const { value: a } = it.next() // start generator
+// const { value: b } = it.next(10)
+// it.next(20) // 10, 20 (finish generator)
+// console.log(a, b) // 1, 2
+
+// function* gen() {
+//   try {
+//     yield 1
+//   } catch (e) { console.error(e.message) } // uh
+//   throw new Error("oh")
+// }
+// const it = gen()
+// try {
+//   const { value: a } = it.next()
+//   console.log(a) // 1
+//   it.throw(new Error("uh"))
+// } catch (e) { console.error(e.message) } // oh
+
+class A {
+  constructor(a) { this._a = a }
+  get a() { return this._a }
+  set a(v) { this._a = v }
+}
+class B extends A { // prototype delegation
+  constructor(a, b) {
+    super(a) // parent constructor
+    this.b = b
+  }
+  static c = 10 // statics are on the constructor function, not the prototype
+  sum() { return super.a + this.b } // parent object
+}
+const b = new B(1, 2)
+b.a += 3
+console.log(b.a, b.sum(), B.c) // 4, 6, 10
