@@ -468,19 +468,101 @@
 //   it.throw(new Error("uh"))
 // } catch (e) { console.error(e.message) } // oh
 
-class A {
-  constructor(a) { this._a = a }
-  get a() { return this._a }
-  set a(v) { this._a = v }
-}
-class B extends A { // prototype delegation
-  constructor(a, b) {
-    super(a) // parent constructor
-    this.b = b
-  }
-  static c = 10 // statics are on the constructor function, not the prototype
-  sum() { return super.a + this.b } // parent object
-}
-const b = new B(1, 2)
-b.a += 3
-console.log(b.a, b.sum(), B.c) // 4, 6, 10
+// class A {
+//   constructor(a) { this._a = a }
+//   get a() { return this._a }
+//   set a(v) { this._a = v }
+// }
+// class B extends A { // prototype delegation
+//   constructor(a, b) {
+//     super(a) // parent constructor
+//     this.b = b
+//   }
+//   static c = 10 // statics are on the constructor function, not the prototype
+//   sum() { return super.a + this.b } // parent object
+// }
+// const b = new B(1, 2)
+// b.a += 3
+// console.log(b.a, b.sum(), B.c) // 4, 6, 10
+
+// const m = new Map([["a", 1], ["b", 2]])
+// m.set("c", 3)
+// console.log(m.size, m.get("b"))
+// m.delete("c")
+// console.log(m, m.entries(), m.keys(), m.values())
+// console.log(m.has("a"))
+// m.clear()
+
+// const s = new Set([1, 2])
+// s.add(3)
+// console.log(s.size)
+// s.delete(3)
+// console.log(s, s.entries(), s.keys(), s.values())
+// console.log(s.has(2))
+// s.clear()
+
+// for (const [k, v] of ["a", "b", "c"].entries()) { console.log(k, v) }
+
+// function f() { }
+// const g = function() { }
+// console.log(f.name, g.name) // f, g
+
+// function F() { console.log(new.target) }
+// const f = new F() // function F
+// class C {
+//   constructor() { console.log(new.target) }
+// }
+// const c = new C() // class C
+
+// const o = { a: 1 }
+// const handlers = {
+//   get(target, key, context) {
+//     if (Reflect.has(target, key)) {
+//       console.log("get key", key)
+//       // forward operation from context (proxy) to target (object)
+//       return Reflect.get(target, key, context)
+//     } else {
+//       throw new Error(`${key} does not exist`)
+//     }
+//   }
+// }
+// const p = new Proxy(o, handlers)
+// console.log(p.a) // get key a, 1
+
+// const o = { a: 1 }
+// const handlers = {
+//   get(target, key, context) { throw new Error(`${key} does not exits`) }
+// }
+// const p = new Proxy(o, handlers)
+// Object.setPrototypeOf(o, p)
+// console.log(o.a, o.b) // 1, Error
+
+// function rmap(a, f = e => e, r = []) {
+//   if (a.length > 1) {
+//     const [h, ...t] = a
+//     return rmap(t, f, r.concat(f(h)))
+//   } else {
+//     return r.concat(f(a[0]))
+//   }
+// }
+// const a = new Array(9999)
+// console.log(rmap(a.fill(0), e => e + 1)) // Maximum call stack size exceeded
+
+// function trampoline(f) { // factors out recursion into loop
+//   // stack depth remains constant (stack frames are reused)
+//   while (typeof f === "function") { f = f() }
+//   return f
+// }
+// function tmap(a, f = e => e, r = []) {
+//   if (a.length > 1) {
+//     // no recursive call to tmap(), just return the partial() function
+//     return function partial() { // executed by trampoline
+//       const [h, ...t] = a
+//       return tmap(t, f, r.concat(f(h)))
+//     }
+//   } else {
+//     return r.concat(f(a[0]))
+//   }
+// }
+// const a = new Array(9999)
+// console.log(trampoline(tmap(a.fill(0), e => e + 1))) // no RangeError
