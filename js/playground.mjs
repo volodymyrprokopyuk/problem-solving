@@ -566,3 +566,9 @@
 // }
 // const a = new Array(9999)
 // console.log(trampoline(tmap(a.fill(0), e => e + 1))) // no RangeError
+
+// const o1 = { a: 1 }
+// const o2 = { b:2, ...o1 }
+// console.log(o2) // { b: 2, a: 1 }
+// const { a, ...o3 } = o2
+// console.log(a, o3) // 1, { b: 2 }
