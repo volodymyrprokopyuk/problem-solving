@@ -13,6 +13,14 @@
   import EmployeeList from "./EmployeeList.svelte"
   import StopLight from "./StopLight.svelte"
   import BindForm from "./BindForm.svelte"
+  import Tally from "./Tally.svelte"
+  let tally
+  let rate = 0.0
+  let grandTotal = 0.0
+  function tallyExtract() {
+    rate = tally.rate
+    grandTotal = tally.grandTotal()
+  }
 
   // Travel packing checklist
   import Login from "./Login.svelte"
@@ -29,7 +37,10 @@
 <!-- <Dog breed="whippet"/> -->
 <!-- <EmployeeList/> -->
 <!-- <StopLight/> -->
-<BindForm/>
+<!-- <BindForm/> -->
+<Tally bind:this={tally}/>
+<button type="button" on:click={tallyExtract}>Extract</button>
+<p>Rate: {rate.toFixed(2)}, Grand total: {grandTotal.toFixed(2)}</p>
 
 <!-- Travel packing checklist -->
 <!-- <main>
