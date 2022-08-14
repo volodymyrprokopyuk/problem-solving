@@ -24,6 +24,8 @@
   import BindChild from "./BindChild.svelte"
   let pValue = 1
   let triple
+  import ColorPicker from "./ColorPicker.svelte"
+  import SlotShipping from "./SlotShipping.svelte"
 
   // Travel packing checklist
   import Login from "./Login.svelte"
@@ -44,8 +46,13 @@
 <!-- <Tally bind:this={tally}/>
      <button type="button" on:click={tallyExtract}>Extract</button>
      <p>Rate: {rate.toFixed(2)}, Grand total: {grandTotal.toFixed(2)}</p> -->
-<BindChild bind:cValue={pValue} bind:triple/>
-<p>pValue = {pValue}, triple = {triple}</p>
+<!-- <BindChild bind:cValue={pValue} bind:triple/>
+     <p>pValue = {pValue}, triple = {triple}</p> -->
+<!-- <ColorPicker/> -->
+<SlotShipping>
+  <p slot="address">My address</p>
+  <p slot="name">Vlad</p>
+</SlotShipping>
 
 <!-- Travel packing checklist -->
 <!-- <main>
