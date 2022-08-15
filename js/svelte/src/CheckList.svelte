@@ -1,21 +1,13 @@
 <script>
+  import { createEventDispatcher } from "svelte"
+  const dispatch = createEventDispatcher()
   import Category from "./Category.svelte"
 
   let catName = ""
   let show = "all"
-  const catClothes = {
-    id: 1, name: "Clothes", items: [
-      {id: 1, name: "Item A", packed: false},
-      {id: 2, name: "Item B", packed: true}
-    ]
-  }
-  const catBath = {
-    id: 2, name: "Bath", items: [
-      {id: 3, name: "Item C", packed: true},
-      {id: 4, name: "Item D", packed: false}
-    ]
-  }
-  let categories = [catClothes, catBath]
+  let categories
+
+  catsRestore()
 
   function catAdd() {
     const catNames = new Set(categories.map(cat => cat.name))
@@ -27,6 +19,33 @@
     categories.push({ id, name: catName, items: [] })
     categories = categories
     catName = ""
+    dispatch("persist")
+  }
+
+  function catDelete(id) {
+    categories = categories.filter(cat => cat.id !== id)
+    dispatch("persist")
+  }
+
+  function catsPersist() {
+    localStorage.setItem("travelPacking", JSON.stringify(categories))
+  }
+
+  function catsRestore() {
+    const catsDefault = [{
+      id: 1, name: "Clothes", items: [
+        {id: 1, name: "Item A", packed: false},
+        {id: 2, name: "Item B", packed: true}
+      ]
+    }, {
+      id: 2, name: "Bath", items: [
+        {id: 3, name: "Item C", packed: true},
+        {id: 4, name: "Item D", packed: false}
+      ]
+    }
+    ]
+    categories = JSON.parse(localStorage.getItem("travelPacking"))
+    if (!categories) { categories = catsDefault }
   }
 
   function allUnpack() {
@@ -35,7 +54,10 @@
   }
 </script>
 
-<section>
+<section on:persist={catsPersist}>
+  <div>
+    <button on:click={() => dispatch("logout")}>Logout</button>
+  </div>
   <form on:submit|preventDefault={catAdd}>
     <input type="text" placeholder="New category"
            bind:value={catName}>
@@ -59,7 +81,9 @@
   </div>
   <div class="categories">
     {#each categories as category (category.id)}
-      <Category {categories} bind:category {show}/>
+      <Category {categories} bind:category {show}
+                on:delete={(ev) => catDelete(ev.detail)}
+                on:persist={catsPersist}/>
     {/each}
   </div>
 </section>

@@ -1,4 +1,6 @@
 <script>
+  import { createEventDispatcher } from "svelte"
+  const dispatch = createEventDispatcher()
   import { blurOnKey } from "./util.js"
 
   export let item = { id: 0, name: "", packed: false }
@@ -17,7 +19,7 @@
     <span class:packed={item.packed}
           on:click={() => editing = true}>{item.name}</span>
   {/if}
-  <button>Delete</button>
+  <button on:click={() => dispatch("delete", item.id)}>Delete</button>
 </li>
 
 <style>

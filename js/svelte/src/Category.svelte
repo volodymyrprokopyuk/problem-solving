@@ -1,4 +1,6 @@
 <script>
+  import { createEventDispatcher } from "svelte"
+  const dispatch = createEventDispatcher()
   import Item from "./Item.svelte"
   import { blurOnKey } from "./util.js"
 
@@ -26,6 +28,12 @@
     category.items.push({ id, name: itemName, packed: false })
     category.items = category.items
     itemName = ""
+    dispatch("persist")
+  }
+
+  function itemDelete(id) {
+    category.items = category.items.filter(it => it.id !== id)
+    dispatch("persist")
   }
 </script>
 
@@ -38,7 +46,7 @@
     {:else}
       <span on:click={() => editing = true}>{category.name}</span>
     {/if}
-    <button>Delete</button>
+    <button on:click={() => dispatch("delete", category.id)}>Delete</button>
   </h3>
   <p>{status}</p>
 
@@ -49,7 +57,7 @@
 
   <ul>
     {#each items as item (item.id)}
-      <Item bind:item/>
+      <Item bind:item on:delete={(ev) => itemDelete(ev.detail)}/>
     {:else}
       <p>Empty category</p>
     {/each}

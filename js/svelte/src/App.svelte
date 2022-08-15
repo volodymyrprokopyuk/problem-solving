@@ -34,6 +34,7 @@
   // Travel packing checklist
   import Login from "./Login.svelte"
   import CheckList from "./CheckList.svelte"
+  let page = Login
 </script>
 
 <!-- <Clock color="green"/> -->
@@ -57,8 +58,8 @@
      <p slot="address">My address</p>
      <p slot="name">Vlad</p>
      </SlotShipping> -->
-<EventButtons {buttons} selected={bselected} on:buttonSelected={buttonSelected}/>
-{#if bselected}<p>Selected: {bselected}</p>{/if}
+<!-- <EventButtons {buttons} selected={bselected} on:buttonSelected={buttonSelected}/>
+     {#if bselected}<p>Selected: {bselected}</p>{/if} -->
 
 <!-- Travel packing checklist -->
 <!-- <main>
@@ -80,4 +81,8 @@
      text-align: center;
      }
      </style> -->
-<!-- <CheckList/> -->
+{#if page === Login}
+  <Login on:login={() => page = CheckList}/>
+{:else}
+  <CheckList on:logout={() => page = Login}/>
+{/if}
