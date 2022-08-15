@@ -26,6 +26,10 @@
   let triple
   import ColorPicker from "./ColorPicker.svelte"
   import SlotShipping from "./SlotShipping.svelte"
+  import EventButtons from "./EventButtons.svelte"
+  const buttons = ["A", "B", "C"]
+  let bselected
+  function buttonSelected(ev) { bselected = ev.detail }
 
   // Travel packing checklist
   import Login from "./Login.svelte"
@@ -49,10 +53,12 @@
 <!-- <BindChild bind:cValue={pValue} bind:triple/>
      <p>pValue = {pValue}, triple = {triple}</p> -->
 <!-- <ColorPicker/> -->
-<SlotShipping>
-  <p slot="address">My address</p>
-  <p slot="name">Vlad</p>
-</SlotShipping>
+<!-- <SlotShipping>
+     <p slot="address">My address</p>
+     <p slot="name">Vlad</p>
+     </SlotShipping> -->
+<EventButtons {buttons} selected={bselected} on:buttonSelected={buttonSelected}/>
+{#if bselected}<p>Selected: {bselected}</p>{/if}
 
 <!-- Travel packing checklist -->
 <!-- <main>
