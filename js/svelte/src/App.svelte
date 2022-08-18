@@ -30,6 +30,7 @@
   const buttons = ["A", "B", "C"]
   let bselected
   function buttonSelected(ev) { bselected = ev.detail }
+  import CounterStore from "./CounterStore.svelte"
 
   // Travel packing checklist
   import Login from "./Login.svelte"
@@ -60,11 +61,16 @@
      </SlotShipping> -->
 <!-- <EventButtons {buttons} selected={bselected} on:buttonSelected={buttonSelected}/>
      {#if bselected}<p>Selected: {bselected}</p>{/if} -->
+<CounterStore/>
 
 <!-- Travel packing checklist -->
 <!-- <main>
      <h1>Travel packing checklist</h1>
-     <Login/>
+     {#if page === Login}
+     <Login on:login={() => page = CheckList}/>
+     {:else}
+     <CheckList on:logout={() => page = Login}/>
+     {/if}
      </main>
 
      <style>
@@ -81,8 +87,3 @@
      text-align: center;
      }
      </style> -->
-{#if page === Login}
-  <Login on:login={() => page = CheckList}/>
-{:else}
-  <CheckList on:logout={() => page = Login}/>
-{/if}
