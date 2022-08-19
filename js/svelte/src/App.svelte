@@ -39,6 +39,7 @@
     mode = ev.detail
     if (mode === "dogCreate") { dog = { } }
   }
+  import DerivedCost from "./DerivedCost.svelte"
 
   // Travel packing checklist
   import Login from "./Login.svelte"
@@ -70,12 +71,13 @@
 <!-- <EventButtons {buttons} selected={bselected} on:buttonSelected={buttonSelected}/>
      {#if bselected}<p>Selected: {bselected}</p>{/if} -->
 <!-- <CounterStore/> -->
-<h1>Dogs</h1>
-{#if mode === "dogList"}
-  <DogList on:mode={modeChange} on:dogSelect={ev => dog = ev.detail}/>
-{:else}
-  <DogForm {mode} {dog} on:mode={modeChange}/>
-{/if}
+<!-- <h1>Dogs</h1>
+     {#if mode === "dogList"}
+     <DogList on:mode={modeChange} on:dogSelect={ev => dog = ev.detail}/>
+     {:else}
+     <DogForm {mode} {dog} on:mode={modeChange}/>
+     {/if} -->
+<DerivedCost/>
 
 <!-- Travel packing checklist -->
 <!-- <main>
