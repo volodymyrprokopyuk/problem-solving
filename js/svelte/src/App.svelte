@@ -31,6 +31,14 @@
   let bselected
   function buttonSelected(ev) { bselected = ev.detail }
   import CounterStore from "./CounterStore.svelte"
+  import DogList from "./DogList.svelte"
+  import DogForm from "./DogForm.svelte"
+  let dog = { }
+  let mode = "dogList"
+  function modeChange(ev) {
+    mode = ev.detail
+    if (mode === "dogCreate") { dog = { } }
+  }
 
   // Travel packing checklist
   import Login from "./Login.svelte"
@@ -61,7 +69,13 @@
      </SlotShipping> -->
 <!-- <EventButtons {buttons} selected={bselected} on:buttonSelected={buttonSelected}/>
      {#if bselected}<p>Selected: {bselected}</p>{/if} -->
-<CounterStore/>
+<!-- <CounterStore/> -->
+<h1>Dogs</h1>
+{#if mode === "dogList"}
+  <DogList on:mode={modeChange} on:dogSelect={ev => dog = ev.detail}/>
+{:else}
+  <DogForm {mode} {dog} on:mode={modeChange}/>
+{/if}
 
 <!-- Travel packing checklist -->
 <!-- <main>
