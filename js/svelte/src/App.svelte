@@ -40,6 +40,7 @@
     if (mode === "dogCreate") { dog = { } }
   }
   import DerivedCost from "./DerivedCost.svelte"
+  import CustomCounter from "./CustomCounter.svelte"
 
   // Travel packing checklist
   import Login from "./Login.svelte"
@@ -77,7 +78,8 @@
      {:else}
      <DogForm {mode} {dog} on:mode={modeChange}/>
      {/if} -->
-<DerivedCost/>
+<!-- <DerivedCost/> -->
+<CustomCounter/>
 
 <!-- Travel packing checklist -->
 <!-- <main>

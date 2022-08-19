@@ -23,3 +23,11 @@ export const taxedItemStore = derived(
   [itemStore, taxStore], ([itemStore, taxStore]) =>
   itemStore.map(item => ({ ...item, total: item.cost * (1 + taxStore) }))
 )
+
+const { subscribe, set, update } = writable(0)
+export const customCounter = {
+  subscribe,
+  inc() { update(c => c + 1) },
+  dec() { update(c => c - 1) },
+  reset() { set(0) }
+}
