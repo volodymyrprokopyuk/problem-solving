@@ -42,6 +42,8 @@
   import DerivedCost from "./DerivedCost.svelte"
   import CustomCounter from "./CustomCounter.svelte"
   import HtmlTextarea from "./HtmlTextarea.svelte"
+  import Dialog from "./Dialog.svelte"
+  let dialog
 
   // Travel packing checklist
   import Login from "./Login.svelte"
@@ -81,7 +83,10 @@
      {/if} -->
 <!-- <DerivedCost/> -->
 <!-- <CustomCounter/> -->
-<HtmlTextarea/>
+<!-- <HtmlTextarea/> -->
+<button type="button" on:click={() => dialog.showModal()}>Dialog</button>
+<Dialog title="A dialog" bind:dialog><p slot="content">A content</p></Dialog>
+
 
 <!-- Travel packing checklist -->
 <!-- <main>
