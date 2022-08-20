@@ -41,6 +41,7 @@
   }
   import DerivedCost from "./DerivedCost.svelte"
   import CustomCounter from "./CustomCounter.svelte"
+  import HtmlTextarea from "./HtmlTextarea.svelte"
 
   // Travel packing checklist
   import Login from "./Login.svelte"
@@ -79,7 +80,8 @@
      <DogForm {mode} {dog} on:mode={modeChange}/>
      {/if} -->
 <!-- <DerivedCost/> -->
-<CustomCounter/>
+<!-- <CustomCounter/> -->
+<HtmlTextarea/>
 
 <!-- Travel packing checklist -->
 <!-- <main>
