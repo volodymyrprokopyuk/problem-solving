@@ -44,6 +44,8 @@
   import HtmlTextarea from "./HtmlTextarea.svelte"
   import Dialog from "./Dialog.svelte"
   let dialog
+  import LifeCycleButton from "./LifeCycleButton.svelte"
+  let lcShow = false
 
   // Travel packing checklist
   import Login from "./Login.svelte"
@@ -84,9 +86,10 @@
 <!-- <DerivedCost/> -->
 <!-- <CustomCounter/> -->
 <!-- <HtmlTextarea/> -->
-<button type="button" on:click={() => dialog.showModal()}>Dialog</button>
-<Dialog title="A dialog" bind:dialog><p slot="content">A content</p></Dialog>
-
+<!-- <button type="button" on:click={() => dialog.showModal()}>Dialog</button>
+     <Dialog title="A dialog" bind:dialog><p slot="content">A content</p></Dialog> -->
+<label>Show <input type="checkbox" bind:checked={lcShow}></label>
+{#if lcShow}<LifeCycleButton/>{/if}
 
 <!-- Travel packing checklist -->
 <!-- <main>
