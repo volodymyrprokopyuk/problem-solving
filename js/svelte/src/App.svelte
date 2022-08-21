@@ -46,6 +46,8 @@
   let dialog
   import LifeCycleButton from "./LifeCycleButton.svelte"
   let lcShow = false
+  import AutoFocus from "./AutoFocus.svelte"
+  import AutoColor from "./AutoColor.svelte"
 
   // Travel packing checklist
   import Login from "./Login.svelte"
@@ -88,8 +90,10 @@
 <!-- <HtmlTextarea/> -->
 <!-- <button type="button" on:click={() => dialog.showModal()}>Dialog</button>
      <Dialog title="A dialog" bind:dialog><p slot="content">A content</p></Dialog> -->
-<label>Show <input type="checkbox" bind:checked={lcShow}></label>
-{#if lcShow}<LifeCycleButton/>{/if}
+<!-- <label>Show <input type="checkbox" bind:checked={lcShow}></label>
+     {#if lcShow}<LifeCycleButton/>{/if} -->
+<!-- <AutoFocus/> -->
+<AutoColor/>
 
 <!-- Travel packing checklist -->
 <!-- <main>
