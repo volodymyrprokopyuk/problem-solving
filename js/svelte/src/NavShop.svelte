@@ -1,0 +1,1 @@
+<p>Shop content</p>

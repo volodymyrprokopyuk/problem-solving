@@ -48,11 +48,16 @@
   let lcShow = false
   import AutoFocus from "./AutoFocus.svelte"
   import AutoColor from "./AutoColor.svelte"
+  import ManualNavigation from "./ManualNavigation.svelte"
+  import HashNavigation from "./HashNavigation.svelte"
 
   // Travel packing checklist
   import Login from "./Login.svelte"
   import CheckList from "./CheckList.svelte"
+  import NotFound from "./NotFound.svelte"
   let page = Login
+  const hashMap = { "#login": Login, "#checklist": CheckList }
+  let activeComponent = Login
 </script>
 
 <!-- <Clock color="green"/> -->
@@ -93,7 +98,9 @@
 <!-- <label>Show <input type="checkbox" bind:checked={lcShow}></label>
      {#if lcShow}<LifeCycleButton/>{/if} -->
 <!-- <AutoFocus/> -->
-<AutoColor/>
+<!-- <AutoColor/> -->
+<!-- <ManualNavigation/> -->
+<!-- <HashNavigation/> -->
 
 <!-- Travel packing checklist -->
 <!-- <main>
@@ -103,19 +110,28 @@
      {:else}
      <CheckList on:logout={() => page = Login}/>
      {/if}
-     </main>
+     </main> -->
 
-     <style>
-     :global(body) {
-     background-color: cornsilk;
-     }
-     main {
-     display: flex;
-     flex-direction: column;
-     justify-content: flex-start;
-     align-items: center;
-     }
-     h1 {
-     text-align: center;
-     }
-     </style> -->
+<svelte:window
+  on:hashchange={() => activeComponent = hashMap[location.hash] || NotFound}/>
+<main>
+  <svelte:component
+    this={activeComponent}
+    on:login={() => location.hash = "#checklist"}
+    on:logout={() => location.hash = "#login"}/>
+</main>
+
+<style>
+ :global(body) {
+   background-color: cornsilk;
+ }
+ main {
+   display: flex;
+   flex-direction: column;
+   justify-content: flex-start;
+   align-items: center;
+ }
+ h1 {
+   text-align: center;
+ }
+</style>
