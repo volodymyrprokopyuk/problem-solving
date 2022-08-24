@@ -50,6 +50,7 @@
   import AutoColor from "./AutoColor.svelte"
   import ManualNavigation from "./ManualNavigation.svelte"
   import HashNavigation from "./HashNavigation.svelte"
+  import FormValidation from "./FormValidation.svelte"
 
   // Travel packing checklist
   import Login from "./Login.svelte"
@@ -101,6 +102,7 @@
 <!-- <AutoColor/> -->
 <!-- <ManualNavigation/> -->
 <!-- <HashNavigation/> -->
+<FormValidation/>
 
 <!-- Travel packing checklist -->
 <!-- <main>
@@ -112,26 +114,26 @@
      {/if}
      </main> -->
 
-<svelte:window
-  on:hashchange={() => activeComponent = hashMap[location.hash] || NotFound}/>
-<main>
-  <svelte:component
-    this={activeComponent}
-    on:login={() => location.hash = "#checklist"}
-    on:logout={() => location.hash = "#login"}/>
-</main>
+<!-- <svelte:window
+     on:hashchange={() => activeComponent = hashMap[location.hash] || NotFound}/>
+     <main>
+     <svelte:component
+     this={activeComponent}
+     on:login={() => location.hash = "#checklist"}
+     on:logout={() => location.hash = "#login"}/>
+     </main>
 
-<style>
- :global(body) {
-   background-color: cornsilk;
- }
- main {
-   display: flex;
-   flex-direction: column;
-   justify-content: flex-start;
-   align-items: center;
- }
- h1 {
-   text-align: center;
- }
-</style>
+     <style>
+     :global(body) {
+     background-color: cornsilk;
+     }
+     main {
+     display: flex;
+     flex-direction: column;
+     justify-content: flex-start;
+     align-items: center;
+     }
+     h1 {
+     text-align: center;
+     }
+     </style> -->
