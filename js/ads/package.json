@@ -1,0 +1,9 @@
+{
+  "name": "ads",
+  "version": "0.1.0",
+  "description": "Algorithms and data structures",
+  "main": "main.js",
+  "author": "Volodymyr Prokopyuk",
+  "license": "ISC",
+  "type": "module"
+}
