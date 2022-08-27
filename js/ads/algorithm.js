@@ -1,5 +1,7 @@
 import { Stack } from "./dstructure.js"
 
+function error(msg) { throw new Error(msg) }
+
 export function reverse(arr) {
   let res = []
   for (let i = arr.length - 1; i >= 0; --i) { res.push(arr[i]) }
@@ -8,21 +10,23 @@ export function reverse(arr) {
 
 export function reverse2(arr) { return Array.from(Stack.from(arr)) }
 
+// const arr = [1, 2, 3, 4, 5]
+// console.log(reverse([]), reverse(arr), reverse2([]), reverse2(arr))
+
 export function checkParens(
   str, parens = { "(": ")", "[": "]", "{": "}", "<": ">" }
 ) {
   const cl = new Set(Object.values(parens))
   const st = new Stack()
   for (const ch of str) {
-    if (ch in parens) {
-      st.push(ch)
-    } else if (cl.has(ch)) {
-      if (st.length === 0) { throw new Error(`extra close ${ch}`) }
+    if (ch in parens) { st.push(ch) }
+    else if (cl.has(ch)) {
+      if (st.length === 0) { error(`extra close ${ch}`) }
       const op = st.pop()
-      if (ch !== parens[op]) { throw new Error(`mismatch ${op} ${ch}`) }
+      if (ch !== parens[op]) { error(`mismatch ${op} ${ch}`) }
     }
   }
-  if (st.length !== 0) { throw new Error(`extra open ${st.peek()}`) }
+  if (st.length !== 0) { error(`extra open ${st.peek()}`) }
   return true
 }
 
