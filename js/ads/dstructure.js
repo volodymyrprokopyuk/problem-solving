@@ -214,3 +214,92 @@ export class Stack2 {
 
 // const st = Stack2.from([1, 2, 3, 4, 5])
 // console.log(st.pop(), st.peek(), st.pop(), st.length, Array.from(st))
+
+// ** Queue
+
+export class Queue {
+  constructor() {
+    this.arr = []
+  }
+
+  // O(1)
+  get length() { return this.arr.length }
+
+  // O(1) => O(n)
+  enq(el) { this.arr.unshift(el) }
+
+  // O(1)
+  deq() {
+    if (this.arr.length === 0) { error("deq from empty Queue") }
+    return this.arr.pop()
+  }
+
+  // O(1)
+  peek() {
+    if (this.arr.length === 0) { error("peek from empty Queue") }
+    return this.arr.at(-1)
+  }
+
+  // O(n)
+  static from(it) {
+    const qu = new Queue()
+    for (const el of it) { qu.enq(el) }
+    return qu
+  }
+}
+
+// const qu = Queue.from([1, 2, 3, 4, 5])
+// console.log(qu, qu.length)
+// qu.enq(10)
+// console.log(qu.deq(), qu.peek(), qu.deq(), qu, qu.length)
+
+export class Queue2 {
+  constructor() {
+    this.rear = this.front = null
+    this.length = 0
+  }
+
+  // O(1)
+  enq(el) {
+    const nd = new LNode(el)
+    ++this.length
+    if (this.rear === null) { this.front = this.rear = nd; return }
+    this.rear = this.rear.next = nd
+  }
+
+  // O(1)
+  deq() {
+    if (this.length === 0) { error("deq from empty Queue2") }
+    --this.length
+    const n = this.front
+    this.front = this.front.next
+    if (this.front === null) { this.rear = null }
+    return n.data
+  }
+
+  // O(1)
+  peek() {
+    if (this.length === 0) { error("peek from empty Queue2") }
+    return this.front.data
+  }
+
+  // O(n)
+  static from(it) {
+    const qu = new Queue2()
+    for (const el of it) { qu.enq(el) }
+    return qu
+  }
+
+  [Symbol.iterator]() {
+    const next = () => {
+      if (this.length === 0) { return { value: undefined, done: true } }
+      return { value: this.deq(), done: false }
+    }
+    return { next }
+  }
+}
+
+const qu = Queue2.from([1, 2, 3, 4, 5])
+// console.log(qu.length, Array.from(qu))
+qu.enq(10)
+console.log(qu.deq(), qu.peek(), qu.deq(), qu.length, Array.from(qu))
