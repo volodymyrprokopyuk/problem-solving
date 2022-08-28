@@ -79,21 +79,27 @@ export class LList {
     }
     return { next }
   }
+
+  static from(it) {
+    const ll = new LList()
+    for (const el of it) { ll.add(el) }
+    return ll
+  }
 }
 
-const ll = new LList()
-ll.addHead(-1)
-ll.add(1)
-ll.add(2)
-ll.add(3)
-ll.addHead(-2)
-ll.rem(-2)
-ll.rem(2)
-ll.rem(3)
-ll.rem(99)
-ll.addHead(-2)
-ll.add(2)
-console.log(Array.from(ll), ll.len, ll.find(1), ll.find(99))
+// const ll = LList.from([0])
+// ll.addHead(-1)
+// ll.add(1)
+// ll.add(2)
+// ll.add(3)
+// ll.addHead(-2)
+// ll.rem(-2)
+// ll.rem(2)
+// ll.rem(3)
+// ll.rem(99)
+// ll.addHead(-2)
+// ll.add(2)
+// console.log(Array.from(ll), ll.len, ll.find(1), ll.find(99))
 
 // TODO export class DList {  } Doubly linked list
 // TODO export class CList {  } Circular linked list
