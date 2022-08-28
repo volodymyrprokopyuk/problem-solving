@@ -1,3 +1,5 @@
+import { inOrder, preOrder, postOrder } from "./algorithm.js"
+
 function error(msg) { throw new Error(msg) }
 
 // ** LinkedList
@@ -5,8 +7,7 @@ function error(msg) { throw new Error(msg) }
 class LNode {
   constructor (data) {
     this.data = data
-    this.next = null
-    this.prev = null
+    this.prev = this.next = null
   }
 }
 
@@ -255,7 +256,7 @@ export class Queue {
 
 export class Queue2 {
   constructor() {
-    this.rear = this.front = null
+    this.tail = this.head = null
     this.length = 0
   }
 
@@ -263,24 +264,24 @@ export class Queue2 {
   enq(el) {
     const nd = new LNode(el)
     ++this.length
-    if (this.rear === null) { this.front = this.rear = nd; return }
-    this.rear = this.rear.next = nd
+    if (this.tail === null) { this.head = this.tail = nd; return }
+    this.tail = this.tail.next = nd
   }
 
   // O(1)
   deq() {
     if (this.length === 0) { error("deq from empty Queue2") }
     --this.length
-    const n = this.front
-    this.front = this.front.next
-    if (this.front === null) { this.rear = null }
+    const n = this.head
+    this.head = this.head.next
+    if (this.head === null) { this.tail = null }
     return n.data
   }
 
   // O(1)
   peek() {
     if (this.length === 0) { error("peek from empty Queue2") }
-    return this.front.data
+    return this.head.data
   }
 
   // O(n)
@@ -299,7 +300,71 @@ export class Queue2 {
   }
 }
 
-const qu = Queue2.from([1, 2, 3, 4, 5])
-// console.log(qu.length, Array.from(qu))
-qu.enq(10)
-console.log(qu.deq(), qu.peek(), qu.deq(), qu.length, Array.from(qu))
+// const qu = Queue2.from([1, 2, 3, 4, 5])
+// // console.log(qu.length, Array.from(qu))
+// qu.enq(10)
+// console.log(qu.deq(), qu.peek(), qu.deq(), qu.length, Array.from(qu))
+
+// TODO export class Deque { enq/deqHead/Tail }
+
+// ** Tree
+
+export class TNode {
+  constructor(data) {
+    this.data = data
+    this.left = this.right = null
+  }
+}
+
+export class BSTree {
+  constructor() { this.root = null }
+
+  #add(nd, vl) {
+    if (vl < nd.data) {
+      if (nd.left === null) { nd.left = new TNode(vl) }
+      else { this.#add(nd.left, vl) }
+    } else {
+      if (nd.right === null) { nd.right = new TNode(vl) }
+      else { this.#add(nd.right, vl) }
+    }
+  }
+
+  #remove(nd, vl) {
+    // TODO
+  }
+
+  #find(nd, vl) {
+    if (nd === null) { return false }
+    if (vl === nd.data) { return true }
+    if (vl < nd.data) { return this.#find(nd.left, vl) }
+    else { return this.#find(nd.right, vl) }
+  }
+
+  // O(log n)
+  add(vl) {
+    if (this.root === null) { this.root = new TNode(vl); return }
+    this.#add(this.root, vl)
+  }
+
+  // O(log n)
+  remove(vl) {
+    if (this.root === null) { return }
+    this.#remove(thir.root, vl)
+  }
+
+  // O(log n)
+  find(vl) {
+    if (this.root === null) { return false }
+    return this.#find(this.root, vl)
+  }
+
+  static from(it) {
+    const tr = new BSTree()
+    for(const el of it) { tr.add(el) }
+    return tr
+  }
+}
+
+const tr = BSTree.from([8, 1, 4, 3, 2, 6, 7, 9, 0, 5])
+inOrder(tr.root, console.log)
+console.log(tr.find(1), tr.find(-1))

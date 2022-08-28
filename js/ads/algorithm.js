@@ -1,4 +1,4 @@
-import { Stack } from "./dstructure.js"
+import { Stack, TNode } from "./dstructure.js"
 
 function error(msg) { throw new Error(msg) }
 
@@ -35,3 +35,41 @@ export function checkParens(
 //   try { console.log(checkParens(str)) }
 //   catch (err) { console.error(err.message) }
 // }
+
+// ** Tree
+
+export function inOrder(nd, fn) {
+  if (nd !== null) {
+    inOrder(nd.left, fn)
+    fn(nd.data)
+    inOrder(nd.right, fn)
+  }
+}
+
+export function preOrder(nd, fn) {
+  if (nd !== null) {
+    fn(nd.data)
+    preOrder(nd.left, fn)
+    preOrder(nd.right, fn)
+  }
+}
+
+export function postOrder(nd, fn) {
+  if (nd !== null) {
+    postOrder(nd.left, fn)
+    postOrder(nd.right, fn)
+    fn(nd.data)
+  }
+}
+
+// const tr = new TNode(1)
+// tr.left = new TNode(2)
+// tr.left.left = new TNode(3)
+// tr.left.right = new TNode(4)
+// tr.right = new TNode(5)
+// tr.right.left = new TNode(6)
+// tr.right.right = new TNode(7)
+// console.log(tr)
+// inOrder(tr, console.log)
+// preOrder(tr, console.log)
+// postOrder(tr, console.log)
