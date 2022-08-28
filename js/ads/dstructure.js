@@ -11,126 +11,89 @@ class LNode {
   }
 }
 
-// Preserves the append ordering (by appending to the tail)
 export class LList {
   constructor() {
     this.tail = this.head = null
-    this.length = 0
+    this.len = 0
   }
 
   // O(1)
-  append(vl) {
+  add(vl) {
     const nd = new LNode(vl)
-    ++this.length
-    if (this.head === null) { this.tail = this.head = nd; return }
-    this.tail = this.tail.next = nd
+    if (this.tail === null) { this.head = this.tail = nd }
+    else { this.tail = this.tail.next = nd }
+    ++this.len
+  }
+
+  // O(1)
+  addHead(vl) {
+    const nd = new LNode(vl)
+    if (this.head === null) { this.tail = this.head = nd }
+    else {
+      nd.next = this.head
+      this.head = nd
+    }
+    ++this.len
   }
 
   // O(n)
-  remove(vl) {
-    let n = this.head
-    if (n === null) { error("remove from empty LList") }
-    if (n.data === vl) {
-      --this.length
-      this.head = this.head.next
-      return
-    }
-    while (n.next !== null) {
-      if (n.next.data === vl) {
-        if (n.next === this.tail) { this.tail = n }
-        --this.length
-        n.next = n.next.next
-        return
+  rem(vl) {
+    if (this.len === 0) { error("rem from empty LList") }
+    if (vl === this.head.data) {
+      if (this.head === this.tail) { this.tail = this.head = null }
+      else { this.head = this.head.next }
+      --this.len
+    } else {
+      let n = this.head
+      while (n.next !== null) {
+        if (vl === n.next.data) {
+          if (n.next === this.tail) { this.tail = n }
+          n.next = n.next.next
+          --this.len
+          break
+        }
+        n = n.next
       }
-      n = n.next
     }
   }
 
   // O(n)
-  static from(it) {
-    const ll = new LList()
-    for (const el of it) { ll.append(el) }
-    return ll
+  find(vl) {
+    let n = this.head
+    while (n !== null) {
+      if (vl === n.data) { return true }
+      n = n.next
+    }
+    return false
   }
 
-  // O(n)
   [Symbol.iterator]() {
     let n = this.head
     const next = () => {
-      if (n === null) { return { value: undefined, done: true } }
-      const value = n.data
-      n = n.next
-      return { value, done: false }
+      if (n === null) { return { done: true } }
+      else {
+        const value = n.data
+        n = n.next
+        return { value, done: false }
+      }
     }
     return { next }
   }
 }
 
-// const ll = LList.from([1, 2, 3, 4, 5])
-// console.log(Array.from(ll), ll.length)
-// ll.remove(1)
-// ll.remove(3)
-// ll.remove(5)
-// ll.remove(99)
-// ll.append(10)
-// console.log(Array.from(ll), ll.length)
-
-// Reverse the prepend ordering (by prepending to the head)
-export class RList {
-  constructor() {
-    this.head = null
-    this.length = 0
-  }
-
-  // O(1)
-  prepend(vl) {
-    const nd = new LNode(vl)
-    ++this.length
-    if (this.head === null) { this.head = nd; return }
-    nd.next = this.head
-    this.head = nd
-  }
-
-  // O(1)
-  pop() {
-    if (this.head === null) { error("pop from empty RList") }
-    --this.length
-    const n = this.head
-    this.head = this.head.next
-    return n.data
-  }
-
-  // O(1)
-  peek() {
-    if (this.head === null) { error("peek from empty RList") }
-    return this.head.data
-  }
-
-  // O(n)
-  static from(it) {
-    const rl = new RList()
-    for (const el of it) { rl.prepend(el) }
-    return rl
-  }
-
-  // O(n)
-  [Symbol.iterator]() {
-    let n = this.head
-    const next = () => {
-      if (n === null) { return { value: undefined, done: true } }
-      const value = n.data
-      n = n.next
-      return { value, done: false }
-    }
-    return { next }
-  }
-}
-
-// const rl = RList.from([1, 2, 3, 4, 5])
-// console.log(Array.from(rl), rl.length)
-// console.log(rl.pop(), rl.pop())
-// rl.prepend(10)
-// console.log(Array.from(rl), rl.length)
+const ll = new LList()
+ll.addHead(-1)
+ll.add(1)
+ll.add(2)
+ll.add(3)
+ll.addHead(-2)
+ll.rem(-2)
+ll.rem(2)
+ll.rem(3)
+ll.rem(99)
+ll.addHead(-2)
+ll.add(2)
+console.log(Array.from(ll), ll.len, ll.find(1), ll.find(99))
 
 // TODO export class DList {  } Doubly linked list
 // TODO export class CList {  } Circular linked list
@@ -365,6 +328,6 @@ export class BSTree {
   }
 }
 
-const tr = BSTree.from([8, 1, 4, 3, 2, 6, 7, 9, 0, 5])
-inOrder(tr.root, console.log)
-console.log(tr.find(1), tr.find(-1))
+// const tr = BSTree.from([8, 1, 4, 3, 2, 6, 7, 9, 0, 5])
+// inOrder(tr.root, console.log)
+// console.log(tr.find(1), tr.find(-1))
