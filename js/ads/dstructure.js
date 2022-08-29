@@ -1,4 +1,4 @@
-import { inOrder, preOrder, postOrder } from "./algorithm.js"
+import { bstInOrder, bstFind, bstFindParent, bstMin } from "./algorithm.js"
 
 function error(msg) { throw new Error(msg) }
 
@@ -116,7 +116,10 @@ export class LList {
 // console.log(Array.from(ll), ll.length)
 // console.log(ll.find(1), ll.find(99))
 
-// TODO export class DList {  } Doubly linked list
+// TODO export class DList {
+//   this.head, this.tail
+//   add, addHead, rem, remHead, find, it, revIt, from
+// } Doubly linked list
 // TODO export class CList {  } Circular linked list
 
 // ** Stack
@@ -222,11 +225,20 @@ export class Queue {
 // console.log(qu.deq(), qu.peek(), qu.deq())
 // console.log(qu, qu.length)
 
-// TODO export class Deque { enq, deq, enqHead, deqTail }
+// TODO export class Deque {
+//   this.head, this.tail
+//   enq, deq, enqHead, deqTail, peek, peekTail, from
+// }
+
+// ** HashTable
+
+// TODO export class HTable {
+//   set, get, has, rem, it, from
+// }
 
 // ** Tree
 
-export class TNode {
+class TNode {
   constructor(data) {
     this.data = data
     this.left = this.right = null
@@ -234,45 +246,61 @@ export class TNode {
 }
 
 export class BSTree {
-  constructor() { this.root = null }
+  constructor() {
+    this.root = null
+    this.length = 0
+  }
 
   #add(nd, vl) {
+    // The value is smaller than the current value
     if (vl < nd.data) {
-      if (nd.left === null) { nd.left = new TNode(vl) }
+      // Fill the left empty child
+      if (nd.left === null) { nd.left = new TNode(vl); ++this.length }
+      // Proseed further down the left path
       else { this.#add(nd.left, vl) }
+    // The value is bigger than the current value
     } else {
-      if (nd.right === null) { nd.right = new TNode(vl) }
+      // Fill the right empty child
+      if (nd.right === null) { nd.right = new TNode(vl); ++this.length }
+      // Proceed further down the right path
       else { this.#add(nd.right, vl) }
     }
   }
 
-  #remove(nd, vl) {
-    // TODO
-  }
-
-  #find(nd, vl) {
-    if (nd === null) { return false }
-    if (vl === nd.data) { return true }
-    if (vl < nd.data) { return this.#find(nd.left, vl) }
-    else { return this.#find(nd.right, vl) }
-  }
-
   // O(log n)
   add(vl) {
-    if (this.root === null) { this.root = new TNode(vl); return }
-    this.#add(this.root, vl)
+    // Add the first element
+    if (this.root === null) { this.root = new TNode(vl); ++this.length }
+    else { this.#add(this.root, vl) }
+  }
+
+  #rem(nd, vl) {
+    // Stop on leaves
+    if (nd === null) { return null }
+    // Recursively lookup the node to remove
+    if (vl < nd.data) { nd.left = this.#rem(nd.left, vl) }
+    else if (vl > nd.data) { nd.right = this.#rem(nd.right, vl) }
+    // Found the node to remove
+    else {
+      // The node to remove is a leaf or has only 1 child
+      if (nd.left === null) { --this.length; return nd.right }
+      else if (nd.right === null) { --this.length; return nd.left }
+      // The node to remove has 2 children
+      else {
+        // The in-order successor becomes the new root
+        nd.data = bstMin(nd.right).data
+        // Delete the in-order successor
+        nd.right = this.#rem(nd.right, nd.data)
+      }
+    }
+    return nd
   }
 
   // O(log n)
-  remove(vl) {
-    if (this.root === null) { return }
-    this.#remove(thir.root, vl)
-  }
-
-  // O(log n)
-  find(vl) {
-    if (this.root === null) { return false }
-    return this.#find(this.root, vl)
+  rem(vl) {
+    const length = this.length
+    this.root = this.#rem(this.root, vl)
+    return length > this.length
   }
 
   static from(it) {
@@ -283,5 +311,21 @@ export class BSTree {
 }
 
 // const tr = BSTree.from([8, 1, 4, 3, 2, 6, 7, 9, 0, 5])
-// inOrder(tr.root, console.log)
-// console.log(tr.find(1), tr.find(-1))
+// const arr = []
+// bstInOrder(tr.root, nd => arr.push(nd.data))
+// console.log(tr.length, arr)
+
+
+const tr = BSTree.from([3, 1, 4, 5, 2])
+let arr = []
+bstInOrder(tr.root, nd => arr.push(nd.data))
+console.log(tr.length, arr)
+// console.log(tr.rem(99), tr.rem(2), tr.rem(5))
+console.log(tr.rem(1), tr.rem(4), tr.rem(3), tr.rem(2), tr.rem(5), tr.rem(99))
+arr = []
+bstInOrder(tr.root, nd => arr.push(nd.data))
+console.log(tr.length, arr)
+
+
+// TODO export class AVLTree { }
+// TODO export class RBTree { }
