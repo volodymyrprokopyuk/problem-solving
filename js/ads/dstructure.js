@@ -46,9 +46,9 @@ export class LList {
     if (this.length === 0) { return false }
     // Found the head element
     if (vl === this.head.data) {
-      // Remove the head singleton element
+      // Remove the head singleton element and make the LList empty
       if (this.head === this.tail) { this.tail = this.head = null }
-      // Remothe the head element by forwarding the head
+      // Remothe the head element and forward the head
       else { this.head = this.head.next }
       --this.length
       return true
@@ -143,7 +143,7 @@ export class Stack {
   // O(1)
   pop() {
     if (this.length === 0) { error("pop from empty Stack") }
-    // Return the element value and forward the head
+    // Return the head value and forward the head
     const vl = this.head.data
     this.head = this.head.next
     --this.length
@@ -153,7 +153,7 @@ export class Stack {
   // O(1)
   peek() {
     if (this.length === 0) { error("peek from empty Stack") }
-    // Return the value from the top
+    // Return the top value
     return this.head.data
   }
 
@@ -175,28 +175,40 @@ export class Stack {
 
 export class Queue {
   constructor() {
-    this.arr = []
+    this.tail = this.head = null
+    this.length = 0
   }
 
   // O(1)
-  get length() { return this.arr.length }
-
-  // O(1) => O(n)
-  enq(el) { this.arr.unshift(el) }
+  enq(vl) {
+    const nd = new LNode(vl)
+    // Enqueue the firs element
+    if (this.tail === null) { this.head = this.tail = nd }
+    // Append to the tail
+    else { this.tail = this.tail.next = nd }
+    ++this.length
+  }
 
   // O(1)
   deq() {
-    if (this.arr.length === 0) { error("deq from empty Queue") }
-    return this.arr.pop()
+    if (this.length === 0) { error("deq from empty Queue") }
+    // Return the head value
+    const vl = this.head.data
+    // Dequeue the head singleton element and make the Queue empty
+    if (this.head === this.tail) { this.tail = this.head = null }
+    // Dequeue the head element and forward the head
+    else { this.head = this.head.next }
+    --this.length
+    return vl
   }
 
   // O(1)
   peek() {
-    if (this.arr.length === 0) { error("peek from empty Queue") }
-    return this.arr.at(-1)
+    if (this.length === 0) { error("deq from empty Queue") }
+    // Return the head value
+    return this.head.data
   }
 
-  // O(n)
   static from(it) {
     const qu = new Queue()
     for (const el of it) { qu.enq(el) }
@@ -204,63 +216,13 @@ export class Queue {
   }
 }
 
-// const qu = Queue.from([1, 2, 3, 4, 5])
+// const qu = Queue.from([0])
+// qu.enq(1)
+// qu.enq(2)
+// console.log(qu.deq(), qu.peek(), qu.deq())
 // console.log(qu, qu.length)
-// qu.enq(10)
-// console.log(qu.deq(), qu.peek(), qu.deq(), qu, qu.length)
 
-export class Queue2 {
-  constructor() {
-    this.tail = this.head = null
-    this.length = 0
-  }
-
-  // O(1)
-  enq(el) {
-    const nd = new LNode(el)
-    ++this.length
-    if (this.tail === null) { this.head = this.tail = nd; return }
-    this.tail = this.tail.next = nd
-  }
-
-  // O(1)
-  deq() {
-    if (this.length === 0) { error("deq from empty Queue2") }
-    --this.length
-    const n = this.head
-    this.head = this.head.next
-    if (this.head === null) { this.tail = null }
-    return n.data
-  }
-
-  // O(1)
-  peek() {
-    if (this.length === 0) { error("peek from empty Queue2") }
-    return this.head.data
-  }
-
-  // O(n)
-  static from(it) {
-    const qu = new Queue2()
-    for (const el of it) { qu.enq(el) }
-    return qu
-  }
-
-  [Symbol.iterator]() {
-    const next = () => {
-      if (this.length === 0) { return { value: undefined, done: true } }
-      return { value: this.deq(), done: false }
-    }
-    return { next }
-  }
-}
-
-// const qu = Queue2.from([1, 2, 3, 4, 5])
-// // console.log(qu.length, Array.from(qu))
-// qu.enq(10)
-// console.log(qu.deq(), qu.peek(), qu.deq(), qu.length, Array.from(qu))
-
-// TODO export class Deque { enq/deqHead/Tail }
+// TODO export class Deque { enq, deq, enqHead, deqTail }
 
 // ** Tree
 
