@@ -20,7 +20,9 @@ export class LList {
   // O(1)
   add(vl) {
     const nd = new LNode(vl)
+    // Add the first element
     if (this.tail === null) { this.head = this.tail = nd }
+    // Append to the tail
     else { this.tail = this.tail.next = nd }
     ++this.len
   }
@@ -28,7 +30,9 @@ export class LList {
   // O(1)
   addHead(vl) {
     const nd = new LNode(vl)
+    // Add the first element
     if (this.head === null) { this.tail = this.head = nd }
+    // Prepend to the head
     else {
       nd.next = this.head
       this.head = nd
@@ -38,28 +42,39 @@ export class LList {
 
   // O(n)
   rem(vl) {
-    if (this.len === 0) { error("rem from empty LList") }
+    // Element not found in the empty LList
+    if (this.len === 0) { return false }
+    // Found the head element
     if (vl === this.head.data) {
+      // Remove the head singleton element
       if (this.head === this.tail) { this.tail = this.head = null }
+      // Remothe the head element by forwarding the head
       else { this.head = this.head.next }
       --this.len
-    } else {
-      let n = this.head
-      while (n.next !== null) {
-        if (vl === n.next.data) {
-          if (n.next === this.tail) { this.tail = n }
-          n.next = n.next.next
-          --this.len
-          break
-        }
-        n = n.next
-      }
+      return true
     }
+    // Linear search
+    let n = this.head
+    while (n.next !== null) {
+      // Found the element
+      if (vl === n.next.data) {
+        // Found the tail element. Backwards the tail
+        if (n.next === this.tail) { this.tail = n }
+        // Remove the found element by linking to the next element
+        n.next = n.next.next
+        --this.len
+        return true
+      }
+      n = n.next
+    }
+    // Element not found
+    return false
   }
 
   // O(n)
   find(vl) {
     let n = this.head
+    // Linear search
     while (n !== null) {
       if (vl === n.data) { return true }
       n = n.next
@@ -70,6 +85,7 @@ export class LList {
   [Symbol.iterator]() {
     let n = this.head
     const next = () => {
+      // Linear scan
       if (n === null) { return { done: true } }
       else {
         const value = n.data
@@ -87,19 +103,18 @@ export class LList {
   }
 }
 
-// const ll = LList.from([0])
-// ll.addHead(-1)
-// ll.add(1)
-// ll.add(2)
-// ll.add(3)
-// ll.addHead(-2)
-// ll.rem(-2)
-// ll.rem(2)
-// ll.rem(3)
-// ll.rem(99)
-// ll.addHead(-2)
-// ll.add(2)
-// console.log(Array.from(ll), ll.len, ll.find(1), ll.find(99))
+const ll = LList.from([0])
+console.log(Array.from(ll), ll.len)
+ll.addHead(-1)
+ll.add(1)
+ll.add(2)
+ll.add(3)
+ll.addHead(-2)
+console.log(ll.rem(-2), ll.rem(2), ll.rem(3), ll.rem(99))
+ll.addHead(-2)
+ll.add(2)
+console.log(Array.from(ll), ll.len)
+console.log(ll.find(1), ll.find(99))
 
 // TODO export class DList {  } Doubly linked list
 // TODO export class CList {  } Circular linked list
