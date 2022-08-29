@@ -14,7 +14,7 @@ class LNode {
 export class LList {
   constructor() {
     this.tail = this.head = null
-    this.len = 0
+    this.length = 0
   }
 
   // O(1)
@@ -24,7 +24,7 @@ export class LList {
     if (this.tail === null) { this.head = this.tail = nd }
     // Append to the tail
     else { this.tail = this.tail.next = nd }
-    ++this.len
+    ++this.length
   }
 
   // O(1)
@@ -37,20 +37,20 @@ export class LList {
       nd.next = this.head
       this.head = nd
     }
-    ++this.len
+    ++this.length
   }
 
   // O(n)
   rem(vl) {
     // Element not found in the empty LList
-    if (this.len === 0) { return false }
+    if (this.length === 0) { return false }
     // Found the head element
     if (vl === this.head.data) {
       // Remove the head singleton element
       if (this.head === this.tail) { this.tail = this.head = null }
       // Remothe the head element by forwarding the head
       else { this.head = this.head.next }
-      --this.len
+      --this.length
       return true
     }
     // Linear search
@@ -62,7 +62,7 @@ export class LList {
         if (n.next === this.tail) { this.tail = n }
         // Remove the found element by linking to the next element
         n.next = n.next.next
-        --this.len
+        --this.length
         return true
       }
       n = n.next
@@ -103,18 +103,18 @@ export class LList {
   }
 }
 
-const ll = LList.from([0])
-console.log(Array.from(ll), ll.len)
-ll.addHead(-1)
-ll.add(1)
-ll.add(2)
-ll.add(3)
-ll.addHead(-2)
-console.log(ll.rem(-2), ll.rem(2), ll.rem(3), ll.rem(99))
-ll.addHead(-2)
-ll.add(2)
-console.log(Array.from(ll), ll.len)
-console.log(ll.find(1), ll.find(99))
+// const ll = LList.from([0])
+// console.log(Array.from(ll), ll.length)
+// ll.addHead(-1)
+// ll.add(1)
+// ll.add(2)
+// ll.add(3)
+// ll.addHead(-2)
+// console.log(ll.rem(-2), ll.rem(2), ll.rem(3), ll.rem(99))
+// ll.addHead(-2)
+// ll.add(2)
+// console.log(Array.from(ll), ll.length)
+// console.log(ll.find(1), ll.find(99))
 
 // TODO export class DList {  } Doubly linked list
 // TODO export class CList {  } Circular linked list
@@ -122,83 +122,54 @@ console.log(ll.find(1), ll.find(99))
 // ** Stack
 
 export class Stack {
-  constructor() { this.arr = [] }
+  constructor() {
+    this.head = null
+    this.length = 0
+  }
 
   // O(1)
-  get length() { return this.arr.length }
-
-  // O(1)
-  push(el) { this.arr.push(el) }
+  push(vl) {
+    const nd = new LNode(vl)
+    // Add the first element
+    if (this.head === null) { this.head = nd }
+    // Prepend to the head
+    else {
+      nd.next = this.head
+      this.head = nd
+    }
+    ++this.length
+  }
 
   // O(1)
   pop() {
     if (this.length === 0) { error("pop from empty Stack") }
-    return this.arr.pop()
+    // Return the element value and forward the head
+    const vl = this.head.data
+    this.head = this.head.next
+    --this.length
+    return vl
   }
 
   // O(1)
   peek() {
     if (this.length === 0) { error("peek from empty Stack") }
-    return this.arr.at(-1)
+    // Return the value from the top
+    return this.head.data
   }
 
-  // O(n)
   static from(it) {
     const st = new Stack()
-    for (const el of it) { st.push(el) }
+    for(const el of it) { st.push(el) }
     return st
-  }
-
-  // O(n)
-  [Symbol.iterator]() {
-    const next = () => {
-      if (this.length === 0) { return { value: undefined, done: true } }
-      return { value: this.pop(), done: false }
-    }
-    return { next }
   }
 }
 
-// const st = Stack.from([1, 2, 3, 4, 5])
+// const st = Stack.from([0])
 // console.log(st, st.length)
-// console.log(st.pop(), st.peek(), st.pop(), st, st.length)
-
-export class Stack2 {
-  constructor() {
-    this.rl = new RList()
-  }
-
-  // O(1)
-  get length() { return this.rl.length }
-
-  // O(1)
-  push(el) { this.rl.prepend(el) }
-
-  // O(1)
-  pop() { return this.rl.pop() }
-
-  // O(1)
-  peek() { return this.rl.peek() }
-
-  // O(n)
-  static from(it) {
-    const st = new Stack2()
-    for (const el of it) { st.push(el) }
-    return st
-  }
-
-  // O(n)
-  [Symbol.iterator]() {
-    const next = () => {
-      if (this.length === 0) { return { value: undefined, done: true } }
-      return { value: this.pop(), done: false }
-    }
-    return { next }
-  }
-}
-
-// const st = Stack2.from([1, 2, 3, 4, 5])
-// console.log(st.pop(), st.peek(), st.pop(), st.length, Array.from(st))
+// st.push(1)
+// st.push(2)
+// console.log(st.pop(), st.peek(), st.pop())
+// console.log(st, st.length)
 
 // ** Queue
 

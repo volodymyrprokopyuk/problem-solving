@@ -8,10 +8,16 @@ export function reverse(arr) {
   return res
 }
 
-export function reverse2(arr) { return Array.from(Stack.from(arr)) }
+export function reverse2(arr) {
+  const st = Stack.from(arr)
+  const rev = []
+  while (st.length > 0) { rev.push(st.pop()) }
+  return rev
+}
 
 // const arr = [1, 2, 3, 4, 5]
-// console.log(reverse([]), reverse(arr), reverse2([]), reverse2(arr))
+// console.log(reverse([]), reverse(arr))
+// console.log(reverse2([]), reverse2(arr))
 
 export function checkParens(
   str, parens = { "(": ")", "[": "]", "{": "}", "<": ">" }
@@ -33,7 +39,7 @@ export function checkParens(
 // const strs = ["", "abc", "a(b{c[d<e>f]g}h)i", "a(", "a(b]", "abc)"]
 // for (const str of strs) {
 //   try { console.log(checkParens(str)) }
-//   catch (err) { console.error(err.message) }
+//   catch (err) { console.error(`ERROR: ${err.message}`) }
 // }
 
 // ** Tree
