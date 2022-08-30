@@ -313,3 +313,87 @@ export class BSTree {
 
 // TODO export class AVLTree { }
 // TODO export class RBTree { }
+
+// ** Heap
+
+export class Heap {
+  #cmp
+  constructor(cmp = (a, b) => a < b) {
+    this.heap = []
+    this.#cmp = cmp
+  }
+
+  get length() { return this.heap.length }
+
+  #parent(i) { return Math.floor((i - 1) / 2) }
+
+  #left(i) { return i * 2 + 1 }
+
+  #right(i) { return i * 2 + 2 }
+
+  #swap(i, j) {
+    const el = this.heap[i]
+    this.heap[i] = this.heap[j]
+    this.heap[j] = el
+  }
+
+  #inOrder(i, j) { return this.#cmp(this.heap[i], this.heap[j]) }
+
+  #child(i) {
+    const l = this.#left(i)
+    const r = this.#right(i)
+    if (r <= this.length - 1) { return this.#inOrder(l, r) ? l : r }
+    else if (l <= this.length - 1) { return l }
+    else { return -1 }
+  }
+
+  #heapUp(i) {
+    const p = this.#parent(i)
+    if (this.#inOrder(i, p)) {
+      this.#swap(i, p)
+      this.#heapUp(p)
+    }
+  }
+
+  #heapDown(i) {
+    const c = this.#child(i)
+    if (c !== -1 && this.#inOrder(c, i)) {
+      this.#swap(i, c)
+      this.#heapDown(c)
+    }
+  }
+
+  // O(log n)
+  push(vl) {
+    this.heap.push(vl)
+    this.#heapUp(this.heap.length - 1)
+  }
+
+  // O(log n)
+  pop() {
+    if (this.length === 0) { error("pop from empty Heap") }
+    const vl = this.heap[0]
+    this.heap[0] = this.heap.at(-1)
+    --this.heap.length
+    this.#heapDown(0)
+    return vl
+  }
+
+  // O(1)
+  peek() {
+    if (this.length === 0) { error("peek from empty Heap") }
+    return this.heap[0]
+  }
+
+  static from(it) {
+    const hp = new Heap()
+    for (const el of it) { hp.push(el) }
+    return hp
+  }
+}
+
+// const hp = Heap.from([1, 9, 2, 8, 3, 7, 0])
+// while (hp.length > 0) {
+//   console.log(hp)
+//   console.log(hp.pop())
+// }
