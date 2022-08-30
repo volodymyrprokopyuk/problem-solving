@@ -426,3 +426,9 @@ export class PQueue {
 // const pq = PQueue.from([1, 9, 2, 8, 3, 7, 0])
 // console.log(pq.length, pq, pq.peek())
 // while (pq.length > 0) { console.log(pq.deq()) }
+
+// ** Trie
+
+// TODO export class Trie {
+//   add(word), find(word), from
+// }

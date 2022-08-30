@@ -2,6 +2,24 @@ import { Stack, BSTree } from "./dstructure.js"
 
 function error(msg) { throw new Error(`ERROR: ${msg}`) }
 
+// ** Array
+
+export function sarFind(arr, vl) {
+  // Binary search on a sorted array
+  function find(l, r) {
+    if (l > r) { return -1 }
+    const m = Math.floor(l + (r - l) / 2)
+    if (vl === arr[m]) { return m }
+    else if (vl < arr[m]) { return find(l, m - 1) }
+    else { return find(m + 1, r) }
+  }
+  return find(0, arr.length - 1)
+}
+
+// console.log(sarFind([], 99))
+// const arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+// for (const vl of [8, 4, 2, 6, 0, 5, 99]) { console.log(sarFind(arr, vl)) }
+
 // ** Stack
 
 // O(n)
@@ -63,7 +81,7 @@ export function bstFind(nd, vl) {
   if (nd === null) { return null }
   // Element is found
   if (vl === nd.data) { return nd }
-  // Binary search
+  // Binary search on a BSTree
   return vl < nd.data ? bstFind(nd.left, vl) : bstFind(nd.right, vl)
 }
 
