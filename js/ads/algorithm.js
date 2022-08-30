@@ -84,4 +84,3 @@ export function bstMax(nd) {
 // const tr = BSTree.from([8, 1, 4, 3, 2, 6, 7, 9, 0, 5])
 // console.log(bstFind(tr.root, 1)?.data, bstFind(tr.root, -1)?.data)
 // console.log(bstMin(tr.root)?.data, bstMax(tr.root)?.data)
-

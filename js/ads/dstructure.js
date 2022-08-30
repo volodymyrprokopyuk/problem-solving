@@ -120,6 +120,7 @@ export class LList {
 //   this.head, this.tail
 //   add, addHead, rem, remHead, find, it, revIt, from
 // } Doubly linked list
+
 // TODO export class CList {  } Circular linked list
 
 // ** Stack
@@ -318,6 +319,7 @@ export class BSTree {
 
 export class Heap {
   #cmp
+
   constructor(cmp = (a, b) => a < b) {
     this.heap = []
     this.#cmp = cmp
@@ -385,15 +387,42 @@ export class Heap {
     return this.heap[0]
   }
 
-  static from(it) {
-    const hp = new Heap()
+  static from(it, cmp = (a, b) => a < b) {
+    const hp = new Heap(cmp)
     for (const el of it) { hp.push(el) }
     return hp
   }
 }
 
-// const hp = Heap.from([1, 9, 2, 8, 3, 7, 0])
-// while (hp.length > 0) {
-//   console.log(hp)
-//   console.log(hp.pop())
-// }
+// const hp = Heap.from([1, 9, 2, 8, 3, 7, 0], (a, b) => a > b)
+// console.log(hp)
+// while (hp.length > 0) { console.log(hp.pop(), hp) }
+
+// ** Queue (again)
+
+export class PQueue {
+  constructor(cmp = (a, b) => a > b) {
+    this.heap = new Heap(cmp)
+  }
+
+  get length() { return this.heap.length }
+
+  // O(log n)
+  enq(vl) { this.heap.push(vl) }
+
+  // O(log n)
+  deq() { return this.heap.pop() }
+
+  // O(1)
+  peek() { return this.heap.peek() }
+
+  static from(it, cmp = (a, b) => a > b) {
+    const pq = new PQueue(cmp)
+    for (const el of it) { pq.enq(el) }
+    return pq
+  }
+}
+
+// const pq = PQueue.from([1, 9, 2, 8, 3, 7, 0])
+// console.log(pq.length, pq, pq.peek())
+// while (pq.length > 0) { console.log(pq.deq()) }
