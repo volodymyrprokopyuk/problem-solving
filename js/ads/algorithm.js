@@ -134,9 +134,9 @@ export function bstFindParent(nd, vl) {
   }
 }
 
-// const tr = BSTree.from([3, 1, 4, 5, 2])
-// console.log(bstFindParent(tr.root, 3)?.data)
-// console.log(bstFindParent(tr.root, 1)?.data)
-// console.log(bstFindParent(tr.root, 4)?.data)
-// console.log(bstFindParent(tr.root, 2)?.data)
-// console.log(bstFindParent(tr.root, 5)?.data)
+const tr = BSTree.from([3, 1, 4, 5, 2])
+console.log(bstFindParent(tr.root, 3)?.data)
+console.log(bstFindParent(tr.root, 1)?.data)
+console.log(bstFindParent(tr.root, 4)?.data)
+console.log(bstFindParent(tr.root, 2)?.data)
+console.log(bstFindParent(tr.root, 5)?.data)

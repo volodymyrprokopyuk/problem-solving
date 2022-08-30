@@ -252,26 +252,18 @@ export class BSTree {
   }
 
   #add(nd, vl) {
-    // The value is smaller than the current value
-    if (vl < nd.data) {
-      // Fill the left empty child
-      if (nd.left === null) { nd.left = new TNode(vl); ++this.length }
-      // Proseed further down the left path
-      else { this.#add(nd.left, vl) }
-    // The value is bigger than the current value
-    } else {
-      // Fill the right empty child
-      if (nd.right === null) { nd.right = new TNode(vl); ++this.length }
-      // Proceed further down the right path
-      else { this.#add(nd.right, vl) }
-    }
+    // Add new leaf
+    if (nd === null) { nd = new TNode(vl); ++this.length }
+    // Proseed further down the left path
+    else if (vl < nd.data) { nd.left = this.#add(nd.left, vl) }
+    // Proseed further down the right path
+    else { nd.right = this.#add(nd.right, vl) }
+    return nd
   }
 
   // O(log n)
   add(vl) {
-    // Add the first element
-    if (this.root === null) { this.root = new TNode(vl); ++this.length }
-    else { this.#add(this.root, vl) }
+    this.root = this.#add(this.root, vl)
   }
 
   #rem(nd, vl) {
@@ -311,21 +303,13 @@ export class BSTree {
 }
 
 // const tr = BSTree.from([8, 1, 4, 3, 2, 6, 7, 9, 0, 5])
-// const arr = []
+// let arr = []
 // bstInOrder(tr.root, nd => arr.push(nd.data))
 // console.log(tr.length, arr)
-
-
-const tr = BSTree.from([3, 1, 4, 5, 2])
-let arr = []
-bstInOrder(tr.root, nd => arr.push(nd.data))
-console.log(tr.length, arr)
-// console.log(tr.rem(99), tr.rem(2), tr.rem(5))
-console.log(tr.rem(1), tr.rem(4), tr.rem(3), tr.rem(2), tr.rem(5), tr.rem(99))
-arr = []
-bstInOrder(tr.root, nd => arr.push(nd.data))
-console.log(tr.length, arr)
-
+// console.log(tr.rem(0), tr.rem(9), tr.rem(5), tr.rem(8), tr.rem(3), tr.rem(99))
+// arr = []
+// bstInOrder(tr.root, nd => arr.push(nd.data))
+// console.log(tr.length, arr)
 
 // TODO export class AVLTree { }
 // TODO export class RBTree { }
