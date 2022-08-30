@@ -1,6 +1,6 @@
-import { bstInOrder, bstFind, bstFindParent, bstMin } from "./algorithm.js"
+import { bstInOrder, bstFind, bstMin } from "./algorithm.js"
 
-function error(msg) { throw new Error(msg) }
+function error(msg) { throw new Error(`ERROR: ${msg}`) }
 
 // ** LinkedList
 
