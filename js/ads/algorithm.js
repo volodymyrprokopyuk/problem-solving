@@ -104,3 +104,50 @@ export function bstMax(nd) {
 // const tr = BSTree.from([8, 1, 4, 3, 2, 6, 7, 9, 0, 5])
 // console.log(bstFind(tr.root, 1)?.data, bstFind(tr.root, -1)?.data)
 // console.log(bstMin(tr.root)?.data, bstMax(tr.root)?.data)
+
+// ** Sorting
+
+function swap(arr, i, j) {
+  const el = arr[i]
+  arr[i] = arr[j]
+  arr[j] = el
+}
+
+// O(n^2), memory O(1) in-place
+export function sortBubble(arr, cmp = (a, b) => a < b) {
+  for (let i = arr.length - 1; i > 0; --i) {
+    let swp = false
+    for (let j = 0; j < i; ++j) {
+      if (cmp(arr[j + 1], arr[j])) {
+        swap(arr, j, j + 1)
+        swp = true
+      }
+    }
+    if (!swp) { break }
+  }
+}
+
+// let arr = []
+// sortBubble(arr)
+// console.log(arr)
+// let arr = [8, 1, 4, 3, 2, 6, 7, 9, 0, 5]
+// sortBubble(arr)
+// console.log(arr)
+
+// O(n^2), memory O(1) in-place
+export function sortSelect(arr, cmp = (a, b) => a < b) {
+  for (let i = 0; i < arr.length - 1; ++i) {
+    let k = i
+    for (let j = k + 1; j < arr.length; ++j) {
+      if (cmp(arr[j], arr[k])) { k = j }
+    }
+    if (k !== i) { swap(arr, i, k) }
+  }
+}
+
+// let arr = []
+// sortSelect(arr)
+// console.log(arr)
+// let arr = [8, 1, 4, 3, 2, 6, 7, 9, 0, 5]
+// sortSelect(arr)
+// console.log(arr)
