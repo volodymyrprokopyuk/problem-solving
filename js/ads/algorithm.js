@@ -5,13 +5,14 @@ function error(msg) { throw new Error(`ERROR: ${msg}`) }
 // ** Array
 
 export function sarFind(arr, vl) {
-  // Binary search on a sorted array
   function find(l, r) {
+    // Stop on empty array
     if (l > r) { return -1 }
     const m = Math.floor(l + (r - l) / 2)
+    // Element is found
     if (vl === arr[m]) { return m }
-    else if (vl < arr[m]) { return find(l, m - 1) }
-    else { return find(m + 1, r) }
+    // Binary search on a sorted array
+    return vl < arr[m] ? find(l, m - 1) : find(m + 1, r)
   }
   return find(0, arr.length - 1)
 }
@@ -78,6 +79,7 @@ export function bstPostOrder(nd, fn) {
 
 // O(log n)
 export function bstFind(nd, vl) {
+  // Stop on terminal node
   if (nd === null) { return null }
   // Element is found
   if (vl === nd.data) { return nd }
