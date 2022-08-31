@@ -1,4 +1,4 @@
-import { Stack, BSTree } from "./dstructure.js"
+import { Stack, BSTree, Heap } from "./dstructure.js"
 
 function error(msg) { throw new Error(`ERROR: ${msg}`) }
 
@@ -26,9 +26,9 @@ export function sarFind(arr, vl) {
 // O(n)
 export function reverse(arr) {
   const st = Stack.from(arr)
-  const rev = []
-  while (st.length > 0) { rev.push(st.pop()) }
-  return rev
+  const res = []
+  while (st.length > 0) { res.push(st.pop()) }
+  return res
 }
 
 // const arr = [1, 2, 3, 4, 5]
@@ -113,7 +113,7 @@ function swap(arr, i, j) {
   arr[j] = el
 }
 
-// O(n^2), memory O(1) in-place
+// O(n^2), memory O(1), in-place
 export function sortBubble(arr, cmp = (a, b) => a < b) {
   for (let i = arr.length - 1; i > 0; --i) {
     let swp = false
@@ -130,11 +130,11 @@ export function sortBubble(arr, cmp = (a, b) => a < b) {
 // let arr = []
 // sortBubble(arr)
 // console.log(arr)
-// let arr = [8, 1, 4, 3, 2, 6, 7, 9, 0, 5]
+// let arr = [8, 1, 4, 3, 0, 2, 6, 7, 9, 0, 5]
 // sortBubble(arr)
 // console.log(arr)
 
-// O(n^2), memory O(1) in-place
+// O(n^2), memory O(1), in-place
 export function sortSelect(arr, cmp = (a, b) => a < b) {
   for (let i = 0; i < arr.length - 1; ++i) {
     let k = i
@@ -148,11 +148,11 @@ export function sortSelect(arr, cmp = (a, b) => a < b) {
 // let arr = []
 // sortSelect(arr)
 // console.log(arr)
-// let arr = [8, 1, 4, 3, 2, 6, 7, 9, 0, 5]
+// let arr = [8, 1, 4, 3, 0, 2, 6, 7, 9, 0, 5]
 // sortSelect(arr)
 // console.log(arr)
 
-// O(n^2), memory O(1) in-place
+// O(n^2), memory O(1), in-place
 export function sortInsert(arr, cmp = (a, b) => a < b) {
   for (let i = 1; i < arr.length; ++i) {
     const el = arr[i]
@@ -165,7 +165,7 @@ export function sortInsert(arr, cmp = (a, b) => a < b) {
   }
 }
 
-// O(n^2), memory O(1) in-place
+// O(n^2), memory O(1), in-place
 function sortInsert2(arr, cmp = (a, b) => a < b) {
   for (let i = 1; i < arr.length; ++i) {
     let j = i
@@ -179,7 +179,7 @@ function sortInsert2(arr, cmp = (a, b) => a < b) {
 // let arr = []
 // sortInsert(arr)
 // console.log(arr)
-// let arr = [8, 1, 4, 3, 2, 6, 7, 9, 0, 5]
+// let arr = [8, 1, 4, 3, 0, 2, 6, 7, 9, 0, 5]
 // sortInsert(arr)
 // console.log(arr)
 
@@ -196,7 +196,7 @@ function merge(l, r, cmp) {
   return arr
 }
 
-// O(n log n), memory O(n) recursive
+// O(n log n), memory O(n), returns a copy
 export function sortMerge(arr, cmp = (a, b) => a < b) {
   if (arr.length <= 1) { return arr }
   else {
@@ -208,5 +208,58 @@ export function sortMerge(arr, cmp = (a, b) => a < b) {
 }
 
 // console.log(sortMerge([]))
-// let arr = [8, 1, 4, 3, 2, 6, 7, 9, 0, 5]
-// console.log(sortMerge(arr, (a, b) => a > b))
+// let arr = [8, 1, 4, 3, 0, 2, 6, 7, 9, 0, 5]
+// console.log(sortMerge(arr))
+
+// O(n log n), memory O(1), in-place
+export function sortQuick(arr, cmp = (a, b) => a < b) {
+  function sort(a, b) {
+    if (a < b) {
+      const p = arr[a]
+      let l = a
+      let r = b
+      while (l <= r) {
+        while (cmp(arr[l], p)) { ++l }
+        while (cmp(p, arr[r])) { --r }
+        if (l <= r) { swap(arr, l, r); ++l; --r }
+      }
+      sort(a, r)
+      sort(l, b)
+    }
+  }
+  sort(0, arr.length - 1)
+}
+
+// O(n log n), memory O(log n), returns a copy
+function sortQuick2(arr, cmp = (a, b) => a < b) {
+  if (arr.length <= 1) { return arr }
+  const lt = []
+  const eq = []
+  const gt = []
+  const p = arr[0]
+  for (const el of arr) {
+    if (cmp(el, p)) { lt.push(el) }
+    else if (cmp(p, el)) { gt.push(el) }
+    else { eq.push(el) }
+  }
+  return [...sortQuick2(lt, cmp), ...eq, ...sortQuick2(gt, cmp)]
+}
+
+// let arr = []
+// sortQuick(arr)
+// console.log(arr)
+// let arr = [8, 1, 4, 3, 0, 2, 6, 7, 9, 0, 5]
+// sortQuick(arr)
+// console.log(arr)
+
+// O(n log n), memory O(n), returns a copy
+export function sortHeap(arr, cmp = (a, b) => a < b) {
+  const hp = Heap.from(arr, cmp)
+  const res = []
+  while (hp.length > 0) { res.push(hp.pop()) }
+  return res
+}
+
+// console.log(sortHeap([]))
+// let arr = [8, 1, 4, 3, 0, 2, 6, 7, 9, 0, 5]
+// console.log(sortHeap(arr))
