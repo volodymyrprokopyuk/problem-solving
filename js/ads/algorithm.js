@@ -182,3 +182,31 @@ function sortInsert2(arr, cmp = (a, b) => a < b) {
 // let arr = [8, 1, 4, 3, 2, 6, 7, 9, 0, 5]
 // sortInsert(arr)
 // console.log(arr)
+
+function merge(l, r, cmp) {
+  const arr = []
+  let i = 0
+  let j = 0
+  while (i < l.length && j < r.length) {
+    if (cmp(l[i], r[j])) { arr.push(l[i]); ++i }
+    else { arr.push(r[j]); ++j }
+  }
+  while (i < l.length) { arr.push(l[i]); ++i }
+  while (j < r.length) { arr.push(r[j]); ++j }
+  return arr
+}
+
+// O(n log n), memory O(n) recursive
+export function sortMerge(arr, cmp = (a, b) => a < b) {
+  if (arr.length <= 1) { return arr }
+  else {
+    const m = Math.floor(arr.length / 2)
+    const l = sortMerge(arr.slice(0, m), cmp)
+    const r = sortMerge(arr.slice(m), cmp)
+    return merge(l, r, cmp)
+  }
+}
+
+// console.log(sortMerge([]))
+// let arr = [8, 1, 4, 3, 2, 6, 7, 9, 0, 5]
+// console.log(sortMerge(arr, (a, b) => a > b))
