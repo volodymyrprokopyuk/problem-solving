@@ -151,3 +151,34 @@ export function sortSelect(arr, cmp = (a, b) => a < b) {
 // let arr = [8, 1, 4, 3, 2, 6, 7, 9, 0, 5]
 // sortSelect(arr)
 // console.log(arr)
+
+// O(n^2), memory O(1) in-place
+export function sortInsert(arr, cmp = (a, b) => a < b) {
+  for (let i = 1; i < arr.length; ++i) {
+    const el = arr[i]
+    let j = i - 1
+    while (j >= 0 && cmp(el, arr[j])) {
+      arr[j + 1] = arr[j]
+      --j
+    }
+    arr[j + 1] = el
+  }
+}
+
+// O(n^2), memory O(1) in-place
+function sortInsert2(arr, cmp = (a, b) => a < b) {
+  for (let i = 1; i < arr.length; ++i) {
+    let j = i
+    while (j > 0 && cmp(arr[j], arr[j - 1])) {
+      swap(arr, j - 1, j)
+      --j
+    }
+  }
+}
+
+// let arr = []
+// sortInsert(arr)
+// console.log(arr)
+// let arr = [8, 1, 4, 3, 2, 6, 7, 9, 0, 5]
+// sortInsert(arr)
+// console.log(arr)
