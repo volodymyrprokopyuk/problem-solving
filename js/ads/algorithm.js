@@ -5,6 +5,18 @@ function error(msg) { throw new Error(`ERROR: ${msg}`) }
 // ** Array
 
 export function sarFind(arr, vl) {
+  let l = 0
+  let r = arr.length - 1
+  while (l <= r) {
+    const m = l + Math.floor((r - l) / 2)
+    if (vl === arr[m]) { return m }
+    if (vl < arr[m]) { r = m -1 }
+    else { l = m + 1 }
+  }
+  return -1
+}
+
+function sarFind2(arr, vl) {
   function find(l, r) {
     // Stop on empty array
     if (l > r) { return -1 }
