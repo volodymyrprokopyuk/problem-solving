@@ -8,7 +8,7 @@ export function sarFind(arr, vl) {
   function find(l, r) {
     // Stop on empty array
     if (l > r) { return -1 }
-    const m = Math.floor(l + (r - l) / 2)
+    const m = l + Math.floor((r - l) / 2)
     // Element is found
     if (vl === arr[m]) { return m }
     // Binary search on a sorted array
@@ -199,12 +199,11 @@ function merge(l, r, cmp) {
 // O(n log n), memory O(n), returns a copy
 export function sortMerge(arr, cmp = (a, b) => a < b) {
   if (arr.length <= 1) { return arr }
-  else {
-    const m = Math.floor(arr.length / 2)
-    const l = sortMerge(arr.slice(0, m), cmp)
-    const r = sortMerge(arr.slice(m), cmp)
-    return merge(l, r, cmp)
-  }
+  // if (arr.length <= 3) { sortInsert(arr, cmp); return arr }
+  const m = Math.floor(arr.length / 2)
+  const l = sortMerge(arr.slice(0, m), cmp)
+  const r = sortMerge(arr.slice(m), cmp)
+  return merge(l, r, cmp)
 }
 
 // console.log(sortMerge([]))
@@ -215,7 +214,7 @@ export function sortMerge(arr, cmp = (a, b) => a < b) {
 export function sortQuick(arr, cmp = (a, b) => a < b) {
   function sort(a, b) {
     if (a < b) {
-      const p = arr[a]
+      const p = arr[a + Math.floor((b - a) / 2)]
       let l = a
       let r = b
       while (l <= r) {
@@ -230,13 +229,20 @@ export function sortQuick(arr, cmp = (a, b) => a < b) {
   sort(0, arr.length - 1)
 }
 
+// let arr = []
+// sortQuick(arr)
+// console.log(arr)
+// let arr = [8, 1, 4, 3, 0, 2, 6, 7, 9, 0, 5]
+// sortQuick(arr)
+// console.log(arr)
+
 // O(n log n), memory O(log n), returns a copy
 function sortQuick2(arr, cmp = (a, b) => a < b) {
   if (arr.length <= 1) { return arr }
   const lt = []
   const eq = []
   const gt = []
-  const p = arr[0]
+  const p = arr[Math.floor(arr.length / 2)]
   for (const el of arr) {
     if (cmp(el, p)) { lt.push(el) }
     else if (cmp(p, el)) { gt.push(el) }
@@ -245,12 +251,9 @@ function sortQuick2(arr, cmp = (a, b) => a < b) {
   return [...sortQuick2(lt, cmp), ...eq, ...sortQuick2(gt, cmp)]
 }
 
-// let arr = []
-// sortQuick(arr)
-// console.log(arr)
+// console.log(sortQuick2([]))
 // let arr = [8, 1, 4, 3, 0, 2, 6, 7, 9, 0, 5]
-// sortQuick(arr)
-// console.log(arr)
+// console.log(sortQuick2(arr))
 
 // O(n log n), memory O(n), returns a copy
 export function sortHeap(arr, cmp = (a, b) => a < b) {
