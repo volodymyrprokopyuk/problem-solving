@@ -548,24 +548,28 @@
 // const a = new Array(9999)
 // console.log(rmap(a.fill(0), e => e + 1)) // Maximum call stack size exceeded
 
-// function trampoline(f) { // factors out recursion into loop
-//   // stack depth remains constant (stack frames are reused)
-//   while (typeof f === "function") { f = f() }
-//   return f
+// export function trmp(fn) {
+//   // trampoline converts recursion into a loop
+//   while (typeof fn === "function") { fn = fn() } // execute recursive case
+//   return fn // return the final result
 // }
-// function tmap(a, f = e => e, r = []) {
-//   if (a.length > 1) {
-//     // no recursive call to tmap(), just return the partial() function
-//     return function partial() { // executed by trampoline
-//       const [h, ...t] = a
-//       return tmap(t, f, r.concat(f(h)))
+// function tmap(fn, arr) { // tmap is defined recursively
+//   function map(fn, arr, res) {
+//     if (arr.length > 0) {
+//       // return a function to be executed by the trampoline in a loop
+//       // instead of a direct recursive call
+//       return () => {
+//         const [hd, ...tl] = arr
+//         res.push(fn(hd))
+//         return map(fn, tl, res)
+//       }
 //     }
-//   } else {
-//     return r.concat(f(a[0]))
+//     return res
 //   }
+//   return map(fn, arr, [])
 // }
-// const a = new Array(9999)
-// console.log(trampoline(tmap(a.fill(0), e => e + 1))) // no RangeError
+// const arr = new Array(9999)
+// console.log(trmp(tmap(x => x + 1, arr.fill(0)))) // no RangeError
 
 // const o1 = { a: 1 }
 // const o2 = { b:2, ...o1 }
