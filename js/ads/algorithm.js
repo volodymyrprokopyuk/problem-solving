@@ -281,3 +281,20 @@ export function sortHeap(arr, cmp = (a, b) => a < b) {
 
 // ** Recursion
 
+export function factorial(n) {
+  let res = 1
+  for (let i = 2; i <= n; ++i) { res *= i }
+  return res
+}
+
+// for (const i of [0, 1, 2, 3, 4, 5, 6, 7]) { console.log(factorial(i)) }
+
+function factorial2(n) {
+  function factorial(n, res) {
+    if (n < 2) { return res }
+    return factorial(n - 1, res * n)
+  }
+  return factorial(n, 1)
+}
+
+for (const i of [0, 1, 2, 3, 4, 5, 6, 7]) { console.log(factorial2(i)) }
