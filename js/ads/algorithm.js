@@ -297,4 +297,49 @@ function factorial2(n) {
   return factorial(n, 1)
 }
 
-for (const i of [0, 1, 2, 3, 4, 5, 6, 7]) { console.log(factorial2(i)) }
+// for (const i of [0, 1, 2, 3, 4, 5, 6, 7]) { console.log(factorial2(i)) }
+
+// ** Dynamic programming
+
+// O(n) minimal memoization
+export function fibonacci(n) {
+  if (n < 2) { return 1 }
+  let a = 1
+  let b = 1
+  let c = a + b
+  for (let i = 3; i <= n; ++i) {
+    a = b; b = c; c = a + b
+  }
+  return c
+}
+
+// O(n) bottom-up (iterative)
+function fibonacci2(n) {
+  const mz = [1, 1]
+  for (let i = 2; i <= n; ++i) {
+    mz[i] = mz[i - 1] + mz[i - 2]
+  }
+  return mz[n]
+}
+
+// O(n) top-down (recursive)
+function fibonacci3(n) {
+  const mz = [1, 1]
+  function fib(n) {
+    if (n < mz.length) { return mz[n] }
+    return mz[n] = fib(n - 1) + fib(n - 2)
+  }
+  return fib(n)
+}
+
+// O(2^n)
+function fibonacci4(n) {
+  if (n < 2) { return 1 }
+  return fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+const arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+for(const i of arr) { console.log(fibonacci(i)) }
+// for(const i of arr) { console.log(fibonacci2(i)) }
+// for(const i of arr) { console.log(fibonacci3(i)) }
+// for(const i of arr) { console.log(fibonacci4(i)) }
