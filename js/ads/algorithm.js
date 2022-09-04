@@ -1,10 +1,10 @@
-import { Stack, BSTree, Heap } from "./dstructure.js"
+import { Stack, Queue, BSTree, Heap } from "./dstructure.js"
 
 function error(msg) { throw new Error(`ERROR: ${msg}`) }
 
 // ** Array
 
-export function sarFind(arr, vl) {
+export function bsFind(arr, vl) {
   let l = 0
   let r = arr.length - 1
   while (l <= r) {
@@ -16,7 +16,7 @@ export function sarFind(arr, vl) {
   return -1
 }
 
-function sarFind2(arr, vl) {
+function bsFind2(arr, vl) {
   function find(l, r) {
     // Stop on empty array
     if (l > r) { return -1 }
@@ -29,9 +29,9 @@ function sarFind2(arr, vl) {
   return find(0, arr.length - 1)
 }
 
-// console.log(sarFind([], 99))
+// console.log(bsFind([], 99))
 // const arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-// for (const vl of [8, 4, 2, 6, 0, 5, 99]) { console.log(sarFind(arr, vl)) }
+// for (const vl of [8, 4, 2, 6, 0, 5, 99]) { console.log(bsFind(arr, vl)) }
 
 // ** Stack
 
@@ -116,6 +116,41 @@ export function bstMax(nd) {
 // const tr = BSTree.from([8, 1, 4, 3, 2, 6, 7, 9, 0, 5])
 // console.log(bstFind(tr.root, 1)?.data, bstFind(tr.root, -1)?.data)
 // console.log(bstMin(tr.root)?.data, bstMax(tr.root)?.data)
+
+// ** Graph
+
+// O(v + e)
+export function dfSearch(nd, fn) {
+  const visited = { }
+  function search(nd) {
+    if (nd === null) { return }
+    fn(nd)
+    visited[nd.name] = true
+    for (const adj of nd.adjs) {
+      if (!visited[adj.name]) { search(adj) }
+    }
+  }
+  search(nd)
+}
+
+// O(v + e)
+export function bfSearch(nd, fn) {
+  if (nd === null) { return }
+  const visited = { }
+  const qu = new Queue()
+  qu.enq(nd)
+  visited[nd.name] = true
+  while (qu.length > 0) {
+    nd = qu.deq()
+    fn(nd)
+    for (const adj of nd.adjs) {
+      if (!visited[adj.name]) {
+        qu.enq(adj)
+        visited[adj.name] = true
+      }
+    }
+  }
+}
 
 // ** Sorting
 
@@ -338,8 +373,8 @@ function fibonacci4(n) {
   return fibonacci(n - 1) + fibonacci(n - 2)
 }
 
-const arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-for(const i of arr) { console.log(fibonacci(i)) }
+// const arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+// for(const i of arr) { console.log(fibonacci(i)) }
 // for(const i of arr) { console.log(fibonacci2(i)) }
 // for(const i of arr) { console.log(fibonacci3(i)) }
 // for(const i of arr) { console.log(fibonacci4(i)) }

@@ -1,4 +1,6 @@
-import { bstInOrder, bstFind, bstMin } from "./algorithm.js"
+import {
+  bstInOrder, bstFind, bstMin, dfSearch, bfSearch
+} from "./algorithm.js"
 
 function error(msg) { throw new Error(`ERROR: ${msg}`) }
 
@@ -432,3 +434,31 @@ export class PQueue {
 // TODO export class Trie {
 //   add(word), find(word), from
 // }
+
+// ** Graph
+
+class GNode {
+  constructor(name) {
+    this.name = name
+    this.adjs = []
+  }
+}
+
+export class Graph {
+  constructor() {
+    this.nodes = []
+  }
+}
+
+// const nd0 = new GNode(0)
+// const nd1 = new GNode(1)
+// const nd2 = new GNode(2)
+// const nd3 = new GNode(3)
+// const nd4 = new GNode(4)
+// const nd5 = new GNode(5)
+// nd0.adjs = [nd1, nd4, nd5]
+// nd1.adjs = [nd3, nd4]
+// nd2.adjs = [nd1]
+// nd3.adjs = [nd2, nd4]
+// dfSearch(nd0, nd => console.log(nd.name))
+// bfSearch(nd0, nd => console.log(nd.name))
