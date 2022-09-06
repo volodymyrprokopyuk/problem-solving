@@ -5,5 +5,10 @@
   "main": "main.js",
   "author": "Volodymyr Prokopyuk",
   "license": "ISC",
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@vitest/coverage-c8": "^0.23.1",
+    "@vitest/ui": "^0.23.1",
+    "vitest": "^0.23.1"
+  }
 }
