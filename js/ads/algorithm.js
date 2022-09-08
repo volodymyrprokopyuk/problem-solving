@@ -2,7 +2,29 @@ import { Stack, Queue, BSTree, Heap } from "./dstructure.js"
 
 function error(msg) { throw new Error(`ERROR: ${msg}`) }
 
+export function lt(a, b) { return a < b ? -1 : a > b ? 1 : 0 }
+export function gt(a, b) { return a > b ? -1 : a < b ? 1 : 0 }
+
 // ** Array
+
+// O(n), memory O(1)
+export function isUnique(arr) {
+  const viewed = { }
+  for (const el of arr) {
+    if (viewed[el]) { return false }
+    viewed[el] = true
+  }
+  return true
+}
+
+// O(n), memory O(n)
+export function isUniqueCmp(arr, cmp = lt) {
+  const srt = sortQuickCp(arr, lt)
+  for (let i = 0; i < srt.length - 1; ++i) {
+    if (cmp(srt[i], srt[i + 1]) === 0) { return false }
+  }
+  return true
+}
 
 export function bsFind(arr, vl) {
   let l = 0
@@ -161,7 +183,7 @@ function swap(arr, i, j) {
 }
 
 // O(n^2), memory O(1), in-place
-export function sortBubble(arr, cmp = (a, b) => a < b) {
+export function sortBubbleIn(arr, cmp = (a, b) => a < b) {
   for (let i = arr.length - 1; i > 0; --i) {
     let swp = false
     for (let j = 0; j < i; ++j) {
@@ -182,7 +204,7 @@ export function sortBubble(arr, cmp = (a, b) => a < b) {
 // console.log(arr)
 
 // O(n^2), memory O(1), in-place
-export function sortSelect(arr, cmp = (a, b) => a < b) {
+export function sortSelectIn(arr, cmp = (a, b) => a < b) {
   for (let i = 0; i < arr.length - 1; ++i) {
     let k = i
     for (let j = k + 1; j < arr.length; ++j) {
@@ -200,7 +222,7 @@ export function sortSelect(arr, cmp = (a, b) => a < b) {
 // console.log(arr)
 
 // O(n^2), memory O(1), in-place
-export function sortInsert(arr, cmp = (a, b) => a < b) {
+export function sortInsertIn(arr, cmp = (a, b) => a < b) {
   for (let i = 1; i < arr.length; ++i) {
     const el = arr[i]
     let j = i - 1
@@ -213,7 +235,7 @@ export function sortInsert(arr, cmp = (a, b) => a < b) {
 }
 
 // O(n^2), memory O(1), in-place
-function sortInsert2(arr, cmp = (a, b) => a < b) {
+function sortInsertIn2(arr, cmp = (a, b) => a < b) {
   for (let i = 1; i < arr.length; ++i) {
     let j = i
     while (j > 0 && cmp(arr[j], arr[j - 1])) {
@@ -244,12 +266,12 @@ function merge(l, r, cmp) {
 }
 
 // O(n log n), memory O(n), returns a copy
-export function sortMerge(arr, cmp = (a, b) => a < b) {
+export function sortMergeCp(arr, cmp = (a, b) => a < b) {
   if (arr.length <= 1) { return arr }
   // if (arr.length <= 3) { sortInsert(arr, cmp); return arr }
   const m = Math.floor(arr.length / 2)
-  const l = sortMerge(arr.slice(0, m), cmp)
-  const r = sortMerge(arr.slice(m), cmp)
+  const l = sortMergeCp(arr.slice(0, m), cmp)
+  const r = sortMergeCp(arr.slice(m), cmp)
   return merge(l, r, cmp)
 }
 
@@ -258,7 +280,7 @@ export function sortMerge(arr, cmp = (a, b) => a < b) {
 // console.log(sortMerge(arr))
 
 // O(n log n), memory O(1), in-place
-export function sortQuick(arr, cmp = (a, b) => a < b) {
+export function sortQuickIn(arr, cmp = (a, b) => a < b) {
   function sort(a, b) {
     if (a < b) {
       const p = arr[a + Math.floor((b - a) / 2)]
@@ -284,18 +306,20 @@ export function sortQuick(arr, cmp = (a, b) => a < b) {
 // console.log(arr)
 
 // O(n log n), memory O(log n), returns a copy
-function sortQuick2(arr, cmp = (a, b) => a < b) {
+export function sortQuickCp(arr, cmp = lt) {
   if (arr.length <= 1) { return arr }
   const lt = []
   const eq = []
   const gt = []
   const p = arr[Math.floor(arr.length / 2)]
   for (const el of arr) {
-    if (cmp(el, p)) { lt.push(el) }
-    else if (cmp(p, el)) { gt.push(el) }
-    else { eq.push(el) }
+    switch (cmp(el, p)) {
+      case -1: lt.push(el); break
+      case 1: gt.push(el); break
+      default: eq.push(el)
+    }
   }
-  return [...sortQuick2(lt, cmp), ...eq, ...sortQuick2(gt, cmp)]
+  return [...sortQuickCp(lt, cmp), ...eq, ...sortQuickCp(gt, cmp)]
 }
 
 // console.log(sortQuick2([]))
@@ -303,7 +327,7 @@ function sortQuick2(arr, cmp = (a, b) => a < b) {
 // console.log(sortQuick2(arr))
 
 // O(n log n), memory O(n), returns a copy
-export function sortHeap(arr, cmp = (a, b) => a < b) {
+export function sortHeapCp(arr, cmp = (a, b) => a < b) {
   const hp = Heap.from(arr, cmp)
   const res = []
   while (hp.length > 0) { res.push(hp.pop()) }
