@@ -26,11 +26,13 @@ export function isUniqueCmp(arr, cmp = lt) {
   return true
 }
 
+// O(log n), memory O(1)
 export function bsFind(arr, vl) {
   let l = 0
   let r = arr.length - 1
   while (l <= r) {
     const m = l + Math.floor((r - l) / 2)
+    console.log(m, arr[m])
     if (vl === arr[m]) { return m }
     if (vl < arr[m]) { r = m -1 }
     else { l = m + 1 }
@@ -38,22 +40,16 @@ export function bsFind(arr, vl) {
   return -1
 }
 
-function bsFind2(arr, vl) {
+// O(log n), memory O(log n)
+export function bsFindRec(arr, vl) {
   function find(l, r) {
-    // Stop on empty array
     if (l > r) { return -1 }
     const m = l + Math.floor((r - l) / 2)
-    // Element is found
     if (vl === arr[m]) { return m }
-    // Binary search on a sorted array
     return vl < arr[m] ? find(l, m - 1) : find(m + 1, r)
   }
   return find(0, arr.length - 1)
 }
-
-// console.log(bsFind([], 99))
-// const arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-// for (const vl of [8, 4, 2, 6, 0, 5, 99]) { console.log(bsFind(arr, vl)) }
 
 // ** Stack
 

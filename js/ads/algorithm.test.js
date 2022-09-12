@@ -1,45 +1,54 @@
-import { beforeEach, describe, it, expect } from "vitest"
-import { isUnique, isUniqueCmp, bsFind, sortQuickCp } from "./algorithm.js"
+import { describe, it, expect } from "vitest"
+import {
+  isUnique, isUniqueCmp, bsFind, bsFindRec,
+  sortQuickCp
+} from "./algorithm.js"
 
 // ** Array
 
-describe.each(
-  [[[], true], [[1, 2, 3], true], [[1, 2, 1, 3], false]]
-)("isUnique / isUniqueCmp", (arr, expected) => {
-  it("isUnique should identify duplicates", () => {
-    expect(isUnique(arr)).toBe(expected)
-  })
-  it("isUniqueCmp should identify duplicates", () => {
-    expect(isUniqueCmp(arr)).toBe(expected)
+const isUniqueFxt = [
+  [[], true], [[1, 2, 3], true], [[1, 2, 1, 3], false]
+]
+
+describe("isUnique", () => {
+  it.each(isUniqueFxt)(`Case %j`, (arr, exp) => {
+    expect(isUnique(arr)).toBe(exp)
   })
 })
 
-describe("bsFind edge cases", () => {
-  it("should return -1 on an empty array", () => {
-    expect(bsFind([])).toEqual(-1)
-  })
-  it("shold return -1 no not found value", (ctx) => {
-    expect(bsFind([1, 2, 3], 99)).toEqual(-1)
+describe("isUniqueCmp", () => {
+  it.each(isUniqueFxt)(`Case %j`, (arr, exp) => {
+    expect(isUniqueCmp(arr)).toBe(exp)
   })
 })
 
-describe.each([[0, 0], [4, 4], [9, 9]])(
-  "bsFind happy path", (vl, expected) => {
-  beforeEach((ctx) => {
-    ctx.arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+const bsFindArr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+const bsFindFxt = [
+  [[], 99, -1], [[1, 2, 3], 99, -1],
+  [bsFindArr, 0, 0], [bsFindArr, 4, 4], [bsFindArr, 9, 9]
+]
+
+describe("bsFind", () => {
+  it.each(bsFindFxt)("Case %j, %j", (arr, vl, exp) => {
+    expect(bsFind(arr, vl)).toBe(exp)
   })
-  it("should return the correct position", (ctx) => {
-    expect(bsFind(ctx.arr, vl)).toEqual(expected)
+})
+
+describe("bsFindRec", () => {
+  it.each(bsFindFxt)("Case %j, %j", (arr, vl, exp) => {
+    expect(bsFindRec(arr, vl)).toBe(exp)
   })
 })
 
 // ** Sorting
 
+const sortQuickFxt = [
+  [[], []], [[1], [1]],
+  [[8, 1, 4, 3, 0, 2, 6, 7, 9, 0, 5], [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
+]
+
 describe("sortQuickCp", () => {
-  it.each(
-    [[[], []], [[1], [1]],
-     [[8, 1, 4, 3, 0, 2, 6, 7, 9, 0, 5], [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]]
-  )("should return sorted copy", (arr, expected) => {
-    expect(sortQuickCp(arr)).toEqual(expected)
+  it.each(sortQuickFxt)("Case %j", (arr, exp) => {
+    expect(sortQuickCp(arr)).toEqual(exp)
   })
 })
