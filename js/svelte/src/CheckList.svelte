@@ -54,6 +54,9 @@
   }
 </script>
 
+<svelte:head>
+  <title>CheckList</title>
+</svelte:head>
 <section on:persist={catsPersist}>
   <div>
     <button on:click={() => dispatch("logout")}>Logout</button>

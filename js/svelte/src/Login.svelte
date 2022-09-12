@@ -8,6 +8,9 @@
   function signup() { console.log("signup()") }
 </script>
 
+<svelte:head>
+  <title>Login</title>
+</svelte:head>
 <section>
   <form on:submit|preventDefault={() => dispatch("login")}>
     <label>
