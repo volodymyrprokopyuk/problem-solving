@@ -2,6 +2,16 @@ import { Stack, BSTree } from "./dstructure.js"
 
 function error(msg) { throw new Error(`ERROR: ${msg}`) }
 
+// ** Array
+
+export function isPermut(a, b) {
+  const ast = new Set()
+  const bst = new Set()
+  for (const el in a) { ast.add(el) }
+  for (const el in b) { bst.add(el) }
+  return ast === bst
+}
+
 // ** Stack
 
 // O(n)

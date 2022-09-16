@@ -114,26 +114,26 @@
      {/if}
      </main> -->
 
-<svelte:window
-  on:hashchange={() => activeComponent = hashMap[location.hash] || NotFound}/>
-<main>
-  <svelte:component
-    this={activeComponent}
-         on:login={() => location.hash = "#checklist"}
-    on:logout={() => location.hash = "#login"}/>
-</main>
+<!-- <svelte:window
+     on:hashchange={() => activeComponent = hashMap[location.hash] || NotFound}/>
+     <main>
+     <svelte:component
+     this={activeComponent}
+     on:login={() => location.hash = "#checklist"}
+     on:logout={() => location.hash = "#login"}/>
+     </main>
 
-<style>
- :global(body) {
-   background-color: cornsilk;
- }
- main {
-   display: flex;
-   flex-direction: column;
-   justify-content: flex-start;
-   align-items: center;
- }
- h1 {
-   text-align: center;
- }
-</style>
+     <style>
+     :global(body) {
+     background-color: cornsilk;
+     }
+     main {
+     display: flex;
+     flex-direction: column;
+     justify-content: flex-start;
+     align-items: center;
+     }
+     h1 {
+     text-align: center;
+     }
+     </style> -->

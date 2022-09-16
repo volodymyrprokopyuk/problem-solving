@@ -576,3 +576,36 @@
 // console.log(o2) // { b: 2, a: 1 }
 // const { a, ...o3 } = o2
 // console.log(a, o3) // 1, { b: 2 }
+
+const exp = [
+  // September, 5
+  { c: "Trans. Colmenarejo to Moncloa", a: 3.60 },
+  { c: "Trans. Moncloa to MAD", a: 5.00 },
+  { c: "Trans. LHR to Wibledon", a: 7.32 },
+  { c: "Food. Lunch", a: 11.61 },
+  { c: "Food. Dinner", a: 34.26 },
+  // September, 6
+  { c: "Food. Lunch", a: 13.58 },
+  { c: "Trans. Puttshack minigolf", a: 10.51 },
+  // September, 7
+  { c: "Food. Dinner", a: 45.28 },
+  // September, 8
+  { c: "Trans. Oyster drinks", a: 8.78 },
+  // September, 9
+  { c: "Trans. Wibledon to LHR", a: 3.81 },
+  { c: "Trans. MAD to Moncloa", a: 5.00 },
+  { c: "Trans. Moncloa to Colmenarejo", a: 3.60 },
+]
+const tot = exp.reduce((tot, exp) => tot + exp.a, 0.00)
+console.log(`Total: ${tot.toFixed(2)} EUR`)
+
+const trSep5 = 3.60 + 5.00 + 7.32
+const fdSep5 = 11.61 + 34.26
+const fdSep6 = 13.58
+const trSep6 = 10.51
+const fdSep7 = 45.28
+const trSep8 = 8.78
+const trSep9 = 3.81 + 5.00 + 3.60
+const expd = [trSep5, fdSep5, fdSep6, trSep6, fdSep7, trSep8, trSep9]
+console.log(expd)
+console.log(`Total: ${expd.reduce((t, e) => t + e).toFixed(2)} EUR`)
