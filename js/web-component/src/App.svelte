@@ -1,8 +1,10 @@
 <script>
   import svelteLogo from './assets/svelte.svg'
   import Counter from './lib/Counter.svelte'
+  import Component from "./lib/Component.svelte"
   import "./lib/Counter2.svelte"
   import "./lib/Clock.svelte"
+  import "./lib/Slider.svelte"
 </script>
 
 <main>
@@ -17,7 +19,7 @@
   <h1>Vite + Svelte</h1>
 
   <div class="card">
-    <Counter />
+    <Counter/>
   </div>
 
   <p>
@@ -30,9 +32,19 @@
 
   <sv-counter/>
   <sv-clock/>
+  <sv-slider/>
+  <div class="cmp">
+    <Component/>
+  </div>
+  <Component class="cmp" --color="green"/>
+  <Component bgColor="yellow"/>
 </main>
 
 <style>
+  .cmp {
+    color: blue;
+    background-color: cornsilk;
+  }
   .logo {
     height: 6em;
     padding: 1.5em;

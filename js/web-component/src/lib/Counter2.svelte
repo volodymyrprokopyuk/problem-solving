@@ -5,4 +5,6 @@
  function inc() { ++cnt }
 </script>
 
-<button type="button" on:click={inc}>Counter {cnt}</button>
+<button type="button" on:click={inc}>
+  Counter {cnt}
+</button>
