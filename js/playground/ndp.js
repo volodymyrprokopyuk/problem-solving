@@ -99,15 +99,15 @@ class ReMatch extends EventEmitter {
 // rem.on("match", (match, file) => console.log(`match: '${match}' in ${file}`))
 // rem.on("error", error => console.error(`error: ${error}`))
 
-function asyncTask(x, cb) {
+function cbTask(x, cb) {
   setTimeout(() => {
     if (x === -1) { return cb("oh") }
     console.log(x); cb(null)
-  }, 500)
+  }, 900)
 }
 
-// Sequential iterator pattern
-function asyncIterate(task, arr, cb) {
+// Sequential iteration pattern
+function cbIterate(task, arr, cb) {
   // Sequential interation over an array applying an async operation
   let index = 0
   function iterate() {
@@ -120,11 +120,11 @@ function asyncIterate(task, arr, cb) {
   iterate()
 }
 
-// asyncIterate(asyncTask, [], console.log) // null
-// asyncIterate(asyncTask, [1, 2, 3], console.log) // 1, 2, 3, null
+// cbIterate(cbTask, [], console.log) // null
+// cbIterate(cbTask, [1, 2, 3], console.log) // 1, 2, 3, null
 
 // Parallel execution pattern
-function parallel(tasks, cb) {
+function cbParallel(tasks, cb) {
   // Parallel execution of tasks until all complete or first error
   let completed = 0
   let failed = false
@@ -136,12 +136,12 @@ function parallel(tasks, cb) {
 }
 
 // // 1, 3, 2, null
-// parallel([1, 2, 3].map(i => (done) => asyncTask(i, done)), console.log)
+// cbParallel([1, 2, 3].map(i => (done) => cbTask(i, done)), console.log)
 // // 1, oh, 3
-// parallel([1, -1, 3].map(i => (done) => asyncTask(i, done)), console.log)
+// cbParallel([1, -1, 3].map(i => (done) => cbTask(i, done)), console.log)
 
 // Limited parallel execution pattern
-function parallelLimit(tasks, limit, cb) {
+function cbParallelLimit(tasks, limit, cb) {
   // Parallel execution of at most N tasks until all complete or first error
   let completed = 0
   let failed = false
@@ -163,9 +163,161 @@ function parallelLimit(tasks, limit, cb) {
   parallel()
 }
 
-// parallelLimit(
-//   [1, 2, 3, 4, 5].map(i => (done) => asyncTask(i, done)), 2, console.log
+// cbParallelLimit(
+//   [1, 2, 3, 4, 5].map(i => (done) => cbTask(i, done)), 2, console.log
 // ) // 1, 2 | 3, 4 | 5, null
-// parallelLimit(
-//   [1, 2, 3, -1, 5].map(i => (done) => asyncTask(i, done)), 2, console.log
+// cbParallelLimit(
+//   [1, 2, 3, -1, 5].map(i => (done) => cbTask(i, done)), 2, console.log
 // ) // 1, 2 | 3, oh | 5, null
+
+// Convert callback-based function into a Promise-returning function
+function promisify(f) {
+  return (...args) => {
+    return new Promise((resolve, reject) => {
+      const argsCb = [...args, (error, result) => {
+        if (error) { return reject(error) }
+        resolve(result)
+      }]
+      f(...argsCb)
+    })
+  }
+}
+
+const taskP = promisify(cbTask)
+// taskP(1).then(console.log) // 1, undefined
+// taskP(-1).catch(console.error) // oh
+
+// Sequential iteration pattern (dynamic promise chaining)
+function promiseIterate(task, arr) {
+  let p = Promise.resolve()
+  for (const e of arr) { p = p.then(() => task(e)) }
+  return p
+}
+
+// promiseIterate(taskP, []).then(console.log) // undefined
+// promiseIterate(taskP, [1, 2, 3]).then(console.log) // 1, 2, 3, undefined
+
+// Parallel execution pattern
+function promiseParallel(tasks) {
+  let completed = 0
+  return new Promise((resolve, reject) => {
+    function done() {
+      if (++completed === tasks.length) { resolve() }
+    }
+    for (const task of tasks) { task().then(done, reject) }
+  })
+}
+
+// promiseParallel([1, 2, 3].map(i => () => taskP(i)))
+//   .then(console.log) // 1, 2, 3, undefined
+// promiseParallel([1, -1, 3].map(i => () => taskP(i)))
+//   .then(console.log, console.error) // 1, oh, 3
+
+// Limited parallel execution pattern
+function promiseParallelLimit(tasks, limit) {
+  let completed = 0
+  let index = 0
+  let running = 0
+  return new Promise((resolve, reject) => {
+    function done() {
+      --running
+      if (++completed === tasks.length) { resolve() }
+      if (running < limit) { parallel() }
+    }
+    function parallel() {
+      while (index < tasks.length && running < limit) {
+        const task = tasks[index++]
+        task().then(done, reject)
+        ++running
+      }
+    }
+    parallel()
+  })
+}
+
+// promiseParallelLimit(
+//   [1, 2, 3, 4, 5].map(i => () => taskP(i)), 2
+// ).then(console.log) // 1, 2 | 3, 4 | undefined
+// promiseParallelLimit(
+//   [1, 2, 3, -1, 5].map(i => () => taskP(i)), 2
+// ).then(console.log, console.error) // 1, 2 | 3, oh | 5
+
+// return await for local errors
+async function localError() {
+  try { return await taskP(-1) }
+  catch (error) { console.error(`Local: ${error}`) }
+}
+
+// localError().catch(error => console.error(`Caller: ${error}`)) // Local: oh
+
+// Sequential iteration pattern
+async function asyncIterate(task, arr) {
+  for (const e of arr) { await task(e) }
+}
+
+// await asyncIterate(taskP, [1, 2, 3]) // 1, 2, 3
+
+// Parallel execution pattern
+async function asyncParallel(tasks) {
+  const promises = tasks.map(task => task())
+  // Problem: unnecesary wait for all promosises in the array
+  // preceding the rejected promise. Solution: use Promise.all()
+  for (const promise of promises) { await promise }
+}
+
+// await asyncParallel([1, 2, 3].map(i => () => taskP(i))) // 1, 2, 3
+// try {
+//   await asyncParallel([1, -1, 3].map(i => () => taskP(i))) // 1, oh, 3
+// } catch (error) { console.error(error) }
+
+// Limited parallel execution pattern
+async function asyncParallelLimit(tasks, limit) {
+  let completed = 0
+  let index = 0
+  let running = 0
+  let promises = []
+  function parallel() {
+    while (index < tasks.length && running < limit) {
+      const task = tasks[index++]
+      promises.push(task())
+      ++running
+    }
+  }
+  parallel()
+  while (completed !== tasks.length) {
+    if (promises.length !== 0) {
+      await promises.shift()
+      ++completed, --running
+      parallel()
+    }
+  }
+}
+
+// asyncParallelLimit(
+//   [1, 2, 3, 4, 5].map(i => () => taskP(i)), 2
+// ) // 1, 2 | 3, 4 | 5
+// try {
+//   await asyncParallelLimit(
+//     [1, 2, 3, -1, 5].map(i => () => taskP(i)), 2
+//   ) // 1, 2 | 3, oh | 5
+// } catch (error) { console.error(error) }
+
+// Infinite recursive promise chain creates memory leaks
+async function leakingRecursion(i = 0) {
+  await taskP(i)
+  // Memory leak: hain of dependent Promises that never resolve
+  return leakingRecursion(i + 1)
+  // No memory leak (GC collected Promises), but lost rejections
+  leakingRecursion(i + 1)
+}
+
+// leakingRecursion() // 0, 1, 2, ...
+
+async function nonLeakingLoop() {
+  let i = 0
+  while (true) {
+    await taskP(i++) // No memory leak + correct error handling
+  }
+}
+
+// nonLeakingLoop() // 0, 1, 2, ...
