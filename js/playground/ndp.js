@@ -1,5 +1,10 @@
+import { promisify } from "util"
 import { EventEmitter } from "events"
+import { Readable, Transform, PassThrough } from "stream"
 import { readFile } from "fs"
+import { randomBytes as randomBytesCb } from "crypto"
+const randomBytes = promisify(randomBytesCb)
+import { createServer } from "http"
 
 // module pattern
 const aModule = (function() {
@@ -171,7 +176,7 @@ function cbParallelLimit(tasks, limit, cb) {
 // ) // 1, 2 | 3, oh | 5, null
 
 // Convert callback-based function into a Promise-returning function
-function promisify(f) {
+function promisifyCb(f) {
   return (...args) => {
     return new Promise((resolve, reject) => {
       const argsCb = [...args, (error, result) => {
@@ -183,7 +188,7 @@ function promisify(f) {
   }
 }
 
-const taskP = promisify(cbTask)
+const taskP = promisifyCb(cbTask)
 // taskP(1).then(console.log) // 1, undefined
 // taskP(-1).catch(console.error) // oh
 
@@ -321,3 +326,209 @@ async function nonLeakingLoop() {
 }
 
 // nonLeakingLoop() // 0, 1, 2, ...
+
+// Non-flowing (paused) mode of Readable = readable + end (default)
+function nonFlowingReadable() {
+  process.stdin
+    .on("readable", () => { // new data is available
+      let chunk // read() pulls data in a loop from an internal buffer
+      // Flexible control over data consumption
+      while ((chunk = process.stdin.read()) !== null) { // read() is sync
+        console.log(chunk.toString())
+      }
+    })
+    .on("end", () => { console.log("done") }) // end of stream
+}
+
+// nonFlowingReadable()
+
+// Flowing mode of Readable = data + end
+function flowingReadable() {
+  process.stdin
+    // on(data) or resume() switches to the flowing mode that pushes data
+    // .pause() switches back to the non-flowing mode (default)
+    .on("data", chunk => console.log(chunk.toString()))
+    .on("end", () => { console.log("done") })
+}
+
+// flowingReadable()
+
+// Readable = async iterator
+async function asyncIterReadable() {
+  for await (const chunk of process.stdin) {
+    console.log(chunk.toString())
+  }
+}
+
+// await asyncIterReadable()
+
+// Implementing Readable
+class RandomReadable extends Readable {
+  #reads = 0
+
+  async _read(size) {
+    const chunk = await randomBytes(10)
+    // push() => false for backpressure when the internal buffer is full
+    // on(drain) resume pushing
+    this.push(chunk) // push data to the internal buffer
+    if (++this.#reads === 3) { this.push(null) } // end of stream
+  }
+}
+
+async function randomReadable() {
+  const rr = new RandomReadable()
+  for await (const chunk of rr) {
+    console.log(chunk.toString("hex"))
+  }
+}
+
+// randomReadable()
+
+// Simplified Readable sysntax
+function randomReadable2() {
+  let reads = 0
+  return new Readable({
+    async read(size) {
+      const chunk = await randomBytes(10)
+      this.push(chunk)
+      if (++reads === 3) { this.push(null) }
+    }
+  })
+}
+
+// for await (const chunk of randomReadable2()) {
+//   console.log(chunk.toString("hex"))
+// }
+
+function serverWritable() {
+  const server = createServer(async (req, res) => {
+    res.writeHead(200, { "Content-Type": "text/plain" })
+    const body = await randomBytes(10)
+    // write() => false for backpressure when the internal buffer is full
+    // on(drain) resume writing
+    res.write(body)
+    res.end("\n\n")
+    res.on("finish", () => console.log("done"))
+  })
+  const port = 9876
+  server.listen(port, () => console.log("Listening on port ${port}"))
+}
+
+// serverWritable()
+
+class ReplaceTransform extends Transform {
+  constructor(re, rep, options) {
+    super(options)
+    this.re = re, this.rep = rep
+    this.tail = "" // match may be spread across chunks
+  }
+
+  _transform(chunk, encoding, cb) { // applied to all chunks
+    const tailChunk = this.tail + chunk
+    const sp = tailChunk.split(this.re)
+    if (sp.length === 1) { // no match
+      this.push(tailChunk)
+      this.tail = ""
+    } else {
+      // push transformed data into an internal read buffer
+      this.push(sp.slice(0, -1).join(this.rep) + this.rep)
+      this.tail = sp[sp.length - 1]
+    }
+    cb()
+  }
+
+  _flush(cb) {
+    this.push(this.tail) // flush tail just before stream end
+    cb()
+  }
+}
+
+function replaceTransform() {
+  const rt = new ReplaceTransform(/ab/, "AB")
+  rt.write("ab c a")
+  rt.write("b c ab c")
+  rt.end()
+  rt.on("data", chunk => console.log(chunk.toString()))
+}
+
+// replaceTransform() // AB c AB c AB c
+
+// Stream map => filter => aggregate
+const salesCsv = `Household,Namibia,597290.92
+Baby Food,Iceland,808579.10
+Meat,Russia,277305.60
+Meat,Italy,413270.00
+Cereal,Malta,174965.25
+Meat,Indonesia,145402.40
+Household,Italy,728880.54`
+
+function salesReadable(salesCsv) {
+  const lines = salesCsv.split("\n")
+  let index = 0
+  return new Readable({
+    objectMode: true,
+    read() {
+      if (index < lines.length) {
+        const [type, country, profit] = lines[index++].split(",")
+        return this.push({ type, country, profit: Number(profit) })
+      }
+      this.push(null)
+    }
+  })
+}
+
+function filterBy(property, value) {
+  return new Transform({
+    objectMode: true,
+    transform(record, encoding, cb) {
+      if (record[property] === value) {
+        this.push(record) // conditional push()
+      }
+      cb()
+    }
+  })
+}
+
+function totalBy(property) {
+  let total = 0
+  return new Transform({
+    objectMode: true,
+    transform(record, encoding, cb) {
+      total += record[property] // aggregate without push()
+      cb()
+    },
+    flush(cb) {
+      this.push(total.toFixed(2) + "\n") // push() final aggregate
+      cb()
+    }
+  })
+}
+
+// PassThrough for observability
+function countRecords(title) {
+  let count = 0
+  const pt = new PassThrough({ objectMode: true })
+  pt.on("data", chunk => ++count )
+  pt.on("finish", () => console.log(`${title}${count}`))
+  return pt
+}
+
+// salesReadable(salesCsv)
+//   .pipe(countRecords("Total records: "))
+//   .pipe(filterBy("country", "Italy"))
+//   .pipe(countRecords("Filtered records: "))
+//   .pipe(totalBy("profit"))
+//   .pipe(process.stdout)
+
+// PassThrough for late binding
+function latePiping() {
+  const pt = new PassThrough()
+  pt.pipe(process.stdout)
+
+  salesReadable(salesCsv)
+    .pipe(filterBy("country", "Italy"))
+    .pipe(totalBy("profit"))
+    .pipe(pt)
+}
+
+// latePiping()
