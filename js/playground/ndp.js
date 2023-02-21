@@ -1,7 +1,7 @@
 import { promisify } from "util"
 import { EventEmitter } from "events"
 import { Readable, Transform, PassThrough } from "stream"
-import { readFile } from "fs"
+import { readFile, createReadStream } from "fs"
 import { randomBytes as randomBytesCb } from "crypto"
 const randomBytes = promisify(randomBytesCb)
 import { createServer } from "http"
@@ -532,3 +532,150 @@ function latePiping() {
 }
 
 // latePiping()
+
+// Sequential iteration
+function streamIterate(task, arr) {
+  const taskTr = new Transform({
+    objectMode: true,
+    async transform(chunk, encoding, cb) {
+      try { await task(chunk); cb() }
+      catch (error) { cb(error) }
+    }
+  })
+  return new Promise((resolve, reject) => {
+    // Sequential interation
+    Readable.from(arr).pipe(taskTr)
+      .on("error", reject)
+      .on("finish", resolve)
+  })
+}
+
+// try {
+//   await streamIterate(taskP, [1, 2, 3]) // 1, 2, 3
+//   await streamIterate(taskP, [1, -1, 3]) // 1, oh
+// } catch (error) { console.error(error) }
+
+function streamIterateHead(files) {
+  function head(limit) {
+    return new Transform({
+      objectMode: true,
+      transform(file, encoding, cb) {
+        const source = createReadStream(file)
+        let index = 0
+        source.on("data", chunk => {
+          const lines = chunk.toString().split("\n")
+          while (index < lines.length && index < limit) {
+            process.stdout.write(`${file}: ${lines[index++]}\n`)
+          }
+          if (index === limit) { source.destroy(new Error("limit")) }
+        })
+        source.on("error", error => {
+          if (error.message === "limit") { return cb() } // the limit reached
+          cb(error)
+        })
+        source.on("end", cb) // file smaller than the limit
+      }
+    })
+  }
+  return new Promise((resolve, reject) => {
+    Readable.from(files)
+      .pipe(head(4)) // sequential iteration
+      .on("error", reject)
+      .on("finish", resolve)
+  })
+}
+
+// try {
+//   await streamIterateHead(["ndp.js", "ydnjs.js"])
+// } catch(error) { console.error(error) }
+
+// Parallel execution pattern
+function streamParallel(tasks) {
+  let completed = 0
+  let done = null
+  let fail = null
+  const taskTr = new Transform({
+    objectMode: true,
+    transform(task, encoding, cb) {
+      // Start all tasks in parallel
+      task().catch(fail) // Global reject on first failure
+        .finally(() => {
+          // flush() stram only when all tasks are actually done
+          if (++completed === tasks.length) { done() }
+        })
+      cb() // all tasks are done immediately
+    },
+    flush(cb) { done = cb }
+  })
+  return new Promise((resolve, reject) => {
+    fail = reject
+    Readable.from(tasks).pipe(taskTr)
+      .on("error", reject)
+      .on("finish", resolve)
+  })
+}
+
+// try {
+//   await streamParallel([1, 2, 3].map(i => () => taskP(i))) // 1, 2, 3
+//   await streamParallel([1, -1, 3].map(i => () => taskP(i))) // 1, oh, 3
+// } catch(error) { console.error(error) }
+
+function streamParallelLimit(tasks, limit) {
+  let completed = 0
+  let running = 0
+  let done = null
+  let fail = null
+  let resume = null
+  const taskTr = new Transform({
+    objectMode: true,
+    transform(task, encoding, cb) {
+      task().catch(fail)
+        .finally(() => {
+          if (++completed === tasks.length) { return done() }
+          --running
+          // Resume the stream when a task is completed
+          if (resume) { const r = resume; resume = null; r() }
+        })
+      if (++running < limit) { cb() }
+      else { resume = cb } // Suspend the stream until a task is completed
+    },
+    flush(cb) { done = cb }
+  })
+  return new Promise((resolve, reject) => {
+    fail = reject
+    Readable.from(tasks).pipe(taskTr)
+      .on("error", reject)
+      .on("finish", resolve)
+  })
+}
+
+// try {
+//   // 1, 2 | 3, 4 | 5
+//   await streamParallelLimit([1, 2, 3, 4, 5].map(i => () => taskP(i)), 2)
+//   // 1, 2 | 3, oh | 5
+//   await streamParallelLimit([1, 2, 3, -1, 5].map(i => () => taskP(i)), 2)
+// } catch(error) { console.error(error) }
+
+function italicStream() {
+  return new Transform({
+    objectMode: true,
+    transform(chunk, encoding, cb) {
+      this.push(`_${chunk}_`)
+    }
+  })
+}
+
+function boldStream() {
+  return new Transform({
+    objectMode: true,
+    transform(chunk, encoding, cb) {
+      this.push(`**${chunk}**`)
+    }
+  })
+}
+
+// Composition of streams
+function composeStreams() {
+}
+
+// composeStreams()
