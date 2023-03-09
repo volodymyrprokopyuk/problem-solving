@@ -63,11 +63,28 @@ export function mergeSort(arr, cmp = lt) {
   return merge(left, right)
 }
 
+// O(n*log(n)), in-place, not stable
+export function quickSort(arr, cmp = lt) {
+  function sort(a, b) {
+    if (a < b) {
+      const p = arr[a + Math.floor((b - a) / 2)]
+      let l = a, r = b
+      while (l <= r) {
+        while (cmp(arr[l], p)) { ++l }
+        while (cmp(p, arr[r])) { --r }
+        if (l <= r) { swap(arr, l, r); ++l; --r }
+      }
+      sort(a, r); sort(l, b)
+    }
+  }
+  sort(0, arr.length - 1)
+}
+
 const arrs = [
   [], [0], [1, 2],
   [3, 2, 1],
   [9, 0, 2, 4, 6, 3, 8, 9, 7, 1, 5, 0]
 ]
 
-// arrs.forEach(arr => { insertionSort(arr, gt); console.log(arr) })
-arrs.forEach(arr => { console.log(mergeSort(arr)) })
+arrs.forEach(arr => { quickSort(arr, gt); console.log(arr) })
+// arrs.forEach(arr => { console.log(mergeSort(arr)) })
