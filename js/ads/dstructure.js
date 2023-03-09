@@ -4,18 +4,6 @@ import {
 
 function error(msg) { throw new Error(`ERROR: ${msg}`) }
 
-/*
- * All = length O(1), from, iterator O(n)
- * Array = [set], [get] O(1), remove O(n)
- * HTable (Array + hash) = set, get, remove O(1)
- * Heap (Array + heapify) = push, pop O(log n), peek O(1)
- * LNode = data, prev, next
- *   List (head) = push, pop, peek O(1), remove O(n)
- *   Stack (top) = push, pop, peek O(1)
- *   Queue (front, rear) = enqueue, dequeue, peek O(1)
- * TNode = data, left, right
- *   BSTree (root) = set, get, remove O(log n)
- */
 
 // ** LinkedList
 
