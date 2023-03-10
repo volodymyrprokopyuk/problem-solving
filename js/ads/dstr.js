@@ -222,7 +222,7 @@ export class Stack {
   }
 }
 
-// const hp = Heap.from([5, 2, 3, 4, 1])
+// const hp = Heap.from([5, 2, 3, 4, 1], gt)
 // console.log(hp.peek(), hp.length)
 // for (const el of hp) { console.log(el) }
 

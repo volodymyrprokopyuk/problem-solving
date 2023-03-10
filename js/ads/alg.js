@@ -1,3 +1,5 @@
+import { Heap } from "./dstr.js"
+
 function lt(a, b) { return a < b }
 function gt(a, b) { return a > b }
 
@@ -80,11 +82,17 @@ export function quickSort(arr, cmp = lt) {
   sort(0, arr.length - 1)
 }
 
+// O(n*log(n)), copy, not stable
+export function heapSort(arr, cmp = lt) {
+  const hp = Heap.from(arr, cmp)
+  return Array.from(hp)
+}
+
 const arrs = [
   [], [0], [1, 2],
   [3, 2, 1],
   [9, 0, 2, 4, 6, 3, 8, 9, 7, 1, 5, 0]
 ]
 
-arrs.forEach(arr => { quickSort(arr, gt); console.log(arr) })
-// arrs.forEach(arr => { console.log(mergeSort(arr)) })
+// arrs.forEach(arr => { quickSort(arr, gt); console.log(arr) })
+arrs.forEach(arr => { console.log(heapSort(arr, gt)) })
