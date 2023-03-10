@@ -6,7 +6,7 @@
  * + LNode = data, prev, next
  *   + List (head) = push, pop, peek O(1), has, remove O(n)
  *   + Stack (top) = push, pop, peek O(1)
- *   Queue (front, rear) = enqueue, dequeue, peek O(1)
+ *   + Queue (front, rear) = enqueue, dequeue, peek O(1)
  * TNode = data, left, right
  *   BSTree (root) = set, get, remove O(log n)
  */
@@ -222,17 +222,75 @@ export class Stack {
   }
 }
 
+export class Queue {
+  #front = null
+  #rear = null
+  length = 0
+
+  get front() { return this.#front }
+  get rear() { return this.#rear }
+
+  static from(it) {
+    const qu = new Queue()
+    for (const el of it) { qu.enqueue(el) }
+    return qu
+  }
+
+  [Symbol.iterator]() {
+    let nd = this.#front
+    const next = () => {
+      if (nd !== null) {
+        const value = nd.data
+        nd = nd.next
+        return { value, done: false }
+      } else { return { done: true } }
+    }
+    return { next }
+  }
+
+  // O(1)
+  enqueue(data) {
+    const nd = new LNode(data)
+    if (this.#front === null && this.#rear === null) {
+      this.#front = this.#rear = nd
+    } else {
+      this.#rear = this.#rear.next = nd
+    }
+    ++this.length
+  }
+
+  // O(1)
+  dequeue() {
+    if (this.#front === null && this.#rear === null) {
+      error("dequeue from empty queue")
+    }
+    const data = this.#front.data
+    if (this.#front === this.#rear) {
+      this.#front = this.#rear = null
+    } else {
+      this.#front = this.#front.next
+    }
+    --this.length
+    return data
+  }
+
+  // O(1)
+  peek() {
+    if (this.#front === null && this.#rear === null) {
+      error("dequeue from empty queue")
+    }
+    return this.#front.data
+  }
+}
+
 // const hp = Heap.from([5, 2, 3, 4, 1], gt)
-// console.log(hp.peek(), hp.length)
 // for (const el of hp) { console.log(el) }
 
 // const ls = List.from([1, 2, 3, 4])
 // for (const el of ls) { console.log(el) }
-// console.log(ls.has(3))
-// console.log(ls.has(0))
 
 // const st = Stack.from([1, 2, 3, 4])
 // for (const el of st) { console.log(el) }
-// console.log(st.pop(), st)
-// console.log(st.pop(), st)
-// console.log(st.peek(), st)
+
+// const qu = Queue.from([1, 2, 3, 4])
+// for (const el of qu) { console.log(el) }
