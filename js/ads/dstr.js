@@ -1,14 +1,14 @@
 /*
  * All = length O(1), from, iterator O(n)
- * * Array = [set], [get] O(1), has, remove O(n)
- * * HTable (Array + hash) = set, get, has, remove O(1)
+ * * Array = [set], [get] O(1), includes, remove O(n)
+ * * HTable (Array + hash) = set, get, remove O(1)
  * + Heap (arr + heapUp/Down) = push, pop O(log(n)), peek O(1)
  * - LNode = data, prev, next
- *   * List (head) = push, pop, peek O(1), has, remove O(n)
+ *   * List (head) = push, pop, peek O(1), includes, remove O(n)
  *   + Stack (top) = push, pop, peek O(1)
  *   + Queue (front, rear) = enqueue, dequeue, peek O(1)
  * - TNode = data, left, right
- *   * BSTree (root) = set, get, has, remove O(log(n))
+ *   * BSTree (root) = set, get, remove O(log(n))
  */
 
 function error(message) { throw new Error(message) }
@@ -145,7 +145,7 @@ export class List {
   }
 
   // O(n)
-  has(data, eq = equal) {
+  includes(data, eq = equal) {
     let nd = this.#head
     while (nd !== null) {
       if (eq(nd.data, data)) { return true }
@@ -342,8 +342,37 @@ export class BSTree {
     return getNode(this.#root)
   }
 
-  has(data, eq = equal) {
-    return Boolean(this.get(data, eq))
+  // O(log(n))
+  remove(data, eq = equal) {
+    const inOrderSucc = (nd) => {
+      while (nd.left !== null) { nd = nd.left }
+      return nd
+    }
+    const removeNode = (nd, data) => {
+      if (nd === null) { return null }
+      if (this.#cmp(data, nd.data)) {
+        nd.left = removeNode(nd.left, data)
+      } else if (this.#cmp(nd.data, data)) {
+        nd.right = removeNode(nd.right, data)
+      } else {
+        if (nd.left === null) {
+          --this.length
+          return nd.right
+        } else if (nd.right === null) {
+          --this.length
+          return nd.left
+        } else {
+          // The in-order successor becomes the new root
+          nd.data = inOrderSucc(nd.right).data
+          // Delete the in-order successor
+          nd.right = removeNode(nd.right, nd.data)
+        }
+      }
+      return nd
+    }
+    const length = this.length
+    this.#root = removeNode(this.#root, data)
+    return length > this.length
   }
 }
 
@@ -359,9 +388,5 @@ export class BSTree {
 // const qu = Queue.from([1, 2, 3, 4])
 // for (const el of qu) { console.log(el) }
 
-const tr = BSTree.from([5, 2, 4, 3, 1])
-for (const el of tr.inOrder) { console.log(el) }
-console.log(tr.get(3))
-console.log(tr.get(9))
-console.log(tr.has(3))
-console.log(tr.has(9))
+// const tr = BSTree.from([5, 2, 4, 3, 1])
+// for (const el of tr.inOrder) { console.log(el) }
