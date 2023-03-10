@@ -300,18 +300,15 @@ export class BSTree {
   }
 
   get inOrder() {
-    const inOrderNode = (nd, arr) => {
+    function* inOrderGen(nd) {
       if (nd !== null) {
-        inOrderNode(nd.left, arr)
-        arr.push(nd.data)
-        inOrderNode(nd.right, arr)
+        yield* inOrderGen(nd.left)
+        yield nd.data
+        yield* inOrderGen(nd.right)
       }
     }
-    const arr = []
-    inOrderNode(this.#root, arr)
-    return arr
+    return { [Symbol.iterator]: () => inOrderGen(this.#root) }
   }
-
 
   // O(log(n))
   set(data) {
@@ -388,5 +385,5 @@ export class BSTree {
 // const qu = Queue.from([1, 2, 3, 4])
 // for (const el of qu) { console.log(el) }
 
-// const tr = BSTree.from([5, 2, 4, 3, 1])
-// for (const el of tr.inOrder) { console.log(el) }
+const tr = BSTree.from([5, 2, 4, 3, 1])
+for (const el of tr.inOrder) { console.log(el) }
