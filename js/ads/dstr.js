@@ -385,5 +385,5 @@ export class BSTree {
 // const qu = Queue.from([1, 2, 3, 4])
 // for (const el of qu) { console.log(el) }
 
-const tr = BSTree.from([5, 2, 4, 3, 1])
-for (const el of tr.inOrder) { console.log(el) }
+// const tr = BSTree.from([5, 2, 4, 3, 1])
+// for (const el of tr.inOrder) { console.log(el) }

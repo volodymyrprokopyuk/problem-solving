@@ -95,4 +95,30 @@ const arrs = [
 ]
 
 // arrs.forEach(arr => { quickSort(arr, gt); console.log(arr) })
-arrs.forEach(arr => { console.log(heapSort(arr, gt)) })
+// arrs.forEach(arr => { console.log(heapSort(arr, gt)) })
+
+// O(log(n))
+export function binarySearch(arr, data, cmp = lt) {
+  let a = 0, b = arr.length - 1
+  while (a <= b) {
+    const m = a + Math.floor((b - a) / 2)
+    if (cmp(data, arr[m])) { b = m - 1 }
+    else if (cmp(arr[m], data)) { a = m + 1 }
+    else { return m }
+  }
+}
+
+// const arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+// const els = [0, 1, 4, 7, 8, 9, 10]
+// els.forEach(el => console.log(binarySearch(arr, el)))
+
+function* fibonacci(n) {
+  let a = -1, b = 1
+  while (n-- > 0) {
+    const c = a + b
+    a = b, b = c
+    yield c
+  }
+}
+
+// for (const el of fibonacci(10)) { console.log(el) }
