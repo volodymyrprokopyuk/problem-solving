@@ -1,4 +1,4 @@
-import { Heap } from "./dstr.js"
+import { Queue, Heap, GNode } from "./dstr.js"
 
 function lt(a, b) { return a < b }
 function gt(a, b) { return a > b }
@@ -112,7 +112,51 @@ export function binarySearch(arr, data, cmp = lt) {
 // const els = [0, 1, 4, 7, 8, 9, 10]
 // els.forEach(el => console.log(binarySearch(arr, el)))
 
-function* fibonacci(n) {
+// O(v + e)
+export function depthFirstSearch(nd, fn) {
+  const visited = new Map()
+  function search(nd) {
+    visited.set(nd.name)
+    fn(nd)
+    for (const adj of nd.adjs) {
+      if (!visited.has(adj.name)) { search(adj) }
+    }
+  }
+  search(nd)
+}
+
+// O(v + e)
+export function breadthFirstSearch(nd, fn) {
+  const visited = new Map()
+  const qu = new Queue()
+  visited.set(nd.name)
+  qu.enqueue(nd)
+  while (qu.length > 0) {
+    nd = qu.dequeue()
+    fn(nd)
+    for (const adj of nd.adjs) {
+      if (!visited.has(adj.name)) {
+        visited.set(adj.name)
+        qu.enqueue(adj)
+      }
+    }
+  }
+}
+
+// const n0 = new GNode(0)
+// const n1 = new GNode(1)
+// const n2 = new GNode(2)
+// const n3 = new GNode(3)
+// const n4 = new GNode(4)
+// const n5 = new GNode(5)
+// n0.adjs.push(n1, n4, n5)
+// n1.adjs.push(n3, n4)
+// n2.adjs.push(n1)
+// n3.adjs.push(n2, n4)
+// depthFirstSearch(n0, nd => console.log(nd.name))
+// breadthFirstSearch(n0, nd => console.log(nd.name))
+
+export function* fibonacci(n) {
   let a = -1, b = 1
   while (n-- > 0) {
     const c = a + b

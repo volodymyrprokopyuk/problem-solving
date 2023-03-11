@@ -9,6 +9,7 @@
  *   + Queue (front, rear) = enqueue, dequeue, peek O(1)
  * - TNode = data, left, right
  *   * BSTree (root) = set, get, remove O(log(n))
+ * - GNode = name, adjs
  */
 
 function error(message) { throw new Error(message) }
@@ -387,3 +388,10 @@ export class BSTree {
 
 // const tr = BSTree.from([5, 2, 4, 3, 1])
 // for (const el of tr.inOrder) { console.log(el) }
+
+export class GNode {
+  name = ""
+  adjs = []
+
+  constructor(name) { this.name = name }
+}
