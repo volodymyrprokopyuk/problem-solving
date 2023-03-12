@@ -2,7 +2,7 @@
  * All = length O(1), from, iterator O(n)
  * = Array = [set], [get] O(1), includes, remove O(n)
  *   = HTable (arr + hash) = set, get, remove O(1)
- *   + Heap (arr + heapUp/Down) = push, pop O(log(n)), peek O(1)
+ *   + Heap (arr + heapUp/heapDown) = push, pop O(log(n)), peek O(1)
  * > LNode = data, prev, next
  *   * List (head) = push, pop, peek O(1), includes, remove O(n)
  *   + Stack (top) = push, pop, peek O(1)
@@ -28,7 +28,7 @@ export class Heap {
   #cmp = lt
   #arr = []
 
-  constructor(cmp) { this.#cmp = cmp }
+  constructor(cmp = lt) { this.#cmp = cmp }
 
   get length() { return this.#arr.length }
 
@@ -49,11 +49,12 @@ export class Heap {
 
   // O(log(n))
   push(data) {
-    const heapUp = (i) => {
-      const p = Math.floor((i - 1) / 2)
-      if (this.#cmp(this.#arr[i], this.#arr[p])) {
-        swap(this.#arr, i, p)
-        heapUp(p)
+    const heapUp = (c) => {
+      let p = Math.floor((c - 1) / 2)
+      while (this.#cmp(this.#arr[c], this.#arr[p])) {
+        swap(this.#arr, c, p)
+        c = p
+        p = Math.floor((c - 1) / 2)
       }
     }
     this.#arr.push(data)
@@ -62,19 +63,20 @@ export class Heap {
 
   // O(log(n))
   pop() {
-    const child = (i) => {
-      const l = i * 2 + 1, r = i * 2 + 2
-      if (r <= this.#arr.length - 1) {
+    const child = (p) => {
+      const l = p * 2 + 1, r = p * 2 + 2
+      if (r < this.#arr.length) {
         return this.#cmp(this.#arr[l], this.#arr[r]) ? l : r
-      } else if (l <= this.#arr.length - 1) {
+      } else if (l < this.#arr.length) {
         return l
       } else { return -1 }
     }
-    const heapDown = (i) => {
-      const c = child(i)
-      if (c !== -1 && this.#cmp(this.#arr[c], this.#arr[i])) {
-        swap(this.#arr, i, c)
-        heapDown(c)
+    const heapDown = (p) => {
+      let c = child(p)
+      while (c !== -1 && this.#cmp(this.#arr[c], this.#arr[p])) {
+        swap(this.#arr, c, p)
+        p = c
+        c = child(p)
       }
     }
     if (this.#arr.length === 0) { error("pop from empty heap") }
@@ -87,7 +89,7 @@ export class Heap {
 
   // O(1)
   peek() {
-    if (this.#arr.length === 0) { error("peeek from empty heap") }
+    if (this.#arr.length === 0) { error("peek from empty heap") }
     return this.#arr[0]
   }
 }
@@ -189,7 +191,7 @@ export class Stack {
   [Symbol.iterator]() {
     let nd = this.#top
     const next = () => {
-      if (nd !== null) {
+      if (nd) {
         const value = nd.data
         nd = nd.next
         return { value, done: false }
@@ -208,7 +210,7 @@ export class Stack {
 
   // O(1)
   pop() {
-    if (this.#top === null) { error("pop from empty stack") }
+    if (!this.#top) { error("pop from empty stack") }
     const data = this.#top.data
     this.#top = this.#top.next
     --this.length
@@ -217,7 +219,7 @@ export class Stack {
 
   // O(1)
   peek() {
-    if (this.#top === null) { error("pop from empty stack") }
+    if (!this.#top) { error("peek from empty stack") }
     return this.#top.data
   }
 }
@@ -236,7 +238,7 @@ export class Queue {
   [Symbol.iterator]() {
     let nd = this.#front
     const next = () => {
-      if (nd !== null) {
+      if (nd) {
         const value = nd.data
         nd = nd.next
         return { value, done: false }
@@ -248,7 +250,7 @@ export class Queue {
   // O(1)
   enqueue(data) {
     const nd = new LNode(data)
-    if (this.#front === null && this.#rear === null) {
+    if (!this.#front && !this.#rear) {
       this.#front = this.#rear = nd
     } else {
       this.#rear = this.#rear.next = nd
@@ -258,9 +260,7 @@ export class Queue {
 
   // O(1)
   dequeue() {
-    if (this.#front === null && this.#rear === null) {
-      error("dequeue from empty queue")
-    }
+    if (!this.#front && !this.#rear) { error("dequeue from empty queue") }
     const data = this.#front.data
     if (this.#front === this.#rear) {
       this.#front = this.#rear = null
@@ -273,9 +273,7 @@ export class Queue {
 
   // O(1)
   peek() {
-    if (this.#front === null && this.#rear === null) {
-      error("dequeue from empty queue")
-    }
+    if (!this.#front && !this.#rear) { error("peek from empty queue") }
     return this.#front.data
   }
 }
@@ -303,7 +301,7 @@ export class BSTree {
 
   get inOrder() {
     function* inOrderGen(nd) {
-      if (nd !== null) {
+      if (nd) {
         yield* inOrderGen(nd.left)
         yield nd.data
         yield* inOrderGen(nd.right)
@@ -312,37 +310,62 @@ export class BSTree {
     return { [Symbol.iterator]: () => inOrderGen(this.#root) }
   }
 
+  // // O(log(n))
+  // set2(data) {
+  //   const setNode = (nd, data) => {
+  //     if (nd === null) {
+  //       nd = new TNode(data)
+  //       ++this.length
+  //     } else if (this.#cmp(data, nd.data)) {
+  //       nd.left = setNode(nd.left, data)
+  //     } else {
+  //       nd.right = setNode(nd.right, data)
+  //     }
+  //     return nd
+  //   }
+  //   this.#root = setNode(this.#root, data)
+  // }
+
   // O(log(n))
   set(data) {
-    const setNode = (nd, data) => {
-      if (nd === null) {
-        nd = new TNode(data)
-        ++this.length
-      } else if (this.#cmp(data, nd.data)) {
-        nd.left = setNode(nd.left, data)
-      } else {
-        nd.right = setNode(nd.right, data)
-      }
-      return nd
+    const newNd = new TNode(data)
+    ++this.length
+    if (!this.#root) { this.#root = newNd; return }
+    let nd = this.#root, p
+    while (nd) {
+      p = nd
+      if (this.#cmp(data, nd.data)) { nd = nd.left }
+      else { nd = nd.right }
     }
-    this.#root = setNode(this.#root, data)
+    if (this.#cmp(data, p.data)) { p.left = newNd }
+    else { p.right = newNd }
   }
+
+  // // O(log(n))
+  // get2(data, eq = equal) {
+  //   const getNode = (nd) => {
+  //     if (nd !== null) {
+  //       if (eq(nd.data, data)) { return nd.data }
+  //       if (this.#cmp(data, nd.data)) {
+  //         return getNode(nd.left)
+  //       } else { return getNode(nd.right) }
+  //     }
+  //   }
+  //   return getNode(this.#root)
+  // }
 
   // O(log(n))
   get(data, eq = equal) {
-    const getNode = (nd) => {
-      if (nd !== null) {
-        if (eq(nd.data, data)) { return nd.data }
-        if (this.#cmp(data, nd.data)) {
-          return getNode(nd.left)
-        } else { return getNode(nd.right) }
-      }
+    let nd = this.#root
+    while (nd) {
+      if (eq(nd.data, data)) { return nd.data }
+      if (this.#cmp(data, nd.data)) { nd = nd.left }
+      else { nd = nd.right }
     }
-    return getNode(this.#root)
   }
 
   // O(log(n))
-  remove(data, eq = equal) {
+  remove2(data, eq = equal) {
     const inOrderSucc = (nd) => {
       while (nd.left !== null) { nd = nd.left }
       return nd
@@ -373,6 +396,53 @@ export class BSTree {
     this.#root = removeNode(this.#root, data)
     return length > this.length
   }
+
+  // O(log(n))
+  remove(data, eq = equal) {
+    const inOrderSucc = (nd) => {
+      let p = nd
+      while (nd.left) { p = nd; nd = nd.left }
+      return [p, nd]
+    }
+    if (!this.#root) { error("remove from empty tree") }
+    const length = this.length
+    let nd = this.#root, p, c
+    while(nd) {
+      if (eq(nd.data, data)) {
+        if (!nd.left) {
+          if (!p) { this.#root = nd.right }
+          else { p[c] = nd.right }
+        }
+        else if (!nd.right) {
+          if (!p) { this.#root = nd.left }
+          else { p[c] = nd.left }
+        }
+        else {
+          const [succP, succNd] = inOrderSucc(nd.right)
+          console.log(succP, succNd)
+          nd.data = succNd.data
+          succP.left = null
+        }
+        --this.length
+        break
+      }
+      p = nd
+      if (this.#cmp(data, nd.data)) { nd = nd.left; c = "left" }
+      else { nd = nd.right; c = "right" }
+    }
+    return length > this.length
+  }
+}
+
+export class GNode {
+  name = ""
+  weight = 0
+  adjs = []
+
+  constructor(name, weight = 0) {
+    this.name = name
+    this.weight = weight
+  }
 }
 
 // const hp = Heap.from([5, 2, 3, 4, 1], gt)
@@ -387,16 +457,15 @@ export class BSTree {
 // const qu = Queue.from([1, 2, 3, 4])
 // for (const el of qu) { console.log(el) }
 
-// const tr = BSTree.from([5, 2, 4, 3, 1])
-// for (const el of tr.inOrder) { console.log(el) }
-
-export class GNode {
-  name = ""
-  weight = 0
-  adjs = []
-
-  constructor(name, weight = 0) {
-    this.name = name
-    this.weight = weight
-  }
-}
+const tr = BSTree.from([5, 6, 2, 4, 3, 1])
+// console.log(tr.get(5))
+// console.log(tr.get(3))
+// console.log(tr.get(1))
+// console.log(tr.get(9))
+// console.log(tr.remove(1), tr.length)
+// console.log(tr.remove(4), tr.length)
+// console.log(tr.remove(2), tr.length)
+// console.log(tr.remove(3), tr.length)
+// console.log(tr.remove(5), tr.length)
+console.log(tr.remove(5), tr.length)
+for (const el of tr.inOrder) { console.log(el) }
