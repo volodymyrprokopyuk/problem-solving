@@ -310,22 +310,6 @@ export class BSTree {
     return { [Symbol.iterator]: () => inOrderGen(this.#root) }
   }
 
-  // // O(log(n))
-  // set2(data) {
-  //   const setNode = (nd, data) => {
-  //     if (nd === null) {
-  //       nd = new TNode(data)
-  //       ++this.length
-  //     } else if (this.#cmp(data, nd.data)) {
-  //       nd.left = setNode(nd.left, data)
-  //     } else {
-  //       nd.right = setNode(nd.right, data)
-  //     }
-  //     return nd
-  //   }
-  //   this.#root = setNode(this.#root, data)
-  // }
-
   // O(log(n))
   set(data) {
     const newNd = new TNode(data)
@@ -341,19 +325,6 @@ export class BSTree {
     else { p.right = newNd }
   }
 
-  // // O(log(n))
-  // get2(data, eq = equal) {
-  //   const getNode = (nd) => {
-  //     if (nd !== null) {
-  //       if (eq(nd.data, data)) { return nd.data }
-  //       if (this.#cmp(data, nd.data)) {
-  //         return getNode(nd.left)
-  //       } else { return getNode(nd.right) }
-  //     }
-  //   }
-  //   return getNode(this.#root)
-  // }
-
   // O(log(n))
   get(data, eq = equal) {
     let nd = this.#root
@@ -365,25 +336,21 @@ export class BSTree {
   }
 
   // O(log(n))
-  remove2(data, eq = equal) {
+  remove(data, eq = equal) {
     const inOrderSucc = (nd) => {
-      while (nd.left !== null) { nd = nd.left }
+      while (nd.left) { nd = nd.left }
       return nd
     }
     const removeNode = (nd, data) => {
-      if (nd === null) { return null }
+      if (!nd) { return }
       if (this.#cmp(data, nd.data)) {
         nd.left = removeNode(nd.left, data)
       } else if (this.#cmp(nd.data, data)) {
         nd.right = removeNode(nd.right, data)
       } else {
-        if (nd.left === null) {
-          --this.length
-          return nd.right
-        } else if (nd.right === null) {
-          --this.length
-          return nd.left
-        } else {
+        if (!nd.left) { --this.length; return nd.right}
+        else if (!nd.right) { --this.length; return nd.left}
+        else {
           // The in-order successor becomes the new root
           nd.data = inOrderSucc(nd.right).data
           // Delete the in-order successor
@@ -394,42 +361,6 @@ export class BSTree {
     }
     const length = this.length
     this.#root = removeNode(this.#root, data)
-    return length > this.length
-  }
-
-  // O(log(n))
-  remove(data, eq = equal) {
-    const inOrderSucc = (nd) => {
-      let p = nd
-      while (nd.left) { p = nd; nd = nd.left }
-      return [p, nd]
-    }
-    if (!this.#root) { error("remove from empty tree") }
-    const length = this.length
-    let nd = this.#root, p, c
-    while(nd) {
-      if (eq(nd.data, data)) {
-        if (!nd.left) {
-          if (!p) { this.#root = nd.right }
-          else { p[c] = nd.right }
-        }
-        else if (!nd.right) {
-          if (!p) { this.#root = nd.left }
-          else { p[c] = nd.left }
-        }
-        else {
-          const [succP, succNd] = inOrderSucc(nd.right)
-          console.log(succP, succNd)
-          nd.data = succNd.data
-          succP.left = null
-        }
-        --this.length
-        break
-      }
-      p = nd
-      if (this.#cmp(data, nd.data)) { nd = nd.left; c = "left" }
-      else { nd = nd.right; c = "right" }
-    }
     return length > this.length
   }
 }
@@ -457,15 +388,5 @@ export class GNode {
 // const qu = Queue.from([1, 2, 3, 4])
 // for (const el of qu) { console.log(el) }
 
-const tr = BSTree.from([5, 6, 2, 4, 3, 1])
-// console.log(tr.get(5))
-// console.log(tr.get(3))
-// console.log(tr.get(1))
-// console.log(tr.get(9))
-// console.log(tr.remove(1), tr.length)
-// console.log(tr.remove(4), tr.length)
-// console.log(tr.remove(2), tr.length)
-// console.log(tr.remove(3), tr.length)
-// console.log(tr.remove(5), tr.length)
-console.log(tr.remove(5), tr.length)
-for (const el of tr.inOrder) { console.log(el) }
+// const tr = BSTree.from([5, 2, 4, 3, 1])
+// for (const el of tr.inOrder) { console.log(el) }
