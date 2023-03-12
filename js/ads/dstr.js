@@ -342,15 +342,15 @@ export class BSTree {
       return nd
     }
     const removeNode = (nd, data) => {
-      if (!nd) { return }
-      if (this.#cmp(data, nd.data)) {
-        nd.left = removeNode(nd.left, data)
-      } else if (this.#cmp(nd.data, data)) {
-        nd.right = removeNode(nd.right, data)
-      } else {
-        if (!nd.left) { --this.length; return nd.right}
-        else if (!nd.right) { --this.length; return nd.left}
-        else {
+      if (nd) {
+        if (this.#cmp(data, nd.data)) {
+          nd.left = removeNode(nd.left, data)
+        } else if (this.#cmp(nd.data, data)) {
+          nd.right = removeNode(nd.right, data)
+        } else {
+          // Leaf or a node with only one child
+          if (!nd.left) { --this.length; return nd.right}
+          if (!nd.right) { --this.length; return nd.left}
           // The in-order successor becomes the new root
           nd.data = inOrderSucc(nd.right).data
           // Delete the in-order successor
@@ -388,5 +388,8 @@ export class GNode {
 // const qu = Queue.from([1, 2, 3, 4])
 // for (const el of qu) { console.log(el) }
 
-// const tr = BSTree.from([5, 2, 4, 3, 1])
+// const tr = BSTree.from([5, 9, 2, 8, 0, 4, 6, 3, 7, 1])
+// for (const el of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+//   console.log(tr.remove(el))
+// }
 // for (const el of tr.inOrder) { console.log(el) }
