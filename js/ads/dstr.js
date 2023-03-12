@@ -1,15 +1,15 @@
 /*
  * All = length O(1), from, iterator O(n)
- * * Array = [set], [get] O(1), includes, remove O(n)
- * * HTable (Array + hash) = set, get, remove O(1)
- * + Heap (arr + heapUp/Down) = push, pop O(log(n)), peek O(1)
- * - LNode = data, prev, next
+ * = Array = [set], [get] O(1), includes, remove O(n)
+ *   = HTable (arr + hash) = set, get, remove O(1)
+ *   + Heap (arr + heapUp/Down) = push, pop O(log(n)), peek O(1)
+ * > LNode = data, prev, next
  *   * List (head) = push, pop, peek O(1), includes, remove O(n)
  *   + Stack (top) = push, pop, peek O(1)
  *   + Queue (front, rear) = enqueue, dequeue, peek O(1)
- * - TNode = data, left, right
- *   * BSTree (root) = set, get, remove O(log(n))
- * - GNode = name, adjs
+ * > TNode = data, left, right
+ *   + BSTree (root) = set, get, remove O(log(n))
+ * > GNode = name, weigth, adjs
  */
 
 function error(message) { throw new Error(message) }
@@ -106,14 +106,14 @@ export class List {
 
   static from(it) {
     const ls = new List()
-    for (const data of it) { ls.push(data) }
+    for (const el of it) { ls.push(el) }
     return ls
   }
 
   [Symbol.iterator]() {
     let nd = this.#head
     const next = () => {
-      if (nd !== null) {
+      if (nd) {
         const value = nd.data
         nd = nd.next
         return { value, done: false }
@@ -132,7 +132,7 @@ export class List {
 
   // O(1)
   pop() {
-    if (this.#head === null) { error("pop from empty list") }
+    if (!this.#head) { error("pop from empty list") }
     const data = this.#head.data
     this.#head = this.#head.next
     --this.length
@@ -141,14 +141,14 @@ export class List {
 
   // O(1)
   peek() {
-    if (this.#head === null) { error("peek from empty list") }
+    if (!this.#head) { error("peek from empty list") }
     return this.#head.data
   }
 
   // O(n)
   includes(data, eq = equal) {
     let nd = this.#head
-    while (nd !== null) {
+    while (nd) {
       if (eq(nd.data, data)) { return true }
       nd = nd.next
     }
@@ -157,13 +157,14 @@ export class List {
 
   // O(n)
   remove(data, eq = equal) {
-    if (this.#head === null) { error("remove from empty list") }
+    if (!this.#head) { error("remove from empty list") }
     let nd = this.#head
     if (eq(nd.data, data)) {
       this.#head = nd.next
+      --this.length
       return true
     }
-    while (nd.next !== null) {
+    while (nd.next) {
       if (eq(nd.next.data, data)) {
         nd.next = nd.next.next
         --this.length
@@ -391,7 +392,11 @@ export class BSTree {
 
 export class GNode {
   name = ""
+  weight = 0
   adjs = []
 
-  constructor(name) { this.name = name }
+  constructor(name, weight = 0) {
+    this.name = name
+    this.weight = weight
+  }
 }
