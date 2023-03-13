@@ -97,13 +97,9 @@ export function bstFindParent(nd, vl) {
 
 // O(3^n)
 function keypadWords(digits) {
-  const tr = new Map()
-  tr.set(2, ["a", "b", "c"])
-  tr.set(3, ["d", "e", "f"])
-  tr.set(9, ["w", "x", "y", "z"])
   let words = [[]]
   for (const digit of digits) {
-    const letters = tr.get(digit)
+    const letters = keypadWords.tr.get(digit)
     const newWords = []
     for (const word of words) {
       for (const letter of letters) {
@@ -114,4 +110,9 @@ function keypadWords(digits) {
   }
   return words
 }
-console.log(keypadWords([2, 3, 9]))
+keypadWords.tr = new Map()
+keypadWords.tr.set(2, ["a", "b", "c"])
+keypadWords.tr.set(3, ["d", "e", "f"])
+keypadWords.tr.set(9, ["w", "x", "y", "z"])
+
+// console.log(keypadWords([2, 3, 9]))
