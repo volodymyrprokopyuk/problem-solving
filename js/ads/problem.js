@@ -92,3 +92,26 @@ export function bstFindParent(nd, vl) {
 // console.log(bstFindParent(tr.root, 4)?.data)
 // console.log(bstFindParent(tr.root, 2)?.data)
 // console.log(bstFindParent(tr.root, 5)?.data)
+
+// ** PowerSet
+
+// O(3^n)
+function keypadWords(digits) {
+  const tr = new Map()
+  tr.set(2, ["a", "b", "c"])
+  tr.set(3, ["d", "e", "f"])
+  tr.set(9, ["w", "x", "y", "z"])
+  let words = [[]]
+  for (const digit of digits) {
+    const letters = tr.get(digit)
+    const newWords = []
+    for (const word of words) {
+      for (const letter of letters) {
+        newWords.push(word.concat(letter))
+      }
+    }
+    words = newWords
+  }
+  return words
+}
+console.log(keypadWords([2, 3, 9]))
