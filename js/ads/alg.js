@@ -9,7 +9,7 @@ function swap(arr, i, j) {
   arr[j] = el
 }
 
-// O(n^2), in-place, stable
+// O(n^2), memory O(1), in-place, stable
 export function bubbleSort(arr, cmp = lt) {
   for (let i = arr.length - 1; i > 0; --i) {
     let swapped = false
@@ -23,7 +23,7 @@ export function bubbleSort(arr, cmp = lt) {
   }
 }
 
-// O(n^2), in-place, not statlbe
+// O(n^2), memory O(1), in-place, not statlbe
 export function selectionSort(arr, cmp = lt) {
   for (let i = 0; i < arr.length - 1; ++i) {
     let k = i
@@ -34,7 +34,7 @@ export function selectionSort(arr, cmp = lt) {
   }
 }
 
-// O(n^2), in-place, stable
+// O(n^2), memory O(1), in-place, stable
 export function insertionSort(arr, cmp = lt) {
   for (let i = 1; i < arr.length; ++i) {
     const el = arr[i]
@@ -47,7 +47,7 @@ export function insertionSort(arr, cmp = lt) {
   }
 }
 
-// O(n*log(n)), copy, stable
+// O(n*log(n)), memory O(n), copy, stable
 export function mergeSort(arr, cmp = lt) {
   function merge(left, right) {
     const res = []
@@ -67,7 +67,7 @@ export function mergeSort(arr, cmp = lt) {
   return merge(left, right)
 }
 
-// O(n*log(n)), in-place, not stable
+// O(n*log(n)), memory O(1), in-place, not stable
 export function quickSort(arr, cmp = lt) {
   function sort(a, b) {
     if (a < b) {
@@ -84,7 +84,7 @@ export function quickSort(arr, cmp = lt) {
   sort(0, arr.length - 1)
 }
 
-// O(n*log(n)), copy, not stable
+// O(n*log(n)), memory O(n), copy, not stable
 export function heapSort(arr, cmp = lt) {
   const hp = Heap.from(arr, cmp)
   return Array.from(hp)
@@ -168,3 +168,6 @@ export function* fibonacci(n) {
 }
 
 // for (const el of fibonacci(10)) { console.log(el) }
+
+const arr = [1, 2, 3, 4]
+console.log(arr.slice(0, 2), arr.slice(2))
