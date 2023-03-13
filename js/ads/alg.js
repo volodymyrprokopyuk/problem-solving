@@ -37,11 +37,13 @@ export function selectionSort(arr, cmp = lt) {
 // O(n^2), in-place, stable
 export function insertionSort(arr, cmp = lt) {
   for (let i = 1; i < arr.length; ++i) {
+    const el = arr[i]
     let j = i
-    while (j > 0 && cmp(arr[j], arr[j - 1])) {
-      swap(arr, j, j - 1)
+    while (j > 0 && cmp(el, arr[j - 1])) {
+      arr[j] = arr[j - 1]
       --j
     }
+    if (j !== i) { arr[j] = el }
   }
 }
 
@@ -94,7 +96,7 @@ const arrs = [
   [9, 0, 2, 4, 6, 3, 8, 9, 7, 1, 5, 0]
 ]
 
-// arrs.forEach(arr => { quickSort(arr, gt); console.log(arr) })
+// arrs.forEach(arr => { insertionSort(arr); console.log(arr) })
 // arrs.forEach(arr => { console.log(heapSort(arr, gt)) })
 
 // O(log(n))

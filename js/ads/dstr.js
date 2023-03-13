@@ -9,7 +9,7 @@
  *   + Queue (front, rear) = enqueue, dequeue, peek O(1)
  * > TNode = data, left, right
  *   + BSTree (root) = set, get, remove O(log(n))
- * > GNode = name, weigth, adjs
+ * > GNode = name, weight, adjs
  */
 
 function error(message) { throw new Error(message) }
@@ -330,8 +330,7 @@ export class BSTree {
     let nd = this.#root
     while (nd) {
       if (eq(nd.data, data)) { return nd.data }
-      if (this.#cmp(data, nd.data)) { nd = nd.left }
-      else { nd = nd.right }
+      nd = this.#cmp(data, nd.data) ? nd.left : nd.right
     }
   }
 
