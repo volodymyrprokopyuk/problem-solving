@@ -169,14 +169,14 @@ export function* fibonacci(n) {
 
 // for (const el of fibonacci(10)) { console.log(el) }
 
-export function powerSet(st) {
-  const pSt = [[]]
-  for (const el of st) {
-    for (let i = 0, len = pSt.length; i < len; ++i) {
-      pSt.push(pSt[i].concat(el))
+export function powerSet(arr) {
+  const pst = [[]]
+  for (const el of arr) {
+    for (let i = 0, len = pst.length; i < len; ++i) {
+      pst.push(pst[i].concat(el))
     }
   }
-  return pSt
+  return pst
 }
 
 // [[], [1], [1, 2], [1, 2, 3]].forEach(st => console.log(powerSet(st)))
