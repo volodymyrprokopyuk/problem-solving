@@ -1,5 +1,8 @@
+const eq = (a, b) => a === b
 const lt = (a, b) => a < b
+const le = (a, b) => a <= b
 const gt = (a, b) => a > b
+const ge = (a, b) => a >= b
 
 function swap(arr, i, j) {
   const el = arr[i]
@@ -222,3 +225,59 @@ class BSTree {
 // [5, 2, 3, 6, 1, 4].forEach(key => tr.set(key, key.toString()))
 // for (const nd of tr.inOrder) { console.log(nd.key, nd.data) }
 // [1, 4, 6, 2, 5, 0].forEach(key => console.log(tr.get(key)))
+
+// O(n)
+function partitionFilter(arr, p, cmp) {
+  if (arr.length === 0) { return [] }
+  else if (cmp(arr[0], p)) {
+    return [arr[0], ...partitionFilter(arr.slice(1), p, cmp)]
+  } else { return partitionFilter(arr.slice(1), p, cmp) }
+}
+
+// O(n)
+function basicPartion(arr, p) {
+  return [
+    ...partitionFilter(arr, p, lt),
+    ...partitionFilter(arr, p, eq),
+    ...partitionFilter(arr, p, gt)
+  ]
+}
+
+// [[4], [1, 4], [7, 2, 1, 4, 3, 6, 4, 8, 5, 9, 0]].forEach(arr =>
+//   console.log(basicPartion(arr, 4))
+// )
+
+// O(n)
+function hoarePartition(arr) {
+  let l = 0, r = arr.length - 1
+  const m = arr[Math.floor((l + r) / 2)]
+  while (l <= r) {
+    while (arr[l] < m) { ++l }
+    while (m < arr[r]) { --r }
+    if (l <= r) { swap(arr, l, r); ++l; --r }
+  }
+  return l - 1
+}
+
+// o(n) tail-recursive
+function hoarePartition2(
+  arr, l = 0, r = arr.length - 1,
+  p = arr[Math.floor((l + r) / 2)]
+) {
+  if (r < l) { return l - 1 }
+  else if (p < arr[l] && arr[r] < p) {
+    swap(arr, l, r)
+    return hoarePartition2(arr, ++l, --r, p)
+  } else {
+    if (arr[l] <= p) { ++l }
+    if (p < arr[r]) { --r }
+    return hoarePartition2(arr, l, r, p)
+  }
+}
+
+// [[], [1], [1, 2], [1, 2, 3],
+//  [7, 2, 1, 4, 3, 6, 4, 8, 5, 9, 0],
+//  [2, 1, 3, 0, 4, 9, 5, 6, 10, 7, 8]
+// ].forEach(arr =>
+//   console.log(arr, hoarePartition(arr))
+// )
