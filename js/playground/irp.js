@@ -5,9 +5,7 @@ const gt = (a, b) => a > b
 const ge = (a, b) => a >= b
 
 function swap(arr, i, j) {
-  const el = arr[i]
-  arr[i] = arr[j]
-  arr[j] = el
+  [arr[i], arr[j]] = [arr[j], arr[i]]
 }
 
 // O(n)
@@ -220,36 +218,13 @@ class BSTree {
 // [1, 4, 6, 2, 5, 0].forEach(key => console.log(tr.get(key)))
 
 // O(n)
-function partitionFilter(arr, p, cmp) {
-  if (arr.length === 0) { return [] }
-  else if (cmp(arr[0], p)) {
-    return [arr[0], ...partitionFilter(arr.slice(1), p, cmp)]
-  } else { return partitionFilter(arr.slice(1), p, cmp) }
-}
-
-// O(n)
-function basicPartion(arr, p) {
-  return [
-    ...partitionFilter(arr, p, lt),
-    ...partitionFilter(arr, p, eq),
-    ...partitionFilter(arr, p, gt)
-  ]
-}
-
-// [[4], [1, 4], [7, 2, 1, 4, 3, 6, 4, 8, 5, 9, 0]].forEach(arr =>
-//   console.log(basicPartion(arr, 4))
-// )
-
-// O(n)
-function hoarePartition(
-  arr, l = 0, r = arr.length - 1,
-  p = arr[Math.floor((l + r) / 2)]
-) {
+function hoarePartition(arr, l = 0, r = arr.length - 1) {
+  const p = arr[Math.floor((l + r) / 2)]
   while (true) {
-    while (arr[l] < p) { ++l }
+    while (arr[l] <= p) { ++l }
     while (p < arr[r]) { --r }
-    if (l < r) { swap(arr, l++, r--) }
-    else { return l }
+    if (r <= l) { return [r, p] }
+    swap(arr, l++, r--)
   }
 }
 
@@ -258,35 +233,36 @@ function hoarePartition2(
   arr, l = 0, r = arr.length - 1,
   p = arr[Math.floor((l + r) / 2)]
 ) {
-  if (r < l) { return l - 1 }
-  else if (p < arr[l] && arr[r] < p) {
-    swap(arr, l, r)
-    return hoarePartition2(arr, ++l, --r, p)
+  if (r <= l) { return [r, p] }
+  if (p < arr[l] && arr[r] <= p) {
+    swap(arr, l++, r--)
   } else {
     if (arr[l] <= p) { ++l }
     if (p < arr[r]) { --r }
-    return hoarePartition2(arr, l, r, p)
   }
+  return hoarePartition2(arr, l, r, p)
 }
 
-// [[], [1], [1, 2], [1, 2, 3],
+// [[], [1], [1, 2], [2, 1], [1, 1, 1], [3, 2, 1],
 //  [7, 2, 1, 4, 3, 6, 4, 8, 5, 9, 0],
 //  [2, 1, 3, 0, 4, 9, 5, 6, 10, 7, 8]
 // ].forEach(arr =>
-//   console.log(arr, hoarePartition(arr))
+//   console.log(arr, hoarePartition2(arr))
 // )
 
 // O(n) tail-recursive
 function quickSelect(arr, k, l = 0, r = arr.length - 1) {
-  if (l === r) { return arr[l] }
-  const i = hoarePartition(arr, l, r)
-  if (i === k) { return arr[i] }
-  if (i < k) { return quickSelect(arr, k, i + 1, r) }
-  else { return quickSelect(arr, k, l, r - 1) }
+  if (r < l) { return }
+  const [i, p] = hoarePartition(arr, l, r)
+  if (l === r) { return p }
+  return i === k - 1 ? p :
+    i < k - 1 ? quickSelect(arr, k, i + 1, r) :
+    quickSelect(arr, k, l, i - 1)
 }
 
-// [[7, 2, 1, 4, 3, 6, 4, 8, 5, 9, 0],
+// [[], [1], [1, 2], [3, 2, 1],
+//  [7, 2, 1, 4, 3, 6, 4, 8, 5, 9, 0],
 //  [2, 1, 3, 0, 4, 9, 5, 6, 10, 7, 8]
 // ].forEach(arr =>
-//   console.log(arr, quickSelect(arr, 2))
+//   console.log(arr, quickSelect(arr, 7))
 // )
