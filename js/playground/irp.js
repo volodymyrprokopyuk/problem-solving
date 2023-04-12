@@ -252,17 +252,52 @@ function hoarePartition2(
 
 // O(n) tail-recursive
 function quickSelect(arr, k, l = 0, r = arr.length - 1) {
-  if (r < l) { return }
+  if (arr.length === 0 || arr.length < k) { return }
+  if (r - l === 1 && arr[r] < arr[l]) { swap(arr, l, r) }
   const [i, p] = hoarePartition(arr, l, r)
-  if (l === r) { return p }
   return i === k - 1 ? p :
     i < k - 1 ? quickSelect(arr, k, i + 1, r) :
     quickSelect(arr, k, l, i - 1)
 }
 
-// [[], [1], [1, 2], [3, 2, 1],
+// [[], [1], [1, 2], [2, 1], [1, 2, 3], [3, 2, 1],
 //  [7, 2, 1, 4, 3, 6, 4, 8, 5, 9, 0],
 //  [2, 1, 3, 0, 4, 9, 5, 6, 10, 7, 8]
 // ].forEach(arr =>
-//   console.log(arr, quickSelect(arr, 7))
+//   console.log(arr, quickSelect(arr, 2))
 // )
+
+// O(b - a) tail-recursive
+function bisection(f, a, b, e = 1e-5) {
+  const z = (a + b) / 2, fz = f(z), fa = f(a)
+  return b - a <= 2 * e ? z :
+    fz > 0 && fa > 0 || fz < 0 && fa < 0 ?
+    bisection(f, z, b, e) : bisection(f, a, z, e)
+}
+
+// console.log(bisection(x => x ** 2 - 2, 0, 4))
+
+// O(n) tail-recursive
+function countWood(trees, height, count = 0) {
+  return trees.length === 0 ? count :
+    countWood(
+      trees.slice(1), height,
+      trees[0] > height ? count + trees[0] - height : count
+    )
+}
+
+// O(n*log(h)) tail-recursive
+function collectWood(trees, wood, lower = 0, upper = Math.max(...trees)) {
+  const height = Math.floor((lower + upper) / 2)
+  const count = countWood(trees, height)
+  if (count === wood || lower === upper) { return height }
+  if (lower === upper - 1) {
+    return countWood(trees, upper) >= wood ? upper : lower
+  }
+  return count < wood ?
+    collectWood(trees, wood, lower, height - 1) :
+    collectWood(trees, wood, height, upper)
+}
+
+// const trees = [5, 4, 3, 12, 8, 7, 5, 10, 7, 8, 4, 4, 11, 8, 7, 1, 9, 4, 3, 5];
+// [6, 7, 8, 9, 10].forEach(wood => console.log(collectWood(trees, wood)))
