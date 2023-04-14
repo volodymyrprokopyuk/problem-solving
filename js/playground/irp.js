@@ -219,52 +219,38 @@ class BSTree {
 
 // O(n)
 function hoarePartition(arr, l = 0, r = arr.length - 1) {
-  const p = arr[Math.floor((l + r) / 2)]
+  if (r < l) { return Array(2) }
+  if (l === r) { return [arr[r], r] }
+  if (l === r - 1) {
+    if (arr[r] < arr[l]) { swap(arr, l, r) }
+    return [arr[r], r]
+  }
+  let p = Math.floor((l + r) / 2)
+  swap(arr, l, p); p = l; ++l
   while (true) {
-    while (arr[l] <= p) { ++l }
-    while (p < arr[r]) { --r }
-    if (r <= l) { return [r, p] }
-    swap(arr, l++, r--)
+    while (arr[l] <= arr[p]) { ++l }
+    while (arr[p] < arr[r]) { --r }
+    if (l < r) { swap(arr, l, r); ++l; --r }
+    else { swap(arr, p, r); return [arr[r], r] }
   }
 }
-
-// O(n) tail-recursive
-function hoarePartition2(
-  arr, l = 0, r = arr.length - 1,
-  p = arr[Math.floor((l + r) / 2)]
-) {
-  if (r <= l) { return [r, p] }
-  if (p < arr[l] && arr[r] <= p) {
-    swap(arr, l++, r--)
-  } else {
-    if (arr[l] <= p) { ++l }
-    if (p < arr[r]) { --r }
-  }
-  return hoarePartition2(arr, l, r, p)
-}
-
-// [[], [1], [1, 2], [2, 1], [1, 1, 1], [3, 2, 1],
-//  [7, 2, 1, 4, 3, 6, 4, 8, 5, 9, 0],
-//  [2, 1, 3, 0, 4, 9, 5, 6, 10, 7, 8]
-// ].forEach(arr =>
-//   console.log(arr, hoarePartition2(arr))
-// )
 
 // O(n) tail-recursive
 function quickSelect(arr, k, l = 0, r = arr.length - 1) {
   if (arr.length === 0 || arr.length < k) { return }
-  if (r - l === 1 && arr[r] < arr[l]) { swap(arr, l, r) }
-  const [i, p] = hoarePartition(arr, l, r)
+  const [p, i] = hoarePartition(arr, l, r)
   return i === k - 1 ? p :
     i < k - 1 ? quickSelect(arr, k, i + 1, r) :
     quickSelect(arr, k, l, i - 1)
 }
 
-// [[], [1], [1, 2], [2, 1], [1, 2, 3], [3, 2, 1],
+// [[], [1], [1, 2], [2, 1], [1, 2, 3], [3, 2, 1], [1, 1, 1],
+//  [3, 1, 2, 4, 5, 4],
 //  [7, 2, 1, 4, 3, 6, 4, 8, 5, 9, 0],
 //  [2, 1, 3, 0, 4, 9, 5, 6, 10, 7, 8]
 // ].forEach(arr =>
-//   console.log(arr, quickSelect(arr, 2))
+//   // console.log(arr, hoarePartition(arr))
+//   console.log(arr, quickSelect(arr, 6))
 // )
 
 // O(b - a) tail-recursive
@@ -301,3 +287,59 @@ function collectWood(trees, wood, lower = 0, upper = Math.max(...trees)) {
 
 // const trees = [5, 4, 3, 12, 8, 7, 5, 10, 7, 8, 4, 4, 11, 8, 7, 1, 9, 4, 3, 5];
 // [6, 7, 8, 9, 10].forEach(wood => console.log(collectWood(trees, wood)))
+
+// tail-recursive
+function gcd(a, b) {
+  return a === 0 ? b : b === 0 ? a :
+    a > b ? gcd(b, a - b) : gcd(a, b - a)
+}
+
+// [[1, 2], [20, 24], [20, 17]].forEach(([a, b]) => console.log(gcd(a, b)))
+
+// O(n)
+function isSorted(arr, cmp = lt) {
+  const m = Math.floor(arr.length / 2)
+  return arr.length < 2 ? true :
+    isSorted(arr.slice(0, m), cmp) &&
+    cmp(arr[m - 1], arr[m]) &&
+    isSorted(arr.slice(m), cmp)
+}
+
+// [[], [1], [1, 2], [2, 1], [1, 2, 30, 40], [1, 2, 3, 5, 4]].forEach(arr =>
+//   console.log(arr, isSorted(arr))
+// )
+
+// O(n)
+function merge(a, b) {
+  return a.length === 0 ? b :
+    b.length === 0 ? a :
+    a[0] < b[0] ? [a[0], ...merge(a.slice(1), b)] :
+    [b[0], ...merge(a, b.slice(1))]
+}
+
+// O(n*log(n)) out-of-place
+function mergeSort(a) {
+  let m = Math.floor(a.length / 2)
+  return a.length < 2 ? a :
+    merge(mergeSort(a.slice(0, m)), mergeSort(a.slice(m)))
+}
+
+// [[], [], [1, 2], [3, 2, 1],
+//  [2, 1, 3, 0, 4, 9, 5, 4, 6, 10, 7, 8]].forEach(arr =>
+//   console.log(mergeSort(arr))
+// )
+
+// O(n*log(n)) in-place
+function quickSort(arr, l = 0, r = arr.length - 1) {
+  if (l < r) {
+    const [p, i] = hoarePartition(arr, l, r)
+    quickSort(arr, l, i - 1)
+    quickSort(arr, i + 1, r)
+  }
+}
+
+// [[], [1], [1, 2], [2, 1], [1, 2, 3], [3, 2, 1], [1, 1, 1],
+//  [3, 1, 2, 4, 5, 4],
+//  [7, 2, 1, 4, 3, 6, 4, 8, 5, 9, 0],
+//  [2, 1, 3, 0, 4, 9, 5, 6, 10, 7, 8]
+// ].forEach(arr => { quickSort(arr); console.log(arr) })
