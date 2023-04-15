@@ -8,6 +8,10 @@ function swap(arr, i, j) {
   [arr[i], arr[j]] = [arr[j], arr[i]]
 }
 
+function count(arr, val) {
+  return arr.reduce((cnt, el) => el === val ? cnt + 1 : cnt, 0)
+}
+
 // O(n)
 function sumFirstN(n) {
   return n === 0 ? 0 : sumFirstN(n - 1) + n
@@ -343,3 +347,26 @@ function quickSort(arr, l = 0, r = arr.length - 1) {
 //  [7, 2, 1, 4, 3, 6, 4, 8, 5, 9, 0],
 //  [2, 1, 3, 0, 4, 9, 5, 6, 10, 7, 8]
 // ].forEach(arr => { quickSort(arr); console.log(arr) })
+
+// O(n*log(n))
+function majorityElement(arr) {
+  if (arr.length === 0) { return [false, undefined, 0] }
+  if (arr.length === 1) { return [true, arr[0], 1] }
+  const m = Math.floor(arr.length / 2)
+  const l = arr.slice(0, m)
+  const r = arr.slice(m)
+  const [lm, le, lc] = majorityElement(l)
+  if (lm) {
+    const rc = count(r, le)
+    if (lc + rc > m) { return [true, le, lc + rc] }
+  }
+  const [rm, re, rc] = majorityElement(r)
+  if (rm) {
+    const lc = count(l, re)
+    if (rc + lc > m) { return [true, re, rc + lc] }
+  }
+  return [false, undefined, 0]
+}
+
+// [[4, 4, 5, 1, 4, 2, 4, 3], [4, 4, 5, 4, 1, 2, 4, 3],
+//  [2, 4, 3, 4, 4, 1, 4, 4]].forEach(arr => console.log(majorityElement(arr, 4)))
