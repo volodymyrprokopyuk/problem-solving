@@ -1,8 +1,13 @@
+import { readdir } from "fs/promises"
+import path from "path"
+
 const eq = (a, b) => a === b
 const lt = (a, b) => a < b
 const le = (a, b) => a <= b
 const gt = (a, b) => a > b
 const ge = (a, b) => a >= b
+
+function error(msg) { throw new Error(msg) }
 
 function swap(arr, i, j) {
   [arr[i], arr[j]] = [arr[j], arr[i]]
@@ -26,6 +31,7 @@ function sumFirstN2(n, sum = 0) {
 //   console.log(sumFirstN2(i))
 // }
 
+// O(n)
 function* fibonacci(n) {
   let a = -1, b = 1
   while (n-- > 0) {
@@ -36,6 +42,16 @@ function* fibonacci(n) {
 }
 
 // console.log(...fibonacci(10))
+
+// O(n) memoization
+function fibonacci2(n, cache = new Map()) {
+  if (n < 2) { return n }
+  if (cache.has(n)) { return cache.get(n) }
+  cache.set(n, fibonacci2(n - 1, cache) + fibonacci2(n - 2, cache))
+  return cache.get(n)
+}
+
+// for (const i of Array(10).keys()) { console.log(fibonacci2(i)) }
 
 // o(n)
 function power(x, n) {
@@ -298,7 +314,16 @@ function gcd(a, b) {
     a > b ? gcd(b, a - b) : gcd(a, b - a)
 }
 
-// [[1, 2], [20, 24], [20, 17]].forEach(([a, b]) => console.log(gcd(a, b)))
+// iterative
+function gcd2(a, b) {
+  while (true) {
+    if (a === 0) { return b }
+    if (b === 0) { return a }
+    if (a > b) { a = a - b } else { b = b - a }
+  }
+}
+
+// [[1, 2], [20, 24], [20, 17]].forEach(([a, b]) => console.log(gcd2(a, b)))
 
 // O(n)
 function isSorted(arr, cmp = lt) {
@@ -370,3 +395,102 @@ function majorityElement(arr) {
 
 // [[4, 4, 5, 1, 4, 2, 4, 3], [4, 4, 5, 4, 1, 2, 4, 3],
 //  [2, 4, 3, 4, 4, 1, 4, 4]].forEach(arr => console.log(majorityElement(arr, 4)))
+
+// O(2^n)
+function towersOfHanoi(n, o = "Org", d = "Dst", a = "Aux") {
+  if (n > 0) {
+    towersOfHanoi(n - 1, o, a, d)
+    console.log(`${n}: ${o} => ${d}`)
+    towersOfHanoi(n - 1, a, d, o)
+  }
+}
+
+// towersOfHanoi(3)
+
+// O(2^n)
+function longestPalindrome(s) {
+  if (isPalindrome(s)) { return s }
+  const a = longestPalindrome(s.slice(1))
+  const b = longestPalindrome(s.slice(0, -1))
+  return a.length > b.length ? a : b
+}
+
+// ["", "a", "aba", "abccb", "abac"].forEach(str =>
+//   console.log(str, longestPalindrome(str))
+// )
+
+// O(n) mutually-recursive
+function isEven(n) {
+  return n === 0 ? true : isOdd(n - 1)
+}
+
+// O(n) mutually-recursive
+function isOdd(n) {
+  return n === 0 ? false : isEven(n - 1)
+}
+
+// [1, 2, 3, 4, 5].forEach(n => console.log(n, isEven(n), isOdd(n)))
+
+// O(n) tail-recursive
+function calcTokenize(s, tk = []) {
+  if (s.length === 0) { return tk }
+  let m = s.match(/^ +/)
+  if (m) { return calcTokenize(s.slice(m[0].length), tk) }
+  m = s.match(/^(?:-?\d+|[-+*\/\(\)])/)
+  if (m) {
+    tk.push(m[0])
+    return calcTokenize(s.slice(m[0].length), tk)
+  } else { error(`invalid expression: ${s}`) }
+}
+
+// [
+//   "-(-6 / 3) - (-(4)) + (18 - 2)",
+//   "-(2 + 3) + 2 * 8 / 4 - 3 * (4 + 2) / 6 + 7 - (-(2 + 8) * 3)",
+// ].forEach(expr =>
+//   console.log(calcTokenize(expr))
+// )
+
+// iterative + explicit stack
+async function searchFile(file, root) {
+  async function searchDir(dir) {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const epath = path.join(dir, entry.name)
+      if (entry.isFile() && entry.name === file ) { console.log(epath) }
+      if (entry.isDirectory()) { st.push(epath) }
+    }
+  }
+  const st = [root]
+  while (st.length !== 0) { await searchDir(st.pop()) }
+}
+
+// recursive + implicit stack
+async function searchFile2(file, dir) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const epath = path.join(dir, entry.name)
+    if (entry.isFile() && entry.name === file) { console.log(epath) }
+    if (entry.isDirectory()) { searchFile2(file, epath) }
+  }
+}
+
+// await searchFile2("irp.js", "../")
+
+// O(n) tail-recursive
+function digitalRoot(n) {
+  function dsum(n) {
+    let s = 0
+    while (n > 9) {
+      s += n % 10
+      n = Math.floor(n / 10)
+    }
+    return s + n
+  }
+  return n < 10 ? n : digitalRoot(dsum(n))
+}
+
+// O(n) nested recursion
+function digitalRoot2(n) {
+  return n < 10 ? n :
+    digitalRoot2(digitalRoot2(Math.floor(n / 10)) + n % 10)
+}
+
+// [0, 1, 12, 123, 79868].forEach(n => console.log(digitalRoot2(n)))
