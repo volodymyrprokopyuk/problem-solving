@@ -9,7 +9,7 @@
   "dependencies": {
     "axios": "^0.27.2",
     "nodejs-polars": "^0.5.2",
-    "nunjucks": "^3.2.3",
+    "nunjucks": "^3.2.4",
     "pg": "^8.7.3",
     "rambda": "^7.1.4",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.10.0"
