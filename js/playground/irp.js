@@ -494,3 +494,79 @@ function digitalRoot2(n) {
 }
 
 // [0, 1, 12, 123, 79868].forEach(n => console.log(digitalRoot2(n)))
+
+// O(2^n) iterative
+function powerset(arr) {
+  const ps = [[]]
+  for (const el of arr) {
+    for (let i = 0, len = ps.length; i < len; ++i) {
+      ps.push([...ps[i], el])
+    }
+  }
+  return ps
+}
+
+// O(2^n) tail-recursive
+function powerset2(arr, ps = [[]]) {
+  if (arr.length === 0) { return ps }
+  for (let i = 0, len = ps.length; i < len; ++i) {
+    ps.push([...ps[i], arr[0]])
+  }
+  return powerset2(arr.slice(1), ps)
+}
+
+[[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(powerset(arr)))
+
+// O(n!) dynamic multiple recursion
+function permutations(arr, pp = [], ps = []) {
+  if (arr.length === 0) { ps.push(pp); return ps }
+  for (const el of arr) {
+    permutations(arr.filter(e => e !== el), [...pp, el], ps)
+  }
+  return ps
+}
+
+// [[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(permutations(arr)))
+
+// Backtracking + dynamic multiple recursion
+function nqueens(
+  n, col = 0, rs = Array(n).fill(true),
+  pds = Array(2 * n - 1).fill(true),
+  sds = Array(2 * n - 1).fill(true),
+  queens = Array(n)
+) {
+  // Complete solution: all n quens are placed in correct positions
+  if (col === queens.length) { console.log(queens) }
+  else {
+    // Generate all possible candidates
+    for (const cnd of Array(n).keys()) {
+      // Check for free row, primary and sencondary diagonals
+      if (rs[cnd] && pds[col - cnd + n - 1] && sds[col + cnd]) {
+        queens[col] = cnd // Place a candidate
+        // Mark the candiate position as occupied
+        rs[cnd] = pds[col - cnd + n - 1] = sds[col + cnd] = false
+        // Extend the paritial solution with more candidates
+        nqueens(n, col + 1, rs, pds, sds, queens)
+        // Mark the candiate position as free
+        rs[cnd] = pds[col - cnd + n - 1] = sds[col + cnd] = true
+      }
+    }
+  }
+}
+
+// nqueens(4)
+
+// Backtracking
+function subsetSum(arr, x, ps = [[]], ss = []) {
+  if (arr.length === 0) { return ss }
+  for (let i = 0, len = ps.length; i < len; ++i) {
+    const cnd = [...ps[i], arr[0]]
+    const sum = cnd.reduce((el, sum) => sum + el, 0)
+    if (x === sum) { ss.push(cnd) }
+    if (sum < x) { ps.push(cnd) }
+  }
+  return subsetSum(arr.slice(1), x, ps, ss)
+}
+
+// [[[1, 2, 3], 5], [[2, 6, 3, 5], 8], [[1, 2, 3, 5, 6, 7, 9], 13]]
+//   .forEach(([arr, x]) => console.log(subsetSum(arr, x)))
