@@ -13,10 +13,6 @@ function swap(arr, i, j) {
   [arr[i], arr[j]] = [arr[j], arr[i]]
 }
 
-function count(arr, val) {
-  return arr.reduce((cnt, el) => el === val ? cnt + 1 : cnt, 0)
-}
-
 // O(n)
 function sumFirstN(n) {
   return n === 0 ? 0 : sumFirstN(n - 1) + n
@@ -27,11 +23,9 @@ function sumFirstN2(n, sum = 0) {
   return n === 0 ? sum : sumFirstN2(n - 1, sum + n)
 }
 
-// for (const i of Array(6).keys()) {
-//   console.log(sumFirstN2(i))
-// }
+// for (const i of Array(6).keys()) { console.log(sumFirstN2(i)) }
 
-// O(n)
+// O(n) iterative
 function* fibonacci(n) {
   let a = -1, b = 1
   while (n-- > 0) {
@@ -69,7 +63,7 @@ function power2(x, n) {
     power2(x, (n - 1) / 2) ** 2 * x
 }
 
-// [0, 1, 2, 3, 4].forEach(n => console.log(power(2, n)))
+// [0, 1, 2, 3, 4].forEach(n => console.log(power2(2, n)))
 
 // O(n)
 function add(a, b) {
@@ -129,7 +123,7 @@ function hornerPolynomial(arr, x) {
 // O(n)
 function containsDigit(n, d) {
   return n < 10 ? n === d :
-    n % 10 === d || containsDigit(Math.floor(n / 10), d)
+    n % 10 === d || containsDigit(Math.floor(n / 10), d) // shortcircuit
 }
 
 // O(n) tail-recursive
@@ -145,7 +139,7 @@ function containsDigit2(n, d) {
 function equalString(a, b) {
   return a.length !== b.length ? false :
     a === "" ? true :
-    a[0] === b[0] && equalString(a.slice(1), b.slice(1))
+    a[0] === b[0] && equalString(a.slice(1), b.slice(1)) // shortcircuit
 }
 
 // O(n) tail-recursive
@@ -157,7 +151,7 @@ function equalString2(a, b) {
 }
 
 // [["", ""], ["", "a"], ["a", "b"], ["abc", "abc"]].forEach(([a, b]) =>
-//   console.log(equalString(a, b))
+//   console.log(a, b, equalString2(a, b))
 // )
 
 // O(n) tail-recursive
@@ -311,7 +305,7 @@ function collectWood(trees, wood, lower = 0, upper = Math.max(...trees)) {
 // tail-recursive
 function gcd(a, b) {
   return a === 0 ? b : b === 0 ? a :
-    a > b ? gcd(b, a - b) : gcd(a, b - a)
+    a > b ? gcd(b, a % b) : gcd(a, b % a)
 }
 
 // iterative
@@ -319,7 +313,7 @@ function gcd2(a, b) {
   while (true) {
     if (a === 0) { return b }
     if (b === 0) { return a }
-    if (a > b) { a = a - b } else { b = b - a }
+    if (a > b) { a = a % b } else { b = b % a }
   }
 }
 
@@ -375,6 +369,9 @@ function quickSort(arr, l = 0, r = arr.length - 1) {
 
 // O(n*log(n))
 function majorityElement(arr) {
+  function count(arr, val) {
+    return arr.reduce((cnt, el) => el === val ? cnt + 1 : cnt, 0)
+  }
   if (arr.length === 0) { return [false, undefined, 0] }
   if (arr.length === 1) { return [true, arr[0], 1] }
   const m = Math.floor(arr.length / 2)
@@ -450,25 +447,25 @@ function calcTokenize(s, tk = []) {
 //   console.log(calcTokenize(expr))
 // )
 
-// iterative + explicit stack
+// Iterative + explicit stack
 async function searchFile(file, root) {
   async function searchDir(dir) {
     for (const entry of await readdir(dir, { withFileTypes: true })) {
       const epath = path.join(dir, entry.name)
       if (entry.isFile() && entry.name === file ) { console.log(epath) }
-      if (entry.isDirectory()) { st.push(epath) }
+      if (entry.isDirectory()) { st.push(epath) } // explicit stack
     }
   }
   const st = [root]
   while (st.length !== 0) { await searchDir(st.pop()) }
 }
 
-// recursive + implicit stack
+// Recursive + implicit stack
 async function searchFile2(file, dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const epath = path.join(dir, entry.name)
     if (entry.isFile() && entry.name === file) { console.log(epath) }
-    if (entry.isDirectory()) { searchFile2(file, epath) }
+    if (entry.isDirectory()) { searchFile2(file, epath) } // implicit stack
   }
 }
 
@@ -495,6 +492,34 @@ function digitalRoot2(n) {
 
 // [0, 1, 12, 123, 79868].forEach(n => console.log(digitalRoot2(n)))
 
+// Backtracking + dynamic multiple recursion
+function nqueens(
+  n, col = 0, rs = Array(n).fill(true),
+  pds = Array(2 * n - 1).fill(true),
+  sds = Array(2 * n - 1).fill(true),
+  queens = Array(n)
+) {
+  // Complete solution: all n quens are placed in correct positions
+  if (col === n) { console.log(queens) }
+  else {
+    // Generate all possible candidates
+    for (const cnd of Array(n).keys()) {
+      // Check for free row, free primary and sencondary diagonals
+      if (rs[cnd] && pds[col - cnd + n - 1] && sds[col + cnd]) {
+        queens[col] = cnd // Place a candidate queen
+        // Mark the candiate position as occupied
+        rs[cnd] = pds[col - cnd + n - 1] = sds[col + cnd] = false
+        // Extend the paritial solution with more candidates
+        nqueens(n, col + 1, rs, pds, sds, queens)
+        // Backtracking: mark the candiate position as free
+        rs[cnd] = pds[col - cnd + n - 1] = sds[col + cnd] = true
+      }
+    }
+  }
+}
+
+// nqueens(4)
+
 // O(2^n) iterative
 function powerset(arr) {
   const ps = [[]]
@@ -515,7 +540,14 @@ function powerset2(arr, ps = [[]]) {
   return powerset2(arr.slice(1), ps)
 }
 
-[[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(powerset(arr)))
+// O(2^n)
+function powerset3(arr) {
+  if (arr.length === 0) { return [[]] }
+  const ss = powerset3(arr.slice(1))
+  return [...ss, ...ss.map(s => [arr[0], ...s])]
+}
+
+// [[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(powerset3(arr)))
 
 // O(n!) dynamic multiple recursion
 function permutations(arr, pp = [], ps = []) {
@@ -526,42 +558,21 @@ function permutations(arr, pp = [], ps = []) {
   return ps
 }
 
-// [[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(permutations(arr)))
-
-// Backtracking + dynamic multiple recursion
-function nqueens(
-  n, col = 0, rs = Array(n).fill(true),
-  pds = Array(2 * n - 1).fill(true),
-  sds = Array(2 * n - 1).fill(true),
-  queens = Array(n)
-) {
-  // Complete solution: all n quens are placed in correct positions
-  if (col === queens.length) { console.log(queens) }
-  else {
-    // Generate all possible candidates
-    for (const cnd of Array(n).keys()) {
-      // Check for free row, primary and sencondary diagonals
-      if (rs[cnd] && pds[col - cnd + n - 1] && sds[col + cnd]) {
-        queens[col] = cnd // Place a candidate
-        // Mark the candiate position as occupied
-        rs[cnd] = pds[col - cnd + n - 1] = sds[col + cnd] = false
-        // Extend the paritial solution with more candidates
-        nqueens(n, col + 1, rs, pds, sds, queens)
-        // Mark the candiate position as free
-        rs[cnd] = pds[col - cnd + n - 1] = sds[col + cnd] = true
-      }
-    }
-  }
+// O(n!) dynamic multiple recursion
+function permutations2(arr) {
+  if (arr.length === 0) { return [[]] }
+  return arr.flatMap(el =>
+    permutations2(arr.filter(e => e !== el)).map(p => [el, ...p]))
 }
 
-// nqueens(4)
+// [[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(permutations2(arr)))
 
 // Backtracking
 function subsetSum(arr, x, ps = [[]], ss = []) {
   if (arr.length === 0) { return ss }
   for (let i = 0, len = ps.length; i < len; ++i) {
     const cnd = [...ps[i], arr[0]]
-    const sum = cnd.reduce((el, sum) => sum + el, 0)
+    const sum = cnd.reduce((sum, el) => sum + el, 0)
     if (x === sum) { ss.push(cnd) }
     if (sum < x) { ps.push(cnd) }
   }
