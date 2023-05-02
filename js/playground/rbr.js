@@ -68,11 +68,20 @@ function exponent2(x, n) {
 
 // [0, 1, 2, 3, 4].forEach(n => console.log(exponent2(2, n)))
 
+// O(n)
 function sumArray([h = 0, ...t]) {
   return t.length === 0 ? h : h + sumArray(t)
 }
 
-// [[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(arr, sumArray(arr)))
+// O(n) multiple recursion
+function sumArray2(arr) {
+  if (arr.length === 0) { return 0 }
+  if (arr.length === 1) { return arr[0] }
+  const m = Math.floor(arr.length / 2)
+  return sumArray2(arr.slice(0, m)) + sumArray2(arr.slice(m))
+}
+
+// [[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(arr, sumArray2(arr)))
 
 function reverseString([h = "", ...t]) {
   return t.length === 0 ? h : reverseString(t) + h
@@ -196,7 +205,23 @@ function binarySearch(arr, el, l = 0, r = arr.length - 1) {
 // [[[], 9], [[1], 9], [[1, 2], 1], [[1, 2], 2], [[1, 2, 3], 2]
 // ].forEach(([arr, el]) => console.log(arr, el, binarySearch(arr, el)))
 
-// O(n*log(n)) multiple recursion
+// O(n)
+function hoarePartition(arr, l = 0, r = arr.length - 1) {
+  if (l <= r) {
+    const p = l++
+    while (true) {
+      while (arr[l] <= arr[p]) { ++l }
+      while (arr[p] < arr[r]) { --r }
+      if (l < r) { swap(arr, l, r); ++l; --r }
+      else { swap(arr, p, r); return r }
+    }
+  }
+}
+
+// [[], [1], [1, 2], [2, 1], [5, 8, 3, 7, 1, 2, 0, 4, 6, 9]
+// ].forEach(arr => { console.log(hoarePartition(arr)); console.log(arr) })
+
+// O(n*log(n)) multiple recursion, in-place
 function quickSort(arr, l = 0, r = arr.length - 1) {
   if (l < r) {
     let p = l, a = l + 1, b = r
@@ -210,5 +235,86 @@ function quickSort(arr, l = 0, r = arr.length - 1) {
   }
 }
 
-[[], [1], [1, 2], [2, 1], [5, 8, 3, 7, 1, 2, 0, 4, 6, 9]
-].forEach(arr => { quickSort(arr); console.log(arr) })
+// O(n*log(n)) multiple recursion, in-place
+function quickSort2(arr, l = 0, r = arr.length - 1) {
+  if (l < r) {
+    const p = hoarePartition(arr, l, r)
+    quickSort2(arr, l, p); quickSort(arr, p + 1, r)
+  }
+}
+
+// [[], [1], [1, 2], [2, 1], [5, 8, 3, 7, 1, 2, 0, 4, 6, 9]
+// ].forEach(arr => { quickSort2(arr); console.log(arr) })
+
+// O(m + n) iterative
+function merge(a, b) {
+  const res = []
+  let i = 0, j = 0
+  while (i < a.length && j < b.length) {
+    a[i] <= b[j] ? res.push(a[i++]) : res.push(b[j++])
+  }
+  while (i < a.length) { res.push(a[i++]) }
+  while (j < b.length) { res.push(b[j++]) }
+  return res
+}
+
+// O(n*log(n)) multiple recursion, out-of-place
+function mergeSort(arr, l = 0, r = arr.length - 1) {
+  if (r <= l) { return arr.slice(l, r + 1) }
+  const m = Math.floor((l + r) / 2)
+  return merge(mergeSort(arr, l, m), mergeSort(arr, m + 1, r))
+}
+
+// [[], [1], [1, 2], [2, 1], [5, 8, 3, 7, 1, 2, 0, 4, 6, 9]
+// ].forEach(arr => { console.log(mergeSort(arr)) })
+
+// O(n!) multiple recursion
+function permutation(arr, pp = [], ps = []) {
+  if (arr.length === 0) { ps.push(pp); return ps }
+  for (const el of arr) {
+    permutation(arr.filter(e => e !== el), [...pp, el], ps)
+  }
+  return ps
+}
+
+// O(n!) multiple recursion
+function permutation2(arr) {
+  if (arr.length === 0) { return [[]] }
+  const ps = []
+  for (const el of arr) {
+    for (const pp of permutation(arr.filter(e => e !== el))) {
+      pp.push(el); ps.push(pp)
+    }
+  }
+  return ps
+}
+
+// O(n!) multiple recursion
+function permutation3(arr) {
+  if (arr.length === 0) { return [[]] }
+  const ps = []
+  for (const pp of permutation2(arr.slice(1))) {
+    for (let i = 0; i <= pp.length; ++i) {
+      const p = pp.slice()
+      p.splice(i, 0, arr[0])
+      ps.push(p)
+    }
+  }
+  return ps
+}
+
+// [[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(permutation3(arr)))
+
+// O(n^k) multiple recursion
+function permRep(arr, n = arr.length) {
+  if (n === 0) { return [[]] }
+  const ps = []
+  for (const el of arr) {
+    for (const pp of permRep(arr, n - 1)) {
+      pp.push(el); ps.push(pp)
+    }
+  }
+  return ps
+}
+
+[[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(permRep(arr)))
