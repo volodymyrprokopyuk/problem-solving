@@ -268,53 +268,90 @@ function mergeSort(arr, l = 0, r = arr.length - 1) {
 // [[], [1], [1, 2], [2, 1], [5, 8, 3, 7, 1, 2, 0, 4, 6, 9]
 // ].forEach(arr => { console.log(mergeSort(arr)) })
 
-// O(n!) multiple recursion
-function permutation(arr, pp = [], ps = []) {
-  if (arr.length === 0) { ps.push(pp); return ps }
-  for (const el of arr) {
-    permutation(arr.filter(e => e !== el), [...pp, el], ps)
+function balancedParens(op, cl = op, pp = "") {
+  if (op === 0 && cl === 0) { return [pp] }
+  const ps = []
+  if (op > 0) {
+    ps.push(...balancedParens(op - 1, cl, pp + "("))
+  }
+  if (cl > op) {
+    ps.push(...balancedParens(op, cl - 1, pp + ")"))
   }
   return ps
 }
 
-// O(n!) multiple recursion
-function permutation2(arr) {
+// [0, 1, 2, 3, 4].forEach(n => console.log(balancedParens(n)))
+
+// { abc } n! => { a + { bc, cb }, b + { ac, ca }, c + { ab, ba } }
+function permutation(arr) {
   if (arr.length === 0) { return [[]] }
   const ps = []
   for (const el of arr) {
     for (const pp of permutation(arr.filter(e => e !== el))) {
-      pp.push(el); ps.push(pp)
+      pp.unshift(el); ps.push(pp)
     }
   }
   return ps
 }
 
-// O(n!) multiple recursion
-function permutation3(arr) {
-  if (arr.length === 0) { return [[]] }
+// { abc } n! => { a + { b + a + c } + a, a + { c + a + b } + a }
+function permutation2([h, ...tl]) {
+  if (!h) { return [[]] }
   const ps = []
-  for (const pp of permutation2(arr.slice(1))) {
+  for (const pp of permutation2(tl)) {
     for (let i = 0; i <= pp.length; ++i) {
       const p = pp.slice()
-      p.splice(i, 0, arr[0])
-      ps.push(p)
+      p.splice(i, 0, h); ps.push(p)
     }
   }
   return ps
 }
 
-// [[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(permutation3(arr)))
+// [[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(permutation2(arr)))
 
-// O(n^k) multiple recursion
-function permRep(arr, n = arr.length) {
-  if (n === 0) { return [[]] }
+// { abc } n^k => { a + { bb, bc, cb, cc }, b + ..., c + ... }
+function permutRep(arr, k = arr.length) {
+  if (k === 0) { return [[]] }
   const ps = []
   for (const el of arr) {
-    for (const pp of permRep(arr, n - 1)) {
-      pp.push(el); ps.push(pp)
+    for (const pp of permutRep(arr, k - 1)) {
+      pp.unshift(el); ps.push(pp)
     }
   }
   return ps
 }
 
-[[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(permRep(arr)))
+// [[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(permutRep(arr)))
+
+// { abc } n!/(k!*(n - k)!) => { a + { b, c }, { bc } }
+function combination([h, ...tl], k) {
+  if (k === 0) { return [[]] }
+  if (!h) { return [] }
+  const cs = []
+  for (const pc of combination(tl, k - 1)) {
+    pc.unshift(h); cs.push(pc)
+  }
+  return [...cs, ...combination(tl, k)]
+}
+
+// [[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(combination(arr, 2)))
+
+// { abc } 2^n => { [] <+ a, <+ b, <+ c }
+function powerset(arr) {
+  const ps = [[]]
+  for (const el of arr) {
+    for (let i = 0, len = ps.length; i < len; ++i) {
+      ps.push([...ps[i], el])
+    }
+  }
+  return ps
+}
+
+// { abc } 2^n => { { }, b, c, { bc } } = x, a +> { x }
+function powerset2([h, ...tl]) {
+  if (!h) { return [[]] }
+  const pp = powerset2(tl)
+  return [...pp, ...pp.map(p => [h, ...p])]
+}
+
+// [[], [1], [1, 2], [1, 2, 3]].forEach(arr => console.log(powerset2(arr)))
