@@ -347,6 +347,180 @@ function isStrInterleaved(a, b, c) {
     b[0] === c[0] && isStrInterleaved(a, b.slice(1), c.slice(1))
 }
 
-[["xyz", "abcd", "xabyczd"], ["ab", "xy", "abxyZ"], ["ab", "xy", "abx"],
- ["ab", "ac", "abac"]
-].forEach(([a, b, c]) => console.log(a, b, c, isStrInterleaved(a, b, c)))
+// O(n^2) dynamic programming
+function isStrInterleaved2(a, b, c) {
+  const m = a.length, n = b.length, cl = c.length
+  if (m + n !== cl) { return false }
+  const ilvd = matrix(m + 1, n + 1)
+  ilvd[0][0] = true
+  for (let j = 1; j <= n; ++j) {
+    if (b[j - 1] !== c[j - 1]) { ilvd[0][j] = false }
+    else { ilvd[0][j] = ilvd[0][j - 1] }
+  }
+  for (let i = 1; i <= m; ++i) {
+    if (a[i - 1] !== c[i - 1]) { ilvd[i][0] = false }
+    else { ilvd[i][0] = ilvd[i - 1][0] }
+  }
+  for (let i = 1; i <= m; ++i) {
+    for (let j = 1; j <= n; ++j) {
+      let ac = a[i - 1], bc = b[j - 1], cc = c[i + j - 1]
+      ilvd[i][j] =
+        ac === cc && bc === cc ? ilvd[i - 1][j] || ilvd[i][j - 1] :
+        ac === cc && bc !== cc ? ilvd[i - 1][j] :
+        ac !== cc && bc === cc ? ilvd[i][j - 1] : false
+    }
+  }
+  return ilvd[m][n]
+}
+
+// [
+//   ["xyz", "abcd", "xabyczd"], ["ab", "xy", "abxyZ"], ["ab", "xy", "abx"],
+//   ["ab", "ac", "abac"], ["bcc", "bbca", "bbcbcac"]
+// ].forEach(([a, b, c]) => console.log(a, b, c, isStrInterleaved2(a, b, c)))
+
+// O(2^n) multiple recursion
+function subsetSum(arr, x) {
+  if (x === 0) { return true }
+  if (arr.length === 0) { return false }
+  if (arr[0] > x) { return subsetSum(arr.slice(1), x) }
+  return subsetSum(arr.slice(1), x - arr[0]) ||
+    subsetSum(arr.slice(1), x)
+}
+
+// [[[3, 2, 7, 1], 6], [[1, 2, 5], 4]
+// ].forEach(([arr, x]) => console.log(arr, x, subsetSum(arr, x)))
+
+// lcs = longest common subsequence
+// O(2^n) multiple recursion
+function lcs(a, b) {
+  if (a.length === 0 || b.length === 0) { return 0 }
+  if (a[0] === b[0]) {
+    return 1 + lcs(a.slice(1), b.slice(1))
+  } else {
+    return Math.max(lcs(a.slice(1), b), lcs(a, b.slice(1)))
+  }
+}
+
+// O(2^n) multiple recursion
+function lcs2(a, b) {
+  if (a.length === 0 || b.length === 0) { return [0, ""] }
+  if (a[0] === b[0]) {
+    const [len, lcs] = lcs2(a.slice(1), b.slice(1))
+    return [1 + len, a[0] + lcs]
+  } else {
+    const [lena, lcsa] = lcs2(a.slice(1), b)
+    const [lenb, lcsb] = lcs2(a, b.slice(1))
+    return lena > lenb ? [lena, lcsa] : [lenb, lcsb]
+  }
+}
+
+// O(n^2) memmoization
+function lcs3(a, b, cache = matrix(a.length + 1, b.length + 1)) {
+  const m = a.length, n = b.length
+  if (m === 0 || n === 0) { return 0 }
+  if (cache[m][n]) { return cache[m][n] }
+  if (a[0] === b[0]) {
+    return cache[m][n] = 1 + lcs2(a.slice(1), b.slice(1), cache)
+  }
+  return cache[m][n] =
+    Math.max(lcs2(a.slice(1), b, cache), lcs2(a, b.slice(1), cache))
+}
+
+// O(n^2) dynamic programming
+function lcs4(a, b) {
+  const m = a.length, n = b.length
+  const ssl = matrix(m + 1, n + 1)
+  let lcs = ""
+  for (let j = 0; j <= n; ++j) { ssl[0][j] = 0 }
+  for (let i = 0; i <= m; ++i) { ssl[i][0] = 0 }
+  for (let i = 1; i <= m; ++i) {
+    for (let j = 1; j <= n; ++j) {
+      ssl[i][j] = a[i - 1] === b[j - 1] ?
+        (lcs += a[i - 1], ssl[i][j] = 1 + ssl[i - 1][j - 1]) :
+        Math.max(ssl[i - 1][j], ssl[i][j - 1])
+    }
+  }
+  return [ssl[m][n], lcs]
+}
+
+// [["abcd", "aebd"], ["abcde", "apqbr"]
+// ].forEach(([a, b]) => console.log(a, b, lcs2(a, b)))
+
+// greedy algorithm does not work for all cases e. g. 65
+function coinChange(x, cs = [1, 2, 5, 10, 12, 20, 50]) {
+  if (x === 0) { return [] }
+  for (let i = cs.length - 1; i >= 0; --i) {
+    const coin = cs[i]
+    if (x >= coin) {
+      const cnum = [coin, Math.floor(x / coin)]
+      return [cnum, ...coinChange(x % coin, cs)]
+    }
+  }
+}
+
+// O(m^n) multiple recursion
+function coinChange2(x, cs = [1, 2, 5, 10, 12, 20, 50]) {
+  function cCount(cs) { return cs.reduce((s, [_, n]) => s + n, 0) }
+  if (x === 0) { return [] }
+  let minCs = [[undefined, Infinity]]
+  for (let i = 0; i < cs.length; ++i) {
+    const coin = cs[i]
+    if (x >= coin) {
+      const tmpCs = coinChange2(x % coin, cs)
+      if (cCount(tmpCs) + 1 < cCount(minCs)) {
+        const cnum = [coin, Math.floor(x / coin)]
+        minCs = [cnum, ...tmpCs]
+      }
+    }
+  }
+  return minCs
+}
+
+// O(n^2) dynamic programming
+function coinChange3(x, cs = [1, 2, 5, 10, 12, 20, 50]) {
+  const minCs = Array(x + 1).fill(Infinity)
+  minCs[0] = 0
+  for (let i = 0; i <= x; ++i) {
+    for (let j = 0; j < cs.length; ++j) {
+      const coin = cs[j]
+      if (i >= coin) {
+        const mcs = minCs[i - coin]
+        if (mcs !== Infinity && mcs + 1 < minCs[i]) {
+          minCs[i] = mcs + 1
+        }
+      }
+    }
+  }
+  return minCs[x]
+}
+
+// [1, 2, 3, 4, 9, 11, 27, 65].forEach(x => console.log(x, coinChange3(x)))
+
+// O(n^m) multiple recursion + memoization
+function cutRodMaxPrice(n, prices, cache = Array(n + 1)) {
+  if (n === 0) { return prices[n] }
+  if (cache[n]) { return cache[n] }
+  let maxPrice = -Infinity
+  for (let i = 1; i <= n; ++i) {
+    cache[n] = maxPrice =
+      Math.max(maxPrice, prices[i] + cutRodMaxPrice(n - i, prices, cache))
+  }
+  return cache[n]
+}
+
+// O(n^2) dynamic programming
+function cutRodMaxPrice2(n, prices) {
+  const maxPs =Array(n + 1).fill(-Infinity)
+  maxPs[0] = 0
+  for (let i = 1; i <= n; ++i) {
+    maxPs[i] = prices[i]
+    for (let j = 0; j < i; ++j) {
+      maxPs[i] = Math.max(maxPs[i], prices[j] + maxPs[i - j])
+    }
+  }
+  return maxPs
+}
+
+const prices = [0, 1, 5, 8, 9, 10, 17, 17, 20];
+[0, 1, 2, 3, 4, 5, 6, 7, 8
+].forEach(n => console.log(n, cutRodMaxPrice2(n, prices)))
