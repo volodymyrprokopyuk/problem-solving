@@ -521,6 +521,53 @@ function cutRodMaxPrice2(n, prices) {
   return maxPs
 }
 
-const prices = [0, 1, 5, 8, 9, 10, 17, 17, 20];
-[0, 1, 2, 3, 4, 5, 6, 7, 8
-].forEach(n => console.log(n, cutRodMaxPrice2(n, prices)))
+// const prices = [0, 1, 5, 8, 9, 10, 17, 17, 20];
+// [0, 1, 2, 3, 4, 5, 6, 7, 8
+// ].forEach(n => console.log(n, cutRodMaxPrice2(n, prices)))
+
+// O(2^n) multiple recursion
+function knapsack(ws, vs, cap) {
+  if (ws.length === 0) { return 0 }
+  if (ws[0] <= cap) {
+    const incV = vs[0] + knapsack(ws.slice(1), vs.slice(1), cap - ws[0])
+    const excV = knapsack(ws.slice(1), vs.slice(1), cap)
+    return Math.max(incV, excV)
+  }
+  return knapsack(ws.slice(1), vs.slice(1), cap)
+}
+
+// O(n*cap) dynamic programming
+function knapsack2(ws, vs, cap) {
+  const m = ws.length + 1, n = cap + 1
+  const val = matrix(m, n)
+  for (let j = 0; j < n; ++j) { val[0][j] = 0 }
+  for (let i = 0; i < m; ++i) { val[i][0] = 0 }
+  for (let i = 1; i < m; ++i) {
+    for (let j = 1; j < n; ++j) {
+      if (ws[i - 1] <= j) {
+        val[i][j] = Math.max(
+          vs[i - 1] + val[i - 1][j - ws[i - 1]], val[i - 1][j]
+        )
+      } else { val[i][j] = val[i - 1][j] }
+    }
+  }
+  return val[m - 1][cap]
+}
+
+// const weights = [2, 3, 4, 5], values = [3, 4, 5, 6];
+// [5].forEach(maxW => console.log(knapsack2(weights, values, maxW)))
+
+// lps = longest palindromic subsequence
+// O(2^n) multiple recursion
+function lps(str) {
+  if (str.length === 0 || str.length === 1) { return str }
+  const fst = str.at(0), lst = str.at(-1)
+  if (fst === lst) {
+    return fst + lps(str.slice(1, -1)) + lst
+  }
+  const beg = lps(str.slice(0, -1))
+  const end = lps(str.slice(1))
+  return beg.length > end.length ? beg : end
+}
+
+// ["aab", "aXZab", "ZabWbcVbbUaXY"].forEach(str => console.log(str, lps2(str)))
