@@ -312,7 +312,7 @@ function minEditDistance2(a, b) {
   return dist[m - 1][n - 1]
 }
 
-// [["cat", "car"], ["sunday", "saturday"], ["abc", "xyz"]
+// [["cat", "car"], ["sunday", "saturday"], ["abc", "xyz"], ["food", "money"]
 // ].forEach(([a, b]) => console.log(a, b, minEditDistance2(a, b)))
 
 // O(2^n) multiple recursion
