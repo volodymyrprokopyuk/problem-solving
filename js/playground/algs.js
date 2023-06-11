@@ -207,7 +207,7 @@ function nqueens(n, qrow = 0, brd = Array(n)) {
 
 // nqueens(4)
 
-// O(2^n)
+// O(2^n) multiple recursion
 function subsetSum(arr, t) {
   if (t === 0) { return true }
   if (arr.length === 0) { return false }
@@ -217,7 +217,7 @@ function subsetSum(arr, t) {
   }
 }
 
-// O(2^n)
+// O(2^n) multiple recursion
 function subsetSum2(arr, t, i = arr.length - 1) {
   if (t === 0) { return true }
   if (i === -1) { return false }
@@ -225,17 +225,7 @@ function subsetSum2(arr, t, i = arr.length - 1) {
     subsetSum2(arr, t, i - 1)
 }
 
-// O(2^n)
-function subsetSum3(arr, t, i = arr.length - 1) {
-  if (t === 0) { return [] }
-  if (i === -1) { return }
-  const wi = subsetSum3(arr, t - arr[i], i - 1)
-  if (wi) { return [arr[i], ...wi] }
-  const wo = subsetSum3(arr, t, i - 1)
-  if (wo) { return wo }
-}
-
-// [[[8, 7, 6, 5, 3, 10, 9], 15], [[11, 6, 5, 1, 7, 13, 12], 15]
+// [[[1, 2, 3, 8], 5], [[8, 7, 6, 5, 3, 10, 9], 15], [[11, 6, 5, 1, 7, 13, 12], 15]
 // ].forEach(([arr, t]) => console.log(arr, t, subsetSum(arr, t)))
 
 // lis = longest increasing subsequence
