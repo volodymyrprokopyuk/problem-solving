@@ -1,4 +1,4 @@
-// O(m+n) merge sorted arrays
+// O(m+n) merges two sorted arrays
 export function merge(a, b) {
   const m = a.length, n = b.length, c = []
   let i = 0, j = 0
