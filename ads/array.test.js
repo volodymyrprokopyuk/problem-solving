@@ -1,4 +1,3 @@
-// npx vitest run --reporter verbose --coverage -t merge
 import { describe, test, expect } from "vitest"
 import { merge } from "./array.js"
 
