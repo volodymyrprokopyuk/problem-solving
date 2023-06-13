@@ -6,7 +6,7 @@ describe("array merge", () => {
     [[], [], []],
     [[1, 3], [2], [1, 2, 3]],
     [[1, 4, 7], [2, 3, 5, 8, 9], [1, 2, 3, 4, 5, 7, 8, 9]]
-  ])(`%# merge(%j, %j) === %j`, (a, b, exp) => {
+  ])("%# merge(%j, %j) === %j", (a, b, exp) => {
     expect(merge(a, b)).toEqual(exp)
   })
 })

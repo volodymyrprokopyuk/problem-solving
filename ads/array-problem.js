@@ -1,3 +1,5 @@
+import { error, matrix } from "./util.js"
+
 // O(n^2) builds the Pascal's triangle of n rows
 export function pascalTriangle(n) {
   const tr = [[1]]
@@ -12,11 +14,14 @@ export function pascalTriangle(n) {
   return tr
 }
 
+// O(n^2) recursion + memoization
 export function pascalTriangle2(n) {
   function pt(i, j) {
     return j === 0 || i === j ? 1 :
-      pt(i - 1, j - 1) + pt(i - 1, j)
+      ca[i][j] ? ca[i][j] :
+      ca[i][j] = pt(i - 1, j - 1) + pt(i - 1, j)
   }
+  const ca = matrix(n + 1)
   const tr = []
   for (let i = 0; i <= n; ++i) {
     const row = []
@@ -28,7 +33,21 @@ export function pascalTriangle2(n) {
   return tr
 }
 
-const n = 5
-console.log(pascalTriangle(n))
-console.log(pascalTriangle2(n))
+// O(m*n) adds two compatible matrices
+export function mxAdd(a, b) {
+  const m = a.length, n = a[0]?.length
+  if (!n || m !== b.length || n !== b[0]?.length) {
+    error(`incompatible matrices`)
+  }
+  const sum = matrix(m, n)
+  for (let i = 0; i < m; ++i) {
+    for (let j = 0; j < n; ++j) {
+      sum[i][j] = a[i][j] + b[i][j]
+    }
+  }
+  return sum
+}
 
+// const a = matrix(2, 3, 10), b = matrix(2, 3, 20)
+// // const a = matrix(1, 1, 2), b = matrix(1, 1, 2)
+// console.log(mxAdd(a, b))

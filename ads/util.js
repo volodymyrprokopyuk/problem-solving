@@ -1,5 +1,10 @@
 // test: npx vitest run --reporter verbose --coverage -t merge
 
+// throws an error
+export function error(message) {
+  throw new Error(message)
+}
+
 // O(1) swaps in-place two array elements
 export function swap(arr, i, j) {
   [arr[i], arr[j]] = [arr[j], arr[i]]
