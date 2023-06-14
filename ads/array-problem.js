@@ -33,11 +33,24 @@ export function pascalTriangle2(n) {
   return tr
 }
 
+// O(m*n) multiplies a matrix on a scalar k
+export function mxKMul(k, a) {
+  const m = a.length, n = a[0]?.length
+  if (!n) { error("mxKMul: not a matrix") }
+  const mx = matrix(m, n)
+  for (let i = 0; i < m; ++i) {
+    for (let j = 0; j < n; ++j) {
+      mx[i][j] = k * a[i][j]
+    }
+  }
+  return mx
+}
+
 // O(m*n) adds two compatible matrices
 export function mxAdd(a, b) {
   const m = a.length, n = a[0]?.length
   if (!n || m !== b.length || n !== b[0]?.length) {
-    error(`incompatible matrices`)
+    error("mxAdd: incompatible matrices")
   }
   const sum = matrix(m, n)
   for (let i = 0; i < m; ++i) {
@@ -48,6 +61,37 @@ export function mxAdd(a, b) {
   return sum
 }
 
-// const a = matrix(2, 3, 10), b = matrix(2, 3, 20)
-// // const a = matrix(1, 1, 2), b = matrix(1, 1, 2)
-// console.log(mxAdd(a, b))
+// O(m*n^2) multiplies two compatible matrix
+export function mxMul(a, b) {
+  const am = a.length, an = a[0]?.length,
+        bm = b.length, bn = b[0]?.length
+  if (!an || !bn || an !== bm) {
+    error("mxMul: incompatible matrices")
+  }
+  const prd = matrix(am, bn)
+  for (let i = 0; i < am; ++i) {
+    for (let j = 0; j < bn; ++j) {
+      let sum = 0
+      console.log()
+      for (let k = 0; k < an; ++k) {
+        console.log(a[i][k], b[k][j])
+        sum += a[i][k] * b[k][j]
+      }
+      prd[i][j] = sum
+    }
+  }
+  return prd
+}
+
+// O(m*n) transposes a matrix
+export function mxTrans(a) {
+  const m = a.length, n = a[0]?.length
+  if (!n) { error("mxTrans: not a matrix") }
+  const tr = matrix(n, m)
+  for (let i = 0; i < m; ++i) {
+    for (let j = 0; j < n; ++j) {
+      tr[j][i] = a[i][j]
+    }
+  }
+  return tr
+}
