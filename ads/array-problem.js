@@ -68,16 +68,12 @@ export function mxMul(a, b) {
   if (!an || !bn || an !== bm) {
     error("mxMul: incompatible matrices")
   }
-  const prd = matrix(am, bn)
+  const prd = matrix(am, bn, 0)
   for (let i = 0; i < am; ++i) {
     for (let j = 0; j < bn; ++j) {
-      let sum = 0
-      console.log()
       for (let k = 0; k < an; ++k) {
-        console.log(a[i][k], b[k][j])
-        sum += a[i][k] * b[k][j]
+        prd[i][j] += a[i][k] * b[k][j]
       }
-      prd[i][j] = sum
     }
   }
   return prd
@@ -94,4 +90,20 @@ export function mxTrans(a) {
     }
   }
   return tr
+}
+
+// O(m*n) fills a matrix diagonal, upper and lower triangles
+export function mxFillDiag(mx, up = 1, dg = 0, lo = -1) {
+  const m = mx.length, n = mx[0]?.length
+  for (let i = 0; i < m; ++i) {
+    for (let j = 0; j < n; ++j) {
+      mx[i][j] = i < j ? up : i > j ? lo : dg
+    }
+  }
+  return mx
+}
+
+// O(?) exchanges the k-th biggest/smallest elements
+export function exchangeKthBiggSmall(arr) {
+
 }
