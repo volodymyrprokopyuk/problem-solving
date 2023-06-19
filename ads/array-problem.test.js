@@ -1,7 +1,9 @@
 import { describe, test, expect } from "vitest"
+import { matrix } from "./util.js"
 import {
   pascalTriangle, pascalTriangle2,
-  mxAdd, mxKMul, mxMul, mxTrans
+  mxAdd, mxKMul, mxMul, mxTrans, mxFillDiag, mxDiags,
+  exKthBigSmall
 } from "./array-problem.js"
 
 describe.each([
@@ -74,5 +76,35 @@ describe("matrix trans", () => {
     [[[1, 2, 3], [4, 5, 6]], [[1, 4], [2, 5], [3, 6]]]
   ])("%# mxTrans(%j) === %j", (a, exp) => {
     expect(mxTrans(a)).toEqual(exp)
+  })
+})
+
+describe("matrix fill diagonal", () => {
+  test.each([
+    [matrix(2), [[ 0, 1], [-1, 0]]]
+  ])("%# mxFillDiag(%j) === %j", (mx, exp) => {
+    expect(mxFillDiag(mx)).toEqual(exp)
+  })
+})
+
+describe("matrix get diagonals", () => {
+  test.each([
+    [
+      [[1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6], [4, 5, 6, 7]],
+      [[1, 3, 5, 7], [4, 4, 4, 4]]
+    ]
+  ])("%# mxDiag(%j) === %j", (mx, exp) => {
+    expect(mxDiags(mx)).toEqual(exp)
+  })
+})
+
+describe("exchange k-th biggest/smallest", () => {
+  test.each([
+    [[1], 2, undefined],
+    [[1, 2, 3, 4, 5, 6, 7, 8, 9], 0, [9, 2, 3, 4, 5, 6, 7, 8, 1]],
+    [[1, 2, 3, 4, 5, 6, 7, 8, 9], 3, [1, 2, 3, 6, 5, 4, 7, 8, 9]],
+    [[1, 2, 3, 4, 5, 6, 7, 8, 9], 7, [1, 8, 3, 4, 5, 6, 7, 2, 9]]
+  ])("%# exKthBigSmall(%j, %j) === %j", (arr, k, exp) => {
+    expect(exKthBigSmall(arr, k)).toEqual(exp)
   })
 })

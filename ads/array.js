@@ -12,10 +12,10 @@ export function merge(a, b) {
   return c
 }
 
-// O(n) partitions in-place an array and return a pivot index
+// O(n) partitions in-place an array and returns a pivot index
 export function hoarePartition(arr, l = 0, r = arr.length - 1) {
   if (r < 0) { return }
-  const p = l++
+  const p = l++ // pivot = first
   while (true) {
     while (arr[l] <= arr[p]) { ++l }
     while (arr[p] < arr[r]) { --r }
@@ -24,8 +24,22 @@ export function hoarePartition(arr, l = 0, r = arr.length - 1) {
   }
 }
 
-[[], [1], [1, 2], [2, 1], [2, 3, 1], [2, 1, 3, 2], [5, 9, 1, 3, 7, 8, 4, 6, 2]
-].forEach(arr => {
-  console.log(arr)
-  console.log(arr, hoarePartition(arr))
-})
+// O(n) partitions in-place an array and returns a pivot index
+export function lomutoPartition(arr, l = 0, r = arr.length - 1) {
+  if (r < 0) { return }
+  let i = l // pivot = last
+  for (let j = l; j < r; ++j) {
+    if (arr[j] <= arr[r]) { swap(arr, i++, j) }
+  }
+  swap(arr, i, r)
+  return i
+}
+
+// O(n) returns the index of the element in the k-th position of a sorted array
+export function quickSelect(arr, k, l = 0, r = arr.length - 1) {
+  if (l > r || k > r) { return }
+  const p = hoarePartition(arr, l, r)
+  // const p = lomutoPartition(arr, l, r)
+  return p < k ? quickSelect(arr, k, p + 1, r) :
+    p > k ? quickSelect(arr, k, l, p - 1) : p
+}

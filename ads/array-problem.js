@@ -1,4 +1,5 @@
-import { error, matrix } from "./util.js"
+import { error, swap, matrix } from "./util.js"
+import { quickSelect } from "./array.js"
 
 // O(n^2) builds the Pascal's triangle of n rows
 export function pascalTriangle(n) {
@@ -103,7 +104,34 @@ export function mxFillDiag(mx, up = 1, dg = 0, lo = -1) {
   return mx
 }
 
-// O(?) exchanges the k-th biggest/smallest elements
-export function exchangeKthBiggSmall(arr) {
+export function mxDiags(mx) {
+  const m = mx.length, pri = [], sec = []
+  for (let i = 0; i < m; ++i) {
+    for (let j = 0; j < m; ++j) {
+      if (i === j) { pri.push(mx[i][j]) }
+      if (i + j === m - 1) { sec.push(mx[i][j]) }
+    }
+  }
+  return [pri, sec]
+}
 
+const mx = [[1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6], [4, 5, 6, 7]]
+console.log(mx)
+console.log(mxDiags(mx))
+
+// O(n) exchanges the k-th biggest/smallest elements in an array
+export function exKthBigSmall(arr, k = 0) {
+  const n = arr.length, a = arr.slice()
+  if (k >= n) { return }
+  const sm = a[quickSelect(a, k)], bg = a[quickSelect(a, n - k - 1)]
+  console.log(sm, bg)
+  let i = -1, j = -1
+  for (let k = 0; k < n; ++k) {
+    if (i === -1 && arr[k] === sm) { i = k }
+    if (j === -1 && arr[k] === bg) { j = k }
+    if (i !== -1 && j !== -1) { break }
+  }
+  console.log(i, j)
+  if (i !== -1 && j !== -1 && i !== j) { swap(arr, i, j) }
+  return arr
 }

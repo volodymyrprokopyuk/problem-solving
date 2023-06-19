@@ -1,5 +1,8 @@
 import { describe, test, expect } from "vitest"
-import { merge, hoarePartition } from "./array.js"
+import {
+  merge,
+  hoarePartition, lomutoPartition, quickSelect
+} from "./array.js"
 
 describe("array merge", () => {
   test.each([
@@ -11,18 +14,47 @@ describe("array merge", () => {
   })
 })
 
-describe.each([
-  [[], undefined, []],
-  [[1], 0, [1]],
-  [[1, 2], 0, [1, 2]],
-  [[2, 1], 1, [1, 2]],
-  [[2, 3, 1], 1, [1, 2, 3]],
-  [[2, 1, 3, 2], 2, [2, 1, 2, 3]],
-  [[5, 9, 1, 3, 7, 8, 4, 6, 2], 4, [4, 2, 1, 3, 5, 8, 7, 6, 9]]
-])("%# partition scheme (%j) === [%j, %j]", (arr, expI, expArr) => {
-  test("hoarePartition", () => {
-    const a = arr.slice(), i = hoarePartition(a)
-    expect(i).toBe(expI)
-    expect(a).toEqual(expArr)
+describe("Hoare partition", () => {
+  test.each([
+    [[], undefined, []],
+    [[1], 0, [1]],
+    [[1, 2], 0, [1, 2]],
+    [[2, 1], 1, [1, 2]],
+    [[2, 3, 1], 1, [1, 2, 3]],
+    [[2, 1, 3, 2], 2, [2, 1, 2, 3]],
+    [[5, 9, 1, 3, 7, 8, 4, 6, 2], 4, [4, 2, 1, 3, 5, 8, 7, 6, 9]]
+  ])("%# hoarePartition(%j) === [%j, %j]", (arr, expP, expArr) => {
+    expect(hoarePartition(arr)).toBe(expP)
+    expect(arr).toEqual(expArr)
+  })
+})
+
+describe("Lomuto partition", () => {
+  test.each([
+    [[], undefined, []],
+    [[1], 0, [1]],
+    [[1, 2], 1, [1, 2]],
+    [[2, 1], 0, [1, 2]],
+    [[2, 3, 1], 0, [1, 3, 2]],
+    [[2, 1, 3, 2], 2, [2, 1, 2, 3]],
+    [[5, 9, 1, 3, 7, 8, 4, 6, 2], 1, [1, 2, 5, 3, 7, 8, 4, 6, 9]]
+  ])("%# lomutoPartition(%j) === [%j, %j]", (arr, expP, expArr) => {
+    expect(lomutoPartition(arr)).toBe(expP)
+    expect(arr).toEqual(expArr)
+  })
+})
+
+describe("quick select", () => {
+  test.each([
+    [[], 0, [], undefined],
+    [[1], 0, [1], 0],
+    [[1, 2], 1, [1, 2], 1],
+    [[2, 1], 1, [1, 2], 1],
+    [[2, 3, 1], 2, [1, 2, 3], 2],
+    [[2, 1, 3, 2], 2, [2, 1, 2, 3], 2],
+    [[5, 9, 1, 3, 7, 8, 4, 6, 2], 5, [4, 2, 1, 3, 5, 6, 7, 8, 9], 5]
+  ])("%# quickSelect(%j, %j) === [%j, %j]", (arr, k, expArr, expP) => {
+    expect(quickSelect(arr, k)).toBe(expP)
+    expect(arr).toEqual(expArr)
   })
 })
