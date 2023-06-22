@@ -3,7 +3,8 @@ import { matrix } from "./util.js"
 import {
   pascalTriangle, pascalTriangle2,
   mxAdd, mxKMul, mxMul, mxTrans, mxFillDiag, mxDiags,
-  exKthBigSmall
+  exKthBigSmall, productAllOther, productAllOther2,
+  smallestWindowToSort, smallestWindowToSort2
 } from "./array-problem.js"
 
 describe.each([
@@ -106,5 +107,27 @@ describe("exchange k-th biggest/smallest", () => {
     [[1, 2, 3, 4, 5, 6, 7, 8, 9], 7, [1, 8, 3, 4, 5, 6, 7, 2, 9]]
   ])("%# exKthBigSmall(%j, %j) === %j", (arr, k, exp) => {
     expect(exKthBigSmall(arr, k)).toEqual(exp)
+  })
+})
+
+describe.each([
+  [[1, 2, 3, 4, 5], [120, 60, 40, 30, 24]]
+])("%# product all other (%j) === %j", (arr, exp) => {
+  test("productAllOther", () => {
+    expect(productAllOther(arr)).toEqual(exp)
+  })
+  test("productAllOther2", () => {
+    expect(productAllOther2(arr)).toEqual(exp)
+  })
+})
+
+describe.each([
+  [[1, 2, 3, 7, 4, 6, 5, 8, 9, 10], [3, 6]]
+])("%# smallest window to sort (%j) === %j", (arr, exp) => {
+  test("smallestWindowToSort", () => {
+    expect(smallestWindowToSort(arr)).toEqual(exp)
+  })
+  test("smallestWindowToSort2", () => {
+    expect(smallestWindowToSort2(arr)).toEqual(exp)
   })
 })

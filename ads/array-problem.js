@@ -115,10 +115,6 @@ export function mxDiags(mx) {
   return [pri, sec]
 }
 
-const mx = [[1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6], [4, 5, 6, 7]]
-console.log(mx)
-console.log(mxDiags(mx))
-
 // O(n) exchanges the k-th biggest/smallest elements in an array
 export function exKthBigSmall(arr, k = 0) {
   const n = arr.length, a = arr.slice()
@@ -135,3 +131,53 @@ export function exKthBigSmall(arr, k = 0) {
   if (i !== -1 && j !== -1 && i !== j) { swap(arr, i, j) }
   return arr
 }
+
+// O(n) returns an array which i-th element is the product of all other elements
+export function productAllOther(arr) {
+  const n = arr.length
+  let p = 1
+  for (let el of arr) { p *= el }
+  const prd = Array(n)
+  for (let i = 0; i < n; ++i) { prd[i] = p / arr[i] }
+  return prd
+}
+
+// O(n) returns products of all other elements without using the division
+export function productAllOther2(arr) {
+  const n = arr.length, pre = Array(n), suf = Array(n)
+  pre[0] = 1; suf[n - 1] = 1
+  for (let i = 0; i < n - 1; ++i) { pre[i + 1] = pre[i] * arr[i] }
+  for (let i = n - 1; i > 0; --i) { suf[i - 1] = suf[i] * arr[i] }
+  const prd = Array(n)
+  for (let i = 0; i < n; ++i) { prd[i] = pre[i] * suf[i] }
+  return prd
+}
+
+// O(n*log(n)) returns indices of the smallest window to be sorted in an
+// unsorted array
+export function smallestWindowToSort(arr) {
+  const n = arr.length, sor = arr.toSorted((a, b) => a - b)
+  let i, j
+  for (i = 0; i < n; ++i) { if (arr[i] !== sor[i]) { break } }
+  for (j = n - 1; j >= 0; --j) { if (arr[j] !== sor[j]) { break } }
+  return [i, j]
+}
+
+// O(n) returns indices of the smalles window to be sorted in an unsorted array
+export function smallestWindowToSort2(arr) {
+  const n = arr.length
+  let max = -Infinity, min = Infinity, l = 0, r = n - 1
+  for (let i = 0; i < n; ++i) {
+    if (arr[i] > max) { max = arr[i] }
+    if (arr[i] < max) { r = i }
+  }
+  for (let i = n - 1; i >= 0; --i) {
+    if (arr[i] < min) { min = arr[i] }
+    if (arr[i] > min) { l = i }
+  }
+  return [l, r]
+}
+
+const arr = [1, 2, 3, 7, 4, 6, 5, 8, 9, 10]
+console.log(smallestWindowToSort(arr))
+console.log(smallestWindowToSort2(arr))
