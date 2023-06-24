@@ -4,7 +4,8 @@ import {
   pascalTriangle, pascalTriangle2,
   mxAdd, mxKMul, mxMul, mxTrans, mxFillDiag, mxDiags,
   exKthBigSmall, productAllOther, productAllOther2,
-  smallestWindowToSort, smallestWindowToSort2
+  smallestWindowToSort, smallestWindowToSort2,
+  maxSubArraySum, maxSubArraySum2, maxSubArraySum3, smallerToTheRight
 } from "./array-problem.js"
 
 describe.each([
@@ -129,5 +130,29 @@ describe.each([
   })
   test("smallestWindowToSort2", () => {
     expect(smallestWindowToSort2(arr)).toEqual(exp)
+  })
+})
+
+describe.each([
+  [[1, -5, 2, -3, 8, 9], [17, 4, 5]],
+  [[34, -50, 42, 14, -5, 86], [137, 2, 5]],
+  [[-1, -2], [0, -1, -1]]
+])("%# max sub array sum (%j) === %j", (arr, exp) => {
+  test("maxSubArraySum", () => {
+    expect(maxSubArraySum(arr)).toEqual(exp)
+  })
+  test("maxSubArraySum2", () => {
+    expect(maxSubArraySum2(arr)).toEqual(exp)
+  })
+  test("maxSubArraySum3", () => {
+    expect(maxSubArraySum3(arr)).toEqual(exp)
+  })
+})
+
+describe("number of smaller elements to the right", () => {
+  test.each([
+    [[3, 4, 9, 6, 1], [1, 1, 2, 1, 0]]
+  ])("%# smallerToTheRight(%j) === %j", (arr, exp) => {
+    expect(smallerToTheRight(arr)).toEqual(exp)
   })
 })

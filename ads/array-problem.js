@@ -178,6 +178,64 @@ export function smallestWindowToSort2(arr) {
   return [l, r]
 }
 
-const arr = [1, 2, 3, 7, 4, 6, 5, 8, 9, 10]
-console.log(smallestWindowToSort(arr))
-console.log(smallestWindowToSort2(arr))
+// O(n^2) computes a max sub-array sum
+export function maxSubArraySum(arr) {
+  const n = arr.length, sum = matrix(n, n + 1)
+  let max = 0, l = -1, r = -1
+  for (let i = 0; i < n; ++i) { sum[i][i] = 0 }
+  for (let i = 0; i < n; ++i) {
+    for (let j = i; j < n; ++j) {
+      const s = sum[i][j + 1] = sum[i][j] + arr[j]
+      if (s > max) { max = s; l = i; r = j }
+    }
+  }
+  return [max, l, r]
+}
+
+// O(n) computes a max sub-array sum
+export function maxSubArraySum2(arr) {
+  const n = arr.length, sum = Array(n)
+  sum[0] = arr[0]
+  let max = 0, l = -1, r = -1
+  for (let i = 1; i < n; ++i) {
+    if (sum[i - 1] > 0) {
+      sum[i] = sum[i - 1] + arr[i]
+      r = i
+    } else {
+      sum[i] = arr[i]
+      if (sum[i] > max) { l = r = i }
+    }
+    if (sum[i] > max) { max = sum[i] }
+  }
+  return [max, l, r]
+}
+
+// O(n) computes a max sub-array sum
+export function maxSubArraySum3(arr) {
+  const n = arr.length
+  let max = 0, l = -1, r = -1, curMax = arr[0]
+  for (let i = 1; i < n; ++i) {
+    if (curMax > 0) {
+      curMax += arr[i]; r = i
+    } else {
+      curMax = arr[i]
+      if (curMax > max) { l = r = i }
+    }
+    if (curMax > max) { max = curMax }
+  }
+  return [max, l, r]
+}
+
+// O(n^2) returns an array with number of smaller elements to the right
+export function smallerToTheRight(arr) {
+  const n = arr.length, sm = Array(n).fill(0)
+  for (let i = 0; i < n; ++i) {
+    for (let j = i; j < n; ++j) {
+      if (arr[j] < arr[i]) { ++sm[i] }
+    }
+  }
+  return sm
+}
+
+const arr = [3, 4, 9, 6, 1]
+console.log(smallerToTheRight(arr))
