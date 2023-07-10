@@ -1,7 +1,8 @@
 import { describe, test, expect } from "vitest"
 import {
   merge,
-  hoarePartition, lomutoPartition, quickSelect
+  hoarePartition, lomutoPartition, quickSelect,
+  powerset, powerset2
 } from "./array.js"
 
 describe("array merge", () => {
@@ -56,5 +57,18 @@ describe("quick select", () => {
   ])("%# quickSelect(%j, %j) === [%j, %j]", (arr, k, expArr, expP) => {
     expect(quickSelect(arr, k)).toBe(expP)
     expect(arr).toEqual(expArr)
+  })
+})
+
+describe("powerset", (arr, exp) => {
+  test.each([
+    ["abc", ["", "a", "b", "ab", "c", "ac", "bc", "abc"]]
+  ])("%# powerset(%j) === %j", (arr, exp) => {
+    expect(powerset(arr.split("")).map(el => el.join(""))).toEqual(exp)
+  })
+  test.each([
+    ["abc", ["", "c", "b", "bc", "a", "ac", "ab", "abc"]]
+  ])("%# powerset2(%j) === %j", (arr, exp) => {
+    expect(powerset2(arr.split("")).map(el => el.join(""))).toEqual(exp)
   })
 })

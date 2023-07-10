@@ -120,14 +120,12 @@ export function exKthBigSmall(arr, k = 0) {
   const n = arr.length, a = arr.slice()
   if (k >= n) { return }
   const sm = a[quickSelect(a, k)], bg = a[quickSelect(a, n - k - 1)]
-  console.log(sm, bg)
   let i = -1, j = -1
   for (let k = 0; k < n; ++k) {
     if (i === -1 && arr[k] === sm) { i = k }
     if (j === -1 && arr[k] === bg) { j = k }
     if (i !== -1 && j !== -1) { break }
   }
-  console.log(i, j)
   if (i !== -1 && j !== -1 && i !== j) { swap(arr, i, j) }
   return arr
 }
@@ -236,6 +234,3 @@ export function smallerToTheRight(arr) {
   }
   return sm
 }
-
-const arr = [3, 4, 9, 6, 1]
-console.log(smallerToTheRight(arr))

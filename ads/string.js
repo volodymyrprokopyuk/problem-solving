@@ -18,4 +18,11 @@ export function find(str, sub) {
   return -1
 }
 
-console.log(find("abcde", "xcd"))
+// O(n) checks if a string is a palindrome
+export function palindrome(str) {
+  let i = 0, j = str.length - 1
+  while (i < j) {
+    if (str[i++] !== str[j--]) { return false }
+  }
+  return true
+}

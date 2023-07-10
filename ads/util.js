@@ -14,3 +14,12 @@ export function swap(arr, i, j) {
 export function matrix(m, n = m, v) {
   return Array(m).fill().map(_ => Array(n).fill(v))
 }
+
+// O(n) returns true if maps are equal, false otherwise
+export function mapEq(a, b) {
+  if (a.size !== b.size) { return false }
+  for (const [k, v] of a) {
+    if (v !== b.get(k)) { return false }
+  }
+  return true
+}

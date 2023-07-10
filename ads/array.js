@@ -43,3 +43,21 @@ export function quickSelect(arr, k, l = 0, r = arr.length - 1) {
   return p < k ? quickSelect(arr, k, p + 1, r) :
     p > k ? quickSelect(arr, k, l, p - 1) : p
 }
+
+// O(2^n) bottom-up, iterative
+export function powerset(arr) {
+  const ps = [[]]
+  for (const el of arr) {
+    for (let i = 0, len = ps.length; i < len; ++i) {
+      ps.push([...ps[i], el])
+    }
+  }
+  return ps
+}
+
+// O(2^n) top-down, recursive
+export function powerset2([h, ...tl]) {
+  if (!h) { return [[]] }
+  const ps = powerset2(tl)
+  return [...ps, ...ps.map(p => [h, ...p])]
+}
