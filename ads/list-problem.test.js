@@ -1,11 +1,13 @@
 import { describe, test, expect } from "vitest"
 import { List } from "./list.js"
-import { reverse } from "./list-problem.js"
+import { addNumbers } from "./list-problem.js"
 
-describe("list reverse", () => {
+describe("list add numbers", () => {
   test.each([
-    [List.from([1, 2, 3]), [1, 2, 3]]
-  ])("%# reverse(%j) === %j", (lst, exp) => {
-    expect(Array.from(reverse(lst))).toEqual(exp)
+    [List.from([9, 9]), List.from([1, 2, 5]), [4, 2, 2]],
+    [List.from([1, 2, 7]), List.from([8, 9]), [6, 1, 2]],
+    [List.from([9]), List.from([9]), [8, 1]]
+  ])("%# addNumbers(%j, %j) === %j", (a, b, exp) => {
+    expect(Array.from(addNumbers(a, b))).toEqual(exp)
   })
 })

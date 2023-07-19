@@ -89,4 +89,15 @@ export class List {
     }
     return false
   }
+
+  // O(n)
+  reverse() {
+    let prev = null, curr = this.#head, next
+    while(curr) {
+      next = curr.next
+      curr.next = prev; prev = curr
+      curr = next
+    }
+    this.#head = prev
+  }
 }

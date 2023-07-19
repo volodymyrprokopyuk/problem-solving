@@ -10,3 +10,15 @@ describe("list from iterable + iterator + length", () => {
     expect(lst.length).toBe(exp.length)
   })
 })
+
+describe("list reverse", () => {
+  test.each([
+    [List.from([]), []],
+    [List.from([1]), [1]],
+    [List.from([1, 2, 3]), [1, 2, 3]],
+    [List.from([1, 2, 3, 4]), [1, 2, 3, 4]]
+  ])("%# reverse(%j) === %j", (lst, exp) => {
+    lst.reverse()
+    expect(Array.from(lst)).toEqual(exp)
+  })
+})
