@@ -16,3 +16,22 @@ export function addNumbers(a, b) {
   c.reverse()
   return c
 }
+
+// O(n) rearranges in-place a list so elements follow the low/high order
+export function rearrangeLowHigh(lst) {
+  const le = (a, b) => a < b, gt = (a, b) => a > b
+  let curr = lst.head, cmp = le, i = 0
+  while(curr?.next) {
+    const next = curr.next
+    if (!cmp(curr.data, next.data)) {
+      [curr.data, next.data] = [next.data, curr.data]
+    }
+    cmp = ++i % 2 === 1 ? gt : le
+    curr = curr.next
+  }
+}
+
+const lst = List.from([5, 4, 3, 2, 1])
+console.log(lst)
+rearrangeLowHigh(lst)
+console.log(lst)

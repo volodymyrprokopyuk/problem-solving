@@ -1,4 +1,4 @@
-import { swap } from "./util.js"
+import { arrSwap } from "./util.js"
 
 // O(m+n) merges two sorted arrays
 export function merge(a, b) {
@@ -19,8 +19,8 @@ export function hoarePartition(arr, l = 0, r = arr.length - 1) {
   while (true) {
     while (arr[l] <= arr[p]) { ++l }
     while (arr[p] < arr[r]) { --r }
-    if (l < r) { swap(arr, l, r); ++l; --r }
-    else { swap(arr, p, r); return r }
+    if (l < r) { arrSwap(arr, l, r); ++l; --r }
+    else { arrSwap(arr, p, r); return r }
   }
 }
 
@@ -29,9 +29,9 @@ export function lomutoPartition(arr, l = 0, r = arr.length - 1) {
   if (r < 0) { return }
   let i = l // pivot = last
   for (let j = l; j < r; ++j) {
-    if (arr[j] <= arr[r]) { swap(arr, i++, j) }
+    if (arr[j] <= arr[r]) { arrSwap(arr, i++, j) }
   }
-  swap(arr, i, r)
+  arrSwap(arr, i, r)
   return i
 }
 

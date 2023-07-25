@@ -8,7 +8,7 @@ export class LNode {
 }
 
 export class List {
-  #head = null
+  head = null
   #length = 0
 
   get length() { return this.#length }
@@ -20,7 +20,7 @@ export class List {
   }
 
   [Symbol.iterator]() {
-    let nd = this.#head
+    let nd = this.head
     const next = () => {
       if (nd) {
         const value = nd.data
@@ -32,15 +32,13 @@ export class List {
     return { next }
   }
 
-  toString() { return `List(${Array.from(this)})`}
-
-  [inspect.custom](path, opts) { return this.toString() }
+  [inspect.custom](path, opts) { return `List(${Array.from(this)})` }
 
   // O(1)
   push(data) {
     const nd = new LNode(data)
-    nd.next = this.#head
-    this.#head = nd
+    nd.next = this.head
+    this.head = nd
     ++this.#length
     return this
   }
@@ -48,8 +46,8 @@ export class List {
   // O(1)
   pop() {
     if (this.#length === 0) { error("pop from empty List") }
-    const value = this.#head.data
-    this.#head = this.#head.next
+    const value = this.head.data
+    this.head = this.head.next
     --this.#length
     return value
   }
@@ -57,12 +55,12 @@ export class List {
   // O(1)
   peek() {
     if (this.#length === 0) { error("peek from empty List") }
-    return this.#head.data
+    return this.head.data
   }
 
   // O(n)
   has(data, eq = (a, b) => a === b) {
-    let nd = this.#head
+    let nd = this.head
     while (nd) {
       if (eq(nd.data, data)) { return true }
       nd = nd.next
@@ -73,9 +71,9 @@ export class List {
   // O(n)
   remove(data, eq = (a, b) => a === b) {
     if (this.#length === 0) { error("remove from empty List") }
-    let nd = this.#head
+    let nd = this.head
     if (eq(nd.data, data)) {
-      this.#head = nd.next
+      this.head = nd.next
       --this.#length
       return true
     }
@@ -92,12 +90,12 @@ export class List {
 
   // O(n)
   reverse() {
-    let prev = null, curr = this.#head, next
+    let prev = null, curr = this.head, next
     while(curr) {
       next = curr.next
       curr.next = prev; prev = curr
       curr = next
     }
-    this.#head = prev
+    this.head = prev
   }
 }

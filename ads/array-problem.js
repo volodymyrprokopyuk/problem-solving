@@ -1,4 +1,4 @@
-import { error, swap, matrix } from "./util.js"
+import { error, arrSwap, matrix } from "./util.js"
 import { quickSelect } from "./array.js"
 
 // O(n^2) builds the Pascal's triangle of n rows
@@ -126,7 +126,7 @@ export function exKthBigSmall(arr, k = 0) {
     if (j === -1 && arr[k] === bg) { j = k }
     if (i !== -1 && j !== -1) { break }
   }
-  if (i !== -1 && j !== -1 && i !== j) { swap(arr, i, j) }
+  if (i !== -1 && j !== -1 && i !== j) { arrSwap(arr, i, j) }
   return arr
 }
 

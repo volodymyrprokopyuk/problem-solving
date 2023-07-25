@@ -6,7 +6,7 @@ export function error(message) {
 }
 
 // O(1) swaps in-place two array elements
-export function swap(arr, i, j) {
+export function arrSwap(arr, i, j) {
   [arr[i], arr[j]] = [arr[j], arr[i]]
 }
 
