@@ -1,9 +1,0 @@
-{% extends uibase.nwt %}
-
-{% block content %}
-  <h1>Login</h1>
-  <form action="login" method="post">
-    <input type="text" name="principal" placeholder="User name"/>
-    <input type="submit" value="Login"/>
-  </form>
-{% endblock %}

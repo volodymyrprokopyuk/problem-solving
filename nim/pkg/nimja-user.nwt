@@ -1,6 +1,0 @@
-{#
-  - Partial template does not `extend` another template
-  - Partial template is `importnwt`ed into another template
-  - Partial template has access to all variables of the parent template
-#}
-User {{user.id}} {{user.name}}
