@@ -1,0 +1,13 @@
+{
+  "name": "eth-hardhat",
+  "version": "0.1.0",
+  "description": "Ethereum Hardhat",
+  "main": "index.js",
+  "author": "Volodymyr Prokopyuk",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "hardhat": "^2.17.0",
+    "vitest": "^0.33.0"
+  }
+}
