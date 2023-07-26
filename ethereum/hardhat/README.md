@@ -4,5 +4,5 @@
 npm init
 npm install -D hardhat @nomicfoundation/hardhat-toolbox vitest
 npm exec hardhat compile
-npm exec vitest run --reporter verbose
+npm exec vitest run --reporter verbose --test-timeout 10000
 ```
