@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.0;
 
+import "hardhat/console.sol";
+
 contract Token {
   string public tokenName = "Hardhat token";
   string public tokenSymbol = "HHT";
@@ -21,6 +23,7 @@ contract Token {
     balances[msg.sender] -= value;
     balances[to] += value;
     emit Transfer(msg.sender, to, value);
+    console.log("Transfer %s => %s %s tokens", msg.sender, to, value);
   }
 
   function balanceOf(address account) external view returns (uint256) {
