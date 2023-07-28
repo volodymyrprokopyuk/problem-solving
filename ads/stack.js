@@ -52,7 +52,3 @@ export class Stack {
     return this.top.data
   }
 }
-
-const stk = Stack.from([1, 2, 3, 4, 5])
-console.log(stk.peek(), stk.pop())
-console.log(stk)
