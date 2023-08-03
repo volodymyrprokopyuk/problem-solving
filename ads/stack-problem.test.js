@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest"
 import {
   checkParens,
-  infixToPostfix, postfixEvaluate, infixToPrefix
+  infixToPostfix, postfixEvaluate, infixToPrefix, prefixEvaluate
 } from "./stack-problem.js"
 
 describe("stack check parens", () => {
@@ -74,5 +74,11 @@ const arithExpr = [
 describe("stack postfix evaluate", () => {
   test.each(arithExpr)("%# postfixEvaluate(%j) === %j", (infix, exp) => {
     expect(postfixEvaluate(infixToPostfix(infix))).toBe(exp)
+  })
+})
+
+describe("stack prefix evaluate", () => {
+  test.each(arithExpr)("%# prefixEvaluate(%j) === %j", (infix, exp) => {
+    expect(prefixEvaluate(infixToPrefix(infix))).toBe(exp)
   })
 })

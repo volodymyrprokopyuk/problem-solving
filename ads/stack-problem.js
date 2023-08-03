@@ -34,7 +34,7 @@ function tokenize(infix) {
 }
 
 // O(1) evaluates an arithmetic operation on a stack
-function evaluate(op, stk) {
+function evaluate(op, val, postfix = true) {
   switch (op) {
     case "+": op = (a, b) => a + b; break
     case "-": op = (a, b) => a - b; break
@@ -43,8 +43,10 @@ function evaluate(op, stk) {
     case "^": op = (a, b) => a ** b; break
     default: error(`unsupported operation ${op}`)
   }
-  const b = Number(stk.pop()), a = Number(stk.pop())
-  stk.push(op(a, b))
+  if (val.length < 2) { errro("fewer operands than required") }
+  const b = Number(val.pop()), a = Number(val.pop())
+  // postfix ? val.push(op(a, b)) : val.push(op(b, a))
+  val.push(postfix ? op(a, b) : op(b, a))
 }
 
 // O(n) converts an infixt expression to a postfix expression
@@ -100,10 +102,20 @@ export function infixToPrefix(infix) {
 
 // O(n) evaluates a postfix arithmetic expression
 export function postfixEvaluate(postfix) {
-  const op = new Stack()
+  const val = new Stack()
   for (const { token, type } of tokenize(postfix)) {
-    type === "op" ? evaluate(token, op) : op.push(token)
+    type === "op" ? evaluate(token, val) : val.push(token)
   }
-  if (op.length !== 1) { error(`invalid expression ${postfix}`) }
-  return op.pop()
+  if (val.length !== 1) { error(`invalid expression ${postfix}`) }
+  return val.pop()
+}
+
+// O(n) evaluates a prefix arithmetic expression
+export function prefixEvaluate(prefix) {
+  const val = new Stack()
+  for (const { token, type } of tokenize(prefix).toReversed()) {
+    type === "op" ? evaluate(token, val, false) : val.push(token)
+  }
+  if (val.length !== 1) { error(`invalid expression ${postfix}`) }
+  return val.pop()
 }
