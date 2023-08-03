@@ -45,7 +45,6 @@ function evaluate(op, val, postfix = true) {
   }
   if (val.length < 2) { errro("fewer operands than required") }
   const b = Number(val.pop()), a = Number(val.pop())
-  // postfix ? val.push(op(a, b)) : val.push(op(b, a))
   val.push(postfix ? op(a, b) : op(b, a))
 }
 
