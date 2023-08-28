@@ -41,10 +41,10 @@ export class Stack {
   // O(1)
   pop() {
     if (this.#length === 0) { error("pop from empty stack") }
-    const value = this.top.data
+    const nd = this.top
     this.top = this.top.next
     --this.#length
-    return value
+    return nd.data
   }
 
   peek() {

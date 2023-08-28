@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest"
 import {
-  checkParens,
+  checkParens, MaxStack,
   infixToPostfix, postfixEvaluate, infixToPrefix, prefixEvaluate
 } from "./stack-problem.js"
 
@@ -80,5 +80,18 @@ describe("stack postfix evaluate", () => {
 describe("stack prefix evaluate", () => {
   test.each(arithExpr)("%# prefixEvaluate(%j) === %j", (infix, exp) => {
     expect(prefixEvaluate(infixToPrefix(infix))).toBe(exp)
+  })
+})
+
+describe("MaxStack", () => {
+  test.each([
+    [[5, 3, 1, 6, 2, 8], [8, 6, 6, 5, 5, 5]]
+  ])("%# push/max/pop", (arr, exp) => {
+    const stk = new MaxStack()
+    arr.forEach(el => stk.push(el))
+    const max = [], pop = []
+    while (stk.length > 0) { max.push(stk.max()); pop.push(stk.pop()) }
+    expect(max).toEqual(exp)
+    expect(pop).toEqual(arr.toReversed())
   })
 })

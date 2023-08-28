@@ -1,4 +1,5 @@
 import { error } from "./util.js"
+import { LNode } from "./list.js"
 import { Stack } from "./stack.js"
 
 // O(n) checks whether parens are balanced
@@ -117,4 +118,41 @@ export function prefixEvaluate(prefix) {
   }
   if (val.length !== 1) { error(`invalid expression ${postfix}`) }
   return val.pop()
+}
+
+// Max stack with constant time operations
+export class MaxStack {
+  #top = null
+  #length = 0
+  #maxStk = new Stack()
+
+  get length() { return this.#length }
+
+  // O(1)
+  push(data) {
+    const nd = new LNode(data)
+    nd.next = this.#top
+    this.#top = nd
+    ++this.#length
+    const maxData = this.#maxStk.length === 0 || this.#maxStk.peek() < data ?
+          data : this.#maxStk.peek()
+    this.#maxStk.push(maxData)
+    return this
+  }
+
+  // O(1)
+  pop() {
+    if (this.#length === 0) { error("pop from empty stack") }
+    const nd = this.#top
+    this.#top = this.#top.next
+    --this.#length
+    this.#maxStk.pop()
+    return nd.data
+  }
+
+  // O(1)
+  max() {
+    if (this.#length === 0) { error("max from empty stack") }
+    return this.#maxStk.peek()
+  }
 }
