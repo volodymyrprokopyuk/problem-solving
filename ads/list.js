@@ -46,10 +46,10 @@ export class List {
   // O(1)
   pop() {
     if (this.#length === 0) { error("pop from empty List") }
-    const value = this.head.data
+    const nd = this.head
     this.head = this.head.next
     --this.#length
-    return value
+    return nd.data
   }
 
   // O(1)
