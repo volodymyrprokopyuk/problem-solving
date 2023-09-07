@@ -2,7 +2,9 @@ import { inspect } from "util"
 import { error } from "./util.js"
 
 export class LNode {
-  data; prev = null; next = null
+  data
+  prev = null
+  next = null
 
   constructor(data) { this.data = data }
 }
@@ -32,9 +34,9 @@ export class List {
     return { next }
   }
 
-  [inspect.custom](path, opts) { return `List(${Array.from(this)})` }
+  [inspect.custom](path, opts) { return `List(${[...this]})` }
 
-  // O(1)
+  // O(1) pushes an element to a head
   push(data) {
     const nd = new LNode(data)
     nd.next = this.head
@@ -43,7 +45,7 @@ export class List {
     return this
   }
 
-  // O(1)
+  // O(1) pops an element from a head
   pop() {
     if (this.#length === 0) { error("pop from empty list") }
     const nd = this.head
@@ -52,22 +54,22 @@ export class List {
     return nd.data
   }
 
-  // O(1)
+  // O(1) peeks an element from a head
   peek() {
     if (this.#length === 0) { error("peek from empty list") }
     return this.head.data
   }
 
-  // O(n)
+  // O(n) returns a matching element or undefined
   get(data, eq = (a, b) => a === b) {
     let nd = this.head
     while (nd) {
-      if (eq(nd.data, data)) { return nd.data }
+      if (eq(nd.data, data)) { return nd }
       nd = nd.next
     }
   }
 
-  // O(n)
+  // O(n) deletes a matching element or undefined
   delete(data, eq = (a, b) => a === b) {
     let nd = this.head
     if (nd) {
@@ -88,7 +90,7 @@ export class List {
     }
   }
 
-  // O(n)
+  // O(n) reverses a list in place
   reverse() {
     let prev = null, curr = this.head, next
     while(curr) {
@@ -100,7 +102,8 @@ export class List {
   }
 }
 
-// // const lst = new List()
-// const lst = List.from([1, 2, 3, 4, 5])
+// const lst = List.from([1, 2, 3])
+// const nd = lst.get(2)
+// console.log(nd)
+// nd.data = 20
 // console.log(lst)
-// console.log(lst.delete(5))

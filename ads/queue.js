@@ -28,9 +28,9 @@ export class Queue {
     return { next }
   }
 
-  [inspect.custom]() { return `Queue(${Array.from(this)})` }
+  [inspect.custom]() { return `Queue(${[...this]})` }
 
-  // O(1)
+  // O(1) enqueues an element to a rear
   enq(data) {
     const nd = new LNode(data)
     if (this.#length === 0) { this.front = this.rear = nd }
@@ -39,7 +39,7 @@ export class Queue {
     return this
   }
 
-  // O(1)
+  // O(1) dequeues an element from a front
   deq() {
     if (this.#length === 0) { error("deq from empty queue") }
     const nd = this.front
@@ -49,7 +49,7 @@ export class Queue {
     return nd.data
   }
 
-  // O(1)
+  // O(1) peeks an element from a front
   peek() {
     if (this.#length === 0) { error("peek from empty queue") }
     return this.front.data
@@ -82,9 +82,9 @@ export class Deque {
     return { next }
   }
 
-  [inspect.custom]() { return `Deque(${Array.from(this)})` }
+  [inspect.custom]() { return `Deque(${[...this]})` }
 
-  // O(1)
+  // O(1) enqueues an element to a rear
   enq(data) {
     const nd = new LNode(data)
     if (this.#length === 0) { this.front = this.rear = nd }
@@ -93,7 +93,7 @@ export class Deque {
     return this
   }
 
-  // O(1)
+  // O(1) enqueues an element to a front
   enqFront(data) {
     const nd = new LNode(data)
     if (this.#length === 0) { this.front = this.rear = nd }
@@ -102,7 +102,7 @@ export class Deque {
     return this
   }
 
-  // O(1)
+  // O(1) dequeues an element from a front
   deq() {
     if (this.#length === 0) { error("deq from empty deque") }
     const nd = this.front
@@ -112,7 +112,7 @@ export class Deque {
     return nd.data
   }
 
-  // O(1)
+  // O(1) dequeues an element from a rear
   deqRear() {
     if (this.#length === 0) { error("deqRear from empty deque") }
     const nd = this.rear
@@ -122,13 +122,13 @@ export class Deque {
     return nd.data
   }
 
-  // O(1)
+  // O(1) peeks an element from a front
   peek() {
     if (this.#length === 0) { error("peek from empty deque") }
     return this.front.data
   }
 
-  // O(1)
+  // O(1) peeks an element from a rear
   peekRear() {
     if (this.#length === 0) { error("peekRear from empty deque") }
     return this.rear.data

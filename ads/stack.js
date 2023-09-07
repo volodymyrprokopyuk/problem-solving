@@ -27,9 +27,9 @@ export class Stack {
     return { next }
   }
 
-  [inspect.custom]() { return `Stack(${Array.from(this)})` }
+  [inspect.custom]() { return `Stack(${[...this]})` }
 
-  // O(1)
+  // O(1) pushes an element on a top
   push(data) {
     const nd = new LNode(data)
     nd.next = this.top
@@ -38,7 +38,7 @@ export class Stack {
     return this
   }
 
-  // O(1)
+  // O(1) pops an element from a top
   pop() {
     if (this.#length === 0) { error("pop from empty stack") }
     const nd = this.top
@@ -47,8 +47,9 @@ export class Stack {
     return nd.data
   }
 
+  // O(1) peeks an element from a top
   peek() {
-    if (this.#length === 0) { error("pop from empty stack") }
+    if (this.#length === 0) { error("peek from empty stack") }
     return this.top.data
   }
 }

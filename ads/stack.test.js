@@ -2,15 +2,14 @@ import { describe, test, expect } from "vitest"
 import { Stack } from "./stack.js"
 
 describe("Stack", () => {
-  test("push/pop/peek", () => {
-    const arr = [1, 2, 3]
-    const stk = Stack.from(arr)
-    const pop = []
-    while (stk.length > 0) { pop.push(stk.pop()) }
-    expect(pop).toEqual(arr.toReversed())
-    stk.push(4).push(5)
-    expect(stk.pop()).toBe(5)
-    expect(stk.peek()).toBe(4)
-    expect(stk.length).toBe(1)
+  test("Stack from/length/iterator/push/pop/peek", () => {
+    const stk = Stack.from([1, 2, 3])
+    expect([...stk]).toEqual([3, 2, 1])
+    expect(stk.length).toBe(3)
+    expect(stk.peek()).toBe(3)
+    expect(stk.pop()).toBe(3)
+    stk.pop(); stk.pop()
+    expect(() => stk.peek()).toThrowError("peek from empty stack")
+    expect(() => stk.pop()).toThrowError("pop from empty stack")
   })
 })

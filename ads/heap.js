@@ -25,9 +25,9 @@ export class Heap {
     return { next }
   }
 
-  [inspect.custom]() { return `Heap(${Array.from(this)})` }
+  [inspect.custom]() { return `Heap(${[...this]})` }
 
-  // O(log(n))
+  // O(log(n)) pushes an element to a heap
   push(data) {
     this.#arr.push(data)
     let i = this.#arr.length - 1
@@ -40,7 +40,7 @@ export class Heap {
     return this
   }
 
-  // O(log(n))
+  // O(log(n)) pops a max/min element from a heap
   pop() {
     if (this.#arr.length === 0) { error("pop from empty heap") }
     const data = this.#arr[0]
@@ -57,7 +57,7 @@ export class Heap {
     return data
   }
 
-  // O(1)
+  // O(1) peeks a max/min element from a heap
   peek() {
     if (this.#arr.length === 0) { error("peek from empty heap") }
     return this.#arr[0]
