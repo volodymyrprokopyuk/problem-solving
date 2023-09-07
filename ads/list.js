@@ -45,7 +45,7 @@ export class List {
 
   // O(1)
   pop() {
-    if (this.#length === 0) { error("pop from empty List") }
+    if (this.#length === 0) { error("pop from empty list") }
     const nd = this.head
     this.head = this.head.next
     --this.#length
@@ -54,38 +54,38 @@ export class List {
 
   // O(1)
   peek() {
-    if (this.#length === 0) { error("peek from empty List") }
+    if (this.#length === 0) { error("peek from empty list") }
     return this.head.data
   }
 
   // O(n)
-  has(data, eq = (a, b) => a === b) {
+  get(data, eq = (a, b) => a === b) {
     let nd = this.head
     while (nd) {
-      if (eq(nd.data, data)) { return true }
+      if (eq(nd.data, data)) { return nd.data }
       nd = nd.next
     }
-    return false
   }
 
   // O(n)
-  remove(data, eq = (a, b) => a === b) {
-    if (this.#length === 0) { error("remove from empty List") }
+  delete(data, eq = (a, b) => a === b) {
     let nd = this.head
-    if (eq(nd.data, data)) {
-      this.head = nd.next
-      --this.#length
-      return true
-    }
-    while (nd.next) {
-      if (eq(nd.next.data, data)) {
-        nd.next = nd.next.next
+    if (nd) {
+      if (eq(nd.data, data)) {
+        this.head = nd.next
         --this.#length
-        return true
+        return nd.data
       }
-      nd = nd.next
+      while (nd.next) {
+        if (eq(nd.next.data, data)) {
+          const data = nd.next.data
+          nd.next = nd.next.next
+          --this.#length
+          return data
+        }
+        nd = nd.next
+      }
     }
-    return false
   }
 
   // O(n)
@@ -99,3 +99,8 @@ export class List {
     this.head = prev
   }
 }
+
+// // const lst = new List()
+// const lst = List.from([1, 2, 3, 4, 5])
+// console.log(lst)
+// console.log(lst.delete(5))

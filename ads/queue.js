@@ -41,7 +41,7 @@ export class Queue {
 
   // O(1)
   deq() {
-    if (this.#length === 0) { error("dequeue from empty queue") }
+    if (this.#length === 0) { error("deq from empty queue") }
     const nd = this.front
     --this.#length
     if (this.#length === 0) { this.front = this.rear = null }

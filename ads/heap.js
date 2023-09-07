@@ -9,8 +9,6 @@ export class Heap {
 
   get length() { return this.#arr.length }
 
-  get arr() { return this.#arr }
-
   static from(it, cmp) {
     const heap = cmp ? new Heap(cmp) : new Heap()
     for (const el of it) { heap.push(el) }

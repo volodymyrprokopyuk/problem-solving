@@ -23,5 +23,20 @@ export function runningMedian(arr) {
   return arr.map(el => { add(el); rebalance(); return median() })
 }
 
-const arr = [2, 1, 5, 7, 2, 0, 5]
-console.log(runningMedian(arr))
+// TODO Daily, p. 109, Find most similar web sites. HTable
+
+// O(n*log(n)) generates the n first regular numbers
+export function regularNumbers(n) {
+  const minHeap = Heap.from([1], ((a, b) => a > b)), nums = []
+  let last = 0
+  while (nums.length < n) {
+    const num = minHeap.pop()
+    if (num > last) {
+      nums.push(num); last = num
+      minHeap.push(num * 2).push(num * 3).push(num * 5)
+    }
+  }
+  return nums
+}
+
+// TODO Daily, p. 113, Build a Huffman tree. HTable
