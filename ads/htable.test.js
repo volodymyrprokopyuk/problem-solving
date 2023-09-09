@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest"
-import { HTable } from "./htable.js"
+import { HTable, HSet } from "./htable.js"
 
 describe("HTable", () => {
   test("HTable from/length/iterator/set/get/delete", () => {
@@ -12,5 +12,27 @@ describe("HTable", () => {
     htb = HTable.from([], 7)
     for (const el of Array(20).keys()) { htb.set(el, el) }
     expect(htb.get(14)).toBe(14)
+  })
+})
+
+describe("HSet", () => {
+  test("HSet from/length/iterator/set/get/delete", () => {
+    const set = HSet.from([1, 2, 3, 4])
+    expect(set.length).toBe(4)
+    expect([...set]).toEqual([1, 2, 3, 4])
+    expect([set.get(1), set.get(4), set.get(9)])
+      .toEqual([true, true, undefined])
+    expect([set.delete(1), set.delete(4), set.delete(9)])
+      .toEqual([true, true, undefined])
+  })
+
+  test("HSet union/isect/diff/sdiff", () => {
+    const a = HSet.from([1, 2, 3, 4])
+    const b = HSet.from([3, 4, 5, 6])
+    expect([...a.union(b)]).toEqual([1, 2, 3, 4, 5, 6])
+    expect([...a.isect(b)]).toEqual([3, 4])
+    expect([...a.diff(b)]).toEqual([1, 2])
+    expect([...b.diff(a)]).toEqual([5, 6])
+    expect([...a.sdiff(b)]).toEqual([1, 2, 5, 6])
   })
 })
