@@ -2,9 +2,15 @@ import { describe, test, expect } from "vitest"
 import { HTable, HSet } from "./htable.js"
 
 describe("HTable", () => {
-  test("HTable from/length/iterator/set/get/delete", () => {
+  test("HTable from/length/iterator/equal/set/get/delete", () => {
     let htb = HTable.from([["a", 1], ["b", 2], ["c", 3], ["a", 10]])
     expect(htb.length).toBe(3)
+    const htb2 = HTable.from([["a", 10], ["b", 2], ["c", 3]])
+    expect(htb.equal(htb2)).toBe(true)
+    htb2.set("a", 9)
+    expect(htb.equal(htb2)).toBe(false)
+    htb2.delete("a")
+    expect(htb.equal(htb2)).toBe(false)
     expect([htb.get("a"), htb.get("b"), htb.get("c"), htb.get("x")])
       .toEqual([10, 2, 3, undefined])
     expect([htb.delete("a"), htb.delete("b"), htb.delete("c"), htb.delete("x")])

@@ -48,7 +48,16 @@ export class HTable {
   }
 
   [inspect.custom]() {
-    return `HTable(${[...this].map(([k, v]) => `${k}: ${v}`)})`
+    return `HTable(${[...this].map(([k, v]) => `${k}: ${v}`).join(", ")})`
+  }
+
+  // O(n) returns true if hash tables are equal
+  equal(htb) {
+    if (this.#length !== htb.length) { return false }
+    for (const [key, val] of htb) {
+      if (val !== this.get(key)) { return false }
+    }
+    return true
   }
 
   // O(1) sets or updates a key to a value

@@ -1,4 +1,6 @@
 import { Heap } from "./heap.js"
+import { HTable } from "./htable.js"
+import { TNode } from "./tree.js"
 
 // O(n*log(n)) incrementally computes a median of a stream of numbers
 export function runningMedian(arr) {
@@ -39,4 +41,22 @@ export function regularNumbers(n) {
   return nums
 }
 
-// TODO Daily, p. 113, Build a Huffman tree. HTable
+// O(n*log(n)) returns encoding for characters with a given occurence frequency
+export function huffmanEncode(freq) {
+  function encode(nd, code = "") {
+    if (!nd.left && !nd.right) { htb.set(nd.data[0], code); return }
+    encode(nd.left, code + "0"); encode(nd.right, code + "1")
+  }
+  const minHeap = Heap.from(
+    [...freq].map(el => new TNode(el)), (a, b) => a.data[1] > b.data[1]
+  )
+  while (minHeap.length > 1) {
+    const left = minHeap.pop(), right = minHeap.pop()
+    const nd = new TNode(["", left.data[1] + right.data[1]])
+    nd.left = left; nd.right = right
+    minHeap.push(nd)
+  }
+  const htb = new HTable()
+  encode(minHeap.peek())
+  return htb
+}
