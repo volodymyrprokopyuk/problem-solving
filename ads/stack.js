@@ -3,7 +3,7 @@ import { error } from "./util.js"
 import { LNode } from "./list.js"
 
 export class Stack {
-  top = null
+  #top = null
   #length = 0
 
   get length() { return this.#length }
@@ -15,7 +15,7 @@ export class Stack {
   }
 
   [Symbol.iterator]() {
-    let nd = this.top
+    let nd = this.#top
     const next = () => {
       if (nd) {
         const value = nd.data
@@ -32,8 +32,8 @@ export class Stack {
   // O(1) pushes an element on a top
   push(data) {
     const nd = new LNode(data)
-    nd.next = this.top
-    this.top = nd
+    nd.next = this.#top
+    this.#top = nd
     ++this.#length
     return this
   }
@@ -41,8 +41,8 @@ export class Stack {
   // O(1) pops an element from a top
   pop() {
     if (this.#length === 0) { error("pop from empty stack") }
-    const nd = this.top
-    this.top = this.top.next
+    const nd = this.#top
+    this.#top = this.#top.next
     --this.#length
     return nd.data
   }
@@ -50,6 +50,6 @@ export class Stack {
   // O(1) peeks an element from a top
   peek() {
     if (this.#length === 0) { error("peek from empty stack") }
-    return this.top.data
+    return this.#top.data
   }
 }
