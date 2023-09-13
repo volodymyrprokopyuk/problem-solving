@@ -93,12 +93,10 @@ export class HSet extends HTable {
   }
 
   [Symbol.iterator]() {
-    const it = super[Symbol.iterator]()
-    const next = () => {
-      const { value, done } = it.next()
-      return done ? { done } : { value: value[0], done }
+    function* keys(pairs) {
+      for (const [key, _] of pairs) { yield key }
     }
-    return { next }
+    return keys(super[Symbol.iterator]())
   }
 
   [inspect.custom]() { return `HSet(${[...this]})` }

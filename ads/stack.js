@@ -15,16 +15,10 @@ export class Stack {
   }
 
   [Symbol.iterator]() {
-    let nd = this.#top
-    const next = () => {
-      if (nd) {
-        const value = nd.data
-        nd = nd.next
-        return { value, done: false }
-      }
-      return { done: true }
+    function* values(nd) {
+      while (nd) { yield nd.data; nd = nd.next }
     }
-    return { next }
+    return values(this.#top)
   }
 
   [inspect.custom]() { return `Stack(${[...this]})` }

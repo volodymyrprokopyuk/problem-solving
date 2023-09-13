@@ -20,30 +20,16 @@ export class List {
     return lst
   }
 
-  [Symbol.iterator]() {
-    let nd = this.#head
-    const next = () => {
-      if (nd) {
-        const value = nd.data
-        nd = nd.next
-        return { value, done: false }
-      }
-      return { done: true }
-    }
-    return { next }
-  }
+  [Symbol.iterator]() { return this.nodes(true) }
 
-  get nodes() {
-    let nd = this.#head
-    const next = () => {
-      if (nd) {
-        const value = nd
+  nodes(value = false) {
+    function* nodes(nd) {
+      while (nd) {
+        yield value ? nd.data : nd
         nd = nd.next
-        return { value, done: false }
       }
-      return { done: true }
     }
-    return { [Symbol.iterator]() { return { next } } }
+    return nodes(this.#head)
   }
 
   [inspect.custom](path, opts) { return `List(${[...this]})` }
@@ -74,7 +60,7 @@ export class List {
 
   // O(n) returns a matching element or undefined
   get(data, eq = (a, b) => a === b) {
-    for (const nd of this.nodes) {
+    for (const nd of this.nodes()) {
       if (eq(data, nd.data)) { return nd }
     }
   }
@@ -124,43 +110,26 @@ export class DList {
     return lst
   }
 
-  [Symbol.iterator]() {
-    let nd = this.#head
-    const next = () => {
-      if (nd) {
-        const value = nd.data
+  [Symbol.iterator]() { return this.nodes(true) }
+
+  nodes(value = false) {
+    function* nodes(nd) {
+      while (nd) {
+        yield value ? nd.data : nd
         nd = nd.next
-        return { value, done: false }
       }
-      return { done: true }
     }
-    return { next }
+    return nodes(this.#head)
   }
 
-  get reverse() {
-    let nd = this.#tail
-    const next = () => {
-      if (nd) {
-        const value = nd.data
+  reverse(value = true) {
+    function* nodes(nd) {
+      while (nd) {
+        yield value ? nd.data : nd
         nd = nd.prev
-        return { value, done: false }
       }
-      return { done: true }
     }
-    return { [Symbol.iterator]() { return { next } } }
-  }
-
-  nodes(reverse = false) {
-    let nd = reverse ? this.#tail : this.#head
-    const next = () => {
-      if (nd) {
-        const value = nd
-        nd = reverse ? nd.prev : nd.next
-        return { value, done: false }
-      }
-      return { done: true }
-    }
-    return { [Symbol.iterator]() { return { next } } }
+    return nodes(this.#tail)
   }
 
   [inspect.custom]() { return `DList(${[...this]})` }
