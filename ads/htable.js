@@ -8,7 +8,7 @@ export class HTable {
 
   #hash(key) { return djb2(key) % this.#arr.length }
 
-  #cmp([k], key) { return k === key }
+  #cmp(key, [k, _]) { return key === k }
 
   #rehash() {
     const old = [...this]
@@ -22,33 +22,26 @@ export class HTable {
   get length() { return this.#length }
 
   static from(it, cap) {
-    const htb = cap ? new HTable(cap) : new HTable()
-    for (const [key, val] of it) { htb.set(key, val) }
+    const htb = new HTable(cap)
+    for (const el of it) {
+      Array.isArray(el) ? htb.set(el[0], el[1]) : htb.set(el, el)
+    }
     return htb
   }
 
   [Symbol.iterator]() {
-    const node = () => {
-      const value = nd.data
-      nd = nd.next
-      return { value, done: false }
-    }
-    let i = -1, nd = null
-    const next = () => {
-      if (nd) { return node() }
-      while (++i < this.#arr.length &&
-             (!this.#arr[i] || this.#arr[i].length === 0));
-      if (i < this.#arr.length) {
-        nd = this.#arr[i].head
-        if (nd) { return node() }
+    function* pairs(arr) {
+      for (const lst of arr) {
+        if (lst) {
+          for (const kv of lst) { yield kv }
+        }
       }
-      return { done: true }
     }
-    return { next }
+    return pairs(this.#arr)
   }
 
   [inspect.custom]() {
-    return `HTable(${[...this].map(([k, v]) => `${k}: ${v}`).join(", ")})`
+    return `HTable(${[...this].map(kv => kv.join(": ")).join(", ")})`
   }
 
   // O(n) returns true if hash tables are equal
@@ -94,7 +87,7 @@ export class HTable {
 
 export class HSet extends HTable {
   static from (it, cap) {
-    const set = cap ? new HSet(cap) : new HSet()
+    const set = new HSet(cap)
     for (const el of it) { set.set(el) }
     return set
   }
@@ -109,6 +102,18 @@ export class HSet extends HTable {
   }
 
   [inspect.custom]() { return `HSet(${[...this]})` }
+
+  subset(set) {
+    for (const el of this) {
+      if (!set.get(el)) { return false }
+    }
+    return true
+  }
+
+  equal(set) {
+    if (this.length !== set.length) { return false }
+    return this.subset(set)
+  }
 
   // O(1) adds an element to a set
   set(key) { return super.set(key, true) }
