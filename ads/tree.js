@@ -16,6 +16,8 @@ export class BSTree {
 
   get length() { return this.#length }
 
+  get root() { return this.#root }
+
   static from(it, cmp) {
     const bst = new BSTree(cmp)
     for (const el of it) {
@@ -101,9 +103,20 @@ export class BSTree {
     this.#root = del(this.#root, key)
     return dnd
   }
-}
 
-// const bst = BSTree.from([19, 16, 24, 17, 20, 11, 28, 12, 27])
-// console.log(bst);
-// console.log(bst.delete(19))
-// console.log(bst);
+  // O(log(n)) returns a minimum of a tree
+  min() {
+    if (this.#length === 0) { error("min from empty BSTree") }
+    let nd = this.#root
+    while (nd.left) { nd = nd.left }
+    return nd
+  }
+
+  // O(log(n)) returns a maximum of a tree
+  max() {
+    if (this.#length === 0) { error("max from empty BSTree") }
+    let nd = this.#root
+    while (nd.right) { nd = nd.right }
+    return nd
+  }
+}
