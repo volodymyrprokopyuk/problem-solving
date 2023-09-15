@@ -1,3 +1,5 @@
+import { inspect } from "util"
+
 export class TNode {
   key; data
   left = null; right = null
@@ -17,7 +19,7 @@ export class BSTree {
   static from(it, cmp) {
     const bst = new BSTree(cmp)
     for (const el of it) {
-      Array.isArray(el) ? bst.set(el[0], el[1]) : bst.set(el)
+      Array.isArray(el) ? bst.set(el[0], el[1]) : bst.set(el, el)
     }
     return bst
   }
@@ -33,20 +35,24 @@ export class BSTree {
     return inOrder(this.#root)
   }
 
-  // O(log(n)) inserts an element into a tree
+  [inspect.custom]() {
+    const keyData = ({ key, data }) => `${key}: ${data}`
+    return `BSTree(${[...this].map(keyData).join(", ")})`
+  }
+
+  // O(log(n)) inserts a node into a tree
   set(key, data) {
-    const set = nd => {
-      if (key === nd.key) { nd.data = data }
-      else if (this.#cmp(key, nd.key)) {
-        if (nd.left) { set(nd.left) }
-        else { nd.left = new TNode(key, data); ++this.#length }
-      } else {
-        if (nd.right) { set(nd.right) }
-        else { nd.right = new TNode(key, data); ++this.#length }
-      }
+    const newNode = () => {
+      ++this.#length; return new TNode(key, data)
     }
-    if (this.#root) { set(this.#root) }
-    else { this.#root = new TNode(key, data); ++this.#length }
+    const set = nd => {
+      if (!nd) { return newNode() } // insert
+      key === nd.key ? nd.data = data : // update
+        this.#cmp(key, nd.key) ? // binary search
+        nd.left = set(nd.left) : nd.right = set(nd.right)
+      return nd
+    }
+    this.#root = set(this.#root)
     return this
   }
 
@@ -54,15 +60,50 @@ export class BSTree {
   get(key) {
     const get = nd => {
       if (nd) {
-        return key === nd.key ? nd :
+        return key === nd.key ? nd : // binary search
           this.#cmp(key, nd.key) ? get(nd.left) : get(nd.right)
       }
     }
     return get(this.#root)
   }
+
+  // O(log(n)) deletes a matching node
+  delete(key) {
+    const pred = nd => {
+      while (nd.right) { nd = nd.right }; return nd
+    }
+    const succ = nd => {
+      while (nd.left) { nd = nd.left }; return nd
+    }
+    const deleted = nd => dnd || { key: nd.key, data: nd.data }
+    const del = (nd, key) => {
+      if (nd) {
+        if (key === nd.key) {
+          // At most one child
+          if (!nd.left) { dnd = deleted(nd); --this.#length; return nd.right }
+          if (!nd.right) { dnd = deleted(nd); --this.#length; return nd.left }
+          // Two children
+          dnd = deleted(nd)
+          const { key, data } = pred(nd.left)
+          nd.key = key; nd.data = data
+          nd.left = del(nd.left, key)
+          // const { key, data } = succ(nd.right)
+          // nd.key = key; nd.data = data
+          // nd.right = del(nd.right, key)
+        } else {
+          this.#cmp(key, nd.key) ? // binary search
+            nd.left = del(nd.left, key) : nd.right = del(nd.right, key)
+        }
+      }
+      return nd
+    }
+    let dnd
+    this.#root = del(this.#root, key)
+    return dnd
+  }
 }
 
-// const bst = BSTree.from([7, 3, 11, 5, 1, 10, 14, 1])
-const bst = BSTree.from([[7, "s"], [3, "t"], [11, "e"], [5, "f"], [11, "E"]])
-// [7, 3, 11, 5, -1].forEach(el => console.log(bst.get(el)?.key))
-console.log([...bst].map(el => [el.key, el.data]))
+// const bst = BSTree.from([19, 16, 24, 17, 20, 11, 28, 12, 27])
+// console.log(bst);
+// console.log(bst.delete(19))
+// console.log(bst);

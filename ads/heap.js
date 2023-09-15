@@ -25,7 +25,8 @@ export class Heap {
   }
 
   [inspect.custom]() {
-    return `Heap(${[...this].map(el => el.join(": ")).join(", ")})`
+    const keyData = el => el.join(": ")
+    return `Heap(${[...this].map(keyData).join(", ")})`
   }
 
   // O(log(n)) pushes an element to a heap
