@@ -1,6 +1,14 @@
 import { inspect } from "util"
-import { djb2 } from "./util.js"
 import { List } from "./list.js"
+
+// O(n) non-cryptographic hash function
+export function djb2(str) {
+  let hash = 5381
+  for (const ch of String(str)) {
+    hash = hash * 33 + ch.charCodeAt(0)
+  }
+  return hash
+}
 
 export class HTable {
   #arr

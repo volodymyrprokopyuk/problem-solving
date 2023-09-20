@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest"
-import { matrix } from "./util.js"
+import { matrix } from "./array.js"
 import {
   pascalTriangle, pascalTriangle2,
   mxAdd, mxKMul, mxMul, mxTrans, mxFillDiag, mxDiags,

@@ -1,4 +1,12 @@
-import { arrSwap } from "./util.js"
+// O(m*n) creates an mxn matrix optionally filled with v
+export function matrix(m, n = m, v) {
+  return Array(m).fill().map(_ => Array(n).fill(v))
+}
+
+// O(1) swaps in-place two array elements
+export function swap(arr, i, j) {
+  [arr[i], arr[j]] = [arr[j], arr[i]]
+}
 
 // O(m+n) merges two sorted arrays
 export function merge(a, b) {
@@ -19,8 +27,8 @@ export function hoarePartition(arr, l = 0, r = arr.length - 1) {
   while (true) {
     while (arr[l] <= arr[p]) { ++l }
     while (arr[p] < arr[r]) { --r }
-    if (l < r) { arrSwap(arr, l, r); ++l; --r }
-    else { arrSwap(arr, p, r); return r }
+    if (l < r) { swap(arr, l, r); ++l; --r }
+    else { swap(arr, p, r); return r }
   }
 }
 
@@ -29,9 +37,9 @@ export function lomutoPartition(arr, l = 0, r = arr.length - 1) {
   if (r < 0) { return }
   let i = l // pivot = last
   for (let j = l; j < r; ++j) {
-    if (arr[j] <= arr[r]) { arrSwap(arr, i++, j) }
+    if (arr[j] <= arr[r]) { swap(arr, i++, j) }
   }
-  arrSwap(arr, i, r)
+  swap(arr, i, r)
   return i
 }
 
@@ -46,18 +54,18 @@ export function quickSelect(arr, k, l = 0, r = arr.length - 1) {
 
 // O(2^n) bottom-up, iterative
 export function powerset(arr) {
-  const ps = [[]]
+  const set = [[]]
   for (const el of arr) {
-    for (let i = 0, len = ps.length; i < len; ++i) {
-      ps.push([...ps[i], el])
+    for (let i = 0, len = set.length; i < len; ++i) {
+      set.push([...set[i], el])
     }
   }
-  return ps
+  return set
 }
 
 // O(2^n) top-down, recursive
 export function powerset2([h, ...tl]) {
   if (!h) { return [[]] }
-  const ps = powerset2(tl)
-  return [...ps, ...ps.map(p => [h, ...p])]
+  const set = powerset2(tl)
+  return [...set, ...set.map(s => [h, ...s])]
 }

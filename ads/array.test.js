@@ -1,9 +1,15 @@
 import { describe, test, expect } from "vitest"
 import {
-  merge,
-  hoarePartition, lomutoPartition, quickSelect,
+  matrix, merge, hoarePartition, lomutoPartition, quickSelect,
   powerset, powerset2
 } from "./array.js"
+
+describe("matrix", () => {
+  test("matrix", () => {
+    const mat = matrix(2, 3, 9)
+    expect(mat[1][2]).toBe(9)
+  })
+})
 
 describe("array merge", () => {
   test.each([
