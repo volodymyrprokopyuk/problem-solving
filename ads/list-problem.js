@@ -21,17 +21,12 @@ export function addNumbers(a, b) {
 export function rearrangeLowHigh(lst) {
   const le = (a, b) => a < b, gt = (a, b) => a > b
   let curr = lst.head, cmp = le, i = 0
-  while(curr?.next) {
-    const next = curr.next
-    if (!cmp(curr.data, next.data)) {
-      [curr.data, next.data] = [next.data, curr.data]
+  for (const nd of lst.nodes()) {
+    if (!nd.next) { break }
+    const next = nd.next
+    if (!cmp(nd.data, next.data)) {
+      [nd.data, next.data] = [next.data, nd.data]
     }
     cmp = ++i % 2 === 1 ? gt : le
-    curr = curr.next
   }
 }
-
-const lst = List.from([5, 4, 3, 2, 1])
-console.log(lst)
-rearrangeLowHigh(lst)
-console.log(lst)

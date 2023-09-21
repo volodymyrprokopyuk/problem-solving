@@ -1,5 +1,6 @@
 import { inspect } from "util"
-import { error, arrSwap } from "./util.js"
+import { error } from "./util.js"
+import { swap } from "./array.js"
 
 export class Heap {
   #arr = []
@@ -11,9 +12,7 @@ export class Heap {
 
   static from(it, cmp) {
     const heap = new Heap(cmp)
-    for (const el of it) {
-      Array.isArray(el) ? heap.push(el[0], el[1]) : heap.push(el, el)
-    }
+    for (const el of it) { heap.push(el) }
     return heap
   }
 
@@ -24,19 +23,16 @@ export class Heap {
     return elements(this)
   }
 
-  [inspect.custom]() {
-    const keyData = el => el.join(": ")
-    return `Heap(${[...this].map(keyData).join(", ")})`
-  }
+  [inspect.custom]() { return `Heap(${[...this].join(", ")})` }
 
   // O(log(n)) pushes an element to a heap
-  push(key, data) {
-    this.#arr.push([key, data])
+  push(data) {
+    this.#arr.push(data)
     let i = this.#arr.length - 1
     while (i > 0) {
       const par = Math.floor((i - 1) / 2)
-      if (this.#cmp(this.#arr[i][0], this.#arr[par][0])) { break }
-      arrSwap(this.#arr, i, par)
+      if (this.#cmp(this.#arr[i], this.#arr[par])) { break }
+      swap(this.#arr, i, par)
       i = par
     }
     return this
@@ -51,9 +47,9 @@ export class Heap {
     let par = 0, ch1 = par * 2 + 1, ch2 = ch1 + 1
     while (ch1 < this.#arr.length) {
       const i = this.#arr[ch2] &&
-            this.#cmp(this.#arr[ch1][0], this.#arr[ch2][0]) ? ch2 : ch1
-      if (this.#cmp(this.#arr[i][0], this.#arr[par][0])) { break }
-      arrSwap(this.#arr, i, par)
+            this.#cmp(this.#arr[ch1], this.#arr[ch2]) ? ch2 : ch1
+      if (this.#cmp(this.#arr[i], this.#arr[par])) { break }
+      swap(this.#arr, i, par)
       par = i; ch1 = par * 2 + 1; ch2 = ch1 + 1
     }
     return el

@@ -23,6 +23,7 @@ describe("DList", () => {
     let lst = DList.from([1, 2, 3, 4])
     expect(lst.length).toBe(4)
     expect([...lst.reverse()]).toEqual([4, 3, 2, 1])
+    expect([...lst.reverse(false)].map(nd => nd.data)).toEqual([4, 3, 2, 1])
     expect([...lst.nodes()].map(nd => nd.data)).toEqual([1, 2, 3, 4])
     lst.push(0)
     expect([lst.peek(), lst.pop()]).toEqual([0, 0])
