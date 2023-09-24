@@ -1,5 +1,5 @@
 import { Heap } from "./heap.js"
-import { HTable } from "./htable.js"
+import { HTable, HSet } from "./htable.js"
 import { TNode } from "./tree.js"
 
 // O(n*log(n)) incrementally computes a median of a stream of numbers
@@ -25,7 +25,34 @@ export function runningMedian(arr) {
   return arr.map(el => { add(el); rebalance(); return median() })
 }
 
-// TODO Daily, p. 109, Find most similar web sites. HTable
+// O(n^2*m) returns the top k most similar sited based on an access log
+export function topSimilarSites(k, accessLog) {
+  function similarity(site1, site2) {
+    const siteVis1 = visitors.get(site1), siteVis2 = visitors.get(site2)
+    return siteVis1.isect(siteVis2).length / siteVis1.union(siteVis2).length
+  }
+  const visitors = new HTable()
+  for (const [site, user] of accessLog) {
+    let siteVis = visitors.get(site)
+    if (siteVis) { siteVis.set(user) }
+    else {
+      siteVis = new HSet(); siteVis.set(user); visitors.set(site, siteVis)
+    }
+  }
+  const maxHeap = new Heap((a, b) => a.sim < b.sim)
+  const sitePairs = new HSet()
+  for (const [site1, _] of visitors) {
+    for (const [site2, _] of visitors) {
+      if (site1 !== site2 && !sitePairs.get(site2 + site1)) {
+        sitePairs.set(site1 + site2)
+        maxHeap.push({ sim: similarity(site1, site2), pair: [site1, site2] })
+      }
+    }
+  }
+  const topSites = []
+  while (maxHeap.length > 0 && k-- > 0) { topSites.push(maxHeap.pop()) }
+  return topSites
+}
 
 // O(n*log(n)) generates the n first regular numbers
 export function regularNumbers(n) {
