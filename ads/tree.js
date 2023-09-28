@@ -26,16 +26,7 @@ export class BSTree {
     return bst
   }
 
-  [Symbol.iterator]() {
-    function* inOrder(nd) {
-      if (nd) {
-        yield* inOrder(nd.left)
-        yield nd
-        yield* inOrder(nd.right)
-      }
-    }
-    return inOrder(this.#root)
-  }
+  [Symbol.iterator]() { return inOrder(this.#root) }
 
   [inspect.custom]() {
     const keyData = ({ key, data }) => `${key}: ${data}`
@@ -118,5 +109,32 @@ export class BSTree {
     let nd = this.#root
     while (nd.right) { nd = nd.right }
     return nd
+  }
+}
+
+// returns an in-order iterator starting from a node
+export function* inOrder(nd, key = false) {
+  if (nd) {
+    yield* inOrder(nd.left, key)
+    yield key ? nd.key : nd
+    yield* inOrder(nd.right, key)
+  }
+}
+
+// returns an pre-order iterator starting from a node
+export function* preOrder(nd, key = false) {
+  if (nd) {
+    yield key ? nd.key : nd
+    yield* preOrder(nd.left, key)
+    yield* preOrder(nd.right, key)
+  }
+}
+
+// returns an post-order iterator starting from a node
+export function* postOrder(nd, key = false) {
+  if (nd) {
+    yield* postOrder(nd.left, key)
+    yield* postOrder(nd.right, key)
+    yield key ? nd.key : nd
   }
 }
