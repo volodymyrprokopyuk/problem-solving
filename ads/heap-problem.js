@@ -80,7 +80,6 @@ export function huffmanEncode(freq) {
   )
   while (minHeap.length > 1) {
     const left = minHeap.pop(), right = minHeap.pop()
-    console.log(left, right)
     const nd = new TNode(left.key + right.key, "")
     nd.left = left; nd.right = right
     minHeap.push(nd)

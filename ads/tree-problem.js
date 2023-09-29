@@ -1,4 +1,5 @@
 import { error } from "./util.js"
+import { permutations } from "./array.js"
 import { TNode, BSTree, inOrder, preOrder } from "./tree.js"
 
 // O(n) return a height of a tree
@@ -91,39 +92,11 @@ export function floorCeiling(bst, n) {
   return fc(bst.root)
 }
 
-// const bst = BSTree.from([19, 16, 24, 17, 20, 11, 28, 12, 27, 13])
-// console.log(floorCeiling(bst, 18))
-// console.log([...inOrder(bst.root, true)])
-
-// const n1 = new TNode(7), n2 = new TNode(2), n3 = new TNode(3),
-//       n4 = new TNode(1), n5 = new TNode(1), n6 = new TNode(3),
-//       n7 = new TNode(2), n8 = new TNode(4)
-// n1.left = n2; n1.right = n3
-// n3.left = n4; n3.right = n5
-// n4.left = n6; n4.right = n7
-// n5.right = n8;
-// console.log(minLevelSum(n1))
-
-// const n1 = new TNode("*"), n2 = new TNode("+"), n3 = new TNode("-"),
-//       n4 = new TNode(1), n5 = new TNode(2), n6 = new TNode(7),
-//       n7 = new TNode(3)
-// n1.left = n2, n1.right = n3
-// n2.left = n4, n2.right = n5
-// n3.left = n6, n3.right = n7
-// console.log([...inOrder(n1, true)])
-// console.log(evalInfix(n1))
-
-// const pre = ["a", "b", "d", "e", "i", "c", "f", "h", "g"],
-//       ino = ["d", "b", "e", "i", "a", "h", "f", "c", "g"]
-// const tree = recPre(pre, ino)
-// console.log([...preOrder(tree, true)], [...inOrder(tree, true)])
-
-// const n1 = new TNode(0), n2 = new TNode(1), n3 = new TNode(0),
-//       n4 = new TNode(1), n5 = new TNode(0), n6 = new TNode(1),
-//       n7 = new TNode(1), n8 = new TNode(0)
-// n1.left = n2; n1.right = n3
-// n3.left = n4; n3.right = n5
-// n4.left = n6; n4.right = n7
-// n5.right = n8;
-// console.log(univalCount(n1))
-// console.log(univalCount2(n1))
+// O(n) builds a balanced tree from a sorted array
+export function fromSorted(arr, bst = new BSTree()) {
+  if (arr.length === 0) { return bst }
+  const m = Math.floor(arr.length / 2)
+  bst.set(arr[m])
+  fromSorted(arr.slice(0, m), bst); fromSorted(arr.slice(m + 1), bst)
+  return bst
+}

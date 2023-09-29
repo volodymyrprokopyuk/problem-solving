@@ -2,7 +2,7 @@ import { describe, test, expect } from "vitest"
 import { TNode, BSTree, inOrder, preOrder } from "./tree.js"
 import {
   height, nodes, internalNodes, externalNodes, univalCount, univalCount2,
-  recPre, evalInfix, minLevelSum, floorCeiling
+  recPre, evalInfix, minLevelSum, floorCeiling, fromSorted
 } from "./tree-problem.js"
 
 describe("BSTree algorithms", () => {
@@ -80,5 +80,14 @@ describe("floorCeiling", () => {
     [19, [19, 19]], [18, [17, 19]], [15, [13, 16]], [21, [20, 24]]
   ])("floorCeiling(%j) === %j", (n, exp) => {
     expect(floorCeiling(bst, n)).toEqual(exp)
+  })
+})
+
+describe("fromSorted", () => {
+  test("fromSorted", () => {
+    const arr = [1, 2, 3, 4, 5, 6, 7, 8]
+    const bst = BSTree.from(arr), bst2 = fromSorted(arr)
+    expect(height(bst.root)).toBe(8)
+    expect(height(bst2.root)).toBe(4)
   })
 })

@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest"
 import {
   matrix, merge, hoarePartition, lomutoPartition, quickSelect,
-  powerset, powerset2
+  permutations, permutations2, powerset, powerset2
 } from "./array.js"
 
 describe("matrix", () => {
@@ -66,7 +66,20 @@ describe("quick select", () => {
   })
 })
 
-describe("powerset", (arr, exp) => {
+describe("permutations", () => {
+  const arr = ["a", "b", "c"], exp = [
+    [ "a", "b", "c" ],
+    [ "a", "c", "b" ],
+    [ "b", "a", "c" ],
+    [ "b", "c", "a" ],
+    [ "c", "a", "b" ],
+    [ "c", "b", "a" ]
+  ]
+  test("permutations", () => { expect(permutations(arr)).toEqual(exp) })
+  test("permutations2", () => { expect(permutations2(arr)).toEqual(exp) })
+})
+
+describe("powerset", () => {
   test.each([
     ["abc", ["", "a", "b", "ab", "c", "ac", "bc", "abc"]]
   ])("%# powerset(%j) === %j", (arr, exp) => {

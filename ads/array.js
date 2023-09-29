@@ -52,6 +52,24 @@ export function quickSelect(arr, k, l = 0, r = arr.length - 1) {
     p > k ? quickSelect(arr, k, l, p - 1) : p
 }
 
+// O(n!) returns all permunations of an array
+export function permutations(arr) {
+  if (arr.length === 0) { return [[]] }
+  const perms = []
+  for (const el of arr) {
+    const ps = permutations(arr.filter(e => e !== el))
+    for (const p of ps) { perms.push([el, ...p]) }
+  }
+  return perms
+}
+
+// O(n!) returns all permunations of an array
+export function permutations2(arr) {
+  if (arr.length === 0) { return [[]] }
+  return arr.flatMap(el =>
+    permutations2(arr.filter(e => e !== el)).map(p => [el, ...p]))
+}
+
 // O(2^n) bottom-up, iterative
 export function powerset(arr) {
   const set = [[]]
