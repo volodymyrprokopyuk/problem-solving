@@ -71,7 +71,7 @@ export function regularNumbers(n) {
 // O(n*log(n)) returns encoding for characters with a given occurence frequency
 export function huffmanEncode(freq) {
   function encode(nd, code = "") {
-    if (!nd.left && !nd.right) { htb.set(nd.data, code); return }
+    if (!nd.left && !nd.right) { htb.set(nd.value, code); return }
     encode(nd.left, code + "0"); encode(nd.right, code + "1")
   }
   const minHeap = Heap.from(

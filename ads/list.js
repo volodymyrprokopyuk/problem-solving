@@ -2,10 +2,10 @@ import { inspect } from "util"
 import { error } from "./util.js"
 
 export class LNode {
-  data
+  value
   prev = null; next = null
 
-  constructor(data) { this.data = data }
+  constructor(value) { this.value = value }
 }
 
 export class List {
@@ -20,23 +20,27 @@ export class List {
     return lst
   }
 
-  [Symbol.iterator]() { return this.nodes(true) }
+  [Symbol.iterator]() { return this.values() }
 
-  nodes(value = false) {
-    function* nodes(nd) {
-      while (nd) {
-        yield value ? nd.data : nd
-        nd = nd.next
-      }
+  entries() {
+    function* entries(nd) {
+      while (nd) { yield nd; nd = nd.next }
     }
-    return nodes(this.#head)
+    return entries(this.#head)
   }
 
-  [inspect.custom](path, opts) { return `List(${[...this]})` }
+  values() {
+    function* values(nd) {
+      while (nd) { yield nd.value; nd = nd.next }
+    }
+    return values(this.#head)
+  }
+
+  [inspect.custom](path, opts) { return `List(${[...this].join(", ")})` }
 
   // O(1) pushes an element to a head
-  push(data) {
-    const nd = new LNode(data)
+  push(value) {
+    const nd = new LNode(value)
     nd.next = this.#head
     this.#head = nd
     ++this.#length
@@ -49,40 +53,40 @@ export class List {
     const nd = this.#head
     this.#head = this.#head.next
     --this.#length
-    return nd.data
+    return nd.value
   }
 
   // O(1) peeks an element from a head
   peek() {
     if (this.#length === 0) { error("peek from empty list") }
-    return this.#head.data
-  }
-
-  // O(n) returns a matching element or undefined
-  get(data, eq = (a, b) => a === b) {
-    for (const nd of this.nodes()) {
-      if (eq(data, nd.data)) { return nd }
-    }
+    return this.#head.value
   }
 
   // O(n) deletes a matching element or undefined
-  delete(data, eq = (a, b) => a === b) {
+  delete(value, eq = (a, b) => a === b) {
     let nd = this.#head
     if (nd) {
-      if (eq(data, nd.data)) {
+      if (eq(value, nd.value)) {
         this.#head = nd.next
         --this.#length
-        return nd.data
+        return nd.value
       }
       while (nd.next) {
-        if (eq(data, nd.next.data)) {
-          const data = nd.next.data
+        if (eq(value, nd.next.value)) {
+          const value = nd.next.value
           nd.next = nd.next.next
           --this.#length
-          return data
+          return value
         }
         nd = nd.next
       }
+    }
+  }
+
+  // O(n) returns a matching element or undefined
+  get(value, eq = (a, b) => a === b) {
+    for (const nd of this.entries()) {
+      if (eq(value, nd.value)) { return nd }
     }
   }
 
@@ -110,33 +114,27 @@ export class DList {
     return lst
   }
 
-  [Symbol.iterator]() { return this.nodes(true) }
+  [Symbol.iterator]() { return this.values() }
 
-  nodes(value = false) {
-    function* nodes(nd) {
-      while (nd) {
-        yield value ? nd.data : nd
-        nd = nd.next
-      }
+  entries(reverse = false) {
+    function* entries(nd) {
+      while (nd) { yield nd; nd = reverse ? nd.prev : nd.next }
     }
-    return nodes(this.#head)
+    return entries(reverse ? this.#tail : this.#head)
   }
 
-  reverse(value = true) {
-    function* nodes(nd) {
-      while (nd) {
-        yield value ? nd.data : nd
-        nd = nd.prev
-      }
+  values(reverse = false) {
+    function* values(nd) {
+      while (nd) { yield nd.value; nd = reverse ? nd.prev : nd.next }
     }
-    return nodes(this.#tail)
+    return values(reverse ? this.#tail : this.#head)
   }
 
-  [inspect.custom]() { return `DList(${[...this]})` }
+  [inspect.custom]() { return `DList(${[...this].join(", ")})` }
 
   // O(1) pushes an element to a head
-  push(data) {
-    const nd = new LNode(data)
+  push(value) {
+    const nd = new LNode(value)
     if (this.#length === 0) { this.#head = this.#tail = nd }
     else { nd.next = this.#head; this.#head = this.#head.prev = nd }
     ++this.#length
@@ -144,8 +142,8 @@ export class DList {
   }
 
   // O(1) pushes an element to a tail
-  pushTail(data) {
-    const nd = new LNode(data)
+  pushTail(value) {
+    const nd = new LNode(value)
     if (this.#length === 0) { this.#head = this.#tail = nd }
     else { nd.prev = this.#tail; this.#tail = this.#tail.next = nd }
     ++this.#length
@@ -159,7 +157,7 @@ export class DList {
     --this.#length
     if (this.#length === 0) { this.#head = this.#tail = null }
     else { this.#head = this.#head.next; this.#head.prev = null }
-    return nd.data
+    return nd.value
   }
 
   // O(1) pops an element from a tail
@@ -169,31 +167,24 @@ export class DList {
     --this.#length
     if (this.length === 0) { this.#head = this.#tail = null }
     else { this.#tail = this.#tail.prev; this.#tail.next = null }
-    return nd.data
+    return nd.value
   }
 
   // O(1) peeks an element from a head
   peek() {
     if (this.#length === 0) { error("peek from empty dlist") }
-    return this.#head.data
+    return this.#head.value
   }
 
   // O(1) peeks an element from a tail
   peekTail() {
     if (this.#length === 0) { error("peekTail from empty dlist") }
-    return this.#tail.data
-  }
-
-  // O(n) returns a matching element or undefined
-  get(data, eq = (a, b) => a === b) {
-    for (const nd of this.nodes()) {
-      if (eq(data, nd.data)) { return nd }
-    }
+    return this.#tail.value
   }
 
   // O(1) inserts an element after a node
-  insert(node, data) {
-    const nd = new LNode(data), next = node.next
+  insert(node, value) {
+    const nd = new LNode(value), next = node.next
     node.next = nd; nd.prev = node
     if (next) { nd.next = next; next.prev = nd }
     else { this.#tail = nd }
@@ -209,5 +200,12 @@ export class DList {
     } else if (node === this.#tail) {
       this.#tail = this.#tail.prev; this.#tail.next = null
     } else { node.prev.next = node.next; node.next.prev = node.prev }
+  }
+
+  // O(n) returns a matching element or undefined
+  get(value, eq = (a, b) => a === b) {
+    for (const nd of this.entries()) {
+      if (eq(value, nd.value)) { return nd }
+    }
   }
 }

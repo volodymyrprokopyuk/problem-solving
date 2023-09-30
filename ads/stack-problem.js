@@ -129,14 +129,14 @@ export class MaxStack {
   get length() { return this.#length }
 
   // O(1)
-  push(data) {
-    const nd = new LNode(data)
+  push(value) {
+    const nd = new LNode(value)
     nd.next = this.#top
     this.#top = nd
     ++this.#length
-    const maxData = this.#maxStk.length === 0 || this.#maxStk.peek() < data ?
-          data : this.#maxStk.peek()
-    this.#maxStk.push(maxData)
+    const maxValue = this.#maxStk.length === 0 || this.#maxStk.peek() < value ?
+          value : this.#maxStk.peek()
+    this.#maxStk.push(maxValue)
     return this
   }
 
@@ -147,7 +147,7 @@ export class MaxStack {
     this.#top = this.#top.next
     --this.#length
     this.#maxStk.pop()
-    return nd.data
+    return nd.value
   }
 
   // O(1)

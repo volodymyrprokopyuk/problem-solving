@@ -21,11 +21,11 @@ export function addNumbers(a, b) {
 export function rearrangeLowHigh(lst) {
   const le = (a, b) => a < b, gt = (a, b) => a > b
   let curr = lst.head, cmp = le, i = 0
-  for (const nd of lst.nodes()) {
+  for (const nd of lst.entries()) {
     if (!nd.next) { break }
     const next = nd.next
-    if (!cmp(nd.data, next.data)) {
-      [nd.data, next.data] = [next.data, nd.data]
+    if (!cmp(nd.value, next.value)) {
+      [nd.value, next.value] = [next.value, nd.value]
     }
     cmp = ++i % 2 === 1 ? gt : le
   }

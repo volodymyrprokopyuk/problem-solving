@@ -14,18 +14,20 @@ export class Stack {
     return stk
   }
 
-  [Symbol.iterator]() {
+  [Symbol.iterator]() { return this.values() }
+
+  values() {
     function* values(nd) {
-      while (nd) { yield nd.data; nd = nd.next }
+      while (nd) { yield nd.value; nd = nd.next }
     }
     return values(this.#top)
   }
 
-  [inspect.custom]() { return `Stack(${[...this]})` }
+  [inspect.custom]() { return `Stack(${[...this].join(", ")})` }
 
   // O(1) pushes an element on a top
-  push(data) {
-    const nd = new LNode(data)
+  push(value) {
+    const nd = new LNode(value)
     nd.next = this.#top
     this.#top = nd
     ++this.#length
@@ -38,12 +40,12 @@ export class Stack {
     const nd = this.#top
     this.#top = this.#top.next
     --this.#length
-    return nd.data
+    return nd.value
   }
 
   // O(1) peeks an element from a top
   peek() {
     if (this.#length === 0) { error("peek from empty stack") }
-    return this.#top.data
+    return this.#top.value
   }
 }

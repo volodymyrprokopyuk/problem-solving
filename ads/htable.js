@@ -37,28 +37,43 @@ export class HTable {
     return htb
   }
 
-  [Symbol.iterator]() {
-    function* pairs(arr) {
+  [Symbol.iterator]() { return this.entries() }
+
+  entries() {
+    function* entries(arr) {
       for (const lst of arr) {
         if (lst) {
           for (const kv of lst) { yield kv }
         }
       }
     }
-    return pairs(this.#arr)
+    return entries(this.#arr)
+  }
+
+  keys() {
+    function* keys(arr) {
+      for (const lst of arr) {
+        if (lst) {
+          for (const [key, _] of lst) { yield key }
+        }
+      }
+    }
+    return keys(this.#arr)
+  }
+
+  values() {
+    function* values(arr) {
+      for (const lst of arr) {
+        if (lst) {
+          for (const [_, value] of lst) { yield value }
+        }
+      }
+    }
+    return values(this.#arr)
   }
 
   [inspect.custom]() {
     return `HTable(${[...this].map(kv => kv.join(": ")).join(", ")})`
-  }
-
-  // O(n) returns true if hash tables are equal
-  equal(htb) {
-    if (this.#length !== htb.length) { return false }
-    for (const [key, val] of htb) {
-      if (val !== this.get(key)) { return false }
-    }
-    return true
   }
 
   // O(1) sets or updates a key to a value
@@ -68,7 +83,7 @@ export class HTable {
     let lst = this.#arr[i]
     if (lst) {
       const nd = lst.get(key, this.#cmp)
-      if (nd) { nd.data = kv }
+      if (nd) { nd.value = kv }
       else { lst.push(kv); ++this.#length }
     } else { this.#arr[i] = List.from([kv]); ++this.#length }
     return this
@@ -79,7 +94,7 @@ export class HTable {
     const i = this.#hash(key), lst = this.#arr[i]
     if (lst) {
       const nd = lst.get(key, this.#cmp)
-      if (nd) { return nd.data[1] }
+      if (nd) { return nd.value[1] }
     }
   }
 
@@ -91,6 +106,15 @@ export class HTable {
       if (kv) { --this.#length; return kv }
     }
   }
+
+  // O(n) returns true if hash tables are equal
+  equal(htb) {
+    if (this.#length !== htb.length) { return false }
+    for (const [key, val] of htb) {
+      if (val !== this.get(key)) { return false }
+    }
+    return true
+  }
 }
 
 export class HSet extends HTable {
@@ -100,14 +124,18 @@ export class HSet extends HTable {
     return set
   }
 
-  [Symbol.iterator]() {
-    function* keys(pairs) {
-      for (const [key, _] of pairs) { yield key }
-    }
-    return keys(super[Symbol.iterator]())
-  }
+  [Symbol.iterator]() { return super.keys() }
 
-  [inspect.custom]() { return `HSet(${[...this]})` }
+  [inspect.custom]() { return `HSet(${[...this].join(", ")})` }
+
+  // O(1) adds an element to a set
+  set(key) { return super.set(key, true) }
+
+  // O(1) deletes an element or undefined
+  delete(key) {
+    const del = super.delete(key)
+    return del ? del[1] : del
+  }
 
   subset(set) {
     for (const el of this) {
@@ -121,16 +149,7 @@ export class HSet extends HTable {
     return this.subset(set)
   }
 
-  // O(1) adds an element to a set
-  set(key) { return super.set(key, true) }
-
-  // O(1) deletes an element or undefined
-  delete(key) {
-    const del = super.delete(key)
-    return del ? del[1] : del
-  }
-
-  // O(m + n) returns a union of this set and an iterable
+  // O(n+m) returns a union of this set and an iterable
   union(it) {
     const union = HSet.from(this)
     for (const el of it) { union.set(el) }
@@ -146,7 +165,7 @@ export class HSet extends HTable {
     return isect
   }
 
-  // O(m + n) returns a difference of this set and an iterable
+  // O(n+m) returns a difference of this set and an iterable
   diff(it) {
     const diff = HSet.from(this)
     for (const el of it) {
@@ -155,7 +174,7 @@ export class HSet extends HTable {
     return diff
   }
 
-  // O(m + n) returns a symmetric difference of this set and an iterable
+  // O(n+m) returns a symmetric difference of this set and an iterable
   sdiff(it) {
     const sdiff = HSet.from(this)
     for (const el of it) {

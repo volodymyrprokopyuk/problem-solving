@@ -14,18 +14,20 @@ export class Queue {
     return que
   }
 
-  [Symbol.iterator]() {
+  [Symbol.iterator]() { return this.values() }
+
+  values() {
     function* values(nd) {
-      while (nd) { yield nd.data; nd = nd.next }
+      while (nd) { yield nd.value; nd = nd.next }
     }
     return values(this.#front)
   }
 
-  [inspect.custom]() { return `Queue(${[...this]})` }
+  [inspect.custom]() { return `Queue(${[...this].join(", ")})` }
 
   // O(1) enqueues an element to a rear
-  enq(data) {
-    const nd = new LNode(data)
+  enq(value) {
+    const nd = new LNode(value)
     if (this.#length === 0) { this.#front = this.#rear = nd }
     else { this.#rear = this.#rear.next = nd }
     ++this.#length
@@ -39,13 +41,13 @@ export class Queue {
     --this.#length
     if (this.#length === 0) { this.#front = this.#rear = null }
     else { this.#front = this.#front.next }
-    return nd.data
+    return nd.value
   }
 
   // O(1) peeks an element from a front
   peek() {
     if (this.#length === 0) { error("peek from empty queue") }
-    return this.#front.data
+    return this.#front.value
   }
 }
 
@@ -61,18 +63,20 @@ export class Deque {
     return deq
   }
 
-  [Symbol.iterator]() {
+  [Symbol.iterator]() { return this.values() }
+
+  values() {
     function* values(nd) {
-      while (nd) { yield nd.data; nd = nd.next }
+      while (nd) { yield nd.value; nd = nd.next }
     }
     return values(this.#front)
   }
 
-  [inspect.custom]() { return `Deque(${[...this]})` }
+  [inspect.custom]() { return `Deque(${[...this].join(", ")})` }
 
   // O(1) enqueues an element to a rear
-  enq(data) {
-    const nd = new LNode(data)
+  enq(value) {
+    const nd = new LNode(value)
     if (this.#length === 0) { this.#front = this.#rear = nd }
     else { nd.prev = this.#rear; this.#rear = this.#rear.next = nd }
     ++this.#length
@@ -80,8 +84,8 @@ export class Deque {
   }
 
   // O(1) enqueues an element to a front
-  enqFront(data) {
-    const nd = new LNode(data)
+  enqFront(value) {
+    const nd = new LNode(value)
     if (this.#length === 0) { this.#front = this.#rear = nd }
     else { nd.next = this.#front; this.#front = this.#front.prev = nd }
     ++this.#length
@@ -95,7 +99,7 @@ export class Deque {
     --this.#length
     if (this.#length === 0) { this.#front = this.#rear = null }
     else { this.#front = this.#front.next; this.#front.prev = null }
-    return nd.data
+    return nd.value
   }
 
   // O(1) dequeues an element from a rear
@@ -105,18 +109,18 @@ export class Deque {
     --this.#length
     if (this.#length === 0) { this.#front = this.#rear = null }
     else { this.#rear = this.#rear.prev; this.#rear.next = null }
-    return nd.data
+    return nd.value
   }
 
   // O(1) peeks an element from a front
   peek() {
     if (this.#length === 0) { error("peek from empty deque") }
-    return this.#front.data
+    return this.#front.value
   }
 
   // O(1) peeks an element from a rear
   peekRear() {
     if (this.#length === 0) { error("peekRear from empty deque") }
-    return this.#rear.data
+    return this.#rear.value
   }
 }

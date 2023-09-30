@@ -6,6 +6,8 @@ describe("HTable", () => {
     let htb = HTable.from([["a", 1], ["b", 2], ["c", 3], ["a", 10]])
     expect(htb.length).toBe(3)
     expect([...htb]).toEqual([["a", 10], ["b", 2], ["c", 3]])
+    expect([...htb.keys()]).toEqual(["a", "b", "c"])
+    expect([...htb.values()]).toEqual([10, 2, 3])
     expect([htb.get("a"), htb.get("b"), htb.get("c"), htb.get("x")])
       .toEqual([10, 2, 3, undefined])
     expect([htb.delete("a"), htb.delete("b"), htb.delete("c"), htb.delete("x")])

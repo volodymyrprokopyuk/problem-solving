@@ -16,18 +16,20 @@ export class Heap {
     return heap
   }
 
-  [Symbol.iterator]() {
-    function* elements(self) {
+  [Symbol.iterator]() { return this.values() }
+
+  values() {
+    function* values(self) {
       while (self.#arr.length > 0) { yield self.pop() }
     }
-    return elements(this)
+    return values(this)
   }
 
   [inspect.custom]() { return `Heap(${[...this].join(", ")})` }
 
   // O(log(n)) pushes an element to a heap
-  push(data) {
-    this.#arr.push(data)
+  push(value) {
+    this.#arr.push(value)
     let i = this.#arr.length - 1
     while (i > 0) {
       const par = Math.floor((i - 1) / 2)
