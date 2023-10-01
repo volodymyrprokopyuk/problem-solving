@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest"
-import { BSTree, preOrder, postOrder } from "./tree.js"
+import { BSTree, preOrder, postOrder, Trie } from "./tree.js"
 
 describe("BSTree", () => {
   test("BSTree set/get/delete/min/max", () => {
@@ -19,5 +19,25 @@ describe("BSTree", () => {
     ).toEqual([17, 11, 24, undefined])
     expect([...bst].map(key)).toEqual([12, 16, 19, 20, 27, 28])
     expect([bst.min(), bst.max()].map(key)).toEqual([12, 28])
+  })
+})
+
+describe("Trie", () => {
+  test("Trie set/get/delete", () => {
+    const arr = ["car", "card", "cat", "cut"]
+    const trie = Trie.from(arr)
+    expect([...trie]).toEqual(arr)
+    expect([
+      trie.get("ca"), trie.get("car"), trie.get("card"), trie.get("can")
+    ]).toEqual([true, true, true, undefined])
+    expect([
+      trie.get("ca", true), trie.get("car", true),
+      trie.get("card", true), trie.get("can", true)
+    ]).toEqual([undefined, true, true, undefined])
+    expect([trie.delete("car"), trie.delete("card"), trie.delete("can")])
+      .toEqual(["car", "card", undefined])
+    expect(trie.keys()).toEqual(["cat", "cut"])
+    trie.set("card").set("car")
+    expect([...trie]).toEqual(arr)
   })
 })

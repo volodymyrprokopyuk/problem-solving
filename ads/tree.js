@@ -143,21 +143,24 @@ export function* postOrder(nd, key = false) {
 export class Trie {
   #root = new HTable()
 
-  #leaf = HTable.from([["word", true]])
-
-  get root() { return this.#root }
-
-  [Symbol.iterator]() {
-    return this.words()[Symbol.iterator]()
+  static from(it) {
+    const trie = new Trie()
+    for (const el of it) { trie.set(el) }
+    return trie
   }
 
-  words(nd = this.#root) {
+  [Symbol.iterator]() { return this.keys()[Symbol.iterator]() }
+
+  [inspect.custom]() { return `Trie(${[...this].join(", ")})` }
+
+  keys(nd = this.#root) { // complete words
     const wds = []
     for (const [ch, next] of nd) {
-      if (this.#leaf.equal(next)) { wds.push(ch); return wds }
+      if (next.length === 0) { return wds }
+      if (next.length === 1 && next.get("word")) { wds.push(ch); return wds }
       if (next.get("word")) { wds.push(ch) }
-      const sufs = this.words(next)
-      for (const suf of sufs) { wds.push(ch + suf) }
+      const suffs = this.keys(next)
+      for (const suff of suffs) { wds.push(ch + suff) }
     }
     return wds
   }
@@ -172,21 +175,24 @@ export class Trie {
     nd.set("word", true)
     return this
   }
+
+  // O(key.length) returns if a key is in a trie as a prefix or a complete word
+  get(key, word = false) {
+    let nd = this.#root
+    for (const ch of key) {
+      if (!nd.get(ch)) { return }
+      nd = nd.get(ch)
+    }
+    return word ? nd.get("word") : true
+  }
+
+  // O(key.length) deletes a wrod from a trie
+  delete(key) {
+    let nd = this.#root
+    for (const ch of key) {
+      if (!nd.get(ch)) { return }
+      nd = nd.get(ch)
+    }
+    return nd.delete("word") && key
+  }
 }
-
-
-// const htb = new HTable()
-// htb.set("word", true)
-// const leaf = HTable.from([["word", true]])
-// console.log(htb, leaf)
-// console.log(htb.equal(leaf))
-
-// const trie = new Trie()
-// trie.set("car").set("card").set("cat").set("cut")
-// console.log(trie.words())
-// console.log([...trie])
-// console.log(trie.root)
-// console.log(trie.root.get("c"))
-// console.log(trie.root.get("c").get("a"))
-// console.log(trie.root.get("c").get("a").get("r"))
-// console.log(trie.root.get("c").get("a").get("r").get("d"))
