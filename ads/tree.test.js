@@ -39,5 +39,6 @@ describe("Trie", () => {
     expect(trie.keys()).toEqual(["cat", "cut"])
     trie.set("card").set("car")
     expect([...trie]).toEqual(arr)
+    expect(trie.words("ca")).toEqual(["car", "card", "cat"])
   })
 })

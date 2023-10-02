@@ -156,13 +156,23 @@ export class Trie {
   keys(nd = this.#root) { // complete words
     const wds = []
     for (const [ch, next] of nd) {
-      if (next.length === 0) { return wds }
-      if (next.length === 1 && next.get("word")) { wds.push(ch); return wds }
-      if (next.get("word")) { wds.push(ch) }
-      const suffs = this.keys(next)
-      for (const suff of suffs) { wds.push(ch + suff) }
+      if (next instanceof HTable) {
+        if (next.get("word")) { wds.push(ch) }
+        const suffs = this.keys(next)
+        for (const suff of suffs) { wds.push(ch + suff) }
+      }
     }
     return wds
+  }
+
+  // O(key.length) returns all words with a common prefix
+  words(prefix) {
+    let nd = this.#root
+    for (const ch of prefix) {
+      if (!nd.get(ch)) { return }
+      nd = nd.get(ch)
+    }
+    return this.keys(nd).map(suff => prefix + suff)
   }
 
   // O(key.length) inserts a key into a trie
@@ -196,3 +206,9 @@ export class Trie {
     return nd.delete("word") && key
   }
 }
+
+const trie = Trie.from(["car", "card", "cat", "cut"])
+trie.delete("card")
+trie.delete("car")
+console.log(trie)
+// console.log(trie.words("cax"))

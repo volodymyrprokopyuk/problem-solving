@@ -102,7 +102,7 @@
 ### Trie
 
 - `Trie { #root = new HTable() }`
-- `from([key]); keys(): [key]`
+- `from([key]); keys(): [key]; words(prefix): [key] | undefined`
 - `set(key): Trie` O(key.length)
 - `get(key, word): true | undefined` O(key.length)
 - `delete(key): key | undefined` O(key.length)
