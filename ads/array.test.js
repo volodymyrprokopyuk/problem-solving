@@ -1,7 +1,9 @@
 import { describe, test, expect } from "vitest"
 import {
   matrix, merge, hoarePartition, lomutoPartition, quickSelect,
-  permutations, permutations2, powerset, powerset2
+  permutations, permutations2, powerset, powerset2, binarySearch,
+  bubbleSort, insertionSort, insertionSort2, selectionSort, mergeSort,
+  quickSort, quickSort2, heapSort, radixSortNum
 } from "./array.js"
 
 describe("matrix", () => {
@@ -43,7 +45,7 @@ describe("Lomuto partition", () => {
     [[1, 2], 1, [1, 2]],
     [[2, 1], 0, [1, 2]],
     [[2, 3, 1], 0, [1, 3, 2]],
-    [[2, 1, 3, 2], 2, [2, 1, 2, 3]],
+    [[2, 1, 3, 2], 1, [1, 2, 3, 2]],
     [[5, 9, 1, 3, 7, 8, 4, 6, 2], 1, [1, 2, 5, 3, 7, 8, 4, 6, 9]]
   ])("%# lomutoPartition(%j) === [%j, %j]", (arr, expP, expArr) => {
     expect(lomutoPartition(arr)).toBe(expP)
@@ -89,5 +91,82 @@ describe("powerset", () => {
     ["abc", ["", "c", "b", "bc", "a", "ac", "ab", "abc"]]
   ])("%# powerset2(%j) === %j", (arr, exp) => {
     expect(powerset2(arr.split("")).map(el => el.join(""))).toEqual(exp)
+  })
+})
+
+describe("binarySearch", () => {
+  test("binarySearch", () => {
+    const arr = [...Array(10).keys()]
+    expect([0, 1, 2, 5, 6, 7, 9, 10].map(val => binarySearch(val, arr)))
+      .toEqual([0, 1, 2,  5, 6, 7, 9, -1])
+  })
+})
+
+describe("bubbleSort", () => {
+  test("bubbleSort", () => {
+    const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
+    bubbleSort(arr)
+    expect(arr).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  })
+})
+
+describe("insertionSort", () => {
+  test("insertionSort", () => {
+    const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
+    insertionSort(arr)
+    expect(arr).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  })
+})
+
+describe("insertionSort2", () => {
+  test("insertionSort2", () => {
+    const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
+    insertionSort2(arr)
+    expect(arr).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  })
+})
+
+describe("selectionSort", () => {
+  test("selectionSort", () => {
+    const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
+    selectionSort(arr)
+    expect(arr).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  })
+})
+
+describe("mergeSort", () => {
+  test("mergeSort", () => {
+    const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
+    expect(mergeSort(arr)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  })
+})
+
+describe("quickSort", () => {
+  test("quickSort", () => {
+    const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
+    quickSort(arr)
+    expect(arr).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  })
+  test("quickSort2", () => {
+    const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
+    expect(quickSort2(arr)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  })
+})
+
+describe("heapSort", () => {
+  test("heapSort", () => {
+    const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
+    expect(heapSort(arr)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  })
+})
+
+describe("radixSortNum", () => {
+  test.each(
+    [[[9, 4, 5, 2, 8, 3, 6, 1, 7, 0, 10],
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]],
+     [[345, 654, 924, 123, 567, 472, 555, 808, 911, 1000],
+      [123, 345, 472, 555, 567, 654, 808, 911, 924, 1000]]]
+  )("radixSortNum(%j) === %j", (arr, exp) => {
+    expect(radixSortNum(arr)).toEqual(exp)
   })
 })

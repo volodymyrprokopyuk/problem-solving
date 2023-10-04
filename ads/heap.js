@@ -33,7 +33,7 @@ export class Heap {
     let i = this.#arr.length - 1
     while (i > 0) {
       const par = Math.floor((i - 1) / 2)
-      if (this.#cmp(this.#arr[i], this.#arr[par])) { break }
+      if (this.#cmp(this.#arr[par], this.#arr[i])) { break }
       swap(this.#arr, i, par)
       i = par
     }
@@ -49,8 +49,8 @@ export class Heap {
     let par = 0, ch1 = par * 2 + 1, ch2 = ch1 + 1
     while (ch1 < this.#arr.length) {
       const i = this.#arr[ch2] &&
-            this.#cmp(this.#arr[ch1], this.#arr[ch2]) ? ch2 : ch1
-      if (this.#cmp(this.#arr[i], this.#arr[par])) { break }
+            this.#cmp(this.#arr[ch2], this.#arr[ch1]) ? ch2 : ch1
+      if (this.#cmp(this.#arr[par], this.#arr[i])) { break }
       swap(this.#arr, i, par)
       par = i; ch1 = par * 2 + 1; ch2 = ch1 + 1
     }

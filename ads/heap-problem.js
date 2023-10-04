@@ -20,8 +20,8 @@ export function runningMedian(arr) {
       maxHeap.push(minHeap.pop())
     }
   }
-  const minHeap = new Heap((a, b) => a > b)
-  const maxHeap = new Heap((a, b) => a < b)
+  const minHeap = new Heap()
+  const maxHeap = new Heap((a, b) => a > b)
   return arr.map(el => { add(el); rebalance(); return median() })
 }
 
@@ -39,7 +39,7 @@ export function topSimilarSites(k, accessLog) {
       siteVis = new HSet(); siteVis.set(user); visitors.set(site, siteVis)
     }
   }
-  const maxHeap = new Heap((a, b) => a.sim < b.sim)
+  const maxHeap = new Heap((a, b) => a.sim > b.sim)
   const sitePairs = new HSet()
   for (const [site1, _] of visitors) {
     for (const [site2, _] of visitors) {
@@ -56,7 +56,7 @@ export function topSimilarSites(k, accessLog) {
 
 // O(n*log(n)) generates the n first regular numbers
 export function regularNumbers(n) {
-  const minHeap = Heap.from([1], ((a, b) => a > b)), nums = []
+  const minHeap = Heap.from([1]), nums = []
   let last = 0
   while (nums.length < n) {
     const num = minHeap.pop()
@@ -76,7 +76,7 @@ export function huffmanEncode(freq) {
   }
   const minHeap = Heap.from(
     [...freq].map(([sym, freq]) => new TNode(freq, sym)),
-    (a, b) => a.key > b.key
+    (a, b) => a.key < b.key
   )
   while (minHeap.length > 1) {
     const left = minHeap.pop(), right = minHeap.pop()
