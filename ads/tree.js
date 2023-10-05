@@ -206,9 +206,3 @@ export class Trie {
     return nd.delete("word") && key
   }
 }
-
-const trie = Trie.from(["car", "card", "cat", "cut"])
-trie.delete("card")
-trie.delete("car")
-console.log(trie)
-// console.log(trie.words("cax"))

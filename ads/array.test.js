@@ -2,8 +2,8 @@ import { describe, test, expect } from "vitest"
 import {
   matrix, merge, hoarePartition, lomutoPartition, quickSelect,
   permutations, permutations2, powerset, powerset2, binarySearch,
-  bubbleSort, insertionSort, insertionSort2, selectionSort, mergeSort,
-  quickSort, quickSort2, heapSort, radixSortNum
+  bubbleSort, insertionSort, insertionSort2, shellSort, selectionSort,
+  mergeSort, quickSort, quickSort2, heapSort, bstSort, radixSortNum
 } from "./array.js"
 
 describe("matrix", () => {
@@ -126,6 +126,14 @@ describe("insertionSort2", () => {
   })
 })
 
+describe("shellSort", () => {
+  test("shellSort", () => {
+    const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
+    shellSort(arr)
+    expect(arr).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  })
+})
+
 describe("selectionSort", () => {
   test("selectionSort", () => {
     const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
@@ -157,6 +165,13 @@ describe("heapSort", () => {
   test("heapSort", () => {
     const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
     expect(heapSort(arr)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  })
+})
+
+describe("bstSort", () => {
+  test("bstSort", () => {
+    const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
+    expect(bstSort(arr)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
   })
 })
 

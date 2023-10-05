@@ -234,3 +234,13 @@ export function smallerToTheRight(arr) {
   }
   return sm
 }
+
+// O(n) in-place sorts three colors in linear time
+export function linear3ColorSort(arr) {
+  let l = 0, m = 0, r = arr.length - 1
+  while (m <= r) {
+    if (arr[m] === "r") { swap(arr, l, m); ++l; ++m }
+    else if (arr[m] === "g") { ++m }
+    else { swap(arr, m, r); --r }
+  }
+}

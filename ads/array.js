@@ -1,5 +1,6 @@
 import { DList } from "./list.js"
 import { Heap } from "./heap.js"
+import { BSTree, inOrder } from "./tree.js"
 
 // O(m*n) creates an mxn matrix optionally filled with v
 export function matrix(m, n = m, v) {
@@ -142,6 +143,19 @@ export function insertionSort2(arr, cmp = (a, b) => a < b) {
   }
 }
 
+// O(n*log(n)) sorts an array in-place
+export function shellSort(arr, cmp = (a, b) => a < b) {
+  const gaps = [31, 15, 7, 3, 1]
+  for (const gap of gaps) {
+    for (let i = gap; i < arr.length; ++i) {
+      let j = i
+      while (j > 0 && cmp(arr[j], arr[j - gap])) {
+        swap(arr, j, j - gap); --j
+      }
+    }
+  }
+}
+
 // O(n^2) sorts an array in place
 export function selectionSort(arr, cmp = (a, b) => a < b) {
   for (let i = 0; i < arr.length - 1; ++i) {
@@ -187,6 +201,12 @@ export function heapSort(arr, cmp = (a, b) => a < b) {
   return [...Heap.from(arr, cmp)]
 }
 
+// O(n*log(n)) sorts an array, returns a copy
+export function bstSort(arr, cmp = (a, b) => a < b) {
+  const bst = BSTree.from(arr, cmp)
+  return [...inOrder(bst.root, true)]
+}
+
 // O(digits/letters.lenght*n) sorts an array of numbers, returns a copy
 export function radixSortNum(arr) {
   function* collect(bkts) {
@@ -203,12 +223,3 @@ export function radixSortNum(arr) {
   }
   return arr
 }
-
-// const arr = [345, 654, 924, 123, 567, 472, 555, 808, 911, 1000]
-// const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0, 10]
-// console.log(radixSortNum(arr))
-
-const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
-// quickSort(arr)
-// console.log(arr)
-// console.log(heapSort(arr))

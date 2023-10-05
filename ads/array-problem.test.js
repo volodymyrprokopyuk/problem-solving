@@ -5,7 +5,8 @@ import {
   mxAdd, mxKMul, mxMul, mxTrans, mxFillDiag, mxDiags,
   exKthBigSmall, productAllOther, productAllOther2,
   smallestWindowToSort, smallestWindowToSort2,
-  maxSubArraySum, maxSubArraySum2, maxSubArraySum3, smallerToTheRight
+  maxSubArraySum, maxSubArraySum2, maxSubArraySum3, smallerToTheRight,
+  linear3ColorSort
 } from "./array-problem.js"
 
 describe.each([
@@ -154,5 +155,13 @@ describe("number of smaller elements to the right", () => {
     [[3, 4, 9, 6, 1], [1, 1, 2, 1, 0]]
   ])("%# smallerToTheRight(%j) === %j", (arr, exp) => {
     expect(smallerToTheRight(arr)).toEqual(exp)
+  })
+})
+
+describe("linear3ColorSort", () => {
+  test("linear3ColorSort", () => {
+    const arr = ["g", "r", "b", "r", "b", "g", "r", "b", "g"]
+    linear3ColorSort(arr)
+    expect(arr).toEqual(["r", "r", "r", "g", "g", "g", "b", "b", "b"])
   })
 })
