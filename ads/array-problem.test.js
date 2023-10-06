@@ -6,7 +6,7 @@ import {
   exKthBigSmall, productAllOther, productAllOther2,
   smallestWindowToSort, smallestWindowToSort2,
   maxSubArraySum, maxSubArraySum2, maxSubArraySum3, smallerToTheRight,
-  linear3ColorSort
+  linear3ColorSort, pancakeSort
 } from "./array-problem.js"
 
 describe.each([
@@ -163,5 +163,13 @@ describe("linear3ColorSort", () => {
     const arr = ["g", "r", "b", "r", "b", "g", "r", "b", "g"]
     linear3ColorSort(arr)
     expect(arr).toEqual(["r", "r", "r", "g", "g", "g", "b", "b", "b"])
+  })
+})
+
+describe("pancakeSort", () => {
+  test("pancakeSort", () => {
+    const arr = [9, 4, 5, 2, 8, 3, 6, 1, 7, 0]
+    pancakeSort(arr)
+    expect(arr).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
   })
 })

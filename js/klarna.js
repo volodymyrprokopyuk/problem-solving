@@ -88,14 +88,14 @@ function categorizeSimilarTransactions(txs, tolerance = 1000) {
   return txs.map(categorizeTx)
 }
 
-const txs = [
-  { targetAccount: 'coffee_shop', amount: -620 },
-  { targetAccount: 'coffee_shop', amount: -350, category: 'eating_out' },
-  { targetAccount: 'coffee_shop', amount: -1690 },
-  { targetAccount: 'sports_club', amount: -9200, category: "sports" },
-  { targetAccount: 'sports_club', amount: -9100, category: "spa" },
-  { targetAccount: 'sports_club', amount: -9000 },
-  { targetAccount: 'sports_club', amount: -1500 },
-]
-const ctxs = categorizeSimilarTransactions(txs)
-console.log(ctxs)
+// const txs = [
+//   { targetAccount: 'coffee_shop', amount: -620 },
+//   { targetAccount: 'coffee_shop', amount: -350, category: 'eating_out' },
+//   { targetAccount: 'coffee_shop', amount: -1690 },
+//   { targetAccount: 'sports_club', amount: -9200, category: "sports" },
+//   { targetAccount: 'sports_club', amount: -9100, category: "spa" },
+//   { targetAccount: 'sports_club', amount: -9000 },
+//   { targetAccount: 'sports_club', amount: -1500 },
+// ]
+// const ctxs = categorizeSimilarTransactions(txs)
+// console.log(ctxs)

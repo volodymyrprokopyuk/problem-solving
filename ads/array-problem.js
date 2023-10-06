@@ -244,3 +244,17 @@ export function linear3ColorSort(arr) {
     else { swap(arr, m, r); --r }
   }
 }
+
+// O(n^2) sorts an array in-place
+export function pancakeSort(arr, cmp = (a, b) => a < b) {
+  function reverse(i, j) {
+    while (i < j) { swap(arr, i++, j--) }
+  }
+  for (let i = arr.length - 1; i > 0; --i) {
+    let m = 0
+    for (let j = 1; j <= i; ++j) {
+      if (cmp(arr[m], arr[j])) { m = j }
+    }
+    reverse(0, m); reverse(0, i)
+  }
+}

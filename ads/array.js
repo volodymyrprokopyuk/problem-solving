@@ -207,7 +207,7 @@ export function bstSort(arr, cmp = (a, b) => a < b) {
   return [...inOrder(bst.root, true)]
 }
 
-// O(digits/letters.lenght*n) sorts an array of numbers, returns a copy
+// O(digits/chars.lenght*n) sorts an array of numbers, returns a copy
 export function radixSortNum(arr) {
   function* collect(bkts) {
     for (const bkt of bkts) { yield* bkt }
