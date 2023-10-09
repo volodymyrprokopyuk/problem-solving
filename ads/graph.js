@@ -33,6 +33,52 @@ export function* breadthFirstSearch(nd, key = false) {
   }
 }
 
+// O(v+e) enumerates all graph nodes once
+export function* graphNodes(nodes, key = false, search = breadthFirstSearch) {
+  const visited = new HSet()
+  for (const nd of nodes) {
+    for (const n of search(nd)) {
+      if (!visited.get(n.key)) {
+        visited.set(n.key)
+        yield key ? n.key : n
+      }
+    }
+  }
+}
+
+// O(v+e) returns a topological sort of a DAG represented by in-degree 0 nodes
+export function topologicalSort(nodes) {
+  for (const nd of graphNodes(nodes)) { nd.indeg = 0 }
+  for (const nd of graphNodes(nodes)) {
+    for (const n of nd.nodes) { ++n.indeg }
+  }
+  const que = new Queue()
+  for (const nd of graphNodes(nodes)) {
+    if (nd.indeg === 0) { que.enq(nd) }
+  }
+  const topSort = []
+  while (que.length > 0) {
+    const nd = que.deq()
+    topSort.push(nd)
+    for (const n of nd.nodes) {
+      --n.indeg
+      if (n.indeg === 0) { que.enq(n) }
+    }
+  }
+  return topSort
+}
+
+const a = new GNode("a"), b = new GNode("b"), c = new GNode("c"),
+      d = new GNode("d"), e = new GNode("e"), f = new GNode("f"),
+      g = new GNode("g")
+a.nodes.push(b)
+b.nodes.push(c, d, e)
+c.nodes.push(e)
+d.nodes.push(e)
+e.nodes.push(f)
+g.nodes.push(d)
+console.log(topologicalSort([a, g]).map(({ key }) => key))
+
 // const a = new GNode("a"), b = new GNode("b"), c = new GNode("c"),
 //       d = new GNode("d"), e = new GNode("e"), f = new GNode("f"),
 //       g = new GNode("g")
@@ -47,3 +93,4 @@ export function* breadthFirstSearch(nd, key = false) {
 // console.log(...breadthFirstSearch(g, true))
 // console.log(...depthFirstSearch(a, true))
 // console.log(...depthFirstSearch(g, true))
+// console.log(...graphNodes([a], true))
