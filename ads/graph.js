@@ -68,16 +68,16 @@ export function topologicalSort(nodes) {
   return topSort
 }
 
-const a = new GNode("a"), b = new GNode("b"), c = new GNode("c"),
-      d = new GNode("d"), e = new GNode("e"), f = new GNode("f"),
-      g = new GNode("g")
-a.nodes.push(b)
-b.nodes.push(c, d, e)
-c.nodes.push(e)
-d.nodes.push(e)
-e.nodes.push(f)
-g.nodes.push(d)
-console.log(topologicalSort([a, g]).map(({ key }) => key))
+// const a = new GNode("a"), b = new GNode("b"), c = new GNode("c"),
+//       d = new GNode("d"), e = new GNode("e"), f = new GNode("f"),
+//       g = new GNode("g")
+// a.nodes.push(b)
+// b.nodes.push(c, d, e)
+// c.nodes.push(e)
+// d.nodes.push(e)
+// e.nodes.push(f)
+// g.nodes.push(d)
+// console.log(topologicalSort([a, g]).map(({ key }) => key))
 
 // const a = new GNode("a"), b = new GNode("b"), c = new GNode("c"),
 //       d = new GNode("d"), e = new GNode("e"), f = new GNode("f"),
