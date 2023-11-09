@@ -81,11 +81,12 @@
 
 ### Heap
 
-- `Heap { #arr = []; #cmp = (a, b) => a < b }`
+- `Heap { #arr = []; #cmp = (a, b) => a < b, #key = a => a, #htb = new HTable }`
 - `from([value], cmp); values(): [value]`
 - `push(value): Heap` O(log(n))
 - `pop(): value | error` O(log(n))
 - `peek(): value | error` O(1)
+- `decKey(key, value): undefined` O(log(n))
 
 ### BSTree
 
