@@ -1,7 +1,6 @@
 package main
 
 import "fmt"
-// import "strings"
 import "regexp"
 
 func useRegexp() {
