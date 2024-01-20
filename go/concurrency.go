@@ -454,29 +454,52 @@ func ctxCancelTimeout() {
   wg.Wait()
 }
 
-func gorParallel() {
-  maxGors := 5
-  ch := make(chan int)
-  res := make(chan int, maxGors) // buffered out chan
+func heartbeat() {
   var wg sync.WaitGroup
-  wg.Add(maxGors) // must be in a waiting parent gor
-  for i := 0; i < maxGors; i++ {
-    go func() { // parallel maxGors
-      defer wg.Done()
-      res <- 10 * <- ch // maxGors non-blocking writes
-    }()
+  done := make(chan struct{})
+  defer close(done)
+  in := generator(&wg, done, 0, 5)
+  out := make(chan int)
+  hbTick := time.Tick(100 * time.Millisecond)
+  hbOut := make(chan struct{})
+  wg.Add(1)
+  go func() {
+    defer wg.Done()
+    defer close(hbOut)
+    defer close(out)
+    for {
+      select {
+      case <- done: // cancellation
+        fmt.Println("done")
+        return
+      case v, open := <- in:
+        if !open {
+          fmt.Println("in closed")
+          return
+        }
+        out <- v // processing
+      case <- hbTick:
+        select {
+        case hbOut <- struct{}{}: // heartbeat
+        default: // do not block if hbOut is not read
+        }
+      }
+    }
+  }()
+  main: for {
+    select {
+    case <- hbOut:
+      fmt.Println("heatrbeat")
+    case <- time.After(90 * time.Millisecond):
+      fmt.Println("neither value nor heartbeat")
+    case v, open := <- out:
+      if !open {
+        break main
+      }
+      fmt.Println(v)
+    }
   }
-  // input
-  for i := 0; i < maxGors; i++ {
-    ch <- i
-  }
-  close(ch)
-  // output
   wg.Wait()
-  close(res)
-  for i := range res {
-    fmt.Println(i)
-  }
 }
 
 func rateLimiter() {
@@ -501,6 +524,31 @@ func rateLimiter() {
     }
   }
   wg.Wait() // wait for passed tasks to complete
+}
+
+func gorParallel() {
+  maxGors := 5
+  ch := make(chan int)
+  res := make(chan int, maxGors) // buffered out chan
+  var wg sync.WaitGroup
+  wg.Add(maxGors) // must be in a waiting parent gor
+  for i := 0; i < maxGors; i++ {
+    go func() { // parallel maxGors
+      defer wg.Done()
+      res <- 10 * <- ch // maxGors non-blocking writes
+    }()
+  }
+  // input
+  for i := 0; i < maxGors; i++ {
+    ch <- i
+  }
+  close(ch)
+  // output
+  wg.Wait()
+  close(res)
+  for i := range res {
+    fmt.Println(i)
+  }
 }
 
 func workerPool() {
@@ -647,5 +695,7 @@ func main() {
   // pipeline()
   // fanOutIn()
   // teeChan()
-  ctxCancelTimeout()
+  // ctxCancelTimeout()
+  // heartbeat()
+  rateLimiter()
 }
