@@ -322,6 +322,138 @@ func pipeline() {
   wg.Wait()
 }
 
+func fanIn(done <-chan struct{}, ins ...<-chan int) <-chan int {
+  var wg sync.WaitGroup
+  out := make(chan int)
+  for _, in := range ins {
+    wg.Add(1)
+    go func(in <-chan int) {
+      defer wg.Done()
+      // receives from each input channel
+      for v := range in {
+        select {
+        case <- done: // waits for a cancellation signal
+          return
+        // sends to a common output channel
+        case out <- v:
+        }
+      }
+    }(in)
+  }
+  go func() {
+    wg.Wait()
+    // closes a common output channel
+    // after all input channels have been processed
+    close(out)
+  }()
+  return out
+}
+
+func fanOutIn() {
+  var wg sync.WaitGroup
+  done := make(chan struct{})
+  in := generator(&wg, done, 0, 10)
+  n := 3
+  ins := make([]<-chan int, 0, n)
+  // fan out
+  for i := 0; i < n; i++ {
+    // start parallel processing from the in channel
+    in2 := transform(&wg, done, in, func(i int) int {
+      time.Sleep(500 * time.Millisecond)
+      return i + 1
+    })
+    ins = append(ins, in2) // collect fan out input channels
+  }
+  in3 := fanIn(done, ins...) // combine fan out input channels
+  for v := range in3 {
+    fmt.Println(v)
+  }
+  close(done)
+  wg.Wait()
+}
+
+func tee(done <-chan struct {}, in <-chan int) (<-chan int, <-chan int) {
+  out1, out2 := make(chan int), make(chan int)
+  go func() {
+    defer close(out1)
+    defer close(out2)
+    for v := range in {
+      var o1, o2 = out1, out2
+      for i := 0; i < 2; i++ {
+        select {
+        case <- done:
+          return
+        case o1 <- v:
+          o1 = nil // blocks forever, lets send v to o2
+        case o2 <- v:
+          o2 = nil // blocks forever, lets send v to o1
+        }
+      }
+    }
+  }()
+  return out1, out2
+}
+
+func teeChan() {
+  var wg sync.WaitGroup
+  done := make(chan struct{})
+  defer close(done)
+  in := generator(&wg, done, 0, 5)
+  in1, in2 := tee(done, in)
+  wg.Add(2)
+  go func() {
+    defer wg.Done()
+    for v := range in1 {
+      fmt.Println("1: ", v)
+    }
+  }()
+  go func() {
+    defer wg.Done()
+    for v := range in2 {
+      fmt.Println("2: ", v)
+    }
+  }()
+  wg.Wait()
+}
+
+func ctxCancelTimeout() {
+  var wg sync.WaitGroup
+  task := func(ctx context.Context) {
+    defer wg.Done()
+    for {
+      select {
+      // a channel is closed when a context is cancelled
+      case <- ctx.Done(): // immediately returns a zero value when closed
+        if ctx.Err() == context.Canceled {
+          fmt.Println("canceled")
+        }
+        if ctx.Err() == context.DeadlineExceeded {
+          fmt.Println("timeout")
+        }
+        return
+      default:
+        fmt.Println("working...")
+        time.Sleep(100 * time.Millisecond)
+      }
+    }
+  }
+  // cancel context
+  ctx, cancel := context.WithCancel(context.Background())
+  // once created a cancellable context must be cancelled
+  defer cancel()
+  wg.Add(1)
+  go task(ctx)
+  time.Sleep(300 * time.Millisecond)
+  cancel() // further cancellations are ignored
+  wg.Wait()
+  // timeout context
+  wg.Add(1)
+  ctx, cancel2 := context.WithTimeout(context.Background(), 300 * time.Millisecond)
+  defer cancel2()
+  go task(ctx)
+  wg.Wait()
+}
+
 func gorParallel() {
   maxGors := 5
   ch := make(chan int)
@@ -369,44 +501,6 @@ func rateLimiter() {
     }
   }
   wg.Wait() // wait for passed tasks to complete
-}
-
-func ctxCancelTimeout() {
-  task := func(ctx context.Context, wg *sync.WaitGroup) {
-    defer wg.Done()
-    for {
-      select {
-      // a channel is closed when a context is cancelled
-      case <- ctx.Done(): // immediately returns a zero value when closed
-        if ctx.Err() == context.Canceled {
-          fmt.Println("canceled")
-        }
-        if ctx.Err() == context.DeadlineExceeded {
-          fmt.Println("timeout")
-        }
-        return
-      default:
-        fmt.Println("working...")
-        time.Sleep(100 * time.Millisecond)
-      }
-    }
-  }
-  // cancel context
-  ctx, cancel := context.WithCancel(context.Background())
-  // once created a cancellable context must be cancelled
-  defer cancel()
-  var wg sync.WaitGroup
-  wg.Add(1)
-  go task(ctx, &wg)
-  time.Sleep(300 * time.Millisecond)
-  cancel() // further cancellations are ignored
-  wg.Wait()
-  // timeout context
-  wg.Add(1)
-  ctx, cancel2 := context.WithTimeout(context.Background(), 300 * time.Millisecond)
-  defer cancel2()
-  go task(ctx, &wg)
-  wg.Wait()
 }
 
 func workerPool() {
@@ -550,5 +644,8 @@ func main() {
   // workWhileWaiting()
   // cancelGor()
   // errorHandling()
-  pipeline()
+  // pipeline()
+  // fanOutIn()
+  // teeChan()
+  ctxCancelTimeout()
 }
