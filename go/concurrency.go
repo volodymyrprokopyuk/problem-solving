@@ -4,10 +4,9 @@ import (
   "fmt"
   "time"
   "sync"
-  "context"
 )
 
-func gorClosureLoop() {
+func gorClosureInsideLoop() {
   var wg sync.WaitGroup
   for _, i := range []int{1, 2, 3} {
     wg.Add(1)
@@ -15,89 +14,19 @@ func gorClosureLoop() {
       defer wg.Done()
       fmt.Println(i) // 3, 3, 3
     }()
+    // parametrize gor closure inside a loop
     go func(i int) {
       defer wg.Done()
       fmt.Println(i) // 2, 1, 3
-    }(i) // parametrize gor closure inside a loop
-    j := i // capture local variable per iteration
+    }(i)
+    // capture value in a local variable per iteration
+    i := i
     go func() {
       defer wg.Done()
-      fmt.Println(j) // 2, 1, 3
+      fmt.Println(i) // 2, 1, 3
     }()
   }
   wg.Wait()
-}
-
-func waitGroup() {
-  // wg is a concurrency-safe counter
-  var wg sync.WaitGroup // making a zero value useful
-  // must be outside of a tracking gor
-  wg.Add(1) // increment a gor counter
-  go func() {
-    defer wg.Done() // decrement a gor counter
-    time.Sleep(200 * time.Millisecond)
-    fmt.Println("a")
-  }()
-  wg.Add(1)
-  go func() {
-    defer wg.Done()
-    time.Sleep(100 * time.Millisecond)
-    fmt.Println("b")
-  }()
-  wg.Wait() // block gor until a counter == 0
-  fmt.Println("done")
-}
-
-func rwMutex() {
-  var value int
-  var mu sync.RWMutex
-  writeShared := func (val int) {
-    mu.Lock() // a single writer can hold a write lock, no readers
-    defer mu.Unlock()
-    value = val
-  }
-  readShared := func() int {
-    mu.RLock() // multiple readers can hold a read lock, no writer
-    defer mu.RUnlock()
-    return value
-  }
-  var wg sync.WaitGroup
-  wg.Add(2)
-  go func() {
-    defer wg.Done()
-    writeShared(1)
-  }()
-  go func() {
-    defer wg.Done()
-    time.Sleep(1 * time.Millisecond)
-    fmt.Println(readShared()) // 1
-  }()
-  wg.Wait()
-}
-
-func condBroadcast() {
-  balance := 0
-  cond := sync.NewCond(&sync.Mutex{})
-  listen := func(goal int) {
-    cond.L.Lock()
-    defer cond.L.Unlock()
-    // critical section 1: wait for a condition
-    for balance < goal { // exit a loop when a condition is met
-      // listen for an update. Must be within a critical section
-      cond.Wait() // .L.Unlock => wait for the next broadcast => .L.Lock
-    }
-    // critical section 2: a condition is met
-    fmt.Println("goal", balance)
-  }
-  go listen(3)
-  go listen(5)
-  for i := 0; i < 7; i++ { // producer
-    time.Sleep(100 * time.Millisecond)
-    cond.L.Lock()
-    balance++
-    cond.L.Unlock()
-    cond.Broadcast() // broadcast an update to all listeners
-  }
 }
 
 func funcOnce() {
@@ -105,8 +34,8 @@ func funcOnce() {
   inc := func() {
     count++
   }
-  var once sync.Once
   var wg sync.WaitGroup
+  var once sync.Once
   for i := 0; i < 3; i++ {
     wg.Add(1)
     go func() {
@@ -116,13 +45,13 @@ func funcOnce() {
     }()
   }
   wg.Wait()
-  fmt.Println(count)
+  fmt.Println(count) // 1
 }
 
 func objectPool() {
   var count int
-  // concurrency-safe pool of objects
-  // minimizes object creation through reuse
+  // concurrency-safe pool of objects that
+  // minimizes object creation through reuse and
   // warms up object cache using pool.Put()
   pool := sync.Pool{
     New: func() any {
@@ -194,7 +123,7 @@ func workWhileWaiting() {
   }()
   for {
     select {
-    case <- done: // wait for a gor
+    case <- done: // blocks until done
       fmt.Println("done")
       return
     default: // immediately executed if all cases are blocked
@@ -204,7 +133,7 @@ func workWhileWaiting() {
   }
 }
 
-func cancelGor() {
+func cancelAllGors() {
   var wg sync.WaitGroup
   done := make(chan struct{}) // done is never written to (only closed)
   in := make(chan int)
@@ -214,7 +143,7 @@ func cancelGor() {
       defer wg.Done()
       for {
         select {
-        case <- done: // receive a zero value when close(done)
+        case <- done: // close(done) cancels all listening gors
           fmt.Printf("%v: done\n", i)
           return
         case v := <- in:
@@ -244,12 +173,12 @@ func errorHandling() {
     for _, i := range []int{1, 2, -1, 3, -1, 4, 5} {
       time.Sleep(100 * time.Millisecond)
       // do not handle an error locally
-      // consider an error as a possible outcome
+      // consider an error as a possible valid outcome
       if i < 0 {
-        ch <- Outcome{fmt.Errorf("oh"), 0}
+        ch <- Outcome{fmt.Errorf("oh"), 0} // error outcome
         continue
       }
-      ch <- Outcome{nil, i}
+      ch <- Outcome{nil, i} // result outcome
     }
     close(ch)
   }()
@@ -267,17 +196,18 @@ func generator(
   wg *sync.WaitGroup, done <-chan struct{}, start, end int,
 ) <-chan int {
   wg.Add(1)
-  out := make(chan int)
+  // channel ownership
+  out := make(chan int) // create a channel
   go func() {
     defer wg.Done()
-    defer close(out)
+    defer close(out) // close a channel
     for i := start; i < end; i++ {
       time.Sleep(100 * time.Millisecond)
-      select { // ensures preemptible generator
+      select { // ensures preemption
       case <- done: // waits for a cancellation signal
         fmt.Println("generator done")
         return
-      case out <- i:
+      case out <- i: // send to a channel
       }
     }
   }()
@@ -293,7 +223,7 @@ func transform(
     defer wg.Done()
     defer close(out)
     for v := range in {
-      select { // ensures preemptible transformer
+      select { // ensures preemption
       case <- done: // waits for a cancellation signal
         fmt.Println("transform done")
         return
@@ -322,14 +252,18 @@ func pipeline() {
   wg.Wait()
 }
 
-func fanIn(done <-chan struct{}, ins ...<-chan int) <-chan int {
-  var wg sync.WaitGroup
+func fanIn(
+  wg *sync.WaitGroup, done <-chan struct{}, ins ...<-chan int,
+) <-chan int {
+  wg.Add(1)
+  var inWg sync.WaitGroup
   out := make(chan int)
   for _, in := range ins {
-    wg.Add(1)
+    inWg.Add(1)
     go func(in <-chan int) {
-      defer wg.Done()
+      defer inWg.Done()
       // receives from each input channel
+      // Option 1. A range can block, so done will not trigger a cancellation
       for v := range in {
         select {
         case <- done: // waits for a cancellation signal
@@ -338,10 +272,25 @@ func fanIn(done <-chan struct{}, ins ...<-chan int) <-chan int {
         case out <- v:
         }
       }
+      // Option 2. A done will always trigger a cancellation
+      for {
+        select {
+        case <- done:
+          return
+        case v, open := <- in:
+          if !open {
+            return
+          }
+          out <- v
+        }
+      }
+
     }(in)
   }
   go func() {
-    wg.Wait()
+    defer wg.Done()
+    inWg.Wait()
+    fmt.Println("closing fanin")
     // closes a common output channel
     // after all input channels have been processed
     close(out)
@@ -364,9 +313,12 @@ func fanOutIn() {
     })
     ins = append(ins, in2) // collect fan out input channels
   }
-  in3 := fanIn(done, ins...) // combine fan out input channels
+  in3 := fanIn(&wg, done, ins...) // combine fan out input channels
   for v := range in3 {
     fmt.Println(v)
+    if v == 5 {
+      break
+    }
   }
   close(done)
   wg.Wait()
@@ -378,6 +330,7 @@ func tee(done <-chan struct {}, in <-chan int) (<-chan int, <-chan int) {
     defer close(out1)
     defer close(out2)
     for v := range in {
+      // per iteration channel copies to assign nil
       var o1, o2 = out1, out2
       for i := 0; i < 2; i++ {
         select {
@@ -416,56 +369,18 @@ func teeChan() {
   wg.Wait()
 }
 
-func ctxCancelTimeout() {
-  var wg sync.WaitGroup
-  task := func(ctx context.Context) {
-    defer wg.Done()
-    for {
-      select {
-      // a channel is closed when a context is cancelled
-      case <- ctx.Done(): // immediately returns a zero value when closed
-        if ctx.Err() == context.Canceled {
-          fmt.Println("canceled")
-        }
-        if ctx.Err() == context.DeadlineExceeded {
-          fmt.Println("timeout")
-        }
-        return
-      default:
-        fmt.Println("working...")
-        time.Sleep(100 * time.Millisecond)
-      }
-    }
-  }
-  // cancel context
-  ctx, cancel := context.WithCancel(context.Background())
-  // once created a cancellable context must be cancelled
-  defer cancel()
-  wg.Add(1)
-  go task(ctx)
-  time.Sleep(300 * time.Millisecond)
-  cancel() // further cancellations are ignored
-  wg.Wait()
-  // timeout context
-  wg.Add(1)
-  ctx, cancel2 := context.WithTimeout(context.Background(), 300 * time.Millisecond)
-  defer cancel2()
-  go task(ctx)
-  wg.Wait()
-}
-
 func heartbeat() {
   var wg sync.WaitGroup
   done := make(chan struct{})
   defer close(done)
   in := generator(&wg, done, 0, 5)
   out := make(chan int)
-  hbTick := time.Tick(100 * time.Millisecond)
-  hbOut := make(chan struct{})
+  tick := time.Tick(100 * time.Millisecond)
+  hb := make(chan struct{})
   wg.Add(1)
   go func() {
     defer wg.Done()
-    defer close(hbOut)
+    defer close(hb)
     defer close(out)
     for {
       select {
@@ -478,20 +393,20 @@ func heartbeat() {
           return
         }
         out <- v // processing
-      case <- hbTick:
+      case <- tick:
         select {
-        case hbOut <- struct{}{}: // heartbeat
-        default: // do not block if hbOut is not read
+        case hb <- struct{}{}: // heartbeat
+        default: // do not block if hb is not read
         }
       }
     }
   }()
   main: for {
     select {
-    case <- hbOut:
+    case <- hb:
       fmt.Println("heatrbeat")
     case <- time.After(90 * time.Millisecond):
-      fmt.Println("neither value nor heartbeat")
+      fmt.Println("timeout: neither value nor heartbeat")
     case v, open := <- out:
       if !open {
         break main
@@ -502,6 +417,47 @@ func heartbeat() {
   wg.Wait()
 }
 
+func workerPool() {
+  n := 10 // tasks
+  limit := 3 // worker pool
+  var wg sync.WaitGroup
+  done := make(chan struct{})
+  in := generator(&wg, done, 0, n)
+  // buffered channel for parallel processing
+  out := make(chan int, limit)
+  for i := 0; i < limit; i++ {
+    wg.Add(1)
+    go func(i int) { // parallel processing
+      defer wg.Done()
+      for {
+        select {
+        case <- done:
+          fmt.Printf("%v: cancelled\n", i)
+          return
+        case v, open := <- in:
+          if !open {
+            fmt.Printf("%v: in closed\n", i)
+            return
+          }
+          fmt.Printf("%v: %v\n", i, v)
+          out <- v * 10
+        }
+      }
+    }(i)
+  }
+  // collect results of parallel processing
+  for i := 0; i < n; i++ {
+    v := <- out
+    fmt.Println(v)
+    if v == 50 {
+      break
+    }
+  }
+  close(done) // after all n tasks or after a break
+  wg.Wait()
+  close(out) // channel ownership
+}
+
 func rateLimiter() {
   limit := 3
   bucket := make(chan struct{}, limit) // buffered bucket
@@ -509,15 +465,17 @@ func rateLimiter() {
     bucket <- struct{}{} // fill a bucket with tokens
   }
   var wg sync.WaitGroup
-  wg.Add(limit)
   for i := 0; i < 5; i++ { // execute rate limited tasks
     select {
     case <- bucket: // take a token from a bucket
+      wg.Add(1)
       go func(i int) { // start a task
         defer wg.Done()
+        defer func () {
+          bucket <- struct{}{} // return a token to a bucket
+        }()
         time.Sleep(100 * time.Millisecond)
         fmt.Println(i)
-        bucket <- struct{}{} // return a token to a bucket
       }(i)
     default: // bucket is empty
       fmt.Println("rate limited", i)
@@ -526,92 +484,36 @@ func rateLimiter() {
   wg.Wait() // wait for passed tasks to complete
 }
 
-func gorParallel() {
-  maxGors := 5
-  ch := make(chan int)
-  res := make(chan int, maxGors) // buffered out chan
-  var wg sync.WaitGroup
-  wg.Add(maxGors) // must be in a waiting parent gor
-  for i := 0; i < maxGors; i++ {
-    go func() { // parallel maxGors
-      defer wg.Done()
-      res <- 10 * <- ch // maxGors non-blocking writes
-    }()
-  }
-  // input
-  for i := 0; i < maxGors; i++ {
-    ch <- i
-  }
-  close(ch)
-  // output
-  wg.Wait()
-  close(res)
-  for i := range res {
-    fmt.Println(i)
-  }
-}
-
-func workerPool() {
-  n := 4
-  var wg sync.WaitGroup
-  wg.Add(n)
-  ch := make(chan int, n) // buffered channel
-  for i := 0; i < n; i++ { // start n workers
-    go func(i int) {
-      defer wg.Done()
-      for v := range ch { // keep workers running
-        fmt.Printf("%v: %v\n", i, v)
-        time.Sleep(100 * time.Millisecond)
-      }
-    }(i)
-  }
-  for i := 0; i < 2 * n; i++ {
-    ch <- i // distribute tasks between n workers
-  }
-  close(ch) // stop n workers
-  wg.Wait()
-}
-
 func gracefulTermination() {
-  ch := make(chan int, 2)
   done := make(chan struct{})
-  var wg sync.WaitGroup
-  wg.Add(3)
+  ch := make(chan int, 2)
   go func() {
-    defer wg.Done()
     for _, i := range []int{1, 2} {
-      ch <- i // producer
+      time.Sleep(100 * time.Millisecond)
+      ch <- i
     }
-    close(done) // signal termination
+    fmt.Println("graceful start")
+    close(done) // signal early termination
   }()
   go func() {
-    defer wg.Done()
     for _, i := range []int{3, 4, 5, 6} {
-      ch <- i // producer
+      time.Sleep(100 * time.Millisecond)
+      ch <- i
     }
+    close(ch)
   }()
-  go func() {
-    defer wg.Done()
-    for {
-      select {
-      case v := <- ch: // regular consumption
-        time.Sleep(500 * time.Millisecond)
-        fmt.Println(v) // 1, 2
-      case <- done:
-        for {
-          select {
-          case v := <- ch: // graceful consumption
-            time.Sleep(500 * time.Millisecond)
-            fmt.Println("graceful", v) // 3, 4, 5, 6
-          default:
-            fmt.Println("done")
-            return // graceful termination
-          }
-        }
+  for {
+    select {
+    case v := <- ch: // regular consumption
+      fmt.Println(v)
+    case <- done:
+      for v := range ch { // graceful consumption
+        fmt.Println("graceful", v)
       }
+      fmt.Println("graceful end")
+      return // graceful termination
     }
-  }()
-  wg.Wait()
+  }
 }
 
 func mergeChannels() {
@@ -619,20 +521,23 @@ func mergeChannels() {
   mg := make(chan int)
   go func() {
     for _, i := range []int{1, 2, 3} {
-      ch1 <- i // producer
+      time.Sleep(100 * time.Millisecond)
+      ch1 <- i
     }
     close(ch1)
   }()
   go func() {
     for _, i := range []int{4, 5, 6} {
-      ch2 <- i // producer
+      time.Sleep(100 * time.Millisecond)
+      ch2 <- i
     }
     close(ch2)
   }()
   go func() {
     for ch1 != nil || ch2 != nil { // at least one channel is open
-      time.Sleep(100 * time.Millisecond)
       select {
+      // use a nil channel to disable a case in select
+      // after a channel has been closed
       case v, open := <- ch1:
         if !open {
           ch1 = nil // block forever = remove case from select
@@ -649,13 +554,12 @@ func mergeChannels() {
     }
     close(mg)
   }()
-  for v := range mg {
+  for v := range mg { // consume merged values
     fmt.Println(v)
   }
 }
 
 type Counter struct {
-  // a counter interface does not expose any concurrency primitives
   mu sync.Mutex
   Value int
 }
@@ -663,7 +567,7 @@ type Counter struct {
 func (c *Counter) Inc(val int) {
   c.mu.Lock()
   defer c.mu.Unlock()
-  c.Value += val // thread safe, atomic counter
+  c.Value += val // thread-safe, atomic counter
 }
 
 func atomicCounter() {
@@ -671,8 +575,9 @@ func atomicCounter() {
   var c Counter
   for i := 0; i < 5; i++ {
     wg.Add(1)
-    go func() {
+    go func() { // concurrent update of a counter
       defer wg.Done()
+      // a counter interface is concurrency-free
       c.Inc(1)
     }()
   }
@@ -681,21 +586,21 @@ func atomicCounter() {
 }
 
 func main() {
-  // gorClosureLoop()
-  // waitGroup()
-  // rwMutex()
-  // condBroadcast()
+  // gorClosureInsideLoop()
   // funcOnce()
   // objectPool()
   // rangeCloseChan()
   // timeout()
   // workWhileWaiting()
-  // cancelGor()
+  // cancelAllGors()
   // errorHandling()
   // pipeline()
   // fanOutIn()
   // teeChan()
-  // ctxCancelTimeout()
   // heartbeat()
-  rateLimiter()
+  // workerPool()
+  // rateLimiter()
+  // gracefulTermination()
+  // mergeChannels()
+  atomicCounter()
 }
