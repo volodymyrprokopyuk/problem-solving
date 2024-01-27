@@ -110,6 +110,7 @@ func timeout() {
   select {
   case <- done:
     fmt.Println("done")
+  // chan time.Time is closed after a timeout expires
   case <- time.After(100 * time.Millisecond): // trigger timeout
     fmt.Println("timeout")
   }
@@ -263,16 +264,6 @@ func fanIn(
     go func(in <-chan int) {
       defer inWg.Done()
       // receives from each input channel
-      // Option 1. A range can block, so done will not trigger a cancellation
-      for v := range in {
-        select {
-        case <- done: // waits for a cancellation signal
-          return
-        // sends to a common output channel
-        case out <- v:
-        }
-      }
-      // Option 2. A done will always trigger a cancellation
       for {
         select {
         case <- done:
@@ -375,7 +366,7 @@ func heartbeat() {
   defer close(done)
   in := generator(&wg, done, 0, 5)
   out := make(chan int)
-  tick := time.Tick(100 * time.Millisecond)
+  tick := time.NewTicker(100 * time.Millisecond)
   hb := make(chan struct{})
   wg.Add(1)
   go func() {
@@ -393,7 +384,7 @@ func heartbeat() {
           return
         }
         out <- v // processing
-      case <- tick:
+      case <- tick.C:
         select {
         case hb <- struct{}{}: // heartbeat
         default: // do not block if hb is not read
@@ -401,11 +392,15 @@ func heartbeat() {
       }
     }
   }()
+  timeout := 90 * time.Millisecond
+  timer := time.NewTimer(timeout)
+  defer timer.Stop()
   main: for {
+    timer.Reset(timeout)
     select {
     case <- hb:
       fmt.Println("heatrbeat")
-    case <- time.After(90 * time.Millisecond):
+    case <- timer.C:
       fmt.Println("timeout: neither value nor heartbeat")
     case v, open := <- out:
       if !open {
@@ -602,5 +597,5 @@ func main() {
   // rateLimiter()
   // gracefulTermination()
   // mergeChannels()
-  atomicCounter()
+  // atomicCounter()
 }

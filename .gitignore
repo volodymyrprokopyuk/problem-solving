@@ -1,4 +1,4 @@
-go/playground.go
+go/playground
 postgresql/booking/schema.sql
 postgresql/chinook/schema.sql
 postgresql/racing/schema.sql
