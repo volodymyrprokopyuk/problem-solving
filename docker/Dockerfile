@@ -19,13 +19,13 @@
 # COPY headclient .
 
 # * headClient 0.2.0
-FROM archlinux AS build
-RUN pacman --noconfirm -Syyu && pacman --noconfirm -S go
-WORKDIR /opt
-COPY headclient.go .
-RUN go build headclient.go
-FROM archlinux
-ENV HEAD_HOST=https://google.com
-WORKDIR /opt
-CMD ./headclient
-COPY --from=build /opt/headclient .
+# FROM archlinux AS build
+# RUN pacman --noconfirm -Syyu && pacman --noconfirm -S go
+# WORKDIR /opt
+# COPY headclient.go .
+# RUN go build headclient.go
+# FROM archlinux
+# ENV HEAD_HOST=https://google.com
+# WORKDIR /opt
+# CMD ./headclient
+# COPY --from=build /opt/headclient .

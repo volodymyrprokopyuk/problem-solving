@@ -1,5 +1,16 @@
 #!/usr/bin/env fish
 
+function rmNet -a name
+  set -l net (docker network ls --quiet --filter=name=$name)
+  if test (count $net) -gt 1
+    echo error: cannot remove more than one network, got $net >&2
+    return 1
+  end
+  if test -n "$net"
+    docker network rm --force $net
+  end
+end
+
 function rmImg
   set -l img (docker image ls --all --quiet --filter=dangling=true)
   if test -n "$img"
@@ -14,14 +25,10 @@ function rmCnt -a name
   end
 end
 
-function rmNet -a name
-  set -l net (docker network ls --quiet --filter=name=$name)
-  if test (count $net) -gt 1
-    echo error: cannot remove more than one network, got $net >&2
-    return 1
-  end
-  if test -n "$net"
-    docker network rm --force $net
+function rmVol -a name
+  set -l vol (docker volume ls --quiet --filter name=$name)
+  if test -n "$vol"
+    docker volume rm --force $vol
   end
 end
 
@@ -73,9 +80,36 @@ function headClientToCaddy
   docker container logs --follow $cln
 end
 
+function randomFiles
+  set -l img archlinux
+  set -l cnts rand1 rand2
+  set -l cmd 'tr -dc a-z0-9 </dev/urandom | head -c 4 > /opt/rand.txt'
+  for cnt in $cnts
+    docker container run --name $cnt $img bash -c "$cmd"
+    docker container cp $cnt:/opt/rand.txt $cnt.txt
+    printf '%s: %s\n' $cnt.txt (cat $cnt.txt); rm -f $cnt.txt
+    rmCnt $cnt
+  end
+end
+
+function appendToVolume
+  set -l vol appendvol
+  set -l mnt /opt/vol
+  set -l img archlinux
+  set -l cnt arch
+  set -l cmd 'echo ok >> /opt/vol/out; echo; cat /opt/vol/out'
+  docker volume create $vol
+  for i in 1 2 3
+    docker container run --name $cnt --rm --volume $vol:$mnt $img bash -c "$cmd"
+  end
+  rmVol $vol
+end
+
 # archInfo
 # caddyIndex
 # headClient 0.2.0
 # headClientToCaddy
+# randomFiles
+# appendToVolume
 
 # rmCnt
