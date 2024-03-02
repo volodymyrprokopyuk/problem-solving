@@ -1,0 +1,17 @@
+# version:
+
+services:
+  caddy:
+    image: vlad/caddy:0.1.0
+    networks:
+      - vladnet
+  headclient:
+    image: vlad/headclient:0.2.0
+    environment:
+      - HEAD_HOST=http://caddy:4321
+    networks:
+      - vladnet
+    depends_on:
+      - caddy
+networks:
+  vladnet: { }

@@ -92,7 +92,7 @@ function randomFiles
   end
 end
 
-function appendToVolume
+function reuseVolume
   set -l vol appendvol
   set -l mnt /opt/vol
   set -l img archlinux
@@ -105,11 +105,26 @@ function appendToVolume
   rmVol $vol
 end
 
+function bidiMount
+  set -l img archlinux
+  set -l cnt arch
+  set -l wCmd 'echo from container > /opt/out.txt'
+  set -l rCmd 'cat /etc/passwd; cat /etc/index.html'
+  docker container run --name $cnt --rm \
+    --mount type=bind,source=(pwd),target=/opt,readonly $img \
+    cat /opt/index.html
+  docker container run --name $cnt --rm \
+    --mount type=bind,source=(pwd),target=/opt $img bash -c "$wCmd"
+  cat out.txt; rm -f out.txt
+  docker container run --name $cnt --rm \
+    --mount type=bind,source=(pwd)/index.html,target=/etc/index.html,readonly \
+    $img bash -c "$rCmd"
+end
+
 # archInfo
 # caddyIndex
 # headClient 0.2.0
 # headClientToCaddy
 # randomFiles
-# appendToVolume
-
-# rmCnt
+# reuseVolume
+# bidiMount
