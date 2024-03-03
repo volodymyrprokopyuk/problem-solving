@@ -32,8 +32,14 @@ function rmVol -a name
   end
 end
 
+function buildBase
+  set -l img vlad/base:0.1.0
+  docker buildx build --tag $img .
+  rmImg
+end
+
 function archInfo
-  set -l img vlad/archinfo:0.1.0
+  set -l img vlad/base:0.1.0
   set -l cnt archinfo
   docker buildx build --tag $img .
   rmImg
@@ -81,11 +87,11 @@ function headClientToCaddy
 end
 
 function randomFiles
-  set -l img archlinux
+  set -l img vlad/base:0.1.0
   set -l cnts rand1 rand2
   set -l cmd 'tr -dc a-z0-9 </dev/urandom | head -c 4 > /opt/rand.txt'
   for cnt in $cnts
-    docker container run --name $cnt $img bash -c "$cmd"
+    docker container run --name $cnt $img fish --command "$cmd"
     docker container cp $cnt:/opt/rand.txt $cnt.txt
     printf '%s: %s\n' $cnt.txt (cat $cnt.txt); rm -f $cnt.txt
     rmCnt $cnt
@@ -95,26 +101,27 @@ end
 function reuseVolume
   set -l vol appendvol
   set -l mnt /opt/vol
-  set -l img archlinux
+  set -l img vlad/base:0.1.0
   set -l cnt arch
   set -l cmd 'echo ok >> /opt/vol/out; echo; cat /opt/vol/out'
   docker volume create $vol
   for i in 1 2 3
-    docker container run --name $cnt --rm --volume $vol:$mnt $img bash -c "$cmd"
+    docker container run --name $cnt --rm --volume $vol:$mnt $img \
+      fish --command "$cmd"
   end
   rmVol $vol
 end
 
 function bidiMount
-  set -l img archlinux
+  set -l img vlad/base:0.1.0
   set -l cnt arch
-  set -l wCmd 'echo from container > /opt/out.txt'
+  set -l wCmd 'echo \* from container > /opt/out.txt'
   set -l rCmd 'cat /etc/passwd; cat /etc/index.html'
   docker container run --name $cnt --rm \
     --mount type=bind,source=(pwd),target=/opt,readonly $img \
     cat /opt/index.html
   docker container run --name $cnt --rm \
-    --mount type=bind,source=(pwd),target=/opt $img bash -c "$wCmd"
+    --mount type=bind,source=(pwd),target=/opt $img fish --command "$wCmd"
   cat out.txt; rm -f out.txt
   docker container run --name $cnt --rm \
     --mount type=bind,source=(pwd)/index.html,target=/etc/index.html,readonly \
@@ -125,10 +132,11 @@ function scaleClientDNS
   set -l srv docker-caddy-1
   set -l cmd 'nslookup caddy; nslookup headclient'
   docker-compose up --detach --scale headclient=2
-  docker container exec $srv bash -c "$cmd"
+  docker container exec $srv fish --command "$cmd"
   docker-compose down
 end
 
+# buildBase
 # archInfo
 # caddyIndex
 # headClient 0.2.0

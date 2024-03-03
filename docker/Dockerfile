@@ -1,13 +1,15 @@
-# * archInfo
+# * buildBase
 # FROM archlinux
+# RUN pacman --noconfirm -Syyu && pacman --noconfirm -S fish bind go-yq go caddy
+
+# * archInfo
+# FROM vlad/base:0.1.0
 # WORKDIR /opt
-# CMD ./archinfo.sh
-# COPY archinfo.sh .
-# RUN chmod 755 archinfo.sh
+# CMD fish archinfo.fish
+# COPY archinfo.fish .
 
 # * caddyIndex
-# FROM archlinux
-# RUN pacman --noconfirm -Syyu && pacman --noconfirm -S caddy bind go-yq
+# FROM vlad/base:0.1.0
 # CMD caddy run --config /opt/Caddyfile
 # COPY Caddyfile index.html /opt
 
@@ -19,8 +21,7 @@
 # COPY headclient .
 
 # * headClient 0.2.0
-# FROM archlinux AS build
-# RUN pacman --noconfirm -Syyu && pacman --noconfirm -S go
+# FROM vlad/base:0.1.0 AS build
 # WORKDIR /opt
 # COPY headclient.go .
 # RUN go build headclient.go
