@@ -53,8 +53,8 @@ function caddyIndex
   curl http://localhost:$hostPort
 end
 
-function headClient -a version
-  set -l img vlad/headclient:$version
+function headClient -a ver
+  set -l img vlad/headclient:$ver
   set -l cnt headclient
   set -l host https://github.com
   docker buildx build --tag $img .
@@ -121,6 +121,14 @@ function bidiMount
     $img bash -c "$rCmd"
 end
 
+function scaleClientDNS
+  set -l srv docker-caddy-1
+  set -l cmd 'nslookup caddy; nslookup headclient'
+  docker-compose up --detach --scale headclient=2
+  docker container exec $srv bash -c "$cmd"
+  docker-compose down
+end
+
 # archInfo
 # caddyIndex
 # headClient 0.2.0
@@ -128,3 +136,4 @@ end
 # randomFiles
 # reuseVolume
 # bidiMount
+# scaleClientDNS

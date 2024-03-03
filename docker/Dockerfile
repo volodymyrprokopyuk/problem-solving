@@ -7,7 +7,7 @@
 
 # * caddyIndex
 # FROM archlinux
-# RUN pacman --noconfirm -Syyu && pacman --noconfirm -S caddy go-yq
+# RUN pacman --noconfirm -Syyu && pacman --noconfirm -S caddy bind go-yq
 # CMD caddy run --config /opt/Caddyfile
 # COPY Caddyfile index.html /opt
 

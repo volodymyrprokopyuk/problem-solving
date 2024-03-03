@@ -1,5 +1,4 @@
-# version:
-
+# * scaleClientDNS
 services:
   caddy:
     image: vlad/caddy:0.1.0
