@@ -4,6 +4,8 @@ import (
   "fmt"
   "time"
   "sync"
+  "os"
+  "os/signal"
 )
 
 func gorClosureInsideLoop() {
@@ -580,6 +582,19 @@ func atomicCounter() {
   fmt.Println(c.Value)
 }
 
+func processSignal() {
+  ch := make(chan os.Signal)
+  signal.Notify(ch, os.Interrupt)
+  go func() {
+    sig := <- ch
+    fmt.Printf("\nsignal: %v\n", sig)
+    os.Exit(1)
+  }()
+  var str string
+  fmt.Scanln(&str)
+  fmt.Println(str)
+}
+
 func main() {
   // gorClosureInsideLoop()
   // funcOnce()
@@ -598,4 +613,5 @@ func main() {
   // gracefulTermination()
   // mergeChannels()
   // atomicCounter()
+  processSignal()
 }
