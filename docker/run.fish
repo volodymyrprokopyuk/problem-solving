@@ -136,12 +136,26 @@ function scaleClientDNS
   docker-compose down
 end
 
+function healthCheck
+  set -l img vlad/healthserver:0.1.0
+  set -l cnt healthserver
+  docker buildx build --tag $img .
+  rmImg
+  rmCnt $cnt
+  docker container run --name $cnt --rm --detach $img
+  sleep 2s
+  docker container ls
+  sleep 1s
+  docker container ls
+end
+
 # buildBase
 # archInfo
 # caddyIndex
 # headClient 0.2.0
-# headClientToCaddy
+headClientToCaddy
 # randomFiles
 # reuseVolume
 # bidiMount
 # scaleClientDNS
+# healthCheck
