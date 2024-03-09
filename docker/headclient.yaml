@@ -1,0 +1,6 @@
+%YAML 1.1
+---
+headClient:
+  headHost: https://google.com
+  errorInterval: 4s
+  headInterval: 5s

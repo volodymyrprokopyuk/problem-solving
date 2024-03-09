@@ -59,8 +59,8 @@ function caddyIndex
   curl http://localhost:$hostPort
 end
 
-function headClient -a ver
-  set -l img vlad/headclient:$ver
+function headClient
+  set -l img vlad/headclient:0.1.0
   set -l cnt headclient
   set -l host https://github.com
   docker buildx build --tag $img .
@@ -73,7 +73,7 @@ end
 function headClientToCaddy
   set -l net vladnet
   set -l srvImg vlad/caddy:0.1.0
-  set -l clnImg vlad/headclient:0.2.0
+  set -l clnImg vlad/headclient:0.1.0
   set -l srv caddy
   set -l cln headclient
   rmCnt $cln
@@ -82,7 +82,7 @@ function headClientToCaddy
   docker network create $net
   docker container run --name $srv --rm --detach --network $net $srvImg
   docker container run --name $cln --rm --detach \
-    --env HEAD_HOST=http://$srv:4321 --network $net $clnImg
+    --env HEADCLIENT_HOST=http://$srv:4321 --network $net $clnImg
   docker container logs --follow $cln
 end
 
@@ -145,17 +145,17 @@ function healthCheck
   docker container run --name $cnt --rm --detach $img
   sleep 2s
   docker container ls
-  sleep 1s
+  sleep 2s
   docker container ls
 end
 
 # buildBase
 # archInfo
 # caddyIndex
-# headClient 0.2.0
-headClientToCaddy
+# headClient
+# headClientToCaddy
 # randomFiles
 # reuseVolume
 # bidiMount
-# scaleClientDNS
+scaleClientDNS
 # healthCheck

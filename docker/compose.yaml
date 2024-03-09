@@ -5,12 +5,19 @@ services:
     networks:
       - vladnet
   headclient:
-    image: vlad/headclient:0.2.0
+    image: vlad/headclient:0.1.0
     environment:
-      - HEAD_HOST=http://caddy:4321
+      - HEADCLIENT_CONFIG=/opt/config/headclient.yaml
+      - HEADCLIENT_HOST=http://caddy:4321
+    secrets:
+      - source: headclient-config
+        target: /opt/config/headclient.yaml
     networks:
       - vladnet
     depends_on:
       - caddy
+secrets:
+  headclient-config:
+    file: headclient.yaml
 networks:
   vladnet: { }
