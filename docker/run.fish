@@ -157,5 +157,5 @@ end
 # randomFiles
 # reuseVolume
 # bidiMount
-scaleClientDNS
-# healthCheck
+# scaleClientDNS
+healthCheck

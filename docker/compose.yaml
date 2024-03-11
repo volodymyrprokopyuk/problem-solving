@@ -1,9 +1,15 @@
 # * scaleClientDNS
+
+x-networks: &networks
+  networks:
+    - vladnet
+
 services:
   caddy:
     image: vlad/caddy:0.1.0
-    networks:
-      - vladnet
+    <<: *networks
+    # networks:
+    #   - vladnet
   headclient:
     image: vlad/headclient:0.1.0
     environment:
@@ -12,8 +18,9 @@ services:
     secrets:
       - source: headclient-config
         target: /opt/config/headclient.yaml
-    networks:
-      - vladnet
+    <<: *networks
+    # networks:
+    #   - vladnet
     depends_on:
       - caddy
 secrets:
