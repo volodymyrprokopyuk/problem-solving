@@ -12,4 +12,4 @@ function compileContract -a contract
 end
 
 # installGRPC
-# compileContract ecommerce/productinfo.proto
+compileContract ecommerce/productinfo.proto

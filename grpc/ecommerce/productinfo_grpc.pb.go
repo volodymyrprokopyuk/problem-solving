@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,16 +20,23 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ProductInfo_AddProduct_FullMethodName = "/ecommerce.ProductInfo/addProduct"
-	ProductInfo_GetProduct_FullMethodName = "/ecommerce.ProductInfo/getProduct"
+	ProductInfo_AddProduct_FullMethodName     = "/ecommerce.ProductInfo/addProduct"
+	ProductInfo_GetProduct_FullMethodName     = "/ecommerce.ProductInfo/getProduct"
+	ProductInfo_SearchProducts_FullMethodName = "/ecommerce.ProductInfo/searchProducts"
+	ProductInfo_UpdateProducts_FullMethodName = "/ecommerce.ProductInfo/updateProducts"
 )
 
 // ProductInfoClient is the client API for ProductInfo service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProductInfoClient interface {
+	// request-response
 	AddProduct(ctx context.Context, in *Product, opts ...grpc.CallOption) (*ProductID, error)
 	GetProduct(ctx context.Context, in *ProductID, opts ...grpc.CallOption) (*Product, error)
+	// server streaming
+	SearchProducts(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (ProductInfo_SearchProductsClient, error)
+	// client streaming
+	UpdateProducts(ctx context.Context, opts ...grpc.CallOption) (ProductInfo_UpdateProductsClient, error)
 }
 
 type productInfoClient struct {
@@ -57,12 +65,83 @@ func (c *productInfoClient) GetProduct(ctx context.Context, in *ProductID, opts 
 	return out, nil
 }
 
+func (c *productInfoClient) SearchProducts(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (ProductInfo_SearchProductsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ProductInfo_ServiceDesc.Streams[0], ProductInfo_SearchProducts_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &productInfoSearchProductsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type ProductInfo_SearchProductsClient interface {
+	Recv() (*Product, error)
+	grpc.ClientStream
+}
+
+type productInfoSearchProductsClient struct {
+	grpc.ClientStream
+}
+
+func (x *productInfoSearchProductsClient) Recv() (*Product, error) {
+	m := new(Product)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *productInfoClient) UpdateProducts(ctx context.Context, opts ...grpc.CallOption) (ProductInfo_UpdateProductsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ProductInfo_ServiceDesc.Streams[1], ProductInfo_UpdateProducts_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &productInfoUpdateProductsClient{stream}
+	return x, nil
+}
+
+type ProductInfo_UpdateProductsClient interface {
+	Send(*Product) error
+	CloseAndRecv() (*wrapperspb.StringValue, error)
+	grpc.ClientStream
+}
+
+type productInfoUpdateProductsClient struct {
+	grpc.ClientStream
+}
+
+func (x *productInfoUpdateProductsClient) Send(m *Product) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *productInfoUpdateProductsClient) CloseAndRecv() (*wrapperspb.StringValue, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(wrapperspb.StringValue)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // ProductInfoServer is the server API for ProductInfo service.
 // All implementations must embed UnimplementedProductInfoServer
 // for forward compatibility
 type ProductInfoServer interface {
+	// request-response
 	AddProduct(context.Context, *Product) (*ProductID, error)
 	GetProduct(context.Context, *ProductID) (*Product, error)
+	// server streaming
+	SearchProducts(*wrapperspb.StringValue, ProductInfo_SearchProductsServer) error
+	// client streaming
+	UpdateProducts(ProductInfo_UpdateProductsServer) error
 	mustEmbedUnimplementedProductInfoServer()
 }
 
@@ -75,6 +154,12 @@ func (UnimplementedProductInfoServer) AddProduct(context.Context, *Product) (*Pr
 }
 func (UnimplementedProductInfoServer) GetProduct(context.Context, *ProductID) (*Product, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProduct not implemented")
+}
+func (UnimplementedProductInfoServer) SearchProducts(*wrapperspb.StringValue, ProductInfo_SearchProductsServer) error {
+	return status.Errorf(codes.Unimplemented, "method SearchProducts not implemented")
+}
+func (UnimplementedProductInfoServer) UpdateProducts(ProductInfo_UpdateProductsServer) error {
+	return status.Errorf(codes.Unimplemented, "method UpdateProducts not implemented")
 }
 func (UnimplementedProductInfoServer) mustEmbedUnimplementedProductInfoServer() {}
 
@@ -125,6 +210,53 @@ func _ProductInfo_GetProduct_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProductInfo_SearchProducts_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(wrapperspb.StringValue)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ProductInfoServer).SearchProducts(m, &productInfoSearchProductsServer{stream})
+}
+
+type ProductInfo_SearchProductsServer interface {
+	Send(*Product) error
+	grpc.ServerStream
+}
+
+type productInfoSearchProductsServer struct {
+	grpc.ServerStream
+}
+
+func (x *productInfoSearchProductsServer) Send(m *Product) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _ProductInfo_UpdateProducts_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ProductInfoServer).UpdateProducts(&productInfoUpdateProductsServer{stream})
+}
+
+type ProductInfo_UpdateProductsServer interface {
+	SendAndClose(*wrapperspb.StringValue) error
+	Recv() (*Product, error)
+	grpc.ServerStream
+}
+
+type productInfoUpdateProductsServer struct {
+	grpc.ServerStream
+}
+
+func (x *productInfoUpdateProductsServer) SendAndClose(m *wrapperspb.StringValue) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *productInfoUpdateProductsServer) Recv() (*Product, error) {
+	m := new(Product)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // ProductInfo_ServiceDesc is the grpc.ServiceDesc for ProductInfo service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -141,6 +273,17 @@ var ProductInfo_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ProductInfo_GetProduct_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "searchProducts",
+			Handler:       _ProductInfo_SearchProducts_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "updateProducts",
+			Handler:       _ProductInfo_UpdateProducts_Handler,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "productinfo.proto",
 }

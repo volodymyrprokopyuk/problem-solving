@@ -4,6 +4,8 @@ option go_package="./ecommerce";
 
 package ecommerce;
 
+import "google/protobuf/wrappers.proto";
+
 message Product {
   string id = 1;
   string name = 2;
@@ -16,7 +18,14 @@ message ProductID {
 }
 
 service ProductInfo {
+  // request-response
   rpc addProduct(Product) returns (ProductID);
   rpc getProduct(ProductID) returns (Product);
+  // server streaming
+  rpc searchProducts(google.protobuf.StringValue) returns (stream Product);
+  // client streaming
+  rpc updateProducts(stream Product) returns (google.protobuf.StringValue);
+  // bidirectional streaming
+  rpc getProducts(stream ProductID) returns (stream Product);
 }
 
