@@ -6,15 +6,18 @@ import (
   "context"
   "io"
   "os"
+  "sync"
   "google.golang.org/grpc"
   wr "google.golang.org/protobuf/types/known/wrapperspb"
   ec "grpctest/ecommerce"
 )
 
-// request-response, local call
+// request-response: AddProduct(ctx), GetProduct(ctx)
+// - outbound: local call
+// - inbound: return value
 func requestResponse(ctx context.Context, cln ec.ProductInfoClient) {
-  fmt.Println("* Request-response")
-  prd := &ec.Product{Name: "Nextra", Description: "Bugary bayan", Price: 16e3}
+  fmt.Println("* Request-response: AddProduct(), GetProduct()")
+  prd := &ec.Product{Name: "Nextra", Desc: "Bugari bayan", Price: 16e3}
   id, err := cln.AddProduct(ctx, prd)
   exitOnError(err)
   fmt.Printf("Product Id %v\n", id.Value)
@@ -23,16 +26,18 @@ func requestResponse(ctx context.Context, cln ec.ProductInfoClient) {
   fmt.Printf("Product %v\n", prd)
 }
 
-// server streaming, stream.Recv(), EOF
+// server streaming: SearchProducts(ctx)
+// - outbound: local call
+// - inbound stream.Recv(), EOF, return nil
 func serverStreaming(
   ctx context.Context, cln ec.ProductInfoClient,
 ) []*ec.Product {
-  fmt.Println("* Server streaming")
-  inStream, err := cln.SearchProducts(ctx, &wr.StringValue{Value: "bayan"})
+  fmt.Println("* Server streaming: SearchProducts()")
+  stream, err := cln.SearchProducts(ctx, &wr.StringValue{Value: "bayan"})
   exitOnError(err)
   prds := make([]*ec.Product, 0, 10)
   for {
-    prd, err := inStream.Recv()
+    prd, err := stream.Recv()
     if err != nil {
       if err == io.EOF {
         break
@@ -45,21 +50,57 @@ func serverStreaming(
   return prds
 }
 
-// client streaming, stream.Send(), stream.CloseAndRecv()
+// client streaming: UpdateProducts() => stream
+// - outbound: stream.Send(), stream.CloseAndRecv()
+// - inbound: stream.CloseAndRecv()
 func clientStreaming(
   ctx context.Context, cln ec.ProductInfoClient, prds []*ec.Product,
 ) {
-  fmt.Println("* Client streaming")
-  outStream, err := cln.UpdateProducts(ctx)
+  fmt.Println("* Client streaming: UpdateProducts()")
+  stream, err := cln.UpdateProducts(ctx)
   exitOnError(err)
   for _, prd := range prds {
-    prd.Description += " updated"
-    err := outStream.Send(prd)
+    prd.Price += 1
+    err := stream.Send(prd)
     exitOnError(err)
   }
-  updStaus, err := outStream.CloseAndRecv()
+  updStaus, err := stream.CloseAndRecv()
   exitOnError(err)
   fmt.Printf("Update status %v\n", updStaus.Value)
+}
+
+// bidirectional streaming: GetProducts() => stream
+// - outbound: stream.Send(), stream.CloseSend()
+// - inbound: goroutine stream.Recv(), EOF, return nil
+func bidirectionalStreaming(
+  ctx context.Context, cln ec.ProductInfoClient, prds []*ec.Product,
+) {
+  fmt.Println("* Bidirectional streaming: GetProducts()")
+  stream, err := cln.GetProducts(ctx)
+  exitOnError(err)
+  var wg sync.WaitGroup
+  wg.Add(1)
+  go func() {
+    defer wg.Done()
+    for {
+      prd, err := stream.Recv()
+      if err != nil {
+        if err == io.EOF {
+          return
+        }
+        fmt.Println(err)
+        return
+      }
+      fmt.Printf("Product %v\n", prd)
+    }
+  }()
+  for _, prd := range prds {
+    err := stream.Send(&ec.ProductID{Value: prd.Id})
+    exitOnError(err)
+  }
+  err = stream.CloseSend()
+  exitOnError(err)
+  wg.Wait()
 }
 
 func exitOnError(err error) {
@@ -80,4 +121,5 @@ func main() {
   requestResponse(ctx, cln)
   prds := serverStreaming(ctx, cln)
   clientStreaming(ctx, cln, prds)
+  bidirectionalStreaming(ctx, cln, prds)
 }

@@ -9,7 +9,7 @@ import "google/protobuf/wrappers.proto";
 message Product {
   string id = 1;
   string name = 2;
-  string description = 3;
+  string desc = 3;
   float price = 4;
 }
 

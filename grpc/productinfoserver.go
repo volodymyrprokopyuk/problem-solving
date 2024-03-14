@@ -22,7 +22,9 @@ type server struct {
   store map[string]*ec.Product
 }
 
-// request-response, return response
+// request-response: AddProduct(ctx)
+// - inbound: method invoked
+// - outbound: return value
 func (s *server) AddProduct(
   ctx context.Context, prd *ec.Product,
 ) (*ec.ProductID, error) {
@@ -34,7 +36,9 @@ func (s *server) AddProduct(
   return &ec.ProductID{Value: prd.Id}, status.New(codes.OK, "").Err()
 }
 
-// request-response, return response
+// request-response: GetProduct(ctx)
+// - inbound: method invoked
+// - outbound: return value
 func (s *server) GetProduct(
   ctx context.Context, id *ec.ProductID,
 ) (*ec.Product, error) {
@@ -46,12 +50,14 @@ func (s *server) GetProduct(
   )
 }
 
-// server streaming stream.Send(), return nil to end stream
+// server streaming: SearchProducts(stream)
+// - inbound: method invoked
+// - outbound: stream.Send(), return nil
 func (s *server) SearchProducts(
   query *wr.StringValue, stream ec.ProductInfo_SearchProductsServer,
 ) error {
   for _, prd := range s.store {
-    if strings.Contains(prd.Description, query.Value) {
+    if strings.Contains(prd.Desc, query.Value) {
       err := stream.Send(prd)
       if err != nil {
         return err
@@ -62,7 +68,9 @@ func (s *server) SearchProducts(
   return nil
 }
 
-// client streaming, stream.Recv(), EOF, stream.SendAndClose() to end stream
+// client streaming: UpdateProducts(stream)
+// - inbound: stream.Recv(), EOF, stream.SendAndClose()
+// - outbound: EOF, stream.SendAndClose()
 func (s *server) UpdateProducts(
   stream ec.ProductInfo_UpdateProductsServer,
 ) error {
@@ -79,6 +87,31 @@ func (s *server) UpdateProducts(
     }
     s.store[prd.Id] = prd
     ids = append(ids, prd.Id)
+  }
+}
+
+// bidirectional streaming: GetProducts(stream)
+// - inbound: stream.Recv(), EOF, return nil
+// - outbound: stream.Send(), return nil
+func (s *server) GetProducts(stream ec.ProductInfo_GetProductsServer) error {
+  for {
+    id, err := stream.Recv()
+    if err != nil {
+      if err == io.EOF {
+        return nil
+      }
+      return err
+    }
+    if prd, exist := s.store[id.Value]; exist {
+      err := stream.Send(prd)
+      if err != nil {
+        return err
+      }
+    } else {
+      return status.Errorf(
+        codes.NotFound, "Product %v does not exist", id.Value,
+      )
+    }
   }
 }
 

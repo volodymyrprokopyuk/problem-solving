@@ -24,6 +24,7 @@ const (
 	ProductInfo_GetProduct_FullMethodName     = "/ecommerce.ProductInfo/getProduct"
 	ProductInfo_SearchProducts_FullMethodName = "/ecommerce.ProductInfo/searchProducts"
 	ProductInfo_UpdateProducts_FullMethodName = "/ecommerce.ProductInfo/updateProducts"
+	ProductInfo_GetProducts_FullMethodName    = "/ecommerce.ProductInfo/getProducts"
 )
 
 // ProductInfoClient is the client API for ProductInfo service.
@@ -37,6 +38,8 @@ type ProductInfoClient interface {
 	SearchProducts(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (ProductInfo_SearchProductsClient, error)
 	// client streaming
 	UpdateProducts(ctx context.Context, opts ...grpc.CallOption) (ProductInfo_UpdateProductsClient, error)
+	// bidirectional streaming
+	GetProducts(ctx context.Context, opts ...grpc.CallOption) (ProductInfo_GetProductsClient, error)
 }
 
 type productInfoClient struct {
@@ -131,6 +134,37 @@ func (x *productInfoUpdateProductsClient) CloseAndRecv() (*wrapperspb.StringValu
 	return m, nil
 }
 
+func (c *productInfoClient) GetProducts(ctx context.Context, opts ...grpc.CallOption) (ProductInfo_GetProductsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ProductInfo_ServiceDesc.Streams[2], ProductInfo_GetProducts_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &productInfoGetProductsClient{stream}
+	return x, nil
+}
+
+type ProductInfo_GetProductsClient interface {
+	Send(*ProductID) error
+	Recv() (*Product, error)
+	grpc.ClientStream
+}
+
+type productInfoGetProductsClient struct {
+	grpc.ClientStream
+}
+
+func (x *productInfoGetProductsClient) Send(m *ProductID) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *productInfoGetProductsClient) Recv() (*Product, error) {
+	m := new(Product)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // ProductInfoServer is the server API for ProductInfo service.
 // All implementations must embed UnimplementedProductInfoServer
 // for forward compatibility
@@ -142,6 +176,8 @@ type ProductInfoServer interface {
 	SearchProducts(*wrapperspb.StringValue, ProductInfo_SearchProductsServer) error
 	// client streaming
 	UpdateProducts(ProductInfo_UpdateProductsServer) error
+	// bidirectional streaming
+	GetProducts(ProductInfo_GetProductsServer) error
 	mustEmbedUnimplementedProductInfoServer()
 }
 
@@ -160,6 +196,9 @@ func (UnimplementedProductInfoServer) SearchProducts(*wrapperspb.StringValue, Pr
 }
 func (UnimplementedProductInfoServer) UpdateProducts(ProductInfo_UpdateProductsServer) error {
 	return status.Errorf(codes.Unimplemented, "method UpdateProducts not implemented")
+}
+func (UnimplementedProductInfoServer) GetProducts(ProductInfo_GetProductsServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetProducts not implemented")
 }
 func (UnimplementedProductInfoServer) mustEmbedUnimplementedProductInfoServer() {}
 
@@ -257,6 +296,32 @@ func (x *productInfoUpdateProductsServer) Recv() (*Product, error) {
 	return m, nil
 }
 
+func _ProductInfo_GetProducts_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ProductInfoServer).GetProducts(&productInfoGetProductsServer{stream})
+}
+
+type ProductInfo_GetProductsServer interface {
+	Send(*Product) error
+	Recv() (*ProductID, error)
+	grpc.ServerStream
+}
+
+type productInfoGetProductsServer struct {
+	grpc.ServerStream
+}
+
+func (x *productInfoGetProductsServer) Send(m *Product) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *productInfoGetProductsServer) Recv() (*ProductID, error) {
+	m := new(ProductID)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // ProductInfo_ServiceDesc is the grpc.ServiceDesc for ProductInfo service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -282,6 +347,12 @@ var ProductInfo_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "updateProducts",
 			Handler:       _ProductInfo_UpdateProducts_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "getProducts",
+			Handler:       _ProductInfo_GetProducts_Handler,
+			ServerStreams: true,
 			ClientStreams: true,
 		},
 	},
