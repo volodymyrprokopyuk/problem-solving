@@ -115,6 +115,27 @@ func (s *server) GetProducts(stream ec.ProductInfo_GetProductsServer) error {
   }
 }
 
+func logUnaryInterceptor(
+  ctx context.Context, req any,
+  info *grpc.UnaryServerInfo, handler grpc.UnaryHandler,
+) (any, error) {
+  start := time.Now() // pre-processing
+  res, err := handler(ctx, req) // forwarding
+  // post-processing
+  fmt.Printf("unary %v %v\n", info.FullMethod, time.Since(start))
+  return res, err
+}
+
+func logStreamInterceptor(
+  srv any, sstream grpc.ServerStream,
+  info *grpc.StreamServerInfo, handler grpc.StreamHandler,
+) error {
+  start := time.Now() // pre-processing
+  err := handler(srv, sstream)
+  fmt.Printf("stream %v %v\n", info.FullMethod, time.Since(start))
+  return err
+}
+
 func exitOnError(err error) {
   if err != nil {
     fmt.Println(err)
@@ -125,7 +146,10 @@ func exitOnError(err error) {
 func main() {
   lis, err := net.Listen("tcp", ":4321")
   exitOnError(err)
-  srv := grpc.NewServer()
+  srv := grpc.NewServer(
+    grpc.UnaryInterceptor(logUnaryInterceptor),
+    grpc.StreamInterceptor(logStreamInterceptor),
+  )
   ec.RegisterProductInfoServer(srv, &server{})
   err = srv.Serve(lis)
   exitOnError(err)
