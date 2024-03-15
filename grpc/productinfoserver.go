@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	ec "grpctest/ecommerce"
 	"io"
@@ -14,6 +15,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	wr "google.golang.org/protobuf/types/known/wrapperspb"
@@ -175,9 +177,12 @@ func exitOnError(err error) {
 }
 
 func main() {
+  cert, err := tls.LoadX509KeyPair("srvcert.pem", "srvkey.pem")
+  exitOnError(err)
   listener, err := net.Listen("tcp", ":4321")
   exitOnError(err)
   server := grpc.NewServer(
+    grpc.Creds(credentials.NewServerTLSFromCert(&cert)), // enable TLS
     // grpc.UnaryInterceptor(srvLogUnaryInterceptor),
     // grpc.StreamInterceptor(srvLogStreamInterceptor),
   )

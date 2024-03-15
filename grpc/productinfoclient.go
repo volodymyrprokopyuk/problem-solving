@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 	wr "google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -160,8 +161,12 @@ func exitOnError(err error) {
 }
 
 func main() {
+  creds, err := credentials.NewClientTLSFromFile("srvcert.pem", "localhost")
+  exitOnError(err)
   conn, err := grpc.Dial(
-    "localhost:4321", grpc.WithInsecure(),
+    "localhost:4321",
+    // grpc.WithInsecure(),
+    grpc.WithTransportCredentials(creds), // enable TLS
     // grpc.WithUnaryInterceptor(clnLogUnaryInterceptor),
     // grpc.WithStreamInterceptor(clnLogStreamInterceptor),
   )
