@@ -1,23 +1,25 @@
 package main
 
 import (
-  "fmt"
-  "strings"
-  "strconv"
-  "time"
-  "math/rand"
-  "context"
-  "io"
-  "os"
-  "net"
-  "google.golang.org/grpc"
-  "google.golang.org/grpc/codes"
-  "google.golang.org/grpc/status"
-  wr "google.golang.org/protobuf/types/known/wrapperspb"
-  ec "grpctest/ecommerce"
+	"context"
+	"fmt"
+	ec "grpctest/ecommerce"
+	"io"
+	"math/rand"
+	"net"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
+	wr "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-type server struct {
+type prdService struct {
   ec.UnimplementedProductInfoServer
   store map[string]*ec.Product
 }
@@ -25,9 +27,16 @@ type server struct {
 // request-response: AddProduct(ctx)
 // - inbound: method invoked
 // - outbound: return value
-func (s *server) AddProduct(
+func (s *prdService) AddProduct(
   ctx context.Context, prd *ec.Product,
 ) (*ec.ProductID, error) {
+  // read client metadata from context
+  if meta, exist := metadata.FromIncomingContext(ctx); exist {
+    fmt.Printf("meta %v\n", meta)
+  }
+  // write server metadata on context
+  _ = grpc.SendHeader(ctx, metadata.Pairs("srv1", "srvHeader"))
+  _ = grpc.SetTrailer(ctx, metadata.Pairs("svr2", "svrTrailer"))
   if s.store == nil {
     s.store = make(map[string]*ec.Product, 10)
   }
@@ -39,7 +48,7 @@ func (s *server) AddProduct(
 // request-response: GetProduct(ctx)
 // - inbound: method invoked
 // - outbound: return value
-func (s *server) GetProduct(
+func (s *prdService) GetProduct(
   ctx context.Context, id *ec.ProductID,
 ) (*ec.Product, error) {
   if prd, exist := s.store[id.Value]; exist {
@@ -53,9 +62,16 @@ func (s *server) GetProduct(
 // server streaming: SearchProducts(stream)
 // - inbound: method invoked
 // - outbound: stream.Send(), return nil
-func (s *server) SearchProducts(
+func (s *prdService) SearchProducts(
   query *wr.StringValue, stream ec.ProductInfo_SearchProductsServer,
 ) error {
+  // read client metadata from context
+  if meta, exist := metadata.FromIncomingContext(stream.Context()); exist {
+    fmt.Printf("meta %v\n", meta)
+  }
+  // write server metadata to context
+  stream.SendHeader(metadata.Pairs("srv1", "srvHeader"))
+  stream.SetTrailer(metadata.Pairs("svf2", "srvTrailer"))
   for _, prd := range s.store {
     if strings.Contains(prd.Desc, query.Value) {
       err := stream.Send(prd)
@@ -65,13 +81,13 @@ func (s *server) SearchProducts(
       time.Sleep(500 * time.Millisecond)
     }
   }
-  return nil
+  return status.New(codes.OK, "").Err()
 }
 
 // client streaming: UpdateProducts(stream)
 // - inbound: stream.Recv(), EOF, stream.SendAndClose()
 // - outbound: EOF, stream.SendAndClose()
-func (s *server) UpdateProducts(
+func (s *prdService) UpdateProducts(
   stream ec.ProductInfo_UpdateProductsServer,
 ) error {
   ids := make([]string, 0, 10)
@@ -93,12 +109,12 @@ func (s *server) UpdateProducts(
 // bidirectional streaming: GetProducts(stream)
 // - inbound: stream.Recv(), EOF, return nil
 // - outbound: stream.Send(), return nil
-func (s *server) GetProducts(stream ec.ProductInfo_GetProductsServer) error {
+func (s *prdService) GetProducts(stream ec.ProductInfo_GetProductsServer) error {
   for {
     id, err := stream.Recv()
     if err != nil {
       if err == io.EOF {
-        return nil
+        return status.New(codes.OK, "").Err()
       }
       return err
     }
@@ -115,7 +131,7 @@ func (s *server) GetProducts(stream ec.ProductInfo_GetProductsServer) error {
   }
 }
 
-func logUnaryInterceptor(
+func srvLogUnaryInterceptor(
   ctx context.Context, req any,
   info *grpc.UnaryServerInfo, handler grpc.UnaryHandler,
 ) (any, error) {
@@ -126,12 +142,27 @@ func logUnaryInterceptor(
   return res, err
 }
 
-func logStreamInterceptor(
-  srv any, sstream grpc.ServerStream,
+type wrServerStream struct {
+  grpc.ServerStream
+}
+
+func (ss *wrServerStream) RecvMsg(msg any) error {
+  fmt.Printf("  stream receive %v\n", msg)
+  return ss.ServerStream.RecvMsg(msg)
+}
+
+func (ss *wrServerStream) SendMsg(msg any) error {
+  fmt.Printf("  stream send %v\n", msg)
+  return ss.ServerStream.SendMsg(msg)
+}
+
+func srvLogStreamInterceptor(
+  srv any, ss grpc.ServerStream,
   info *grpc.StreamServerInfo, handler grpc.StreamHandler,
 ) error {
   start := time.Now() // pre-processing
-  err := handler(srv, sstream)
+  err := handler(srv, &wrServerStream{ss}) // forwarding
+  // post-processing
   fmt.Printf("stream %v %v\n", info.FullMethod, time.Since(start))
   return err
 }
@@ -144,13 +175,13 @@ func exitOnError(err error) {
 }
 
 func main() {
-  lis, err := net.Listen("tcp", ":4321")
+  listener, err := net.Listen("tcp", ":4321")
   exitOnError(err)
-  srv := grpc.NewServer(
-    grpc.UnaryInterceptor(logUnaryInterceptor),
-    grpc.StreamInterceptor(logStreamInterceptor),
+  server := grpc.NewServer(
+    // grpc.UnaryInterceptor(srvLogUnaryInterceptor),
+    // grpc.StreamInterceptor(srvLogStreamInterceptor),
   )
-  ec.RegisterProductInfoServer(srv, &server{})
-  err = srv.Serve(lis)
+  ec.RegisterProductInfoServer(server, &prdService{})
+  err = server.Serve(listener)
   exitOnError(err)
 }
