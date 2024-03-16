@@ -15,12 +15,15 @@ function signCert -a cakey cacert key cert cn
     -subj "/CN=$cn" -addext "subjectAltName = DNS:$cn"
   # creates a certificate by signing a CSR for a time duration
   and openssl x509 -req -in $key.csr -out $cert.pem \
-    -CAkey $cakey.pem -CA $cacert.pem -CAcreateserial -days 365
+    -CAkey $cakey.pem -CA $cacert.pem -CAcreateserial -days 365 \
+    -copy_extensions copyall
 end
 
 function showCert -a cert
   openssl x509 --in $cert.pem -text --noout |
     rg 'Issuer:|Subject:|Public-Key:|CA:'
+  openssl x509 --in $cert.pem -text --noout |
+    rg -A1 'Subject Alternative Name:'
 end
 
 function serverTLS
@@ -46,3 +49,8 @@ end
 
 # serverTLS
 # mutualTLS
+
+# for c in *cert.pem
+#   echo \* $c
+#   showCert (path change-extension '' $c)
+# end

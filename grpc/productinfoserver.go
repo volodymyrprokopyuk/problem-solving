@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	ec "grpctest/ecommerce"
 	"io"
@@ -177,12 +178,32 @@ func exitOnError(err error) {
 }
 
 func main() {
+  // * server TLS
   cert, err := tls.LoadX509KeyPair("srvcert.pem", "srvkey.pem")
   exitOnError(err)
+
+  // + mutual TLS
+  certPool := x509.NewCertPool()
+  cacert, err := os.ReadFile("cacert.pem")
+  exitOnError(err)
+  if !certPool.AppendCertsFromPEM(cacert) {
+    fmt.Println("cannot append cacert to cert pool")
+    os.Exit(1)
+  }
+
   listener, err := net.Listen("tcp", ":4321")
   exitOnError(err)
   server := grpc.NewServer(
-    grpc.Creds(credentials.NewServerTLSFromCert(&cert)), // enable TLS
+    // * server TLS
+    // grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
+
+    // * mutual TLS
+    grpc.Creds(credentials.NewTLS(&tls.Config{
+      Certificates: []tls.Certificate{cert},
+      ClientAuth: tls.RequireAndVerifyClientCert,
+      ClientCAs: certPool,
+    })),
+
     // grpc.UnaryInterceptor(srvLogUnaryInterceptor),
     // grpc.StreamInterceptor(srvLogStreamInterceptor),
   )
