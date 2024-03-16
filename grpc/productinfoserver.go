@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"crypto/x509"
+	"encoding/base64"
+
+	// "crypto/x509"
 	"fmt"
 	ec "grpctest/ecommerce"
 	"io"
@@ -23,8 +25,8 @@ import (
 )
 
 type prdService struct {
-  ec.UnimplementedProductInfoServer
   store map[string]*ec.Product
+  ec.UnimplementedProductInfoServer
 }
 
 // request-response: AddProduct(ctx)
@@ -170,6 +172,33 @@ func srvLogStreamInterceptor(
   return err
 }
 
+func basicAuthNInterceptor(
+  ctx context.Context, req any,
+  info *grpc.UnaryServerInfo, handler grpc.UnaryHandler,
+) (any, error) {
+  meta, exist := metadata.FromIncomingContext(ctx)
+  if !exist {
+    return nil, status.Errorf(
+      codes.Unauthenticated, "cannot get metadata from context",
+    )
+  }
+  auth, exist := meta["authorization"]
+  if !exist {
+    return nil, status.Errorf(
+      codes.Unauthenticated, "missing authorization header",
+    )
+  }
+  provided := strings.TrimPrefix(auth[0], "Basic ")
+  expected := base64.StdEncoding.EncodeToString([]byte("cln1:secret1"))
+  fmt.Printf("%v %v\n", provided, expected)
+  if provided != expected {
+    return nil, status.Errorf(
+      codes.Unauthenticated, "invalid credentials",
+    )
+  }
+  return handler(ctx, req)
+}
+
 func exitOnError(err error) {
   if err != nil {
     fmt.Println(err)
@@ -183,26 +212,29 @@ func main() {
   exitOnError(err)
 
   // + mutual TLS
-  certPool := x509.NewCertPool()
-  cacert, err := os.ReadFile("cacert.pem")
-  exitOnError(err)
-  if !certPool.AppendCertsFromPEM(cacert) {
-    fmt.Println("cannot append cacert to cert pool")
-    os.Exit(1)
-  }
+  // certPool := x509.NewCertPool()
+  // cacert, err := os.ReadFile("cacert.pem")
+  // exitOnError(err)
+  // if !certPool.AppendCertsFromPEM(cacert) {
+  //   fmt.Println("cannot append cacert to cert pool")
+  //   os.Exit(1)
+  // }
 
   listener, err := net.Listen("tcp", ":4321")
   exitOnError(err)
   server := grpc.NewServer(
     // * server TLS
-    // grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
+    grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
 
     // * mutual TLS
-    grpc.Creds(credentials.NewTLS(&tls.Config{
-      Certificates: []tls.Certificate{cert},
-      ClientAuth: tls.RequireAndVerifyClientCert,
-      ClientCAs: certPool,
-    })),
+    // grpc.Creds(credentials.NewTLS(&tls.Config{
+    //   Certificates: []tls.Certificate{cert},
+    //   ClientAuth: tls.RequireAndVerifyClientCert,
+    //   ClientCAs: certPool,
+    // })),
+
+    // * basic authentication
+    grpc.UnaryInterceptor(basicAuthNInterceptor),
 
     // grpc.UnaryInterceptor(srvLogUnaryInterceptor),
     // grpc.StreamInterceptor(srvLogStreamInterceptor),

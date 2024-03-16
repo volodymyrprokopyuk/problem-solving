@@ -1,9 +1,10 @@
 package main
 
 import (
-	"crypto/tls"
-	"crypto/x509"
+	// "crypto/tls"
+	// "crypto/x509"
 	"context"
+	"encoding/base64"
 	"fmt"
 	ec "grpctest/ecommerce"
 	"io"
@@ -155,6 +156,23 @@ func clnLogStreamInterceptor(
   return &wrClientStream{cstream}, err
 }
 
+type basicAuth struct {
+  username, password string
+}
+
+func (a basicAuth) GetRequestMetadata(
+  ctx context.Context, uri ...string,
+) (map[string]string, error) {
+  creds := fmt.Sprintf("%v:%v", a.username, a.password)
+  enc := base64.StdEncoding.EncodeToString([]byte(creds))
+  auth := map[string]string{"authorization": "Basic " + enc}
+  return auth, nil
+}
+
+func (a basicAuth) RequireTransportSecurity() bool {
+  return true
+}
+
 func exitOnError(err error) {
   if err != nil {
     fmt.Println(err)
@@ -164,33 +182,37 @@ func exitOnError(err error) {
 
 func main() {
   // * server TLS
-  // creds, err := credentials.NewClientTLSFromFile("srvcert.pem", "localhost")
-  // exitOnError(err)
+  creds, err := credentials.NewClientTLSFromFile("cacert.pem", "localhost")
+  exitOnError(err)
 
   // * mutula TLS
-  cert, err := tls.LoadX509KeyPair("clncert.pem", "clnkey.pem")
-  exitOnError(err)
-  certPool := x509.NewCertPool()
-  cacert, err := os.ReadFile("cacert.pem")
-  exitOnError(err)
-  if !certPool.AppendCertsFromPEM(cacert) {
-    fmt.Println("cannot append cacert to cert pool")
-    os.Exit(1)
-  }
+  // cert, err := tls.LoadX509KeyPair("clncert.pem", "clnkey.pem")
+  // exitOnError(err)
+  // certPool := x509.NewCertPool()
+  // cacert, err := os.ReadFile("cacert.pem")
+  // exitOnError(err)
+  // if !certPool.AppendCertsFromPEM(cacert) {
+  //   fmt.Println("cannot append cacert to cert pool")
+  //   os.Exit(1)
+  // }
 
+  authN := basicAuth{username: "cln1", password: "secret1"}
   conn, err := grpc.Dial(
     "localhost:4321",
     // grpc.WithInsecure(),
 
     // * server TLS
-    // grpc.WithTransportCredentials(creds),
+    grpc.WithTransportCredentials(creds),
 
     // * mutual TLS
-    grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{
-      Certificates: []tls.Certificate{cert},
-      ServerName: "localhost",
-      RootCAs: certPool,
-    })),
+    // grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{
+    //   Certificates: []tls.Certificate{cert},
+    //   ServerName: "localhost",
+    //   RootCAs: certPool,
+    // })),
+
+    // * basic authentication
+    grpc.WithPerRPCCredentials(authN),
 
     // grpc.WithUnaryInterceptor(clnLogUnaryInterceptor),
     // grpc.WithStreamInterceptor(clnLogStreamInterceptor),
