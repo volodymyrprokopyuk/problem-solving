@@ -21,6 +21,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+  "google.golang.org/grpc/reflection"
 	wr "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -240,6 +241,7 @@ func main() {
     // grpc.StreamInterceptor(srvLogStreamInterceptor),
   )
   ec.RegisterProductInfoServer(server, &prdService{})
+  reflection.Register(server) // enable gRPC reflection (optional)
   err = server.Serve(listener)
   exitOnError(err)
 }
