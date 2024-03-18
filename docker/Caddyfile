@@ -1,8 +1,17 @@
 # -*- mode: conf -*-
+
+# * caddyIndex, headClientToCaddy, scaleClientDNS
+# :4321 {
+#   root * /opt
+#   file_server
+#   handle_errors {
+#     respond "{err.status_code} {err.status_text}"
+#   }
+# }
+
+# * reverseProxy
 :4321 {
-  root * /opt
-  file_server
-  handle_errors {
-    respond "{err.status_code} {err.status_text}"
+  handle_path /api/* {
+    reverse_proxy healthserver:4321
   }
 }

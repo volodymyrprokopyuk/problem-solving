@@ -1,30 +1,49 @@
 # * scaleClientDNS
+# x-networks: &networks
+#   networks:
+#     - vladnet
+# services:
+#   caddy:
+#     image: vlad/base:0.1.0
+#     command: caddy run --config /opt/Caddyfile
+#     volumes:
+#       - ./Caddyfile:/opt/Caddyfile:ro
+#     <<: *networks
+#     # networks:
+#     #   - vladnet
+#   headclient:
+#     image: vlad/headclient:0.1.0
+#     environment:
+#       - HEADCLIENT_CONFIG=/opt/config/headclient.yaml
+#       - HEADCLIENT_HOST=http://caddy:4321
+#     secrets:
+#       - source: headclient-config
+#         target: /opt/config/headclient.yaml
+#     <<: *networks
+#     # networks:
+#     #   - vladnet
+#     depends_on:
+#       - caddy
+# secrets:
+#   headclient-config:
+#     file: headclient.yaml
+# networks:
+#   vladnet: { }
 
-x-networks: &networks
-  networks:
-    - vladnet
-
+# * reverseProxy
 services:
   caddy:
-    image: vlad/caddy:0.1.0
-    <<: *networks
-    # networks:
-    #   - vladnet
-  headclient:
-    image: vlad/headclient:0.1.0
-    environment:
-      - HEADCLIENT_CONFIG=/opt/config/headclient.yaml
-      - HEADCLIENT_HOST=http://caddy:4321
-    secrets:
-      - source: headclient-config
-        target: /opt/config/headclient.yaml
-    <<: *networks
-    # networks:
-    #   - vladnet
-    depends_on:
-      - caddy
-secrets:
-  headclient-config:
-    file: headclient.yaml
+    image: vlad/base:0.1.0
+    command: caddy run --config /opt/Caddyfile
+    volumes:
+      - ./Caddyfile:/opt/Caddyfile:ro
+    ports:
+      - "5432:4321"
+    networks:
+      - vladnet
+  healthserver:
+    image: vlad/healthserver:0.1.0
+    networks:
+      - vladnet
 networks:
   vladnet: { }

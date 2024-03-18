@@ -149,6 +149,13 @@ function healthCheck
   docker container ls
 end
 
+function reverseProxy
+  docker-compose up --detach
+  sleep 1s
+  curl localhost:5432/api/random
+  docker-compose down
+end
+
 # buildBase
 # archInfo
 # caddyIndex
@@ -158,4 +165,5 @@ end
 # reuseVolume
 # bidiMount
 # scaleClientDNS
-healthCheck
+# healthCheck
+reverseProxy
