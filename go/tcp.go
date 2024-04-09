@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"time"
@@ -14,6 +16,34 @@ func exitOnError(err error) {
   if err != nil {
     fmt.Println(err)
     os.Exit(1)
+  }
+}
+
+func handleHeartbeat(conn net.Conn) {
+  defer conn.Close()
+  buf := make([]byte, 128)
+  for {
+    n, err := conn.Read(buf)
+    if err != nil {
+      fmt.Println(err)
+      return
+    }
+    fmt.Printf("%v: %v\n", conn.RemoteAddr(), string(buf[:n]))
+    _, err = conn.Write([]byte("pong"))
+    if err != nil {
+      fmt.Println(err)
+      return
+    }
+  }
+}
+
+func handleSend(conn net.Conn) {
+  defer conn.Close()
+  payload := []byte("The bigger the interface, the weaker the abstraction.")
+  _, err := conn.Write(payload)
+  if err != nil {
+    fmt.Println(err)
+    return
   }
 }
 
@@ -29,23 +59,8 @@ func listen() {
       fmt.Println(err)
       continue
     }
-    go func(conn net.Conn) {
-      defer conn.Close()
-      buf := make([]byte, 128)
-      for {
-        n, err := conn.Read(buf)
-        if err != nil {
-          fmt.Println(err)
-          return
-        }
-        fmt.Printf("%v: %v\n", conn.RemoteAddr(), string(buf[:n]))
-        _, err = conn.Write([]byte("pong"))
-        if err != nil {
-          fmt.Println(err)
-          return
-        }
-      }
-    }(conn)
+    // go handleHeartbeat(conn)
+    go handleSend(conn)
   }
 }
 
@@ -107,6 +122,36 @@ func dialHeartbeat() {
   }
 }
 
+func dialReceive() {
+  conn, err := net.Dial("tcp", server)
+  exitOnError(err)
+  defer conn.Close()
+  buf := make([]byte, 8)
+  for {
+    n, err := conn.Read(buf)
+    if err != nil {
+      if err == io.EOF {
+        fmt.Printf("%v\n", string(buf[:n]))
+        return
+      }
+      exitOnError(err)
+    }
+    fmt.Printf("%v\n", string(buf[:n]))
+  }
+}
+
+func dialScan() {
+  conn, err := net.Dial("tcp", server)
+  exitOnError(err)
+  defer conn.Close()
+  sca := bufio.NewScanner(conn)
+  sca.Split(bufio.ScanWords)
+  for sca.Scan() {
+    fmt.Println(sca.Text())
+  }
+  exitOnError(sca.Err())
+}
+
 func main() {
   if len(os.Args) > 1 && os.Args[1] == "-l" {
     listen()
@@ -114,5 +159,7 @@ func main() {
   }
   // dial()
   // dialTimeout()
-  dialHeartbeat()
+  // dialHeartbeat()
+  // dialReceive()
+  dialScan()
 }
