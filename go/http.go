@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"time"
@@ -56,6 +57,18 @@ func listen() {
   exitOnError(err)
 }
 
+func listenServer() {
+  mux := http.NewServeMux()
+  mux.HandleFunc("GET /date", getDate)
+  mux.HandleFunc("POST /counter",postCounter)
+  srv := &http.Server{Addr: server, Handler: mux}
+  lis, err := net.Listen("tcp", server)
+  exitOnError(err)
+  fmt.Printf("listening %v\n", server)
+  err = srv.Serve(lis)
+  exitOnError(err)
+}
+
 func dateHead() {
   res, err := http.Head(fmt.Sprintf("http://%v/date", server))
   exitOnError(err)
@@ -92,7 +105,8 @@ func counterPost() {
 
 func main() {
   if len(os.Args) > 1 && os.Args[1] == "-l" {
-    listen()
+    // listen()
+    listenServer()
   }
   dateHead()
   dateGetCtx()
