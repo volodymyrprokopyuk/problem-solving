@@ -21,6 +21,13 @@ func exitOnError(err error) {
   }
 }
 
+func log(next http.Handler) http.Handler {
+  return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+    fmt.Printf("%v %v\n", r.Method, r.URL.Path)
+    next.ServeHTTP(w, r)
+  })
+}
+
 func getDate(w http.ResponseWriter, r *http.Request) {
   w.Header().Set("Content-Type", "text/plain")
   w.WriteHeader(http.StatusOK)
@@ -51,9 +58,10 @@ func postCounter(w http.ResponseWriter, r *http.Request) {
 func listen() {
   mux := http.NewServeMux()
   mux.HandleFunc("GET /date", getDate)
-  mux.HandleFunc("POST /counter",postCounter)
+  // mux.HandleFunc("POST /counter",postCounter)
+  mux.Handle("POST /counter", http.HandlerFunc(postCounter))
   fmt.Printf("listening %v\n", server)
-  err := http.ListenAndServe(server, mux)
+  err := http.ListenAndServe(server, log(mux))
   exitOnError(err)
 }
 
@@ -61,11 +69,12 @@ func listenServer() {
   mux := http.NewServeMux()
   mux.HandleFunc("GET /date", getDate)
   mux.HandleFunc("POST /counter",postCounter)
-  srv := &http.Server{Addr: server, Handler: mux}
-  lis, err := net.Listen("tcp", server)
+  srv := &http.Server{Addr: server, Handler: log(mux)}
+  lis, err := net.Listen("tcp", srv.Addr)
   exitOnError(err)
   fmt.Printf("listening %v\n", server)
   err = srv.Serve(lis)
+  // err = srv.ServeTLS(lis, "srvcert.pem", "srvkey.pem")
   exitOnError(err)
 }
 
