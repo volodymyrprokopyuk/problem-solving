@@ -121,70 +121,70 @@ func listenServermTLS() {
   exitOnError(err)
 }
 
-func dateHead() {
-  res, err := http.Head(fmt.Sprintf("http://%v/date", server))
+func dateGet() {
+  res, err := http.Get(fmt.Sprintf("http://%v/date", server))
   exitOnError(err)
   defer res.Body.Close()
-  fmt.Println(res.Header.Get("Content-Type"))
+  fmt.Printf("%v\n", res.Header.Get("Content-Type"))
+  io.Copy(os.Stdout, res.Body)
 }
 
-func dateHeadTLS() {
+func dateGetCtx() {
+  ctx, cancel := context.WithTimeout(context.Background(), 1e3 * time.Millisecond)
+  defer cancel()
+  req, err := http.NewRequestWithContext(
+    ctx, http.MethodGet, fmt.Sprintf("http://%v/date", server), nil,
+  )
+  exitOnError(err)
+  var cln http.Client
+  res, err := cln.Do(req)
+  exitOnError(err)
+  defer res.Body.Close()
+  fmt.Printf("%v\n", res.Header.Get("Content-Type"))
+  io.Copy(os.Stdout, res.Body)
+}
+
+func processCounterPost(cln *http.Client, url string) {
+  cnt := Counter{Value: 1}
+  var buf bytes.Buffer
+  err := json.NewEncoder(&buf).Encode(&cnt)
+  exitOnError(err)
+  res, err := cln.Post(url, "application/json", &buf)
+  exitOnError(err)
+  defer res.Body.Close()
+  err = json.NewDecoder(res.Body).Decode(&cnt)
+  exitOnError(err)
+  fmt.Printf("%+v\n", cnt)
+}
+
+func counterPost() {
+  var cln http.Client
+  processCounterPost(&cln, fmt.Sprintf("http://%v/counter", server))
+}
+
+func counterPostTLS() {
   cacert, err := os.ReadFile("cacert.pem")
   exitOnError(err)
   certpool := x509.NewCertPool()
   certpool.AppendCertsFromPEM(cacert)
-  cln := &http.Client{
+  cln := http.Client{
     Transport: &http.Transport{
       TLSClientConfig: &tls.Config{
         RootCAs: certpool,
       },
     },
   }
-  res, err := cln.Head(fmt.Sprintf("https://%v/date", serverTLS))
-  exitOnError(err)
-  defer res.Body.Close()
-  fmt.Println(res.Header.Get("Content-Type"))
-}
-
-func dateGetCtx() {
-  ctx, cancel := context.WithTimeout(context.Background(), 1000 * time.Millisecond)
-  defer cancel()
-  req, err := http.NewRequestWithContext(
-    ctx, http.MethodGet, fmt.Sprintf("http://%v/date", server), nil,
-  )
-  exitOnError(err)
-  res, err := http.DefaultClient.Do(req)
-  exitOnError(err)
-  defer res.Body.Close()
-  io.Copy(os.Stdout, res.Body)
-}
-
-func counterPost() {
-  cnt := Counter{Value: 1}
-  var buf bytes.Buffer
-  err := json.NewEncoder(&buf).Encode(&cnt)
-  exitOnError(err)
-  res, err := http.Post(
-    fmt.Sprintf("http://%v/counter", server), "application/json", &buf,
-  )
-  exitOnError(err)
-  defer res.Body.Close()
-  err = json.NewDecoder(res.Body).Decode(&cnt)
-  fmt.Printf("%+v\n", cnt)
+  processCounterPost(&cln, fmt.Sprintf("https://%v/counter", serverTLS))
 }
 
 func counterPostmTLS() {
-  cnt := Counter{Value: 1}
-  var buf bytes.Buffer
-  err := json.NewEncoder(&buf).Encode(&cnt)
-  exitOnError(err)
   cacert, err := os.ReadFile("cacert.pem")
   exitOnError(err)
   certpool := x509.NewCertPool()
   certpool.AppendCertsFromPEM(cacert)
   clncert, err := tls.LoadX509KeyPair("clncert.pem", "clnkey.pem")
   exitOnError(err)
-  cln := &http.Client{
+  cln := http.Client{
     Transport: &http.Transport{
       TLSClientConfig: &tls.Config{
         RootCAs: certpool,
@@ -192,31 +192,24 @@ func counterPostmTLS() {
       },
     },
   }
-  res, err := cln.Post(
-    fmt.Sprintf("https://%v/counter", serverTLS), "application/json", &buf,
-  )
-  exitOnError(err)
-
-  defer res.Body.Close()
-  err = json.NewDecoder(res.Body).Decode(&cnt)
-  fmt.Printf("%+v\n", cnt)
+  processCounterPost(&cln, fmt.Sprintf("https://%v/counter", serverTLS))
 }
 
 func main() {
   if len(os.Args) > 1 && os.Args[1] == "-l" {
     // listen()
     // listenTLS()
-    listenServer()
+    // listenServer()
     // curl https://localhost:7654/counter -d '{"value":1}'
-    listenServerTLS()
+    // listenServerTLS()
     // curl https://localhost:7654/counter -d '{"value":1}' --cacert cacert.pem
     listenServermTLS()
     // curl https://localhost:7654/counter -d '{"value":1}' --cacert cacert.pem \
     //   --cert clncert.pem --key clnkey.pem
   }
-  // dateHead()
+  // dateGet()
   // dateGetCtx()
   // counterPost()
-  // dateHeadTLS()
+  // counterPostTLS()
   counterPostmTLS()
 }
