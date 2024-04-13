@@ -3,16 +3,20 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"os"
 	"time"
 )
 
-const server = "127.0.0.1:7654"
+const (
+  server = "127.0.0.1:7654"
+  serverTLS = "localhost:7654"
+)
 
 func exitOnError(err error) {
   if err != nil {
@@ -55,31 +59,88 @@ func postCounter(w http.ResponseWriter, r *http.Request) {
   }
 }
 
-func listen() {
+func createMux() *http.ServeMux {
   mux := http.NewServeMux()
   mux.HandleFunc("GET /date", getDate)
-  // mux.HandleFunc("POST /counter",postCounter)
   mux.Handle("POST /counter", http.HandlerFunc(postCounter))
+  return mux
+}
+
+func listen() {
+  mux := createMux()
   fmt.Printf("listening %v\n", server)
   err := http.ListenAndServe(server, log(mux))
   exitOnError(err)
 }
 
-func listenServer() {
-  mux := http.NewServeMux()
-  mux.HandleFunc("GET /date", getDate)
-  mux.HandleFunc("POST /counter",postCounter)
-  srv := &http.Server{Addr: server, Handler: log(mux)}
-  lis, err := net.Listen("tcp", srv.Addr)
+func listenTLS() {
+  mux := createMux()
+  fmt.Printf("listening %v\n", serverTLS)
+  err := http.ListenAndServeTLS(serverTLS, "srvcert.pem", "srvkey.pem", log(mux))
   exitOnError(err)
+}
+
+func listenServer() {
+  mux := createMux()
+  srv := &http.Server{
+    Addr: server,
+    Handler: log(mux),
+  }
   fmt.Printf("listening %v\n", server)
-  err = srv.Serve(lis)
-  // err = srv.ServeTLS(lis, "srvcert.pem", "srvkey.pem")
+  err := srv.ListenAndServe()
+  exitOnError(err)
+}
+
+func listenServerTLS() {
+  mux := createMux()
+  srv := &http.Server{
+    Addr: server,
+    Handler: log(mux),
+  }
+  fmt.Printf("listening %v\n", serverTLS)
+  err := srv.ListenAndServeTLS("srvcert.pem", "srvkey.pem")
+  exitOnError(err)
+}
+
+func listenServermTLS() {
+  mux := createMux()
+  cacert, err := os.ReadFile("cacert.pem")
+  exitOnError(err)
+  certpool := x509.NewCertPool()
+  certpool.AppendCertsFromPEM(cacert)
+  srv := &http.Server{
+    Addr: serverTLS,
+    Handler: log(mux),
+    TLSConfig: &tls.Config{
+      ClientAuth: tls.RequireAndVerifyClientCert,
+      ClientCAs: certpool,
+    },
+  }
+  fmt.Printf("listening %v\n", serverTLS)
+  err = srv.ListenAndServeTLS("srvcert.pem", "srvkey.pem")
   exitOnError(err)
 }
 
 func dateHead() {
   res, err := http.Head(fmt.Sprintf("http://%v/date", server))
+  exitOnError(err)
+  defer res.Body.Close()
+  fmt.Println(res.Header.Get("Content-Type"))
+}
+
+func dateHeadTLS() {
+  cacert, err := os.ReadFile("cacert.pem")
+  exitOnError(err)
+  certpool := x509.NewCertPool()
+  certpool.AppendCertsFromPEM(cacert)
+  cln := &http.Client{
+    Transport: &http.Transport{
+      TLSClientConfig: &tls.Config{
+        RootCAs: certpool,
+      },
+    },
+  }
+  res, err := cln.Head(fmt.Sprintf("https://%v/date", serverTLS))
   exitOnError(err)
   defer res.Body.Close()
   fmt.Println(res.Header.Get("Content-Type"))
@@ -112,12 +173,50 @@ func counterPost() {
   fmt.Printf("%+v\n", cnt)
 }
 
+func counterPostmTLS() {
+  cnt := Counter{Value: 1}
+  var buf bytes.Buffer
+  err := json.NewEncoder(&buf).Encode(&cnt)
+  exitOnError(err)
+  cacert, err := os.ReadFile("cacert.pem")
+  exitOnError(err)
+  certpool := x509.NewCertPool()
+  certpool.AppendCertsFromPEM(cacert)
+  clncert, err := tls.LoadX509KeyPair("clncert.pem", "clnkey.pem")
+  exitOnError(err)
+  cln := &http.Client{
+    Transport: &http.Transport{
+      TLSClientConfig: &tls.Config{
+        RootCAs: certpool,
+        Certificates: []tls.Certificate{clncert},
+      },
+    },
+  }
+  res, err := cln.Post(
+    fmt.Sprintf("https://%v/counter", serverTLS), "application/json", &buf,
+  )
+  exitOnError(err)
+
+  defer res.Body.Close()
+  err = json.NewDecoder(res.Body).Decode(&cnt)
+  fmt.Printf("%+v\n", cnt)
+}
+
 func main() {
   if len(os.Args) > 1 && os.Args[1] == "-l" {
     // listen()
+    // listenTLS()
     listenServer()
+    // curl https://localhost:7654/counter -d '{"value":1}'
+    listenServerTLS()
+    // curl https://localhost:7654/counter -d '{"value":1}' --cacert cacert.pem
+    listenServermTLS()
+    // curl https://localhost:7654/counter -d '{"value":1}' --cacert cacert.pem \
+    //   --cert clncert.pem --key clnkey.pem
   }
-  dateHead()
-  dateGetCtx()
-  counterPost()
+  // dateHead()
+  // dateGetCtx()
+  // counterPost()
+  // dateHeadTLS()
+  counterPostmTLS()
 }
