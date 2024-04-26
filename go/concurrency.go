@@ -595,6 +595,32 @@ func processSignal() {
   fmt.Println(str)
 }
 
+func allJoined() {
+  n := 4
+  var wg sync.WaitGroup
+  all := sync.NewCond(&sync.Mutex{})
+  var cnt int
+  for i := range n {
+    wg.Add(1)
+    go func() {
+      defer wg.Done()
+      time.Sleep(time.Duration(rand.Intn(300)) * time.Millisecond)
+      all.L.Lock()
+      cnt++
+      fmt.Printf("%v joined\n", i)
+      if cnt == n {
+        all.Broadcast()
+      }
+      for cnt < n {
+        all.Wait()
+      }
+      all.L.Unlock()
+      fmt.Printf("%v all joined: %v\n", i, cnt)
+    }()
+  }
+  wg.Wait()
+}
+
 func main() {
   // gorClosureInsideLoop()
   // funcOnce()
@@ -613,5 +639,6 @@ func main() {
   // gracefulTermination()
   // mergeChannels()
   // atomicCounter()
-  processSignal()
+  // processSignal()
+  allJoined()()
 }
