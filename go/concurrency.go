@@ -1,12 +1,286 @@
 package main
 
 import (
-  "fmt"
-  "time"
-  "sync"
-  "os"
-  "os/signal"
+	"context"
+	"fmt"
+	"math/rand"
+	"os"
+	"os/signal"
+	"sync"
+	"time"
 )
+
+func waitGroup() {
+  var wg sync.WaitGroup // make a zero value useful
+  wg.Add(1) // increment a counter
+  go func() {
+    defer wg.Done() // decrement a counter
+    time.Sleep(200 * time.Millisecond)
+    fmt.Println("a")
+  }()
+  wg.Add(1)
+  go func() {
+    defer wg.Done()
+    time.Sleep(100 * time.Millisecond)
+    fmt.Println("b")
+  }()
+  wg.Wait() // block a gor until a counter == 0
+  fmt.Println("done")
+}
+
+func counterMutex() {
+  n := 100000
+  var cnt int
+  var mtx sync.Mutex // make a zero value useful
+  var wg sync.WaitGroup
+  wg.Add(2)
+  go func() {
+    defer wg.Done()
+    for range n {
+      mtx.Lock() // a single writer can hold a write lock, no readers
+      cnt++ // write critical section
+      mtx.Unlock()
+    }
+  }()
+  go func() {
+    defer wg.Done()
+    for range n {
+      mtx.Lock()
+      cnt-- // read critical section
+      mtx.Unlock()
+    }
+  }()
+  wg.Wait()
+  fmt.Println(cnt)
+}
+
+// read-preferring readers-writer mutex
+type RRWMutex struct {
+  readers int
+  readMtx sync.Mutex
+  writeMtx sync.Mutex
+}
+
+func (m *RRWMutex) Lock() {
+  m.writeMtx.Lock()
+}
+
+func (m *RRWMutex) Unlock() {
+  m.writeMtx.Unlock()
+}
+
+func (m *RRWMutex) RLock() {
+  m.readMtx.Lock()
+  m.readers++
+  if m.readers == 1 {
+    m.writeMtx.Lock()
+  }
+  m.readMtx.Unlock()
+}
+
+func (m *RRWMutex) RUnlock() {
+  m.readMtx.Lock()
+  m.readers--
+  if m.readers == 0 {
+    m.writeMtx.Unlock()
+  }
+  m.readMtx.Unlock()
+}
+
+// write-preferring readers-writer mutex
+type RWWMutex struct {
+  readers int
+  waitingWriters int
+  writerActive bool
+  cnd *sync.Cond
+}
+
+func NewRWWMutex() *RWWMutex {
+  return &RWWMutex{cnd: sync.NewCond(new(sync.Mutex))}
+}
+
+func (m *RWWMutex) Lock() {
+  m.cnd.L.Lock()
+  m.waitingWriters++
+  for m.readers > 0 || m.writerActive {
+    m.cnd.Wait()
+  }
+  m.waitingWriters--
+  m.writerActive = true
+  m.cnd.L.Unlock()
+}
+
+func (m *RWWMutex) Unlock() {
+  m.cnd.L.Lock()
+  m.writerActive = false
+  m.cnd.Broadcast()
+  m.cnd.L.Unlock()
+}
+
+func (m *RWWMutex) RLock() {
+  m.cnd.L.Lock()
+  for m.waitingWriters > 0 || m.writerActive {
+    m.cnd.Wait()
+  }
+  m.readers++
+  m.cnd.L.Unlock()
+}
+
+func (m *RWWMutex) RUnlock() {
+  m.cnd.L.Lock()
+  m.readers--
+  if m.readers == 0 {
+    m.cnd.Broadcast()
+  }
+  m.cnd.L.Unlock()
+}
+
+func readWriteMutex() {
+  var wg sync.WaitGroup
+  // var mtx sync.Mutex // 200ms
+  // var mtx sync.RWMutex // 115ms
+  // var mtx RRWMutex // 115ms
+  mtx := NewRWWMutex() // 115ms
+  reader := func() {
+    defer wg.Done()
+    mtx.RLock()
+    time.Sleep(10 * time.Millisecond)
+    mtx.RUnlock()
+  }
+  writer := func() {
+    defer wg.Done()
+    mtx.Lock()
+    time.Sleep(10 * time.Millisecond)
+    mtx.Unlock()
+  }
+  start := time.Now()
+  for range 10 {
+    wg.Add(2)
+    go reader()
+    go writer()
+  }
+  wg.Wait()
+  fmt.Println(time.Since(start))
+}
+
+func condBroadcast() {
+  var balance int
+  cnd := sync.NewCond(new(sync.Mutex))
+  listen := func(goal int) {
+    cnd.L.Lock()
+    // critical section 1: wait for a condition
+    for balance < goal { // exit a loop when a condition is met
+      // listen for an update. Must be within a critical section
+      // cnd.L.Unlock => wait for the next cnd.Broadcast => cnd.L.Lock
+      cnd.Wait()
+    }
+    // critical section 2: a condition is met
+    fmt.Printf("goal %v\n", balance)
+    cnd.L.Unlock()
+  }
+  go listen(3)
+  go listen(5)
+  for i := 0; i < 7; i++ { // producer
+    time.Sleep(100 * time.Millisecond)
+    cnd.L.Lock()
+    balance++ // critical section 2: update a shared state
+    cnd.Broadcast() // broadcast an update to all listeners
+    cnd.L.Unlock()
+  }
+}
+
+func allJoined() {
+  n := 4
+  var wg sync.WaitGroup
+  cnd := sync.NewCond(new(sync.Mutex))
+  var cnt int
+  for i := range n {
+    wg.Add(1)
+    go func() {
+      defer wg.Done()
+      time.Sleep(time.Duration(rand.Intn(300)) * time.Millisecond)
+      cnd.L.Lock()
+      cnt++
+      fmt.Printf("%v joined\n", i)
+      if cnt == n {
+        cnd.Broadcast()
+      }
+      for cnt < n {
+        cnd.Wait()
+      }
+      cnd.L.Unlock()
+      fmt.Printf("%v all joined: %v\n", i, cnt)
+    }()
+  }
+  wg.Wait()
+}
+
+type Semaphore struct {
+  permits int
+  cnd *sync.Cond
+}
+
+func NewSemaphore(n int) *Semaphore {
+  return &Semaphore{n, sync.NewCond(new(sync.Mutex))}
+}
+
+func (s *Semaphore) Acquire() {
+  s.cnd.L.Lock()
+  for s.permits <= 0 {
+    s.cnd.Wait()
+  }
+  s.permits--
+  s.cnd.L.Unlock()
+}
+
+func (s *Semaphore) Release() {
+  s.cnd.L.Lock()
+  s.permits++
+  if s.permits > 0 {
+    s.cnd.Signal()
+  }
+  s.cnd.L.Unlock()
+}
+
+func contextCancelTimeout() {
+  var wg sync.WaitGroup
+  task := func(ctx context.Context) {
+    defer wg.Done()
+    for {
+      select {
+      // a channel is closed when a context is canceled
+      case <- ctx.Done(): // immediately returns a zero value when closed
+        switch ctx.Err() {
+        case context.Canceled:
+          fmt.Println("canceled")
+        case context.DeadlineExceeded:
+          fmt.Println("timeout")
+        }
+        return
+      default: // non-blocking
+        fmt.Println("working...")
+        time.Sleep(100 * time.Millisecond)
+      }
+    }
+  }
+  // cancel context
+  ctx, cancel := context.WithCancel(context.Background())
+  // once created a cancellable context must be canceled
+  defer cancel()
+  wg.Add(1)
+  go task(ctx)
+  time.Sleep(300 * time.Millisecond)
+  cancel() // further cancellations are ignored
+  wg.Wait()
+  // timeout context
+  ctx, cancel2 := context.WithTimeout(
+    context.Background(), 300 * time.Millisecond,
+  )
+  defer cancel2()
+  wg.Add(1)
+  go task(ctx)
+  wg.Wait()
+}
 
 func gorClosureInsideLoop() {
   var wg sync.WaitGroup
@@ -595,33 +869,14 @@ func processSignal() {
   fmt.Println(str)
 }
 
-func allJoined() {
-  n := 4
-  var wg sync.WaitGroup
-  all := sync.NewCond(&sync.Mutex{})
-  var cnt int
-  for i := range n {
-    wg.Add(1)
-    go func() {
-      defer wg.Done()
-      time.Sleep(time.Duration(rand.Intn(300)) * time.Millisecond)
-      all.L.Lock()
-      cnt++
-      fmt.Printf("%v joined\n", i)
-      if cnt == n {
-        all.Broadcast()
-      }
-      for cnt < n {
-        all.Wait()
-      }
-      all.L.Unlock()
-      fmt.Printf("%v all joined: %v\n", i, cnt)
-    }()
-  }
-  wg.Wait()
-}
-
 func main() {
+  // waitGroup()
+  // counterMutex()
+  readWriteMutex()
+  // condBroadcast()
+  // allJoined()
+  // contextCancelTimeout()
+
   // gorClosureInsideLoop()
   // funcOnce()
   // objectPool()
@@ -640,5 +895,4 @@ func main() {
   // mergeChannels()
   // atomicCounter()
   // processSignal()
-  allJoined()()
 }
