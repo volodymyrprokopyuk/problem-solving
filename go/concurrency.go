@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/list"
 	"context"
 	"fmt"
 	"math/rand"
@@ -9,24 +10,6 @@ import (
 	"sync"
 	"time"
 )
-
-func waitGroup() {
-  var wg sync.WaitGroup // make a zero value useful
-  wg.Add(1) // increment a counter
-  go func() {
-    defer wg.Done() // decrement a counter
-    time.Sleep(200 * time.Millisecond)
-    fmt.Println("a")
-  }()
-  wg.Add(1)
-  go func() {
-    defer wg.Done()
-    time.Sleep(100 * time.Millisecond)
-    fmt.Println("b")
-  }()
-  wg.Wait() // block a gor until a counter == 0
-  fmt.Println("done")
-}
 
 func counterMutex() {
   n := 100000
@@ -242,6 +225,344 @@ func (s *Semaphore) Release() {
   s.cnd.L.Unlock()
 }
 
+type SemWaitGroup struct {
+  sem *Semaphore
+}
+
+func NewSemWaitGroup(n int) *SemWaitGroup {
+  return &SemWaitGroup{NewSemaphore(1 - n)}
+}
+
+func (wg *SemWaitGroup) Wait() {
+  wg.sem.Acquire()
+}
+
+func (wg *SemWaitGroup) Done() {
+  wg.sem.Release()
+}
+
+type CndWaitGroup struct {
+  goroutines int
+  cnd *sync.Cond
+}
+
+func NewCndWaitGroup() *CndWaitGroup {
+  return &CndWaitGroup{cnd: sync.NewCond(new(sync.Mutex))}
+}
+
+func (wg *CndWaitGroup) Add(n int) {
+  wg.cnd.L.Lock()
+  wg.goroutines += n
+  wg.cnd.L.Unlock()
+}
+
+func (wg *CndWaitGroup) Wait() {
+  wg.cnd.L.Lock()
+  for wg.goroutines > 0 {
+    wg.cnd.Wait()
+  }
+  wg.cnd.L.Unlock()
+}
+
+func (wg *CndWaitGroup) Done() {
+  wg.cnd.L.Lock()
+  wg.goroutines--
+  if wg.goroutines == 0 {
+    wg.cnd.Broadcast()
+  }
+  wg.cnd.L.Unlock()
+}
+
+func waitGroup() {
+  // wg := NewSemWaitGroup(2)
+  // var wg sync.WaitGroup // make a zero value useful
+  wg := NewCndWaitGroup()
+  wg.Add(2) // increment a counter
+  go func() {
+    defer wg.Done() // decrement a counter
+    time.Sleep(200 * time.Millisecond)
+    fmt.Println("a")
+  }()
+  go func() {
+    defer wg.Done()
+    time.Sleep(100 * time.Millisecond)
+    fmt.Println("b")
+  }()
+  wg.Wait() // block a gor until a counter == 0
+  fmt.Println("done")
+}
+
+type Barrier struct {
+  all int
+  done int
+  cnd *sync.Cond
+}
+
+func NewBarrier(n int) *Barrier {
+  return &Barrier{all: n, cnd: sync.NewCond(new(sync.Mutex))}
+}
+
+func (b *Barrier) Wait() {
+  b.cnd.L.Lock()
+  defer b.cnd.L.Unlock()
+  b.done++
+  if b.done == b.all {
+    b.done = 0
+    b.cnd.Broadcast()
+    return
+  }
+  b.cnd.Wait()
+}
+
+func barrierSync() {
+  n := 3
+  var wg sync.WaitGroup
+  bar := NewBarrier(n)
+  task := func(i int) {
+    defer wg.Done()
+    for b := range 3 {
+      time.Sleep(time.Duration(rand.Intn(200)) * time.Millisecond)
+      bar.Wait()
+      fmt.Printf("%v: reached barrier %v\n", i, b)
+    }
+  }
+  for i := range n {
+    wg.Add(1)
+    go task(i)
+  }
+  wg.Wait()
+}
+
+type Channel[T any] struct {
+  capSem *Semaphore // sender
+  lenSem *Semaphore // receiver
+  queue *list.List
+  mtx sync.Mutex
+}
+
+func NewChannel[T any](cap int) *Channel[T] {
+  return &Channel[T]{
+    capSem: NewSemaphore(cap), lenSem: NewSemaphore(0), queue: list.New(),
+  }
+}
+
+func (ch *Channel[T]) Send(val T) {
+  ch.capSem.Acquire()
+  ch.mtx.Lock()
+  ch.queue.PushBack(val)
+  ch.mtx.Unlock()
+  ch.lenSem.Release()
+}
+
+func (ch *Channel[T]) Receive() T {
+  ch.capSem.Release()
+  ch.lenSem.Acquire()
+  ch.mtx.Lock()
+  val := ch.queue.Remove(ch.queue.Front()).(T)
+  ch.mtx.Unlock()
+  return val
+}
+
+func syncChannel() {
+  var wg sync.WaitGroup
+  ch := NewChannel[int](0)
+  wg.Add(1)
+  go func() {
+    defer wg.Done()
+    for {
+      i := ch.Receive()
+      fmt.Printf("%v ", i) // 0, 1, 2, 3
+      if i == 3 {
+        break
+      }
+    }
+  }()
+  for i := range 4 {
+    time.Sleep(1000 * time.Millisecond)
+    ch.Send(i)
+  }
+  wg.Wait()
+}
+
+func stopChannel() {
+  var wg sync.WaitGroup
+  ch := make(chan int)
+  stop := make(chan struct{})
+  wg.Add(1)
+  go func() {
+    defer wg.Done()
+    for {
+      select {
+      case <- stop:
+        fmt.Println("stop")
+        return
+      case val := <- ch:
+        fmt.Printf("%v ", val) // 0, 1, 2, 3, stop
+      }
+    }
+  }()
+  for i := range 4 {
+    time.Sleep(100 * time.Millisecond)
+    ch <- i
+  }
+  close(stop) // signal stop
+  wg.Wait()
+  close(ch)
+}
+
+func multiStopChannel() {
+  var wg sync.WaitGroup
+  ch := make(chan int)
+  task := func(i int) {
+    defer wg.Done()
+    for val := range ch {
+      fmt.Printf("%v: %v\n", i, val)
+    }
+  }
+  wg.Add(2)
+  go task(1)
+  go task(2)
+  for i := range 6 {
+    time.Sleep(100 * time.Millisecond)
+    ch <- i
+  }
+  close(ch)
+  wg.Wait()
+}
+
+func fanOutIn() {
+  in := make(chan int)
+  task := func(i int) <-chan int {
+    out := make(chan int)
+    go func() {
+      defer close(out)
+      for val := range in {
+        time.Sleep(100 * time.Millisecond)
+        fmt.Printf("%v: %v\n", i, val)
+        out <- val * 10
+      }
+    }()
+    return out
+  }
+  fanIn := func(mids []<-chan int) <-chan int {
+    out := make(chan int)
+    var wg sync.WaitGroup
+    for _, mid := range mids {
+      wg.Add(1)
+      go func() {
+        defer wg.Done()
+        for val := range mid {
+          out <- val
+        }
+      }()
+    }
+    go func() {
+      wg.Wait()
+      close(out)
+    }()
+    return out
+  }
+  n := 10
+  go func() { // generate input
+    for i := range n {
+      in <- i
+    }
+    close(in)
+  }()
+  mids := make([]<-chan int, 4)
+  for i := range len(mids) { // fan-out, distribute input
+    mids[i] = task(i)
+  }
+  out := fanIn(mids) // fan-in
+  vals := make([]int, 0, n)
+  for val := range out { // merge results
+    vals = append(vals, val)
+  }
+  fmt.Println(vals)
+}
+
+func flushOnClose() {
+  gen := func(n int) <-chan int {
+    out := make(chan int)
+    go func() {
+      defer close(out)
+      for i := range n {
+        out <- i
+      }
+    }()
+    return out
+  }
+  avg := func(in <-chan int) <-chan float64 {
+    out := make(chan float64)
+    go func() {
+      defer close(out)
+      sum, n := 0, 0 // accumulators
+      for val := range in {
+        fmt.Println(val)
+        sum += val
+        n++
+      }
+      out <- float64(sum) / float64(n) // flush on close
+    }()
+    return out
+  }
+  in := gen(6)
+  out := avg(in)
+  fmt.Println(<- out)
+}
+
+func pipeline() {
+  pipe := func( // a generic pipeline stage
+    done <-chan struct{}, in <-chan int, f func(val int) int,
+  ) <-chan int {
+    out := make(chan int) // create an out channel
+    go func() {
+      defer close(out) // auto close an out channel
+      for {
+        select {
+        case <- done: // early cancellation
+          return
+        case val, open := <- in:
+          if !open { // terminate a stage if an input channel is closed
+            return
+          }
+          out <- f(val)
+        }
+      }
+    }()
+    return out // return an out channel
+  }
+  gen := func(done <-chan struct{}, n int) <-chan int {
+    out := make(chan int)
+    go func() {
+      defer close(out)
+      for i := range n {
+        select {
+        case <- done:
+          return
+        default:
+          time.Sleep(100 * time.Millisecond)
+          out <- i
+        }
+      }
+    }()
+    return out
+  }
+  done := make(chan struct{})
+  in := gen(done, 4)
+  incOut := pipe(done, in, func(val int) int { return val + 1 })
+  mulOut := pipe(done, incOut, func(val int) int { return val * 10 })
+  addOut := pipe(done, mulOut, func(val int) int { return val + 2 })
+  for val := range addOut {
+    fmt.Printf("%v ", val) // 12, 22, 32, 42
+    if val == 22 { // early cancellation
+      close(done)
+      return
+    }
+  }
+  close(done)
+}
+
 func contextCancelTimeout() {
   var wg sync.WaitGroup
   task := func(ctx context.Context) {
@@ -347,34 +668,6 @@ func objectPool() {
   }
   wg.Wait()
   fmt.Println("total", count)
-}
-
-func rangeCloseChan() {
-  ch := make(chan int)
-  go func() {
-    // a closed chan immediately returns zero values
-    // a closed chan can unblock multiple gors
-    defer close(ch)
-    for i := 0; i < 10; i++ {
-      time.Sleep(100 * time.Millisecond)
-      ch <- i
-    }
-  }()
-  var wg sync.WaitGroup
-  wg.Add(2)
-  go func() {
-    defer wg.Done()
-    for i := range ch { // receive from a chan until it is closed
-      fmt.Println("gor 1:", i)
-    }
-  }()
-  go func() {
-    defer wg.Done()
-    for i := range ch {
-      fmt.Println("gor 2:", i)
-    }
-  }()
-  wg.Wait()
 }
 
 func timeout() {
@@ -510,85 +803,6 @@ func transform(
     fmt.Println("transform in closed")
   }()
   return out
-}
-
-func pipeline() {
-  var wg sync.WaitGroup
-  done := make(chan struct{})
-  // each pipeline stage performs concurrently
-  in := generator(&wg, done, 0, 5)
-  in2 := transform(&wg, done, in, func(i int) int { return i + 1 })
-  in3 := transform(&wg, done, in2, func(i int) int { return i * 10 })
-  for v := range in3 {
-    fmt.Println(v)
-    if v == 20 {
-      break
-    }
-  }
-  close(done) // signal all stages to exit early (after break)
-  wg.Wait()
-}
-
-func fanIn(
-  wg *sync.WaitGroup, done <-chan struct{}, ins ...<-chan int,
-) <-chan int {
-  wg.Add(1)
-  var inWg sync.WaitGroup
-  out := make(chan int)
-  for _, in := range ins {
-    inWg.Add(1)
-    go func(in <-chan int) {
-      defer inWg.Done()
-      // receives from each input channel
-      for {
-        select {
-        case <- done:
-          return
-        case v, open := <- in:
-          if !open {
-            return
-          }
-          out <- v
-        }
-      }
-
-    }(in)
-  }
-  go func() {
-    defer wg.Done()
-    inWg.Wait()
-    fmt.Println("closing fanin")
-    // closes a common output channel
-    // after all input channels have been processed
-    close(out)
-  }()
-  return out
-}
-
-func fanOutIn() {
-  var wg sync.WaitGroup
-  done := make(chan struct{})
-  in := generator(&wg, done, 0, 10)
-  n := 3
-  ins := make([]<-chan int, 0, n)
-  // fan out
-  for i := 0; i < n; i++ {
-    // start parallel processing from the in channel
-    in2 := transform(&wg, done, in, func(i int) int {
-      time.Sleep(500 * time.Millisecond)
-      return i + 1
-    })
-    ins = append(ins, in2) // collect fan out input channels
-  }
-  in3 := fanIn(&wg, done, ins...) // combine fan out input channels
-  for v := range in3 {
-    fmt.Println(v)
-    if v == 5 {
-      break
-    }
-  }
-  close(done)
-  wg.Wait()
 }
 
 func tee(done <-chan struct {}, in <-chan int) (<-chan int, <-chan int) {
@@ -870,23 +1084,34 @@ func processSignal() {
 }
 
 func main() {
-  // waitGroup()
+  // * Mutex
   // counterMutex()
-  readWriteMutex()
+  // readWriteMutex()
+  // * Condition variable
   // condBroadcast()
   // allJoined()
+  // * Wait group
+  // waitGroup()
+  // * Barrier
+  // barrierSync()
+  // * Channel
+  // syncChannel()
+  // stopChannel()
+  // multiStopChannel()
+  // fanOutIn()
+  flushOnClose()
+  // * Pipeline
+  // pipeline()
+  // * Context
   // contextCancelTimeout()
 
   // gorClosureInsideLoop()
   // funcOnce()
   // objectPool()
-  // rangeCloseChan()
   // timeout()
   // workWhileWaiting()
   // cancelAllGors()
   // errorHandling()
-  // pipeline()
-  // fanOutIn()
   // teeChan()
   // heartbeat()
   // workerPool()
