@@ -511,6 +511,104 @@ func flushOnClose() {
   fmt.Println(<- out)
 }
 
+func broadcast() {
+  var wg sync.WaitGroup
+  task := func(i int, in <-chan int) {
+    defer wg.Done()
+    for val := range in {
+      time.Sleep(100 * time.Millisecond)
+      fmt.Printf("%v: %v\n", i, val)
+    }
+  }
+  bcast := func(in <-chan int, n int) []chan int {
+    outs := make([]chan int, n)
+    for i := range outs { // create out channels
+      outs[i] = make(chan int)
+    }
+    go func() {
+      defer func() {
+        for _, out := range outs { // close out channels
+          close(out)
+        }
+      }()
+      for val := range in {
+        for _, out := range outs { // sequential broadcast
+          out <- val
+        }
+      }
+    }()
+    return outs
+  }
+  in := make(chan int)
+  outs := bcast(in, 2)
+  for i, out := range outs {
+    wg.Add(1)
+    go task(i, out)
+  }
+  for i := range 4 {
+    in <- i
+  }
+  close(in)
+  wg.Wait()
+}
+
+func firstClassChannel() {
+  gen := func(n int) <-chan int {
+    out := make(chan int)
+    go func() {
+      defer close(out)
+      for i := 2; i < n; i++ {
+        out <- i
+      }
+    }()
+    return out
+  }
+  sieve := func(in <-chan int, n int) <-chan int {
+    out := make(chan int)
+    go func() {
+      defer close(out)
+      for val := range in {
+        if val % n != 0 {
+          out <- val
+        }
+      }
+    }()
+    return out
+  }
+  in := gen(100)
+  out := sieve(in, 2)
+  fmt.Printf("%v ", 2)
+  for { // sieve of Eratosthenes
+    prime, open := <- out
+    if !open {
+      break
+    }
+    fmt.Printf("%v ", prime)
+    out = sieve(out, prime)
+  }
+}
+
+func workerPool() {
+  var wg sync.WaitGroup
+  worker := func(i int, in <-chan int) {
+    defer wg.Done()
+    for val := range in {
+      time.Sleep(100 * time.Millisecond)
+      fmt.Printf("%v: %v\n", i, val)
+    }
+  }
+  in := make(chan int)
+  for i := range 3 {
+    wg.Add(1)
+    go worker(i, in)
+  }
+  for i := range 10 {
+    in <- i
+  }
+  close(in)
+  wg.Wait()
+}
+
 func pipeline() {
   pipe := func( // a generic pipeline stage
     done <-chan struct{}, in <-chan int, f func(val int) int,
@@ -902,47 +1000,6 @@ func heartbeat() {
   wg.Wait()
 }
 
-func workerPool() {
-  n := 10 // tasks
-  limit := 3 // worker pool
-  var wg sync.WaitGroup
-  done := make(chan struct{})
-  in := generator(&wg, done, 0, n)
-  // buffered channel for parallel processing
-  out := make(chan int, limit)
-  for i := 0; i < limit; i++ {
-    wg.Add(1)
-    go func(i int) { // parallel processing
-      defer wg.Done()
-      for {
-        select {
-        case <- done:
-          fmt.Printf("%v: cancelled\n", i)
-          return
-        case v, open := <- in:
-          if !open {
-            fmt.Printf("%v: in closed\n", i)
-            return
-          }
-          fmt.Printf("%v: %v\n", i, v)
-          out <- v * 10
-        }
-      }
-    }(i)
-  }
-  // collect results of parallel processing
-  for i := 0; i < n; i++ {
-    v := <- out
-    fmt.Println(v)
-    if v == 50 {
-      break
-    }
-  }
-  close(done) // after all n tasks or after a break
-  wg.Wait()
-  close(out) // channel ownership
-}
-
 func rateLimiter() {
   limit := 3
   bucket := make(chan struct{}, limit) // buffered bucket
@@ -1099,7 +1156,10 @@ func main() {
   // stopChannel()
   // multiStopChannel()
   // fanOutIn()
-  flushOnClose()
+  // flushOnClose()
+  // broadcast()
+  // firstClassChannel()
+  workerPool()
   // * Pipeline
   // pipeline()
   // * Context
@@ -1114,7 +1174,6 @@ func main() {
   // errorHandling()
   // teeChan()
   // heartbeat()
-  // workerPool()
   // rateLimiter()
   // gracefulTermination()
   // mergeChannels()
