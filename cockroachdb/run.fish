@@ -15,6 +15,12 @@ function client
   docker exec -it $cnt $cmd
 end
 
+function workload
+  docker run --name $cnt --rm -it \
+    --mount type=bind,source=(pwd),target=/cockroach/sql,readonly \
+  $img demo # movr
+end
+
 function query
   # docker exec $cnt $cmd --execute="SELECT 1 + 2 sum;"
   # echo "SELECT 1 + 2 sum;" | docker exec -i $cnt $cmd
@@ -28,6 +34,8 @@ case -s
   server
 case -c
   client
+case -w
+  workload
 case -q
   query
 case '*'
