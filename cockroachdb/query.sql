@@ -1,37 +1,38 @@
-CREATE DATABASE IF NOT EXISTS learning;
-SET database = learning;
+-- CREATE DATABASE IF NOT EXISTS learning;
+-- SET database = learning;
 
-BEGIN;
+-- BEGIN;
 
-CREATE TABLE IF NOT EXISTS data_type (
-  flg bool NOT NULL,
-  num int NOT NULL,
-  flt float NOT NULL,
-  str string NOT NULL,
-  dt date NOT NULL,
-  tm time NOT NULL,
-  ts timestamp NOT NULL,
-  dur interval NOT NULL,
-  arr int[] NOT NULL,
-  bin bytes NOT NULL,
-  obj jsonb NOT NULL
-);
+-- CREATE TABLE IF NOT EXISTS data_type (
+--   flg bool NOT NULL,
+--   num int NOT NULL,
+--   flt float NOT NULL,
+--   str string NOT NULL,
+--   dt date NOT NULL,
+--   tm time NOT NULL,
+--   ts timestamp NOT NULL,
+--   dur interval NOT NULL,
+--   arr int[] NOT NULL,
+--   bin bytes NOT NULL,
+--   obj jsonb NOT NULL
+-- );
 
 -- SHOW COLUMNS FROM data_type;
 -- SHOW CREATE TABLE data_type;
 
-INSERT INTO data_type(
-  flg, num, flt, str, dt, tm, ts, dur, arr, bin, obj
-) VALUES (
-  true, 1, '+inf'::float, 'audi', '2024-05-11', '01:02:03.123456',
-  '2024-05-11 01:02:03.123456+01:30', '1-2 3 04:05:06.123456',
-  array[1, 2, 3], b'abc',
-  '{"a": true, "b": 1, "c": "abc", "d": [null, false], "e": {"f": 1.2}}'
-);
+-- INSERT INTO data_type(
+--   flg, num, flt, str, dt, tm, ts, dur, arr, bin, obj
+-- ) VALUES (
+--   true, 1, '+inf'::float, 'audi', '2024-05-11', '01:02:03.123456',
+--   '2024-05-11 01:02:03.123456+01:30', '1-2 3 04:05:06.123456',
+--   array[1, 2, 3], b'abc',
+--   '{"a": true, "b": 1, "c": "abc", "d": [null, false], "e": {"f": 1.2}}'
+-- );
 
-COMMIT;
+-- COMMIT;
 
 -- DROP TABLE data_type;
+
 
 -- SELECT dt.* FROM data_type dt;
 
@@ -72,3 +73,26 @@ COMMIT;
 -- SELECT DISTINCT(t.key), count(*) OVER key, sum(t.val) OVER key
 -- FROM (VALUES ('a', 1), ('a', 2), ('b', 3), ('b', 4), ('b', 5)) t(key, val)
 -- WINDOW key AS (PARTITION BY t.key);
+
+-- WITH
+--   tbl(val) AS (VALUES (1), (2), (3)),
+--   den(arr) AS (SELECT array_agg(tbl.val) FROM tbl),
+--   nor(val) AS (SELECT unnest(den.arr) FROM den)
+-- SELECT nor.* FROM nor;
+
+-- SELECT u.name, u.address
+-- FROM users u,
+--   LATERAL (SELECT 1 FROM rides r WHERE r.start_address = u.address);
+
+
+
+-- EXPLAIN SELECT r.* FROM rides r
+-- WHERE r.end_address = '66037 Belinda Plaza Apt.93';
+
+-- EXPLAIN SELECT rider_id FROM rides
+-- WHERE vehicle_id = 'aaaaaaaa-aaaa-4800-8000-00000000000a'
+-- AND vehicle_city = 'amsterdam'
+-- AND end_address = '63002 Sheila Fall';
+
+EXPLAIN (OPT) SELECT start_time, end_time FROM rides@rides_pkey
+WHERE city = 'amsterdam' AND end_address = '57998 Harvey Burg Suite 87';
