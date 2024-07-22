@@ -31,25 +31,35 @@ set -g registry 8081 18081
 set -g rpc 33145
 
 function server
-  docker run --name $cnt --hostname $cnt --rm \
+  docker run --name $cnt --hostname $cnt --rm --detach \
     $img redpanda start \
-    --kafka-addr $intz:$kafka[1],$extz:$kafka[2] \
-    --advertise-kafka-addr $inth:$kafka[1],$exth:$kafka[2] \
-    --pandaproxy-addr $intz:$proxy[1],$extz:$proxy[2] \
-    --advertise-pandaproxy-addr $inth:$proxy[1],$exth:$proxy[2] \
-    --schema-registry-addr $intz:$registry[1],$extz:$registry[2] \
-    --rpc-addr $cnt:$rpc \
-    --advertise-rpc-addr $cnt:$rpc \
+    # --kafka-addr $intz:$kafka[1],$extz:$kafka[2] \
+    # --advertise-kafka-addr $inth:$kafka[1],$exth:$kafka[2] \
+    # --pandaproxy-addr $intz:$proxy[1],$extz:$proxy[2] \
+    # --advertise-pandaproxy-addr $inth:$proxy[1],$exth:$proxy[2] \
+    # --schema-registry-addr $intz:$registry[1],$extz:$registry[2] \
+    # --rpc-addr $cnt:$rpc \
+    # --advertise-rpc-addr $cnt:$rpc \
     --mode dev-container --smp 1 --default-log-level=warn
 end
 
+
 function client
   set -l topic chat
+  set -l proxy localhost:$proxy[1]
+  set -l prodpath $proxy/topics/chat
+  set -l ctype 'Content-Type: application/vnd.kafka.json.v2+json'
+  set -l msg '{ "records": [{ "value": "REST", "partition": 0 }] }'
+  set -l conspath "$proxy/topics/chat/partitions/0/records?offset=1&timeout=500&max_bytes=10000"
+  set -l accept 'Accept: application/vnd.kafka.json.v2+json'
   # docker exec -it $cnt rpk cluster info
   docker exec -it $cnt rpk topic create $topic
+  docker exec -i $cnt curl -s $proxy/topics | yq
   # echo "Hi" | docker exec -i $cnt rpk topic produce $topic
   docker exec -i $cnt rpk topic produce $topic < (echo "Hi" | psub)
-  docker exec -it $cnt rpk topic consume $topic --num 1
+  docker exec -i $cnt rpk topic consume $topic --num 1 | yq
+  docker exec -i $cnt curl -s -X POST $prodpath -H $ctype -d $msg | yq
+  docker exec -i $cnt curl -s $conspath -H $accept | yq
   docker exec -it $cnt rpk topic delete $topic
 end
 
