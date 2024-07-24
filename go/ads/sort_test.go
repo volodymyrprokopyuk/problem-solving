@@ -1,15 +1,10 @@
 package ads_test
 
 import (
-  "testing"
-  "github.com/volodymyrprokopyuk/problem-solving/go/ads"
-)
+	"testing"
 
-type tcase struct {
-  name string
-  arr []int
-  exp []int
-}
+	"github.com/volodymyrprokopyuk/problem-solving/go/ads"
+)
 
 func slcEqual(a, b []int) bool {
   if len(a) != len(b) {
@@ -21,6 +16,12 @@ func slcEqual(a, b []int) bool {
     }
   }
   return true
+}
+
+type tcase struct {
+  name string
+  arr []int
+  exp []int
 }
 
 func cases() []tcase {
@@ -69,6 +70,24 @@ func TestSelectSort(t *testing.T) {
     ads.SelectSort(c.arr)
     if !slcEqual(c.arr, c.exp) {
       t.Errorf("slice is not sorted: expected %v, got %v", c.exp, c.arr)
+    }
+  }
+}
+
+func TestQuickSort(t *testing.T) {
+  for _, c := range cases() {
+    ads.QuickSort(c.arr)
+    if !slcEqual(c.arr, c.exp) {
+      t.Errorf("slice is not sorted: expected %v, got %v", c.exp, c.arr)
+    }
+  }
+}
+
+func TestMergeSort(t *testing.T) {
+  for _, c := range cases() {
+    got := ads.MergeSort(c.arr)
+    if !slcEqual(got, c.exp) {
+      t.Errorf("slice is not sorted: expected %v, got %v", c.exp, got)
     }
   }
 }
