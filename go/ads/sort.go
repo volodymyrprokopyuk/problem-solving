@@ -42,7 +42,7 @@ func ShellSort(slc []int) {
   }
 }
 
-// O(n^2), in-place, non-stable, fixed target
+// O(n^2), in-place, non-stable, fixed target, O(n^2) on sorted array
 func SelectSort(slc []int) {
   for i := 0; i < len(slc) - 1; i++ {
     m := i
@@ -114,7 +114,7 @@ func QuickSort(slc []int) {
   sort(0, len(slc))
 }
 
-// O(log(n)), binary search of an ordered slice
+// O(log(n)), binary search of an ordered array
 func Search(slc []int, val int) int {
   a, b := 0, len(slc)
   for a < b {
