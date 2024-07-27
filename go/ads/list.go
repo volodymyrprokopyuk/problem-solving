@@ -1,5 +1,4 @@
-// package ads
-package main
+package ads
 
 import "fmt"
 
@@ -54,10 +53,22 @@ func (l *List) Pop() (int, error) {
   if l.head == nil {
     return 0, fmt.Errorf("pop from empty list")
   }
-  val := l.head.value
+  nd := l.head
   l.head = l.head.next
   l.length--
-  return val, nil
+  return nd.value, nil
+}
+
+func (l *List) Reverse() {
+  var prev, next *Node
+  nd := l.head
+  for nd != nil {
+    next = nd.next
+    nd.next = prev
+    prev = nd
+    nd = next
+  }
+  l.head = prev
 }
 
 type DList struct {
@@ -71,8 +82,7 @@ func (l *DList) Length() int {
 
 func (l *DList) FromSlice(slc []int) {
   for _, val := range slc {
-    // l.PushHead(val)
-    l.PushTail(val)
+    l.PushHead(val)
   }
 }
 
@@ -99,6 +109,7 @@ func (l *DList) Forward() func(yield func(i, val int) bool) {
 // O(1)
 func (l *DList) PushHead(val int) {
   nd := &Node{value: val}
+  l.length++
   if l.head == nil {
     l.head, l.tail = nd, nd
     return
@@ -106,31 +117,96 @@ func (l *DList) PushHead(val int) {
   nd.next = l.head
   l.head.prev = nd
   l.head = nd
-  l.length++
 }
 
 // O(1)
 func (l *DList) PushTail(val int) {
   nd := &Node{value: val}
+  l.length++
   if l.tail == nil {
     l.head, l.tail = nd, nd
     return
   }
-  l.tail.next = nd
   nd.prev = l.tail
+  l.tail.next = nd
   l.tail = nd
-  l.length++
 }
 
-func main() {
-  var lst DList
-  lst.FromSlice([]int{1, 2, 3, 4})
-  for _, val := range lst.Backward() {
-    fmt.Printf("%v ", val)
+// O(1)
+func (l *DList) PeekHead() (int, error) {
+  if l.head == nil {
+    return 0, fmt.Errorf("peek head from empty dlist")
   }
-  fmt.Println()
-  for _, val := range lst.Forward() {
-    fmt.Printf("%v ", val)
+  return l.head.value, nil
+}
+
+// O(1)
+func (l *DList) PeekTail() (int, error) {
+  if l.tail == nil {
+    return 0, fmt.Errorf("peek tail from empty dlist")
   }
-  fmt.Println()
+  return l.tail.value, nil
+}
+
+// O(1)
+func (l *DList) PopHead() (int, error) {
+  if l.head == nil {
+    return 0, fmt.Errorf("pop head from empty dlist")
+  }
+  nd := l.head
+  l.length--
+  if l.head.next == nil {
+    l.head, l.tail = nil, nil
+    return nd.value, nil
+  }
+  l.head = l.head.next
+  l.head.prev = nil
+  return nd.value, nil
+}
+
+// O(1)
+func (l *DList) PopTail() (int, error) {
+  if l.tail == nil {
+    return 0, fmt.Errorf("pop tail from empty dlist")
+  }
+  nd := l.tail
+  l.length--
+  if l.tail.prev == nil {
+    l.head, l.tail = nil, nil
+    return nd.value, nil
+  }
+  l.tail = l.tail.prev
+  l.tail.next = nil
+  return nd.value, nil
+}
+
+// O(1)
+func (l *DList) Insert(val int, nd *Node) {
+  newnd := &Node{value: val}
+  l.length++
+  newnd.next = nd.next
+  newnd.prev = nd
+  if nd == l.tail {
+    l.tail = newnd
+  } else {
+    nd.next.prev = newnd
+  }
+  nd.next = newnd
+}
+
+// O(1)
+func (l *DList) Delete(nd *Node) {
+  l.length--
+  if nd == l.head {
+    l.head = l.head.next
+    l.head.prev = nil
+    return
+  }
+  if nd == l.tail {
+    l.tail = l.tail.prev
+    l.tail.next = nil
+    return
+  }
+  nd.prev.next = nd.next
+  nd.next.prev = nd.prev
 }
