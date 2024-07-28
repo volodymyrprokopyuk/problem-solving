@@ -7,46 +7,20 @@ import (
 )
 
 func main() {
-  var deq ads.Deque
-  deq.FromSlice([]int{1, 2, 3})
-  for deq.Length() > 0 {
-    val, _ := deq.DeqFront()
-    fmt.Println(val)
+  var bst ads.BSTree
+  bst.FromSlice([]int{8, 1, 3, 2, 6, 0, 5, 4, 7, 9})
+  err := bst.Delete(80)
+  if err != nil {
+    fmt.Println(err)
   }
-  deq.EnqFront(10)
-  deq.EnqFront(20)
-  for deq.Length() > 0 {
-    val, _ := deq.DeqRear()
-    fmt.Println(val)
+  for _, val := range bst.InOrder() {
+    fmt.Printf("%v ", val)
   }
-
-  // var stk ads.Stack
-  // stk.FromSlice([]int{1, 2, 3})
-  // val, _ := stk.Peek()
+  fmt.Println()
+  // val, err := bst.Get(99)
+  // if err != nil {
+  //   fmt.Println(err)
+  //   return
+  // }
   // fmt.Println(val)
-  // for stk.Length() > 0 {
-  //   val, _ := stk.Pop()
-  //   fmt.Println(val)
-  // }
-  // stk.Push(10)
-  // stk.Push(20)
-  // for stk.Length() > 0 {
-  //   val, _ := stk.Pop()
-  //   fmt.Println(val)
-  // }
-
-  // var que ads.Queue
-  // que.FromSlice([]int{1, 2, 3})
-  // val, _ := que.Peek()
-  // fmt.Println(val)
-  // for que.Length() > 0 {
-  //   val, _ := que.Deq()
-  //   fmt.Println(val)
-  // }
-  // que.Enq(10)
-  // que.Enq(20)
-  // for que.Length() > 0 {
-  //   val, _ := que.Deq()
-  //   fmt.Println(val)
-  // }
 }

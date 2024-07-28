@@ -3,8 +3,10 @@ package ads
 import "fmt"
 
 type Node struct {
-  value int
-  next, prev *Node
+  key int // tree
+  value int // list, stack, queue
+  next, prev *Node // list, stack, queue
+  left, right *Node // tree
 }
 
 type List struct {
