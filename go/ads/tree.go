@@ -160,3 +160,31 @@ func (t *BSTree) Delete(val int) error {
   t.root, err = del(t.root, val)
   return err
 }
+
+func (t *BSTree) Min() (int, error) {
+  min := func(nd *Node) *Node {
+    for nd.left != nil {
+      nd = nd.left
+    }
+    return nd
+  }
+  if t.root == nil {
+    return 0, fmt.Errorf("min from empty bstree")
+  }
+  nd := min(t.root)
+  return nd.value, nil
+}
+
+func (t *BSTree) Max() (int, error) {
+  max := func(nd *Node) *Node {
+    for nd.right != nil {
+      nd = nd.right
+    }
+    return nd
+  }
+  if t.root == nil {
+    return 0, fmt.Errorf("min from empty bstree")
+  }
+  nd := max(t.root)
+  return nd.value, nil
+}
