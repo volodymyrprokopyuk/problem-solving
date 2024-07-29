@@ -188,3 +188,42 @@ func (t *BSTree) Max() (int, error) {
   nd := max(t.root)
   return nd.value, nil
 }
+
+type TrieNode struct {
+  runes map[rune]*TrieNode
+}
+
+func NewTrieNode() *TrieNode {
+  return &TrieNode{runes: make(map[rune]*TrieNode, 52)}
+}
+
+type Trie struct {
+  root *TrieNode
+}
+
+func NewTrie() *Trie {
+  return &Trie{root: NewTrieNode()}
+}
+
+// O(key.length)
+func (t *Trie) Set(key string) {
+  nd := t.root
+  for _, r := range key {
+    if _, exist := nd.runes[r]; !exist {
+      nd.runes[r] = NewTrieNode()
+    }
+    nd = nd.runes[r]
+  }
+}
+
+// O(key.length)
+func (t *Trie) Get(key string) bool {
+  nd := t.root
+  for _, r := range key {
+    if _, exist := nd.runes[r]; !exist {
+      return false
+    }
+    nd = nd.runes[r]
+  }
+  return true
+}
