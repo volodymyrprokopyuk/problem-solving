@@ -2,34 +2,31 @@ package main
 
 import (
 	"fmt"
-	"io"
 
-	"github.com/volodymyrprokopyuk/problem-solving/go/ads"
+	// "github.com/volodymyrprokopyuk/problem-solving/go/ads"
 )
 
-func printAny[T any](w io.Writer, val T) {
-  fmt.Fprintf(w, "%v", val)
-}
-
-func printAll[T any](val ...T) {
-  for _, v := range val {
-    fmt.Printf("%v ", v)
+func ContainsFunc[T comparable](slc []T, pred func(val T) bool) bool {
+  for _, val := range slc {
+    if pred(val) {
+      return true
+    }
   }
-}
-
-func length[T any](slc []T) int {
-  return len(slc)
+  return false
 }
 
 func main() {
-  // printAny(os.Stdout, 1)
-  // printAny(os.Stdout, "a")
-  // printAll(1, 2, 3)
-  // fmt.Println(length([]int{1, 2}), length([]bool{true, false}))
+  slc := []int{1, 21, 3, 41}
+  fmt.Println(ContainsFunc(slc, func(val int) bool { return val % 2 == 0 }))
 
-  // trie := ads.NewTrie()
-  // trie.Set("Vlad")
-  // fmt.Println(trie.Get("Vlad"), trie.Get("vlad"), trie.Get("x"), trie.Get(""))
+
+  // set := ads.NewSet[int](1, 2, 3, 1, 4)
+  // set.Delete(4)
+  // fmt.Println(set.Length())
+  // fmt.Println(set.Get(2), set.Get(9))
+  // fmt.Println(set.Union(ads.NewSet(10, 20)))
+  // fmt.Println(set.Intersect(ads.NewSet(2, 3, 4)))
+  // fmt.Println(set.Diff(ads.NewSet(2, 3, 4)))
 
   // heap.FromSlice([]int{8, 1, 3, 2, 6, 0, 5, 4, 7, 9})
   // bst.FromSlice([]int{8, 1, 3, 2, 6, 0, 5, 4, 7, 9})
