@@ -15,10 +15,23 @@ func ContainsFunc[T comparable](slc []T, pred func(val T) bool) bool {
   return false
 }
 
-func main() {
-  slc := []int{1, 21, 3, 41}
-  fmt.Println(ContainsFunc(slc, func(val int) bool { return val % 2 == 0 }))
+func MergeMaps[K comparable, V any, M map[K]V](maps ...M) map[K]V {
+  res := make(map[K]V)
+  for _, m := range maps {
+    for k, v := range m {
+      res[k] = v
+    }
+  }
+  return res
+}
 
+func main() {
+  // slc := []int{1, 21, 3, 41}
+  // fmt.Println(ContainsFunc(slc, func(val int) bool { return val % 2 == 0 }))
+
+  // map1 := map[string]int{"a": 1, "b": 2}
+  // map2 := map[string]int{"a": 10, "c": 3}
+  // fmt.Println(MergeMaps(map1,map2))
 
   // set := ads.NewSet[int](1, 2, 3, 1, 4)
   // set.Delete(4)
