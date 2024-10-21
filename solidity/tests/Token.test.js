@@ -35,4 +35,13 @@ describe("Token", () => {
     await token.transfer(acc1, value)
     expect(await event).toEmitWithArgs(owner.address, acc1.address, value)
   })
+  test.todo("Revert with insufficient funds", async () => {
+    const [token, owner, acc1] = await loadFixture(contractAndAccounts)
+    await expect(() => token.connect(acc1).transfer(owner, 1n)).toThrow()
+    try {
+      await token.connect(acc1).transfer(owner, 1n)
+    } catch (e) {
+      console.log(e)
+    }
+  })
 })
