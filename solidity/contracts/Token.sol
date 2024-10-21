@@ -7,6 +7,7 @@ contract Token {
   address public owner;
   uint256 public totalSupply = 1000;
   mapping(address => uint256) balances;
+
   event Transfer(address indexed from, address indexed to, uint256 value);
 
   constructor() {
