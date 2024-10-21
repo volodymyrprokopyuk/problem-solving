@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
+import "hardhat/console.sol";
+
 contract Token {
   string public name = "Token";
   string public symbol = "TOK";
@@ -19,6 +21,7 @@ contract Token {
     require(balances[msg.sender] >= value, "insufficient funds");
     balances[msg.sender] -= value;
     balances[to] += value;
+    console.log("transfer: %s => %s %s", msg.sender, to, value);
     emit Transfer(msg.sender, to, value);
   }
 
