@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 contract OpenAuction {
-  address payable public beneficiary;
-  uint256 public endTime;
   address public topBidder;
   uint256 public topBid;
+  uint256 public endTime;
+  address payable public beneficiary;
 
   mapping(address => uint256) pendingReturns;
   bool auctionEnded;

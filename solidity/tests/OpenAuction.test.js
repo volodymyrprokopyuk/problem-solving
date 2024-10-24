@@ -11,7 +11,7 @@ describe("OpenAuction", () => {
     const auction = await OpenAuction.deploy(60, benef)
     return { auction, benef, acc1, acc2 }
   }
-  test("Bid, bid higher, withdraw first bid", async () => {
+  test("Bid, bid higher, withdraw, end auction", async () => {
     const { auction, benef, acc1, acc2 } = await loadFixture(contractAndAccounts)
     // console.log(await ethers.provider.getBalance(benef.address))
     let newTopBid = listenForEvent(auction, "EvNewTopBid")
