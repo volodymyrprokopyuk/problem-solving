@@ -12,7 +12,7 @@ export function arrayEqual(a, b) {
 
 export function listenForEvent(contract, eventName, timeout = 1000) {
   return new Promise((resolve, reject) => {
-    setTimeout(() => reject("timeout"), timeout)
+    setTimeout(() => reject("event timeout"), timeout)
     contract.on(eventName, (...args) => {
       const event = args.at(-1)
       resolve(event)
