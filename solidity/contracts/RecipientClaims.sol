@@ -32,6 +32,8 @@ contract Deactivator is Owner {
 contract RecipientClaims is Deactivator {
   mapping(uint256 => bool) nonces;
 
+  event EvPayment(address recipient, uint256 value);
+
   error ErrAlreadyClaimed();
   error ErrInvalidSignature();
 
@@ -56,6 +58,7 @@ contract RecipientClaims is Deactivator {
     ));
     address signer = recoverSigner(hash, sig);
     require(signer == owner);
+    emit EvPayment(msg.sender, value);
     payable(msg.sender).transfer(value);
   }
 
