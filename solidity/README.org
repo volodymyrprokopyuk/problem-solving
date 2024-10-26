@@ -1,0 +1,33 @@
+* Solidity
+
+** Foundry
+
+- Initialize the Foundry project
+  #+BEGIN_SRC fish
+mkdir contract library script test
+git submodule add https://github.com/foundry-rs/forge-std.git ./library/forge-std
+  #+END_SRC
+- Configure the Foundry project in =./foundry.toml=
+  #+BEGIN_SRC toml
+[profile.default]
+# Project layout
+src = "contract"
+libs = ["library"]
+script = "script"
+test = "test"
+out = "artifact"
+# Solidity compiler
+remappings = [
+  "contract/=contract/",
+  "forge-std/=library/forge-std/src/"
+]
+deny_warnings = true
+  #+END_SRC
+- Build contract artifacts
+  #+BEGIN_SRC fish
+forge build
+  #+END_SRC
+- Test contracts
+  #+BEGIN_SRC fish
+forge test
+  #+END_SRC

@@ -1,0 +1,13 @@
+[profile.default]
+# Project layout
+src = "contract"
+libs = ["library"]
+script = "script"
+test = "test"
+out = "artifact"
+# Solidity compiler
+remappings = [
+  "contract/=contract/",
+  "forge-std/=library/forge-std/src/"
+]
+deny_warnings = true
