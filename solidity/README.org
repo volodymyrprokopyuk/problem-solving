@@ -29,5 +29,5 @@ forge build
   #+END_SRC
 - Test contracts
   #+BEGIN_SRC fish
-forge test
+forge test -vv
   #+END_SRC
