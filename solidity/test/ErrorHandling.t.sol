@@ -7,6 +7,7 @@ import {ErrorHandling} from "contract/ErrorHandling.sol";
 contract ErrorHandlingTest is Test {
   ErrorHandling eh;
 
+  error ErrUnexpectedError();
   error ErrExpectedErrorGotNone();
 
   function setUp() public {
@@ -14,8 +15,12 @@ contract ErrorHandlingTest is Test {
   }
 
   function testErrorHandlingSuccess() public view {
-    string memory message = eh.produceError(ErrorHandling.ErrorType.Success);
-    assertEq(message, "success");
+    try eh.produceError(ErrorHandling.ErrorType.Success)
+      returns (string memory message) {
+      assertEq(message, "success");
+    } catch {
+      revert ErrUnexpectedError();
+    }
   }
 
   function testErrorHandlingExplicitAssert() public {
