@@ -25,7 +25,8 @@ contract Counter {
     emit EvIncrement(number);
   }
 
-  function doRevert() pure public {
+  function doRevert() view public {
+    assert(this.doRevert.address == address(this));
     revert ErrOh();
   }
 }

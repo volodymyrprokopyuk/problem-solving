@@ -7,19 +7,18 @@ import {ErrorHandling} from "contract/ErrorHandling.sol";
 contract ErrorHandlingTest is Test {
   ErrorHandling eh;
 
-  error ErrUnexpectedError();
   error ErrExpectedErrorGotNone();
 
   function setUp() public {
     eh = new ErrorHandling();
   }
 
-  function testErrorHandlingSuccess() public view {
+  function testErrorHandlingSuccess() public {
     try eh.produceError(ErrorHandling.ErrorType.Success)
       returns (string memory message) {
       assertEq(message, "success");
     } catch {
-      revert ErrUnexpectedError();
+      fail();
     }
   }
 
@@ -66,6 +65,10 @@ contract ErrorHandlingTest is Test {
     // * forge assertion
     vm.expectRevert(abi.encodeWithSignature(
       "ErrOh(string)", "revert error"
+    ));
+    eh.produceError(ErrorHandling.ErrorType.Revert);
+    vm.expectRevert(abi.encodeWithSelector(
+      ErrorHandling.ErrOh.selector, "revert error"
     ));
     eh.produceError(ErrorHandling.ErrorType.Revert);
   }
