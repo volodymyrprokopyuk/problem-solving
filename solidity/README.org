@@ -6,6 +6,7 @@
   #+BEGIN_SRC fish
 mkdir contract library test
 git submodule add https://github.com/foundry-rs/forge-std.git ./library/forge-std
+cd library/forge-std; and git pull # update
   #+END_SRC
 - Configure the Foundry project in =./foundry.toml=
   #+BEGIN_SRC toml

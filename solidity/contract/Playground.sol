@@ -20,3 +20,15 @@ contract Counter {
     count -= delta;
   }
 }
+
+contract ExhaustGas {
+  uint i;
+  function exhaustGas(uint limit) public {
+    while (true) {
+      i += 1;
+      if (i >= limit) {
+        break;
+      }
+    }
+  }
+}
