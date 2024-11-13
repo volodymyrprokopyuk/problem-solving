@@ -54,3 +54,66 @@ contract ExhaustGasTest is Test {
     }
   }
 }
+
+contract EncodeTest is Test {
+  Counter counter;
+
+  function setUp() public {
+    counter = new Counter();
+  }
+
+  function testEncodeSignature() public {
+    address ctr = address(counter);
+    uint setValue = 1;
+    bytes memory setData = abi.encodeWithSignature("set(uint256)", setValue);
+    (bool setSucc, ) = ctr.call(setData);
+    require(setSucc, "set failure");
+    bytes memory getData = abi.encodeWithSignature("get()");
+    (bool getSucc, bytes memory getRes) = ctr.call(getData);
+    require(getSucc, "get failure");
+    (uint getValue) = abi.decode(getRes, (uint));
+    assertEq(getValue, setValue);
+  }
+
+  function testEncodeSelector() public {
+    address ctr = address(counter);
+    uint setValue = 1;
+    bytes4 setSelector = bytes4(keccak256("set(uint256)"));
+    bytes memory setData = abi.encodeWithSelector(setSelector, setValue);
+    // bytes memory setData = abi.encodeWithSelector(counter.set.selector, setValue);
+    (bool setSucc, ) = ctr.call(setData);
+    require(setSucc, "set failure");
+    bytes4 getSelector = bytes4(keccak256("get()"));
+    bytes memory getData = abi.encodeWithSelector(getSelector);
+    // bytes memory getData = abi.encodeWithSelector(counter.get.selector);
+    (bool getSucc, bytes memory getRes) = ctr.call(getData);
+    require(getSucc, "get failure");
+    (uint getValue) = abi.decode(getRes, (uint));
+    assertEq(getValue, setValue);
+  }
+
+  function testEncodeCall() public {
+    address ctr = address(counter);
+    uint setValue = 1;
+    bytes memory setData = abi.encodeCall(counter.set, (setValue));
+    (bool setSucc, ) = ctr.call(setData);
+    require(setSucc, "set failure");
+    bytes memory getData = abi.encodeCall(counter.get, ());
+    (bool getSucc, bytes memory getRes) = ctr.call(getData);
+    require(getSucc, "get failure");
+    (uint getValue) = abi.decode(getRes, (uint));
+    assertEq(getValue, setValue);
+  }
+}
+
+// contract FallbackTest is Test {
+//   Fallback fb;
+
+//   function setUp() public {
+//     fb = new Fallback();
+//   }
+
+//   function testFallback() public {
+//     (bool success, bytes memory data) = fb.call(abi.encodePacked("ok"));
+//   }
+// }

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
+import {console} from "forge-std/console.sol";
+
 contract Greeting {
   string public greet = "Hello";
 }
@@ -32,3 +34,10 @@ contract ExhaustGas {
     }
   }
 }
+
+// contract Fallback {
+//   fallback(bytes memory data) external returns (bytes memory) {
+//     console.log("fallback data: %s", abi.decodePacked(data));
+//     return abi.encodePacked("ok");
+//   }
+// }
