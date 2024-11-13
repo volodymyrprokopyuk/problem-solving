@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Test, stdError, console} from "forge-std/Test.sol";
 import {
-  Greeting, Counter, ExhaustGas
+  Greeting, Counter, ExhaustGas, Fallback, Delegatecall
 } from "contract/Playground.sol";
 
 contract GreetingTest is Test {
@@ -106,14 +106,43 @@ contract EncodeTest is Test {
   }
 }
 
-// contract FallbackTest is Test {
-//   Fallback fb;
+contract FallbackTest is Test {
+  Fallback fb;
 
-//   function setUp() public {
-//     fb = new Fallback();
-//   }
+  function setUp() public {
+    fb = new Fallback();
+  }
 
-//   function testFallback() public {
-//     (bool success, bytes memory data) = fb.call(abi.encodePacked("ok"));
-//   }
-// }
+  function testFallback() public {
+    // bytes memory data = abi.encodeWithSignature("notExist(string)", "in");
+    // (bool success, bytes memory result) = address(fb).call(data);
+    // assertTrue(success);
+    // string memory res = abi.decode(result, (string));
+    // assertEq(res, "out");
+    // console.log("fallback: %s", res);
+
+    bytes memory data = abi.encodeWithSignature("notExist(uint256)", 1);
+    (bool success, bytes memory result) = address(fb).call(data);
+    assertTrue(success);
+    uint res = abi.decode(result, (uint));
+    assertEq(res, 2);
+    console.log("fallback: %s", res);
+  }
+}
+
+contract DelegatecallTest is Test {
+  Delegatecall dc1;
+  Delegatecall dc2;
+
+  function setUp() public {
+    dc1 = new Delegatecall(1);
+    dc2 = new Delegatecall(2);
+  }
+
+  function testDelegatecall() public {
+    uint value1 = dc1.delegate(address(dc2), 1);
+    assertEq(value1, 2);
+    uint value2 = dc2.delegate(address(dc1), 1);
+    assertEq(value2, 3);
+  }
+}

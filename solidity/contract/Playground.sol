@@ -35,9 +35,34 @@ contract ExhaustGas {
   }
 }
 
-// contract Fallback {
-//   fallback(bytes memory data) external returns (bytes memory) {
-//     console.log("fallback data: %s", abi.decodePacked(data));
-//     return abi.encodePacked("ok");
-//   }
-// }
+contract Fallback {
+  fallback(bytes calldata data) external returns (bytes memory) {
+    // string memory arg = abi.decode(data[4:], (string));
+    // console.log("fallback: %s", arg);
+    // return abi.encode("out");
+
+    uint arg = abi.decode(data[4:], (uint));
+    console.log("fallback: %s", arg);
+    return abi.encode(arg + 1);
+  }
+}
+
+contract Delegatecall {
+  uint value;
+
+  constructor (uint val) {
+    value = val;
+  }
+
+  function inc(uint delta) public returns (uint) {
+    value += delta;
+    return value;
+  }
+
+  function delegate(address delegee, uint delta) public returns (uint) {
+    bytes memory data = abi.encodeWithSignature("inc(uint256)", delta);
+    (bool success, bytes memory result) = delegee.delegatecall(data);
+    require(success, "inc delegate failure");
+    return abi.decode(result, (uint));
+  }
+}
