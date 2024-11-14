@@ -21,9 +21,10 @@ contract SendReceiveTest is Test {
     assertEq(to.balance, 0 ether);
     console.log("=== Send balance: %s", from.balance);
     console.log("=== Receive balance: %s", to.balance);
+    // indexed topic1, topic2, topic3, non-indexed data
     vm.expectEmit(true, false, false, true);
-    emit Receive.EvReceive(from, 1 ether);
-    send.sendTransfer{value: 1 ether}(payable(to));
+    emit Receive.EvReceive(from, 1 ether); // expected event
+    send.sendTransfer{value: 1 ether}(payable(to)); // actual event
     assertEq(from.balance, 1 ether);
     assertEq(to.balance, 1 ether);
     console.log("=== Send balance: %s", from.balance);

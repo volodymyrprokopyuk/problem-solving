@@ -12,12 +12,33 @@ library LibArray {
     return res;
   }
 
-  function map(uint[] memory arr, function (uint) pure returns (uint) f)
+  function map(uint[] memory arr, function (uint) pure returns (uint) tr)
     internal pure returns (uint[] memory) {
     uint[] memory res = new uint[](arr.length);
     for (uint i = 0; i < arr.length; i++) {
-      res[i] = f(arr[i]);
+      res[i] = tr(arr[i]);
     }
     return res;
+  }
+
+  function filter(
+    uint[] memory arr, uint[] storage filtered,
+    function (uint) pure returns (bool) pred
+  ) internal {
+    for (uint i = 0; i < arr.length; i++) {
+      if (pred(arr[i])) {
+        filtered.push(arr[i]);
+      }
+    }
+  }
+
+  function reduce(
+    uint[] memory arr, uint init,
+    function (uint, uint) pure returns (uint) comb)
+    internal pure returns (uint) {
+    for (uint i = 0; i < arr.length; i++) {
+      init = comb(init, arr[i]);
+    }
+    return init;
   }
 }
