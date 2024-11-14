@@ -7,13 +7,11 @@ import {ErrorHandling} from "contract/ErrorHandling.sol";
 contract ErrorHandlingTest is Test {
   ErrorHandling eh;
 
-  error ErrExpectedErrorGotNone();
-
   function setUp() public {
     eh = new ErrorHandling();
   }
 
-  function testErrorHandlingSuccess() public {
+  function testSuccess() public {
     try eh.produceError(ErrorHandling.ErrorType.Success)
       returns (string memory message) {
       assertEq(message, "success");
@@ -22,66 +20,63 @@ contract ErrorHandlingTest is Test {
     }
   }
 
-  function testErrorHandlingExplicitAssert() public {
-    // * manual assertion
+  function testExplicitAssert() public {
+    // * Manual assertion
     try eh.produceError(ErrorHandling.ErrorType.ExplicitAssert)
       returns (string memory){
-      revert ErrExpectedErrorGotNone();
+      fail();
     } catch Panic(uint code) {
       assertEq(code, 1);
     }
-    // * forge assertion
+    // * Forge assertion
     vm.expectRevert(stdError.assertionError);
     eh.produceError(ErrorHandling.ErrorType.ExplicitAssert);
   }
 
-  function testErrorHandlingImplicitPanic() public {
-    // * manual assertion
+  function testImplicitPanic() public {
+    // * Manual assertion
     try eh.produceError(ErrorHandling.ErrorType.ImplicitPanic)
       returns (string memory) {
-      revert ErrExpectedErrorGotNone();
+      fail();
     } catch Panic(uint code) {
       assertEq(code, 17);
     }
-    // * forge assertion
+    // * Forge assertion
     vm.expectRevert(stdError.arithmeticError);
     eh.produceError(ErrorHandling.ErrorType.ImplicitPanic);
   }
 
-  function testErrorHandlingRevertWithCustomError() public {
-    // * manual assertion
+  function testRevertCustomError() public {
+    // * Manual assertion
     try eh.produceError(ErrorHandling.ErrorType.Revert)
       returns (string memory) {
-      revert ErrExpectedErrorGotNone();
+      fail();
     } catch (bytes memory err) { // custom errors must be handled as bytes
-      bytes4 expSelector = ErrorHandling.ErrOh.selector;
-      bytes4 gotSelector = bytes4(err);
-      assertEq(gotSelector, expSelector);
-      bytes memory expErr = abi.encodeWithSignature(
-        "ErrOh(string)", "revert error"
-      );
+      // Full signature match
+      bytes memory expErr =
+        abi.encodeWithSignature("ErrOh(string)", "revert error");
       assertEq(err, expErr);
+      // Selector match
+      assertEq(bytes4(err), ErrorHandling.ErrOh.selector);
     }
-    // * forge assertion
-    vm.expectRevert(abi.encodeWithSignature(
-      "ErrOh(string)", "revert error"
-    ));
+    // * Forge assertion
+    // Full signature match
+    vm.expectRevert(abi.encodeWithSignature("ErrOh(string)", "revert error"));
     eh.produceError(ErrorHandling.ErrorType.Revert);
-    vm.expectRevert(abi.encodeWithSelector(
-      ErrorHandling.ErrOh.selector, "revert error"
-    ));
+    // Selector match
+    vm.expectPartialRevert(ErrorHandling.ErrOh.selector);
     eh.produceError(ErrorHandling.ErrorType.Revert);
   }
 
-  function testErrorHandlingRequireWithError() public {
-    // * manual assertion
+  function testRequireError() public {
+    // * Manual assertion
     try eh.produceError(ErrorHandling.ErrorType.Require)
       returns (string memory) {
-      revert ErrExpectedErrorGotNone();
+      fail();
     } catch Error(string memory message) {
       assertEq(message, "require error");
     }
-    // * forge assertion
+    // * Forge assertion
     vm.expectRevert("require error");
     eh.produceError(ErrorHandling.ErrorType.Require);
   }
