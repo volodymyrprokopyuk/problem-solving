@@ -42,11 +42,11 @@ contract ExhaustGasTest is Test {
     eg = new ExhaustGas();
   }
 
-  function testExhaustGasDoNotExhaust() public {
+  function testDoNotExhaust() public {
     eg.exhaustGas{gas: 1e5}(1);
   }
 
-  function testExhaustGasDoExhaust() public {
+  function testDoExhaust() public {
     try eg.exhaustGas{gas: 1e5}(type(uint).max) {
       fail();
     } catch {
@@ -71,7 +71,7 @@ contract EncodeTest is Test {
     bytes memory getData = abi.encodeWithSignature("get()");
     (bool getSucc, bytes memory getRes) = ctr.call(getData);
     require(getSucc, "get failure");
-    (uint getValue) = abi.decode(getRes, (uint));
+    uint getValue = abi.decode(getRes, (uint));
     assertEq(getValue, setValue);
   }
 
@@ -88,7 +88,7 @@ contract EncodeTest is Test {
     // bytes memory getData = abi.encodeWithSelector(counter.get.selector);
     (bool getSucc, bytes memory getRes) = ctr.call(getData);
     require(getSucc, "get failure");
-    (uint getValue) = abi.decode(getRes, (uint));
+    uint getValue = abi.decode(getRes, (uint));
     assertEq(getValue, setValue);
   }
 
@@ -101,7 +101,7 @@ contract EncodeTest is Test {
     bytes memory getData = abi.encodeCall(counter.get, ());
     (bool getSucc, bytes memory getRes) = ctr.call(getData);
     require(getSucc, "get failure");
-    (uint getValue) = abi.decode(getRes, (uint));
+    uint getValue = abi.decode(getRes, (uint));
     assertEq(getValue, setValue);
   }
 }

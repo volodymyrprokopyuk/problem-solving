@@ -14,7 +14,7 @@ contract SendReceiveTest is Test {
     recv = new Receive();
   }
 
-  function testTransferReceive() public {
+  function testTransfer() public {
     (address from, address to) = (address(send), address(recv));
     hoax(from, 2 ether);
     assertEq(from.balance, 2 ether);
@@ -31,7 +31,7 @@ contract SendReceiveTest is Test {
     console.log("=== Receive balance: %s", to.balance);
   }
 
-  function testSendReceive() public {
+  function testSend() public {
     (address from, address to) = (address(send), address(recv));
     hoax(from, 2 ether);
     assertEq(from.balance, 2 ether);
@@ -47,7 +47,7 @@ contract SendReceiveTest is Test {
     console.log("=== Receive balance: %s", to.balance);
   }
 
-  function testCallReceive() public {
+  function testCall() public {
     (address from, address to) = (address(send), address(recv));
     hoax(from, 2 ether);
     assertEq(from.balance, 2 ether);
@@ -63,7 +63,7 @@ contract SendReceiveTest is Test {
     console.log("=== Receive balance: %s", to.balance);
   }
 
-  function testDepositFunction() public {
+  function testDeposit() public {
     (address from, address to) = (address(send), address(recv));
     hoax(from, 2 ether);
     assertEq(from.balance, 2 ether);

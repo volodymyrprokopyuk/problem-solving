@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {console} from "forge-std/console.sol";
 
 contract Greeting {
-  string public greet = "Hello";
+  string public greet = "Hello"; // In-place initialization
 }
 
 contract Counter {

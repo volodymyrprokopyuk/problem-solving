@@ -15,16 +15,18 @@ contract Publisher {
   error ErrNotSubscribed(address sub);
 
   function subscribe() public {
-    require(!subMap[msg.sender], ErrAlreadySubscribed(msg.sender));
-    subMap[msg.sender] = true;
-    subList.push(msg.sender);
+    address sub = msg.sender;
+    require(!subMap[sub], ErrAlreadySubscribed(sub));
+    subMap[sub] = true;
+    subList.push(sub);
   }
 
   function unsubscribe() public {
-    require(subMap[msg.sender], ErrNotSubscribed(msg.sender));
-    delete subMap[msg.sender];
+    address sub = msg.sender;
+    require(subMap[sub], ErrNotSubscribed(sub));
+    delete subMap[sub];
     for (uint i = 0; i < subList.length; i++) {
-      if (subList[i] == msg.sender) {
+      if (subList[i] == sub) {
         subList[i] = subList[subList.length - 1];
         subList.pop();
         break;

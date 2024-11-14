@@ -6,7 +6,7 @@ import {LibArray} from "contract/LibArray.sol";
 
 contract LibArrayTest is Test {
   uint[] public arr;
-  uint[] public filtered;
+  uint[] public filtered; // Only storage arrays grow automatically
 
   function setUp() public {
     arr = LibArray.range(1, 4);
@@ -17,17 +17,19 @@ contract LibArrayTest is Test {
   }
 
   function testLibraryMap() public view {
-    uint[] memory got = LibArray.map(arr, mul10);
+    uint[] memory got = LibArray.map(arr, mul10); // Library reference
     uint[] memory exp = new uint[](got.length);
     exp[0] = 10; exp[1] = 20; exp[2] = 30;
     assertEq(got, exp);
   }
 
+  // Attach all library functions to uint[]
   using LibArray for uint[];
+  // Attach selected library functions to uint[]
   // using {LibArray.map} for uint[];
 
   function testUsingMap() public view {
-    uint[] memory got = arr.map(mul10);
+    uint[] memory got = arr.map(mul10); // Attached library function
     uint[] memory exp = new uint[](got.length);
     exp[0] = 10; exp[1] = 20; exp[2] = 30;
     assertEq(got, exp);

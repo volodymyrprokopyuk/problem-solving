@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {Test} from "forge-std/Test.sol";
 import {Publisher, Subscriber} from "contract/PubSub.sol";
 
-contract PublisherTest is Test {
+contract PubSubTest is Test {
   Publisher pub;
   Subscriber sub1;
   Subscriber sub2;
@@ -14,7 +14,7 @@ contract PublisherTest is Test {
     (sub1, sub2) = (new Subscriber(), new Subscriber());
   }
 
-  function testPublisherSubscribeUnsubscribePublish() public {
+  function testSubscribeUnsubscribePublish() public {
     vm.prank(address(sub1));
     pub.subscribe();
     vm.prank(address(sub2));
