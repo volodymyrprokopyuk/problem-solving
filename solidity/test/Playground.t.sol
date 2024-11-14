@@ -146,3 +146,31 @@ contract DelegatecallTest is Test {
     assertEq(value2, 3);
   }
 }
+
+contract SignVerify is Test {
+  function sign(bytes memory message, uint prv)
+    internal view returns (bytes memory) {
+    bytes32 nonce = keccak256(abi.encode(block.timestamp));
+    bytes32 hash = keccak256(abi.encode(message, nonce));
+    (uint8 v, bytes32 r, bytes32 s) = vm.sign(prv, hash);
+    bytes memory sig = abi.encode(nonce, v, r, s);
+    return sig;
+  }
+
+  function verify(bytes memory message, bytes memory sig, address pub)
+    internal pure returns (bool) {
+    (bytes32 nonce, uint8 v, bytes32 r, bytes32 s) =
+      abi.decode(sig, (bytes32, uint8, bytes32, bytes32));
+    bytes32 hash = keccak256(abi.encode(message, nonce));
+    address signer = ecrecover(hash, v, r, s);
+    return signer == pub;
+  }
+
+  function testSignVerify() public {
+    (address pub, uint prv) = makeAddrAndKey("account");
+    bytes memory message = bytes("message");
+    bytes memory sig = sign(message, prv);
+    bool valid = verify(message, sig, pub);
+    assertTrue(valid);
+  }
+}
