@@ -45,4 +45,22 @@ contract SafePurchaseTest is Test {
     assertEq(seller.balance, price * 3);
     assertEq(address(sp).balance, 0);
   }
+
+  function testCancelPurchaseError() public {
+    // cancel
+    vm.expectEmit(true, false, false, true);
+    emit SafePurchase.EvCancel(price * 2);
+    vm.prank(seller);
+    sp.cancel();
+    assertEq(seller.balance, price * 2);
+    assertEq(address(sp).balance, 0);
+    // purchase
+    bytes memory err = abi.encodeWithSelector(
+      SafePurchase.ErrInvalidState.selector, SafePurchase.State.Canceled
+    );
+    vm.expectRevert(err);
+    hoax(buyer, price * 2);
+    sp.purchase{value: price * 2}();
+    assertEq(buyer.balance, price * 2);
+  }
 }

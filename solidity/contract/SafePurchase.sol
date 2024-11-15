@@ -17,7 +17,7 @@ contract SafePurchase {
 
   error ErrNotEvenValue(uint value);
   error ErrUnauthorized(address account);
-  error ErrWrongState(State state);
+  error ErrInvalidState(State state);
   error ErrSendFailed(string operation);
 
   modifier only(address target) {
@@ -26,7 +26,7 @@ contract SafePurchase {
   }
 
   modifier inState(State target) {
-    require(state == target, ErrWrongState(state));
+    require(state == target, ErrInvalidState(state));
     _;
   }
 
@@ -61,9 +61,8 @@ contract SafePurchase {
 
   function refund() external only(seller) inState(State.Received) {
     state = State.Refunded;
-    // (bool success, ) = seller.call{value: price * 3}("");
-    // require(success, ErrSendFailed("refund"));
-    seller.transfer(price * 3);
+    (bool success, ) = seller.call{value: price * 3}("");
+    require(success, ErrSendFailed("refund"));
     emit EvRefund(price * 3);
   }
 }
