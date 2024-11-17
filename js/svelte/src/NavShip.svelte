@@ -1,1 +1,0 @@
-<p>Ship content</p>

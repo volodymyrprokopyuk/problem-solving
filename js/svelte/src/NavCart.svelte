@@ -1,1 +1,0 @@
-<p>Cart content</p>
