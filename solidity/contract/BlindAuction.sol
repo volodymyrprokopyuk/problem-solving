@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-contract OpenAuction {
+contract BlindAuction {
   address payable owner;
+  mapping(address => bytes32[]) hashBids;
   uint topBid;
   address topBidder;
   mapping(address => uint) refunds;
@@ -13,11 +14,12 @@ contract OpenAuction {
   event EvWithdraw(uint value);
 
   error ErrUnauthorized(address account);
-  error ErrAlreadyClosed();
+  error ErrAlreadyClsoed();
   error ErrStillOpen();
-  error ErrNotTopBid(uint topBid);
-  error ErrNothingToRefund(address account);
+  error ErrNothingToReveal(address account);
+  error ErrInvalidBid(address bidder, uint bid);
   error ErrSendFailed(string action);
+  error ErrNothingToRefund(address account);
 
   modifier only(address target) {
     require(msg.sender == target, ErrUnauthorized(msg.sender));
@@ -26,7 +28,7 @@ contract OpenAuction {
 
   modifier isOpen(bool open) {
     if (open && closed) {
-      revert ErrAlreadyClosed();
+      revert ErrAlreadyClsoed();
     }
     if (!open && !closed) {
       revert ErrStillOpen();
@@ -38,14 +40,31 @@ contract OpenAuction {
     owner = payable(msg.sender);
   }
 
-  function bid() external payable isOpen(true) {
-    require(msg.value > topBid, ErrNotTopBid(topBid));
-    if (topBid != 0) {
-      refunds[topBidder] += topBid;
+  function bid(bytes32 hashBid) external payable isOpen(true) {
+    hashBids[msg.sender].push(hashBid);
+  }
+
+  function reveal(uint[] memory bids) external {
+    address bidder = msg.sender;
+    bytes32[] storage hashBds = hashBids[bidder];
+    require(hashBds.length > 0, ErrNothingToReveal(bidder));
+    for (uint i = 0; i < hashBds.length; i++) {
+      uint bd = bids[i];
+      require(
+        hashBds[i] == keccak256(abi.encode(bd)), ErrInvalidBid(bidder, bd)
+      );
+      if (bd > topBid) {
+        if (topBid != 0) {
+          refunds[topBidder] += topBid;
+        }
+        topBid = bd;
+        topBidder = bidder;
+        emit EvTopBid(bd);
+      } else {
+        refunds[bidder] += bd;
+      }
+      hashBds[i] = bytes32(0);
     }
-    topBid = msg.value;
-    topBidder = msg.sender;
-    emit EvTopBid(topBid);
   }
 
   function close() external only(owner) isOpen(true) {
