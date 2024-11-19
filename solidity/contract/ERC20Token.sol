@@ -77,6 +77,7 @@ contract ERC20TokenSwap {
   IERC20 tokenB;
 
   error ErrInsufficientFunds(address token, address owner, uint value);
+  error ErrBeyondAllowance(address owner, address spender, uint value);
   error ErrTransfer(address from, address to, uint value);
 
   constructor(address tokA, address tokB) {
@@ -92,12 +93,18 @@ contract ERC20TokenSwap {
       tokenA.balanceOf(ownerA) >= valueA,
       ErrInsufficientFunds(address(tokenA), ownerA, valueA)
     );
-    require(tokenB.allowance(ownerA, swapper) >= valueA);
+    require(
+      tokenA.allowance(ownerA, swapper) >= valueA,
+      ErrBeyondAllowance(ownerA, swapper, valueA)
+    );
     require(
       tokenB.balanceOf(ownerB) >= valueB,
       ErrInsufficientFunds(address(tokenB), ownerB, valueB)
     );
-    require(tokenB.allowance(ownerB, swapper) >= valueB);
+    require(
+      tokenB.allowance(ownerB, swapper) >= valueB,
+      ErrBeyondAllowance(ownerB, swapper, valueB)
+    );
     bool success = tokenA.transferFrom(ownerA, ownerB, valueA);
     require(success, ErrTransfer(ownerA, ownerB, valueA));
     success = tokenB.transferFrom(ownerB, ownerA, valueB);

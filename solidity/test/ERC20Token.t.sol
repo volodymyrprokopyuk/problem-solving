@@ -2,28 +2,25 @@
 pragma solidity ^0.8.0;
 
 import {Test} from "forge-std/Test.sol";
-import {IERC20, ERC20Token} from "contract/ERC20Token.sol";
+import {IERC20, ERC20Token, ERC20TokenSwap} from "contract/ERC20Token.sol";
 
 contract ERC20TokenTest is Test {
-  address payable owner;
-  address payable spender;
-  address payable acc1;
-  uint totalSupply = 10 ether;
+  address owner;
+  address spender;
+  address acc1;
+  uint totalSupply = 10;
   IERC20 token;
 
   function setUp() public {
     (owner, spender, acc1) =
-      (payable(makeAddr("owner")),
-       payable(makeAddr("spender")),
-       payable(makeAddr("acc1"))
-      );
+      (makeAddr("owner"), makeAddr("spender"), makeAddr("acc1"));
     token = new ERC20Token(owner, totalSupply);
     assertEq(token.balanceOf(owner), totalSupply);
   }
 
   function testTransfer() public {
     // Transfer success
-    uint value = 1 ether;
+    uint value = 1;
     vm.expectEmit(true, true, false, true);
     emit IERC20.Transfer(owner, acc1, value);
     vm.prank(owner);
@@ -41,7 +38,7 @@ contract ERC20TokenTest is Test {
 
   function testApproveTransferFrom() public {
     // Approve
-    uint value = 2 ether;
+    uint value = 2;
     vm.expectEmit(true, true, false, true);
     emit IERC20.Approval(owner, spender, value);
     vm.prank(owner);
@@ -62,5 +59,40 @@ contract ERC20TokenTest is Test {
     vm.expectRevert(err);
     vm.prank(spender);
     token.transferFrom(owner, acc1, value);
+  }
+}
+
+contract ERC20TokenSwapTest is Test {
+  IERC20 tokenA;
+  address ownerA;
+  IERC20 tokenB;
+  address ownerB;
+  uint totalSupply = 10;
+  ERC20TokenSwap swap;
+
+  function setUp() public {
+    (ownerA, ownerB) = (makeAddr("ownerA"), makeAddr("ownerB"));
+    tokenA = new ERC20Token(ownerA, totalSupply);
+    tokenB = new ERC20Token(ownerB, totalSupply);
+    swap = new ERC20TokenSwap(address(tokenA), address(tokenB));
+  }
+
+  function testSwap() public {
+    address swapper = address(swap);
+    (uint valueA, uint valueB) = (1, 2);
+    vm.prank(ownerA);
+    bool success = tokenA.approve(swapper, valueA);
+    assertTrue(success);
+    assertEq(tokenA.allowance(ownerA, swapper), valueA);
+    vm.prank(ownerB);
+    success = tokenB.approve(swapper, valueB);
+    assertTrue(success);
+    assertEq(tokenB.allowance(ownerB, swapper), valueB);
+    vm.prank(swapper);
+    swap.swap(ownerA, valueA, ownerB, valueB);
+    assertEq(tokenA.balanceOf(ownerA), totalSupply - valueA);
+    assertEq(tokenA.balanceOf(ownerB), valueA);
+    assertEq(tokenB.balanceOf(ownerB), totalSupply - valueB);
+    assertEq(tokenB.balanceOf(ownerA), valueB);
   }
 }
