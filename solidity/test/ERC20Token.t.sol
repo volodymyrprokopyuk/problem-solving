@@ -2,14 +2,14 @@
 pragma solidity ^0.8.0;
 
 import {Test} from "forge-std/Test.sol";
-import {ERC20, ERC20Token} from "contract/ERC20Token.sol";
+import {IERC20, ERC20Token} from "contract/ERC20Token.sol";
 
 contract ERC20TokenTest is Test {
   address payable owner;
   address payable spender;
   address payable acc1;
   uint totalSupply = 10 ether;
-  ERC20Token token;
+  IERC20 token;
 
   function setUp() public {
     (owner, spender, acc1) =
@@ -25,7 +25,7 @@ contract ERC20TokenTest is Test {
     // Transfer success
     uint value = 1 ether;
     vm.expectEmit(true, true, false, true);
-    emit ERC20.Transfer(owner, acc1, value);
+    emit IERC20.Transfer(owner, acc1, value);
     vm.prank(owner);
     token.transfer(acc1, value);
     assertEq(token.balanceOf(acc1), value);
@@ -43,13 +43,13 @@ contract ERC20TokenTest is Test {
     // Approve
     uint value = 2 ether;
     vm.expectEmit(true, true, false, true);
-    emit ERC20.Approval(owner, spender, value);
+    emit IERC20.Approval(owner, spender, value);
     vm.prank(owner);
     token.approve(spender, value);
     assertEq(token.allowance(owner, spender), value);
     // Transfer from success
     vm.expectEmit(true, true, false, true);
-    emit ERC20.Transfer(owner, acc1, value);
+    emit IERC20.Transfer(owner, acc1, value);
     vm.prank(spender);
     token.transferFrom(owner, acc1, value);
     assertEq(token.balanceOf(acc1), value);
