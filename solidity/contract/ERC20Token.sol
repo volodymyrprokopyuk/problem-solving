@@ -1,17 +1,26 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
+// ERC-20 Token standard (tokens are indistinguishable, identical)
 interface IERC20 {
+  // On successful transfer() and transferFrom()
   event Transfer(address indexed from, address indexed to, uint value);
+  // On approve()
   event Approval(address indexed owner, address indexed spender, uint maxValue);
 
   function totalSupply() external view returns (uint totalSupply);
   function balanceOf(address owner) external view returns (uint balance);
+  // The owner == msg.sender transfers the value from the owner's account
   function transfer(address to, uint value) external returns (bool success);
+  // The owner == msg.sender approves a spender to transfer up to the maxValue
+  // on the owner's behalf
   function approve(address spender, uint maxValue)
     external returns (bool success);
+  // Checks the remaining value approved by the owner for the spender to
+  // transfer on the owner's behalf
   function allowance(address owner, address spender)
     external view returns (uint remainingValue);
+  // The spender == msg.sender transfers the value on the owners behalf
   function transferFrom(address from, address to, uint value)
     external returns (bool success);
 }
