@@ -5,17 +5,9 @@ interface IERC165 {
   function supportsInterface(bytes4 ifcID) external view returns (bool);
 }
 
-function IERC165ID() pure returns (bytes4) {
-  return bytes4(IERC165.supportsInterface.selector);
-}
-
 interface IFuncs {
   function funcA() external view returns (uint);
   function funcB() external view returns (uint);
-}
-
-function IFuncsID() pure returns (bytes4) {
-  return bytes4(IFuncs.funcA.selector) ^ bytes4(IFuncs.funcB.selector);
 }
 
 contract ERC165Contract is IERC165, IFuncs {
@@ -24,8 +16,8 @@ contract ERC165Contract is IERC165, IFuncs {
   mapping(bytes4 => bool) public supportsInterface;
 
   constructor() {
-    supportsInterface[IERC165ID()] = true;
-    supportsInterface[IFuncsID()] = true;
+    supportsInterface[type(IERC165).interfaceId] = true;
+    supportsInterface[type(IFuncs).interfaceId] = true;
   }
 
   function funcA() external view returns (uint) {
