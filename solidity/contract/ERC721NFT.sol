@@ -13,7 +13,7 @@ interface IERC721 {
   // safeTransferFrom() and transferFrom()
   event Transfer(address indexed from, address indexed to, uint tokenID);
   // On approve() an address is approved for the NFT
-  event Approval(address indexed owner, address indexed approvee, uint tokenID);
+  event Approval(address indexed owner, address indexed delegee, uint tokenID);
   // On setApprovalForAll() when an operator is enabled or disabled to manages
   // all tokens of the owner
   event ApprovalForAll(
@@ -38,9 +38,9 @@ interface IERC721 {
     external payable;
   // The current owner or one of approved operators changes or reaffirms the
   // single approved address for the NFT
-  function approve(address aprovee, uint tokenID) external payable;
+  function approve(address delegee, uint tokenID) external payable;
   // Returns the approved address for the NTF
-  function getApproved(uint tokenID) external view returns (address approvee);
+  function getApproved(uint tokenID) external view returns (address delegee);
   // The current owner enables or disables an operator to manage all tokens of
   // the owner. Multiple operators can manage tokens of an owner
   function setApprovalForAll(address operator, bool approved) external;
@@ -64,7 +64,7 @@ contract ERC721NFT is IERC721 {
   address minter;
   mapping(uint => address) tokenOwner;
   mapping(address => uint) ownerTokens;
-  mapping(uint => address) tokenApprovee;
+  mapping(uint => address) tokenDelegee;
   // owner => operator => approved/revoked
   mapping(address => mapping(address => bool)) operators;
 
@@ -108,7 +108,7 @@ contract ERC721NFT is IERC721 {
   }
 
   function burn(uint tokenID) external only(minter) validToken(tokenID) {
-    delete tokenApprovee[tokenID];
+    delete tokenDelegee[tokenID];
     address owner = tokenOwner[tokenID];
     delete tokenOwner[tokenID];
     ownerTokens[owner]--;
@@ -119,8 +119,8 @@ contract ERC721NFT is IERC721 {
     return tokenOwner[tokenID] == msg.sender;
   }
 
-  function isApprovee(uint tokenID) internal view returns (bool) {
-    return tokenApprovee[tokenID] == msg.sender;
+  function isDelegee(uint tokenID) internal view returns (bool) {
+    return tokenDelegee[tokenID] == msg.sender;
   }
 
   function isOperator(uint tokenID) internal view returns (bool) {
@@ -136,9 +136,9 @@ contract ERC721NFT is IERC721 {
     _;
   }
 
-  modifier ownerOrApproveeOrOperator(uint tokenID) {
+  modifier ownerOrDelegeeOrOperator(uint tokenID) {
     require(
-      isOwner(tokenID) || isApprovee(tokenID) || isOperator(tokenID),
+      isOwner(tokenID) || isDelegee(tokenID) || isOperator(tokenID),
       ErrUnauthorizedTransfer(msg.sender, tokenID)
     );
     _;
@@ -155,7 +155,7 @@ contract ERC721NFT is IERC721 {
   }
 
   function transferFrom(address from, address to, uint tokenID)
-    public payable validToken(tokenID) ownerOrApproveeOrOperator(tokenID)
+    public payable validToken(tokenID) ownerOrDelegeeOrOperator(tokenID)
     nonZeroAddress(to) {
     require(tokenOwner[tokenID] == from, ErrDoesNotOwn(from, tokenID));
     delete tokenOwner[tokenID];
@@ -185,15 +185,15 @@ contract ERC721NFT is IERC721 {
     safeTransferFrom(from, to, tokenID, "");
   }
 
-  function approve(address approvee, uint tokenID) external payable
-    validToken(tokenID) ownerOrOperator(tokenID) nonZeroAddress(approvee) {
-    tokenApprovee[tokenID] = approvee;
-    emit Approval(msg.sender, approvee, tokenID);
+  function approve(address delegee, uint tokenID) external payable
+    validToken(tokenID) ownerOrOperator(tokenID) nonZeroAddress(delegee) {
+    tokenDelegee[tokenID] = delegee;
+    emit Approval(msg.sender, delegee, tokenID);
   }
 
   function getApproved(uint tokenID) external view
     validToken(tokenID) returns (address) {
-    return tokenApprovee[tokenID];
+    return tokenDelegee[tokenID];
   }
 
   function setApprovalForAll(address operator, bool approved)
