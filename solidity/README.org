@@ -34,5 +34,5 @@ forge build
   #+END_SRC
 - Test contracts
   #+BEGIN_SRC fish
-forge test -vvv --match-contract reContract --match-test reTest
+forge test -vvv [--via-ir] --match-contract reContract --match-test reTest
   #+END_SRC
