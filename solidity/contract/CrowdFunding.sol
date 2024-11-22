@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 contract CrowdFunding {
   struct Campaign {
-    address payable owner;
+    address owner;
     uint goal;
     uint pledgedTotal;
     bool ended;
@@ -11,7 +11,6 @@ contract CrowdFunding {
     bool claimed;
   }
 
-  mapping(uint => address) campaignOwner;
   mapping(uint => Campaign) public campaigns;
   // campaign ID => pledger => pledge value
   mapping(uint => mapping(address => uint)) public pledgedValue;
@@ -35,7 +34,8 @@ contract CrowdFunding {
   error ErrClaim(uint campaignID, address owner);
 
   modifier onlyOwner(uint campaignID) {
-    require(campaignOwner[campaignID] == msg.sender, ErrUnauthorized(msg.sender));
+    address owner = msg.sender;
+    require(campaigns[campaignID].owner == owner, ErrUnauthorized(owner));
     _;
   }
 
@@ -62,22 +62,13 @@ contract CrowdFunding {
     _;
   }
 
-  modifier pledgeClaimed(bool claimed, uint campaignID) {
-    Campaign memory cpg = campaigns[campaignID];
-    if (claimed && !cpg.claimed || !claimed && cpg.claimed) {
-      revert ErrClaimedCampaign(cpg.claimed, campaignID);
-    }
-    _;
-  }
-
   function launch(uint goal) external returns (uint) {
     uint campaignID = uint(keccak256(abi.encode(block.timestamp)));
     address owner = msg.sender;
     campaigns[campaignID] = Campaign({
-      owner: payable(owner), goal: goal, pledgedTotal: 0,
+      owner: owner, goal: goal, pledgedTotal: 0,
       ended: false, canceled: false, claimed: false
     });
-    campaignOwner[campaignID] = owner;
     emit EvLaunch(campaignID, owner, goal);
     return campaignID;
   }
@@ -121,9 +112,9 @@ contract CrowdFunding {
 
   function claim(uint campaignID) external
     onlyOwner(campaignID) validCampaign(campaignID)
-    campaignEnded(true, campaignID) goalReached(true, campaignID)
-    pledgeClaimed(false, campaignID) {
+    campaignEnded(true, campaignID) goalReached(true, campaignID) {
     Campaign storage cpg = campaigns[campaignID];
+    require(!cpg.claimed, ErrClaimedCampaign(cpg.claimed, campaignID));
     cpg.claimed = true;
     address owner = msg.sender;
     (bool success, ) = owner.call{value: address(this).balance}("");
