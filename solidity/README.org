@@ -36,3 +36,20 @@ forge build
   #+BEGIN_SRC fish
 forge test -vvv [--via-ir] --match-contract reContract --match-test reTest
   #+END_SRC
+
+** Solhint
+
+- Install solhint
+  #+BEGIN_SRC fish
+bun install solhint
+  #+END_SRC
+- Configure solhint in =./.solhint.json=
+  #+BEGIN_SRC json
+{
+  "extends": "solhint:recommended",
+}
+  #+END_SRC
+- Run solhint
+  #+BEGIN_SRC fish
+bunx solhint --disc contract/*.sol
+  #+END_SRC

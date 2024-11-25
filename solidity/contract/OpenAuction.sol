@@ -58,6 +58,7 @@ contract OpenAuction {
   function withdraw() external isOpen(false) {
     address bidder = msg.sender;
     uint value = refunds[bidder];
+    refunds[bidder] = 0;
     require(value > 0, ErrNothingToRefund(bidder));
     (bool success, ) = bidder.call{value: value}("");
     require(success, ErrSendFailed("withdraw"));
