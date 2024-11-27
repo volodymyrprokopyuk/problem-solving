@@ -5,7 +5,7 @@ import {Test, stdError} from "forge-std/Test.sol";
 import {ErrorHandling} from "contract/ErrorHandling.sol";
 
 contract ErrorHandlingTest is Test {
-  ErrorHandling eh;
+  ErrorHandling internal eh;
 
   function setUp() public {
     eh = new ErrorHandling();
@@ -47,21 +47,20 @@ contract ErrorHandlingTest is Test {
   }
 
   function testRevertCustomError() public {
+    bytes memory expErr = abi.encodeWithSignature("ErrOh(string)", "revert error");
     // * Manual assertion
     try eh.produceError(ErrorHandling.ErrorType.Revert)
       returns (string memory) {
       fail();
     } catch (bytes memory err) { // custom errors must be handled as bytes
-      // Full signature match
-      bytes memory expErr =
-        abi.encodeWithSignature("ErrOh(string)", "revert error");
+      // Signature match
       assertEq(err, expErr);
       // Selector match
       assertEq(bytes4(err), ErrorHandling.ErrOh.selector);
     }
     // * Forge assertion
-    // Full signature match
-    vm.expectRevert(abi.encodeWithSignature("ErrOh(string)", "revert error"));
+    // Signature match
+    vm.expectRevert(expErr);
     eh.produceError(ErrorHandling.ErrorType.Revert);
     // Selector match
     vm.expectPartialRevert(ErrorHandling.ErrOh.selector);

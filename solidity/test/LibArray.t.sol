@@ -5,30 +5,22 @@ import {Test} from "forge-std/Test.sol";
 import {LibArray} from "contract/LibArray.sol";
 
 contract LibArrayTest is Test {
-  uint[] public arr;
-  uint[] public filtered; // Only storage arrays grow automatically
+  uint[] internal arr;
+  uint[] internal filtered; // Only storage arrays grow automatically
+
+  using LibArray for uint[]; // Attach all library functions to uint[]
+  // using {LibArray.map} for uint[]; // Attach selected library functions to uint[]
 
   function setUp() public {
-    arr = LibArray.range(1, 4);
+    arr = LibArray.range(1, 4); // Library reference
   }
 
   function mul10(uint value) internal pure returns (uint) {
     return value * 10;
   }
 
-  function testLibraryMap() public view {
-    uint[] memory got = LibArray.map(arr, mul10); // Library reference
-    uint[] memory exp = new uint[](got.length);
-    exp[0] = 10; exp[1] = 20; exp[2] = 30;
-    assertEq(got, exp);
-  }
-
-  // Attach all library functions to uint[]
-  using LibArray for uint[];
-  // Attach selected library functions to uint[]
-  // using {LibArray.map} for uint[];
-
-  function testUsingMap() public view {
+  function testMap() public view {
+    // uint[] memory got = LibArray.map(arr, mul10); // Library reference
     uint[] memory got = arr.map(mul10); // Attached library function
     uint[] memory exp = new uint[](got.length);
     exp[0] = 10; exp[1] = 20; exp[2] = 30;
@@ -40,7 +32,7 @@ contract LibArrayTest is Test {
   }
 
   function testFilter() public {
-    arr.filter(filtered, even);
+    arr.filter(even, filtered);
     uint[] memory exp = new uint[](1);
     exp[0] = 2;
     assertEq(filtered, exp);

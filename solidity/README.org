@@ -46,7 +46,7 @@ bun install solhint
 - Configure solhint in =./.solhint.json=
   #+BEGIN_SRC json
 {
-  "extends": "solhint:recommended",
+  "extends": "solhint:recommended"
 }
   #+END_SRC
 - Run solhint

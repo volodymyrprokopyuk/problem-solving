@@ -2,9 +2,11 @@
 pragma solidity ^0.8.0;
 
 library LibArray {
-  function range(uint start, uint end) internal pure
-    returns (uint[] memory) {
-    require(start <= end, "range: must start <= end");
+  error ErrInvalidRange(uint start, uint end);
+
+  function range(uint start, uint end)
+    internal pure returns (uint[] memory) {
+    require(start <= end, ErrInvalidRange(start, end));
     uint[] memory res = new uint[](end - start);
     for (uint i = start; i < end; i++) {
       res[i - start] = i;
@@ -22,8 +24,8 @@ library LibArray {
   }
 
   function filter(
-    uint[] memory arr, uint[] storage filtered,
-    function (uint) pure returns (bool) pred
+    uint[] memory arr, function (uint) pure returns (bool) pred,
+    uint[] storage filtered
   ) internal {
     for (uint i = 0; i < arr.length; i++) {
       if (pred(arr[i])) {
@@ -36,9 +38,10 @@ library LibArray {
     uint[] memory arr, uint init,
     function (uint, uint) pure returns (uint) comb)
     internal pure returns (uint) {
+    uint res = init;
     for (uint i = 0; i < arr.length; i++) {
-      init = comb(init, arr[i]);
+      res = comb(res, arr[i]);
     }
-    return init;
+    return res;
   }
 }

@@ -6,13 +6,13 @@ contract ErrorHandling {
 
   error ErrOh(string message);
 
-  function produceError(ErrorType errorType) public pure
-    returns (string memory) {
+  function produceError(ErrorType errorType)
+    public pure returns (string memory) {
     if (errorType == ErrorType.ExplicitAssert) {
       assert(errorType == ErrorType.Success);
     } else if (errorType == ErrorType.ImplicitPanic) {
       uint overflow = type(uint).max + 1;
-      require(overflow == 0); // use overflow
+      require(overflow == 0, ErrOh("unreachable")); // use overflow
     } else if (errorType == ErrorType.Revert) {
       revert ErrOh("revert error");
     } else if (errorType == ErrorType.Require) {
