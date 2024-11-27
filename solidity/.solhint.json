@@ -2,6 +2,8 @@
   "extends": "solhint:recommended",
   "rules": {
     "explicit-types": ["error", "implicit"],
-    "gas-custom-errors": "off"
+    "gas-custom-errors": "off",
+    "one-contract-per-file": "off",
+    "func-visibility": ["error", { "ignoreConstructors": true }]
   }
 }
