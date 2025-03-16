@@ -1,3 +1,5 @@
 postgresql/booking/schema.sql
 postgresql/chinook/schema.sql
 postgresql/racing/schema.sql
+node_modules/
+coverage.cov
