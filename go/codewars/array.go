@@ -88,3 +88,28 @@ func FakeBin(dgts string) string {
   }
   return bins.String()
 }
+
+// Create a method that accepts a list and a number n, and returns cascading
+// subsets of the list of size n. The lists overlap, but never out of order
+func CascadingSubsets(slc []int, n int) [][]int {
+  l := max(len(slc) - n + 1, 0)
+  cas := make([][]int, l)
+  for i := range l {
+    sub := make([]int, n)
+    for j := range n {
+      sub[j] = slc[i + j]
+    }
+    cas[i] = sub
+  }
+  return cas
+}
+
+func CascadingSubsets2(slc []int, n int) [][]int {
+  l := max(len(slc) - n + 1, 0)
+  cas := make([][]int, l)
+  for i := range l {
+    sub := slc[i:i + n]
+    cas[i] = sub
+  }
+  return cas
+}

@@ -1,6 +1,7 @@
 package codewars_test
 
 import (
+	"fmt"
 	"slices"
 	"testing"
 
@@ -70,5 +71,29 @@ func TestFakeBin(t *testing.T) {
   bins := codewars.FakeBin(dgts)
   if bins != exp {
     t.Errorf("FakeBin: expected %v, got %v", exp, bins)
+  }
+}
+
+func TestCascadingSubsets(t *testing.T) {
+  cases := []struct{ slc []int; n int; exp [][]int }{
+    {[]int{}, 2, [][]int{}},
+    {[]int{1, 2, 3, 4}, 1, [][]int{{1}, {2}, {3}, {4}}},
+    {[]int{1, 2, 3, 4}, 2, [][]int{{1, 2}, {2, 3}, {3, 4}}},
+    {[]int{1, 2, 3, 4}, 3, [][]int{{1, 2, 3}, {2, 3, 4}}},
+    {[]int{1, 2, 3, 4}, 4, [][]int{{1, 2, 3, 4}}},
+  }
+  for _, c := range cases {
+    t.Run(fmt.Sprintf("%v %d", c.slc, c.n), func(t *testing.T) {
+      t.Parallel()
+      cas := codewars.CascadingSubsets2(c.slc, c.n)
+      if len(cas) != len(c.exp) {
+        t.Errorf("expected %v, got %v", c.exp, cas)
+      }
+      for i, sub := range cas {
+        if !slices.Equal(sub, c.exp[i]) {
+          t.Errorf("expected %v, got %v", c.exp, cas)
+        }
+      }
+    })
   }
 }
